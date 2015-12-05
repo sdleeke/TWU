@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ApplicationProperties</key>
+	<dict>
+		<key>ApplicationPath</key>
+		<string>Applications/TWU.app</string>
+		<key>CFBundleIdentifier</key>
+		<string>com.leeke.TWU</string>
+		<key>CFBundleShortVersionString</key>
+		<string>1.0</string>
+		<key>CFBundleVersion</key>
+		<string>75</string>
+		<key>SigningIdentity</key>
+		<string>iPhone Developer: Steven Leeke (5GUMUG54QD)</string>
+	</dict>
+	<key>ArchiveVersion</key>
+	<integer>2</integer>
+	<key>CreationDate</key>
+	<date>2015-10-08T09:41:50Z</date>
+	<key>Name</key>
+	<string>TWU</string>
+	<key>SchemeName</key>
+	<string>TWU</string>
+</dict>
+</plist>
