@@ -36,7 +36,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     @IBAction func playPause(sender: UIButton) {
         //Need to check if the audio has been downloaded since the player was setup and if so, set it up again.
         
-        if (Globals.sermonPlaying == sermonSelected) {
+        if (Globals.sermonPlaying == sermonSelected) && (Globals.mpPlayer != nil) {
             switch Globals.mpPlayer!.playbackState {
             case .Playing:
                 print("playPause.Playing")
@@ -179,19 +179,15 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     func setupPlayPauseButton()
     {
         playPauseButton.hidden = (sermonSelected == nil)
-//        print ("\(playPauseButton.hidden)")
         
         if (Globals.sermonPlaying != nil) && (sermonSelected == Globals.sermonPlaying) {
-            if (Globals.playerPaused) {
+            if (Globals.playerPaused) || (Globals.mpPlayer == nil) {
                 playPauseButton.setTitle(Constants.FA_PLAY, forState: UIControlState.Normal)
-//                playPauseButton.setTitle(Constants.Play, forState: UIControlState.Normal)
             } else {
                 playPauseButton.setTitle(Constants.FA_PAUSE, forState: UIControlState.Normal)
-//                playPauseButton.setTitle(Constants.Pause, forState: UIControlState.Normal)
             }
         } else {
             playPauseButton.setTitle(Constants.FA_PLAY, forState: UIControlState.Normal)
-//            playPauseButton.setTitle(Constants.Play, forState: UIControlState.Normal)
         }
     }
     
@@ -482,19 +478,21 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             self.mail()
         })
         alert.addAction(action)
-        
-        action = UIAlertAction(title: Constants.Share_on_Facebook, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            //            println("mail!")
-            self.facebook()
-        })
-        alert.addAction(action)
-        
-        action = UIAlertAction(title: Constants.Share_on_Twitter, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            //            println("mail!")
-            self.twitter()
-        })
-        alert.addAction(action)
-        
+     
+        if (splitViewController == nil) {
+            action = UIAlertAction(title: Constants.Share_on_Facebook, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                //            println("mail!")
+                self.facebook()
+            })
+            alert.addAction(action)
+            
+            action = UIAlertAction(title: Constants.Share_on_Twitter, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                //            println("mail!")
+                self.twitter()
+            })
+            alert.addAction(action)
+        }
+    
         var sermonsToDownload = 0
         var sermonsDownloaded = 0
         
@@ -531,6 +529,20 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 }
                 self.tableView.reloadData()
                 self.selectSermon(Globals.sermonPlaying)
+            })
+            alert.addAction(action)
+        }
+        
+        if (splitViewController == nil) {
+            action = UIAlertAction(title: Constants.Share_on_Facebook, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                //            println("mail!")
+                self.facebook()
+            })
+            alert.addAction(action)
+            
+            action = UIAlertAction(title: Constants.Share_on_Twitter, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                //            println("mail!")
+                self.twitter()
             })
             alert.addAction(action)
         }
@@ -1290,11 +1302,6 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 
             //Slider observer runs every second
             Globals.sliderObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "sliderTimer", userInfo: nil, repeats: true)
-
-//            if (Globals.sliderObserver == nil) {
-//            } else {
-//                print("sliderObserver already set")
-//            }
         } else {
             // Problem
             print("Globals.player == nil in sliderObserver")
@@ -1313,36 +1320,12 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             
             //Playing observer runs every 5 seconds.
             Globals.playObserver = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "playTimer", userInfo: nil, repeats: true)
-
-//            if (Globals.playObserver == nil) {
-//            } else {
-//                print("playObserver already set")
-//            }
         } else {
             // Problem
             print("Globals.player == nil in playObserver")
             // Should we setup the player all over again?
         }
     }
-    
-//    private func playAllSermons() {
-//        //Not sure this is possible with MPPlayer
-//        
-//        if (Globals.mpPlayer == nil) {
-//            setupPlayer()
-////            Globals.player = AVQueuePlayer()
-//        }
-////        Globals.player?.removeAllItems()
-//        
-//        for index in 1...Globals.seriesSelected!.numberOfSermons {
-//            let filename = String(format: Constants.FILENAME_FORMAT, Globals.seriesSelected!.startingIndex+index)
-//            let sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
-//            let url = NSURL(string:sermonURL)!
-////            Globals.player?.insertItem(AVPlayerItem(URL:url), afterItem: nil)
-//        }
-////        Globals.player?.actionAtItemEnd = AVPlayerActionAtItemEnd.Advance
-////        Globals.player?.play()
-//    }
     
     private func updateUserDefaultsCurrentTimeWhilePlaying()
     {
@@ -1547,7 +1530,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
             //        println("playNewSermon: \(sermonURL)")
             url = NSURL(string:sermonURL!)
-            if (!Reachability.isConnectedToNetwork() || !UIApplication.sharedApplication().canOpenURL(url!)) {
+            if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
                 networkUnavailable()
                 url = nil
             }
@@ -1609,87 +1592,12 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 defaults.setObject("\(sermonSelected!.index)", forKey: Constants.SERMON_SELECTED_INDEX)
                 defaults.synchronize()
             }
-
-//            print("didSelectRowAtIndexPath.seriesSelected: \(seriesSelected!.title)")
-//            print("didSelectRowAtIndexPath.sermonSelected: \(sermonSelected!)")
-            
-//            if (Globals.seriesPlaying != nil) {
-//                if (Globals.seriesSelected == Globals.seriesPlaying) {
-//                    if (Globals.sermonPlayingIndex != indexPath.row) {
-//                        Globals.sermonPlayingIndex = indexPath.row
-//                        playNewSermon()
-//                    } else {
-//                        playPause(playPauseButton)
-//                    }
-//                } else {
-//                    Globals.seriesPlayingIndex = Globals.seriesSelectedIndex
-//                    Globals.seriesPlaying = Globals.seriesSelected
-//                    Globals.sermonPlayingIndex = indexPath.row
-//                    playNewSermon()
-//                }
-//            } else {
-//                Globals.seriesPlayingIndex = Globals.seriesSelectedIndex
-//                Globals.seriesPlaying = Globals.seriesSelected
-//                Globals.sermonPlayingIndex = indexPath.row
-//                playNewSermon()
-//            }
-//            println("SermonURL: \(fileURL)")
         } else {
             
         }
         //        println("didSelect")
     }
     
-//    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
-//        let cell = tableView.dequeueReusableCellWithIdentifier("SeriesSermon", forIndexPath: indexPath) as! MyTableViewCell
-//        
-//        // Configure the cell...
-//        cell.row = indexPath.row
-//        cell.sermon = self.seriesSelected?.sermons[indexPath.row]
-//
-//        var download:UITableViewRowAction!
-//        
-//        switch cell.sermon!.download.state {
-//        case .none:
-//            download = UITableViewRowAction(style: .Normal, title: "Download") { action, index in
-//                cell.downloadAudio()
-//                tableView.setEditing(false, animated: true)
-//                self.selectCurrentSermon()
-//            }
-//            download.backgroundColor = UIColor.greenColor()
-//            break
-//            
-//        case .downloading:
-//            download = UITableViewRowAction(style: .Normal, title: "Cancel Download") { action, index in
-//                cell.cancelDownload()
-//                tableView.setEditing(false, animated: true)
-//                self.selectCurrentSermon()
-//            }
-//            download.backgroundColor = UIColor.orangeColor()
-//            break
-//            
-//        case .downloaded:
-//            download = UITableViewRowAction(style: .Normal, title: "Delete Download") { action, index in
-//                cell.deleteDownload()
-//                tableView.setEditing(false, animated: true)
-//                self.selectCurrentSermon()
-//            }
-//            download.backgroundColor = UIColor.redColor()
-//            break
-//        }
-//        
-//        return [download]
-//    }
-//
-//    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-//        // the cells you would like the actions to appear needs to be editable
-//        return true
-//    }
-//    
-//    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-//        // you need to implement this method too or you can't swipe to display the actions
-//    }
-
     /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {

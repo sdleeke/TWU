@@ -144,7 +144,7 @@ func setupPlayer(sermon:Sermon?)
             sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
             //        println("playNewSermon: \(sermonURL)")
             url = NSURL(string:sermonURL!)
-            if (!Reachability.isConnectedToNetwork() || !UIApplication.sharedApplication().canOpenURL(url!)) {
+            if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
                 url = nil
             }
         }

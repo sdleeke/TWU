@@ -14,7 +14,7 @@ public class Reachability {
     {
         
         var status:Bool = false
-        let url = NSURL(string: "http://google.com/")
+        let url = NSURL(string: "http://www.google.com/")
         let request = NSMutableURLRequest(URL: url!)
         request.HTTPMethod = "HEAD"
         request.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringLocalAndRemoteCacheData
