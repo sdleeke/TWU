@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 
 struct Constants {
+    static let REACHABILITY_TEST_URL = "https://www.google.com/"
+
     static let JSON_ARRAY_KEY = "series"
     static let JSON_URL_PREFIX = "https://s3.amazonaws.com/jd2-86d4fd0ec0a8fca71eef54e388261c5b-us/"
     
