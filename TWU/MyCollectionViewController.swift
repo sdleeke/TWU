@@ -25,13 +25,17 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
         if (splitViewController == nil) && (motion == .MotionShake) {
-            if (Globals.playerPaused) {
-                Globals.mpPlayer?.play()
+            if (Globals.sermonPlaying != nil) {
+                if (Globals.playerPaused) {
+                    Globals.mpPlayer?.play()
+                } else {
+                    Globals.mpPlayer?.pause()
+                    updateUserDefaultsCurrentTimeExact()
+                }
+                Globals.playerPaused = !Globals.playerPaused
             } else {
-                Globals.mpPlayer?.pause()
-                updateUserDefaultsCurrentTimeExact()
+                
             }
-            Globals.playerPaused = !Globals.playerPaused
         }
     }
 
