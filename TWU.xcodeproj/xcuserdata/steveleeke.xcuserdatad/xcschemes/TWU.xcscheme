@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "179C4F9F1B6801D600727DE0"
-               BuildableName = "TWU.app"
+               BuildableName = "Series.app"
                BlueprintName = "TWU"
                ReferencedContainer = "container:TWU.xcodeproj">
             </BuildableReference>
@@ -57,7 +57,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "179C4F9F1B6801D600727DE0"
-            BuildableName = "TWU.app"
+            BuildableName = "Series.app"
             BlueprintName = "TWU"
             ReferencedContainer = "container:TWU.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "179C4F9F1B6801D600727DE0"
-            BuildableName = "TWU.app"
+            BuildableName = "Series.app"
             BlueprintName = "TWU"
             ReferencedContainer = "container:TWU.xcodeproj">
          </BuildableReference>
@@ -99,7 +99,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "179C4F9F1B6801D600727DE0"
-            BuildableName = "TWU.app"
+            BuildableName = "Series.app"
             BlueprintName = "TWU"
             ReferencedContainer = "container:TWU.xcodeproj">
          </BuildableReference>

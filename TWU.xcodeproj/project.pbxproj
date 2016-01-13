@@ -50,7 +50,7 @@
 		175EDA291BAC8BF200942E6D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		176703941B6D076300A8435F /* MyTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyTableViewCell.swift; sourceTree = "<group>"; };
 		176D4C1D1C01FCFA009EC031 /* fontawesome-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontawesome-webfont.ttf"; sourceTree = "<group>"; };
-		179C4FA01B6801D600727DE0 /* TWU.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TWU.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		179C4FA01B6801D600727DE0 /* Series.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Series.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		179C4FA41B6801D600727DE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		179C4FA51B6801D600727DE0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = AppDelegate.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		179C4FAC1B6801D600727DE0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -110,7 +110,7 @@
 		179C4FA11B6801D600727DE0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				179C4FA01B6801D600727DE0 /* TWU.app */,
+				179C4FA01B6801D600727DE0 /* Series.app */,
 				179C4FB51B6801D600727DE0 /* TWUTests.xctest */,
 			);
 			name = Products;
@@ -186,7 +186,7 @@
 			);
 			name = TWU;
 			productName = TWU;
-			productReference = 179C4FA01B6801D600727DE0 /* TWU.app */;
+			productReference = 179C4FA01B6801D600727DE0 /* Series.app */;
 			productType = "com.apple.product-type.application";
 		};
 		179C4FB41B6801D600727DE0 /* TWUTests */ = {
@@ -441,8 +441,9 @@
 				INFOPLIST_FILE = TWU/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.leeke.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.leeke.TWU;
+				PRODUCT_MODULE_NAME = TWU;
+				PRODUCT_NAME = Series;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -460,8 +461,9 @@
 				INFOPLIST_FILE = TWU/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.leeke.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.leeke.TWU;
+				PRODUCT_MODULE_NAME = TWU;
+				PRODUCT_NAME = Series;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";

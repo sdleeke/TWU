@@ -10,70 +10,12 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 import MessageUI
-import MediaPlayer
 
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 
     var window: UIWindow?
-    
-    func mpPlayerLoadStateDidChange(notification:NSNotification)
-    {
-        let player = notification.object as! MPMoviePlayerController
-        
-        /* Enough data has been buffered for playback to continue uninterrupted. */
-        
-        let loadstate:UInt8 = UInt8(player.loadState.rawValue)
-        let loadvalue:UInt8 = UInt8(MPMovieLoadState.PlaythroughOK.rawValue)
-
-        // If there is a sermon that was playing before and we want to start back at the same place, 
-        // the PlayPause button must NOT be active until loadState & PlaythroughOK == 1.
-        
-//        println("\(loadstate)")
-//        println("\(loadvalue)")
-        
-        if ((loadstate & loadvalue) == (1<<1)) {
-            print("AppDelegate mpPlayerLoadStateDidChange.MPMovieLoadState.PlaythroughOK")
-            //should be called only once, only for  first time audio load.
-            if(!Globals.sermonLoaded) {
-                let defaults = NSUserDefaults.standardUserDefaults()
-                let currentTime = Float(defaults.stringForKey(Constants.CURRENT_TIME)!)
-
-                print("\(currentTime!)")
-                print("\(NSTimeInterval(currentTime!))")
-
-                Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(currentTime!)
-                
-                print("\(Globals.mpPlayer!.currentPlaybackTime)")
-                
-                //iPad
-                if let rvc = self.window?.rootViewController as? UISplitViewController {
-                    //            println("rvc = UISplitViewController")
-                    if let nvc = rvc.viewControllers[1] as? UINavigationController {
-                        if let myvc = nvc.topViewController as? MyViewController {
-                            //                    println("myvc = MyViewController")
-                            myvc.spinner.stopAnimating()
-                        }
-                    }
-                }
-
-                //iPhone
-                if let rvc = self.window?.rootViewController as? UINavigationController {
-                    //            println("rvc = UINavigationController")
-                    if let myvc = rvc.topViewController as? MyViewController {
-                        //                    println("myvc = MyViewController")
-                        myvc.spinner.stopAnimating()
-                    }
-                }
-
-                Globals.sermonLoaded = true
-            }
-            
-            NSNotificationCenter.defaultCenter().removeObserver(self)
-        }
-    }
-    
    
     func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool
     {
@@ -158,27 +100,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         }
 
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
-
-        let seriesDicts = loadSeriesDictsFromJSON()
-        Globals.series = seriesFromSeriesDicts(seriesDicts)
-        
-        loadDefaults()
-
-        Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
-        
-        setupSermonPlaying()
         
         return true
-    }
-
-    
-    func setupSermonPlaying()
-    {
-        setupPlayer(Globals.sermonPlaying)
-        
-        if (!Globals.sermonLoaded) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "mpPlayerLoadStateDidChange:", name: MPMoviePlayerLoadStateDidChangeNotification, object: Globals.mpPlayer)
-        }
     }
 
     

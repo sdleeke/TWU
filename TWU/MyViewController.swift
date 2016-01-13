@@ -610,7 +610,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         tableView.tableFooterView = UIView()
 
 //        tableView.allowsSelection = true
-        
+
         // Can't do this or selecting a row doesn't work reliably.
 //        tableView.estimatedRowHeight = tableView.rowHeight
 //        tableView.rowHeight = UITableViewAutomaticDimension
@@ -688,6 +688,102 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
+    private func setupTitle()
+    {
+        self.navigationItem.title = seriesSelected?.title
+    }
+    
+    func setupPlayerAtEnd(sermon:Sermon?)
+    {
+        setupPlayer(sermon)
+        
+        if (Globals.mpPlayer != nil) {
+            Globals.mpPlayer?.currentPlaybackTime = Globals.mpPlayer!.duration
+            Globals.mpPlayer?.pause()
+            
+        }
+    }
+    
+    func updateUI()
+    {
+        if (Globals.sermonLoaded) { // || ((seriesSelected != nil) && (seriesSelected != Globals.sermonPlaying?.series))) {
+            spinner.stopAnimating()
+            spinner.hidden = true
+        }
+        
+        if (seriesSelected != nil) {
+            logo.hidden = true
+            seriesArt.image = seriesSelected?.getArt()
+            seriesDescription.text = seriesSelected?.text
+        } else {
+            logo.hidden = false
+            seriesArt.hidden = true
+            seriesDescription.hidden = true
+        }
+
+        if (!Globals.sermonLoaded && (Globals.sermonPlaying != nil) && (sermonSelected == Globals.sermonPlaying)) {
+            spinner.startAnimating()
+        }
+        
+        if (Globals.sermonLoaded || (sermonSelected != Globals.sermonPlaying)) {
+            // Redundant - also done in viewDidLoad
+            spinner.stopAnimating()
+        }
+        
+        if (sermonSelected != nil) && (Globals.mpPlayer == nil) {
+            setupPlayerAtEnd(sermonSelected)
+        }
+        
+        addPlayObserver()
+        addSliderObserver()
+        
+        setupActionsButton()
+        setupArtAndDescription()
+        updateCVC()
+        
+        setupTitle()
+        setupPlayPauseButton()
+        setupSlider()
+        
+        tableView.allowsSelection = true
+        tableView.reloadData()
+    }
+    
+    func scrollToSermon(sermon:Sermon?,select:Bool,position:UITableViewScrollPosition)
+    {
+        if (sermon != nil) {
+            var indexPath = NSIndexPath(forRow: 0, inSection: 0)
+            
+            if (seriesSelected!.numberOfSermons > 1) {
+                if let sermonIndex = seriesSelected?.sermons?.indexOf(sermon!) {
+//                    print("\(sermonIndex)")
+                    indexPath = NSIndexPath(forRow: sermonIndex, inSection: 0)
+                }
+            }
+            
+            //            print("\(tableView.bounds)")
+            
+            if (select) {
+                tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: position)
+            }
+            
+            //            print("Row: \(indexPath.row) Section: \(indexPath.section)")
+            
+            if (position == UITableViewScrollPosition.Top) {
+                //                var point = CGPointZero //tableView.bounds.origin
+                //                point.y += tableView.rowHeight * CGFloat(indexPath.row)
+                //                tableView.setContentOffset(point, animated: true)
+                tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: position, animated: true)
+            } else {
+                tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: position, animated: true)
+            }
+        } else {
+            //No sermon to scroll to.
+            
+        }
+    }
+
+    
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
 
@@ -695,55 +791,36 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground:", name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
         
+        pageControl.enabled = true
+        
+        views = (seriesArt: self.seriesArt, seriesDescription: self.seriesDescription)
+        
         if (seriesSelected == nil) {
             // Should only happen on an iPad on initial startup, i.e. when this view initially lots, not because of a segue.
             seriesSelected = Globals.seriesSelected
-            sermonSelected = Globals.sermonSelected
+            sermonSelected = Globals.sermonSelected?.series == Globals.seriesSelected ? Globals.sermonSelected : nil
         }
         
         if (sermonSelected == nil) && (seriesSelected != nil) && (seriesSelected == Globals.sermonPlaying?.series) {
             sermonSelected = Globals.sermonPlaying
         }
-        
-        if (Globals.sermonLoaded) { // || ((seriesSelected != nil) && (seriesSelected != Globals.sermonPlaying?.series))) {
-            spinner.stopAnimating()
-            spinner.hidden = true
-        }
-        
-        pageControl.enabled = true
-        
-        views = (seriesArt: self.seriesArt, seriesDescription: self.seriesDescription)
-        
+
         if (seriesSelected != nil) {
-            logo.hidden = true
-            let imageName = "\(Constants.COVER_ART_PREAMBLE)\(seriesSelected!.name)\(Constants.COVER_ART_POSTAMBLE)"
-            seriesArt.image = UIImage(named:imageName)
-            seriesDescription.text = seriesSelected?.text
-        
-            //Have to wait until viewDidAppear to do the selection because the row heights aren't yet set in viewWillAppear
-            //                let indexPath = NSIndexPath(forItem: Globals.sermonPlaying!.index, inSection: 0)
-            //                //                    println("\(Globals.sermonPlayingIndex)")
-            //                tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Middle, animated: true)
-            //                tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Middle)
-        } else {
-            logo.hidden = false
+            let defaults = NSUserDefaults.standardUserDefaults()
+            defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
+            defaults.synchronize()
         }
-        
-//        if (Globals.mpPlayer == nil) {
-//            setupPlayerAtEnd()
-//        }
-        
-        //seriesDescription.text = series?.text
+
+        if (sermonSelected != nil) {
+            let defaults = NSUserDefaults.standardUserDefaults()
+            defaults.setObject("\(sermonSelected!.index)", forKey: Constants.SERMON_SELECTED_INDEX)
+            defaults.synchronize()
+        }
+
+        updateUI()
         
 //        println("\(Globals.mpPlayer!.currentPlaybackTime)")
         
-        setupActionsButton()
-        setupArtAndDescription()
-        setupSlider() // calls addSliderObserver()
-        setupPlayPauseButton()
-        updateCVC()
-        
-        self.navigationItem.title = ""
     }
     
     func selectSermon(sermon:Sermon?)
@@ -769,7 +846,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 
 //        print("Series Selected: \(seriesSelected?.title) Playing: \(Globals.sermonPlaying?.series?.title)")
 //        print("Sermon Selected: \(sermonSelected?.series?.title)")
-
+        
         if (sermonSelected != nil) {
             if (sermonSelected == Globals.sermonPlaying) {
                 setupSlider()  // calls addSliderObserver()
@@ -1302,8 +1379,6 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     
     func addSliderObserver()
     {
-        assert(Globals.mpPlayer != nil,"Globals.player should not be nil if we're adding the slider observer")
-        
         if (Globals.mpPlayer != nil) {
             if (Globals.sliderObserver != nil) {
                 Globals.sliderObserver?.invalidate()
@@ -1318,10 +1393,8 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
-    func addPlayObserver() {
-        
-        assert(Globals.mpPlayer != nil,"Globals.player should not be nil if we're adding the slider observer")
-        
+    func addPlayObserver()
+    {
         if (Globals.mpPlayer != nil) {
             if (Globals.playObserver != nil) {
                 Globals.playObserver?.invalidate()

@@ -21,15 +21,15 @@ struct Globals {
     
     static var filter:String? {
         didSet {
-            var filtered = [Series]()
-            
-            for series in Globals.series! {
-                if (series.book == Globals.filter) {
-                    filtered.append(series)
-                }
+            if (filter != nil) {
+                showing = .filtered
+                filteredSeries = Globals.series?.filter({ (series:Series) -> Bool in
+                    return series.book == Globals.filter
+                })
+            } else {
+                showing = .all
+                filteredSeries = nil
             }
-            
-            self.filteredSeries = filtered.count > 0 ? filtered : nil
         }
     }
     

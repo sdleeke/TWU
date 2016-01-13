@@ -8,16 +8,23 @@
 
 import UIKit
 import AVFoundation
+import MediaPlayer
 
-class MyCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate {
+class MyCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate {
 
 //    var endObserver: AnyObject?
+
+    var refreshControl:UIRefreshControl?
+
+    var seriesSelected:Series?
 
     @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var collectionView: UICollectionView!
     
 //    var resultSearchController:UISearchController?
+
+    var session:NSURLSession? // Used for JSON
 
     override func canBecomeFirstResponder() -> Bool {
         return true
@@ -109,19 +116,13 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             books.append(Constants.All)
             for book in books {
                 alertTitle = book
-//                if (Globals.showing == .filtered) && (Globals.filter == book) {
-//                    alertTitle = Constants.CHECKMARK + Constants.SINGLE_SPACE_STRING + alertTitle
-//                }
-//                if (Globals.showing == .all) && (Globals.filter == nil) && (book == Constants.All) {
-//                    alertTitle = Constants.CHECKMARK + Constants.SINGLE_SPACE_STRING + alertTitle
-//                }
                 action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
                     if (Globals.filter != book) {
                         let defaults = NSUserDefaults.standardUserDefaults()
                         defaults.setObject(book,forKey: Constants.FILTER)
                         defaults.synchronize()
                         
-                        //                sortAndGroupSermons()
+                        self.searchBar.placeholder = book
 
                         if (book == Constants.All) {
                             Globals.showing = .all
@@ -270,11 +271,423 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         setupPlayingPausedButton()
     }
 
+    private func setupSearchBar()
+    {
+        switch Globals.showing {
+        case .all:
+            searchBar.placeholder = "All"
+            break
+        case .filtered:
+            searchBar.placeholder = Globals.filter
+            break
+        }
+    }
+    
+    
+    func setupTitle()
+    {
+        self.navigationController?.toolbarHidden = false
+        self.navigationItem.title = Constants.TWU_LONG
+    }
+    
+    func mpPlayerLoadStateDidChange(notification:NSNotification)
+    {
+        let player = notification.object as! MPMoviePlayerController
+        
+        /* Enough data has been buffered for playback to continue uninterrupted. */
+        
+        let loadstate:UInt8 = UInt8(player.loadState.rawValue)
+        let loadvalue:UInt8 = UInt8(MPMovieLoadState.PlaythroughOK.rawValue)
+        
+        // If there is a sermon that was playing before and we want to start back at the same place,
+        // the PlayPause button must NOT be active until loadState & PlaythroughOK == 1.
+        
+        //        println("\(loadstate)")
+        //        println("\(loadvalue)")
+        
+        if ((loadstate & loadvalue) == (1<<1)) {
+            print("AppDelegate mpPlayerLoadStateDidChange.MPMovieLoadState.PlaythroughOK")
+            //should be called only once, only for  first time audio load.
+            if(!Globals.sermonLoaded) {
+                let defaults = NSUserDefaults.standardUserDefaults()
+                let currentTime = Float(defaults.stringForKey(Constants.CURRENT_TIME)!)
+                
+                print("\(currentTime!)")
+                print("\(NSTimeInterval(currentTime!))")
+                
+                Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(currentTime!)
+                
+                print("\(Globals.mpPlayer!.currentPlaybackTime)")
+                
+                if let nvc = self.splitViewController?.viewControllers[1] as? UINavigationController {
+                    //iPad
+                    if let myvc = nvc.topViewController as? MyViewController {
+                        //                    println("myvc = MyViewController")
+                        myvc.spinner.stopAnimating()
+                    }
+                } else {
+                    //iPhone
+                    if let myvc = self.navigationController?.topViewController as? MyViewController {
+                        //                    println("myvc = MyViewController")
+                        myvc.spinner.stopAnimating()
+                    }
+                }
+                
+                Globals.sermonLoaded = true
+            }
+            
+            NSNotificationCenter.defaultCenter().removeObserver(self)
+        }
+    }
+    
+    func setupSermonPlaying()
+    {
+        setupPlayer(Globals.sermonPlaying)
+        
+        if (!Globals.sermonLoaded) {
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "mpPlayerLoadStateDidChange:", name: MPMoviePlayerLoadStateDidChangeNotification, object: Globals.mpPlayer)
+        } else {
+            setupTitle()
+        }
+    }
+    
+    func setupViews()
+    {
+        var mycvc:MyCollectionViewController?
+        var myvc:MyViewController?
+        
+        if let svc = self.splitViewController {
+            //iPad
+            if let nvc = svc.viewControllers[0] as? UINavigationController {
+                mycvc = nvc.topViewController as? MyCollectionViewController
+            }
+            if let nvc = svc.viewControllers[1] as? UINavigationController {
+                myvc = nvc.topViewController as? MyViewController
+            }
+        } else {
+            mycvc = self.navigationController?.topViewController as? MyCollectionViewController
+            myvc = self.navigationController?.topViewController as? MyViewController
+        }
+        
+        mycvc?.seriesSelected = Globals.seriesSelected
+
+        if (mycvc != nil) {
+            mycvc?.setupSearchBar()
+            mycvc?.collectionView.reloadData()
+            mycvc?.enableBarButtons()
+            mycvc?.setupTitle()
+            mycvc?.setupPlayingPausedButton()
+            
+            if (mycvc!.seriesSelected != nil) && (Globals.activeSeries?.indexOf(mycvc!.seriesSelected!) != nil) {
+                print("\(Globals.activeSeries!.indexOf(mycvc!.seriesSelected!))")
+                let indexPath = NSIndexPath(forItem: Globals.activeSeries!.indexOf(mycvc!.seriesSelected!)!, inSection: 0)
+                mycvc?.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredVertically, animated: true)
+            }
+        }
+
+        if (myvc != nil) {
+            myvc?.seriesSelected = mycvc?.seriesSelected
+
+            myvc?.sermonSelected = Globals.sermonSelected
+
+            myvc?.updateUI()
+            
+            myvc?.scrollToSermon(myvc?.sermonSelected,select:true,position:UITableViewScrollPosition.Top)
+        }
+
+    }
+    
+    func loadSeries(completion: (() -> Void)?)
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.navigationItem.title = "Loading Sermons"
+            })
+            
+            var success = false
+            
+            if let seriesDicts = loadSeriesDictsFromJSON() {
+                if let series = seriesFromSeriesDicts(seriesDicts) {
+                    Globals.series = series
+                    
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.navigationItem.title = "Loading Defaults"
+                    })
+                    loadDefaults()
+                    
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.navigationItem.title = "Sorting"
+                    })
+                    Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.navigationItem.title = "Setting up Player"
+                        self.setupSermonPlaying()
+                    })
+                    
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.setupViews()
+                    })
+                    
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        completion?()
+                    })
+                    success = true
+                }
+            }
+            
+            if (!success) {
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self.setupTitle()
+                    self.refreshControl?.endRefreshing()
+                    
+                    if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+                        let alert = UIAlertController(title:"Unable to Load Sermons",
+                            message: "Please try to refresh the list or send an email to support@countrysidebible.org to report the problem.",
+                            preferredStyle: UIAlertControllerStyle.Alert)
+                        
+                        let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                            
+                        })
+                        alert.addAction(action)
+                        
+                        self.presentViewController(alert, animated: true, completion: nil)
+                    }
+                })
+                return
+            }
+            
+        })
+    }
+    
+    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        print("URLSession: \(session.description) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
+        
+        let filename = downloadTask.taskDescription!
+        
+        print("filename: \(filename) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
+        
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+    }
+    
+    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL)
+    {
+        var success = false
+        
+        print("URLSession: \(session.description) didFinishDownloadingToURL: \(location)")
+        
+        let filename = downloadTask.taskDescription!
+        
+        print("filename: \(filename) location: \(location)")
+        
+        if (downloadTask.countOfBytesExpectedToReceive > 0) {
+            let fileManager = NSFileManager.defaultManager()
+            
+            //Get documents directory URL
+            if let destinationURL = documentsURL()?.URLByAppendingPathComponent(filename) {
+                // Check if file exist
+                if (fileManager.fileExistsAtPath(destinationURL.path!)){
+                    do {
+                        try fileManager.removeItemAtURL(destinationURL)
+                    } catch _ {
+                        print("failed to remove old json file")
+                    }
+                }
+                
+                do {
+                    try fileManager.copyItemAtURL(location, toURL: destinationURL)
+                    try fileManager.removeItemAtURL(location)
+                    success = true
+                } catch _ {
+                    print("failed to copy new json file to Documents")
+                }
+            }
+        }
+        
+        if success {
+            // ONLY flush and refresh the data once we know we have successfully downloaded the new JSON
+            // file and successfully copied it to the Documents directory.
+            
+            // URL call back does NOT run on the main queue
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                Globals.playerPaused = true
+                Globals.mpPlayer?.pause()
+                
+                updateUserDefaultsCurrentTimeExact()
+//                saveSermonSettings()
+                
+                Globals.mpPlayer?.view.hidden = true
+                Globals.mpPlayer?.view.removeFromSuperview()
+                
+                self.loadSeries() {
+                    self.refreshControl?.endRefreshing()
+                    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                }
+            })
+        } else {
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+                    let alert = UIAlertController(title:"Unable to Download Sermons",
+                        message: "Please try to refresh the list again or send an email to support@countrysidebible.org to report the problem.",
+                        preferredStyle: UIAlertControllerStyle.Alert)
+                    
+                    let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                        
+                    })
+                    alert.addAction(action)
+                    
+                    self.presentViewController(alert, animated: true, completion: nil)
+                }
+                
+                self.refreshControl!.endRefreshing()
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                self.setupTitle()
+                
+                self.collectionView.reloadData()
+                self.setupViews()
+            })
+        }
+    }
+    
+    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+        if (error != nil) {
+            print("Download failed for: \(session.description)")
+        } else {
+            print("Download succeeded for: \(session.description)")
+        }
+        
+        //        removeTempFiles()
+        
+        let filename = task.taskDescription
+        print("filename: \(filename!) error: \(error)")
+        
+        session.invalidateAndCancel()
+        
+        //        if let taskIndex = Globals.downloadTasks.indexOf(task as! NSURLSessionDownloadTask) {
+        //            Globals.downloadTasks.removeAtIndex(taskIndex)
+        //        }
+        
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+    }
+    
+    func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
+        
+    }
+    
+    func downloadJSON()
+    {
+        navigationItem.title = Constants.DOWNLOADING_TITLE
+        
+        let jsonURL = "\(Constants.JSON_URL_PREFIX)\(Constants.TWU_SHORT.lowercaseString).\(Constants.SERIES_JSON)"
+        let downloadRequest = NSMutableURLRequest(URL: NSURL(string: jsonURL)!)
+        
+        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        
+        session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+        
+        let downloadTask = session?.downloadTaskWithRequest(downloadRequest)
+        downloadTask?.taskDescription = Constants.SERIES_JSON
+        
+        downloadTask?.resume()
+        
+        //downloadTask goes out of scope but Globals.session must retain it.  Which means if we didn't retain session they would both be lost
+        // and we would likely lose the download.
+        
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+    }
+    
+    func cancelAllDownloads()
+    {
+        if (Globals.series != nil) {
+            for series in Globals.series! {
+                for sermon in series.sermons! {
+                    if sermon.download.active {
+                        sermon.download.task?.cancel()
+                        sermon.download.task = nil
+                        
+                        sermon.download.totalBytesWritten = 0
+                        sermon.download.totalBytesExpectedToWrite = 0
+                        
+                        sermon.download.state = .none
+                    }
+                }
+            }
+        }
+    }
+    
+    func disableToolBarButtons()
+    {
+        if let barButtons = toolbarItems {
+            for barButton in barButtons {
+                barButton.enabled = false
+            }
+        }
+    }
+    
+    func disableBarButtons()
+    {
+        navigationItem.leftBarButtonItem?.enabled = false
+        navigationItem.rightBarButtonItem?.enabled = false
+        disableToolBarButtons()
+    }
+    
+    func enableToolBarButtons()
+    {
+        if (Globals.series != nil) {
+            if let barButtons = toolbarItems {
+                for barButton in barButtons {
+                    barButton.enabled = true
+                }
+            }
+        }
+    }
+    
+    func enableBarButtons()
+    {
+        if (Globals.series != nil) {
+            navigationItem.leftBarButtonItem?.enabled = true
+            navigationItem.rightBarButtonItem?.enabled = true
+            enableToolBarButtons()
+        }
+    }
+    
+    func handleRefresh(refreshControl: UIRefreshControl) {
+        cancelAllDownloads()
+        
+        self.searchBar.placeholder = nil
+        Globals.filter = nil
+        Globals.activeSeries = nil
+        collectionView.reloadData()
+        
+        if let svc = self.splitViewController {
+            //iPad
+            if let nvc = svc.viewControllers[1] as? UINavigationController {
+                if let myvc = nvc.topViewController as? MyViewController {
+                    myvc.seriesSelected = nil
+                    myvc.sermonSelected = nil
+                    myvc.updateUI()
+                }
+            }
+        }
+        
+        disableBarButtons()
+        
+        downloadJSON()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
         
+        refreshControl = UIRefreshControl()
+        refreshControl!.addTarget(self, action: Selector("handleRefresh:"), forControlEvents: UIControlEvents.ValueChanged)
+
+        collectionView.addSubview(refreshControl!)
+        
+        collectionView.alwaysBounceVertical = true
+
         setupPlayingPausedButton()
         
         collectionView?.allowsSelection = true
@@ -409,6 +822,11 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
+
+        if Globals.series == nil {
+            disableBarButtons()
+            loadSeries(nil)
+        }
 
 //        setupPlayingInfoCenter()
 

@@ -10,6 +10,87 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+extension NSDate
+{
+    convenience
+    init(dateString:String) {
+        let dateStringFormatter = NSDateFormatter()
+        dateStringFormatter.dateFormat = "MM/dd/yyyy"
+        dateStringFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+        let d = dateStringFormatter.dateFromString(dateString)!
+        self.init(timeInterval:0, sinceDate:d)
+    }
+    
+    func isNewerThanDate(dateToCompare : NSDate) -> Bool
+    {
+        //Declare Variables
+        var isNewer = false
+        
+        //Compare Values
+        if self.compare(dateToCompare) == NSComparisonResult.OrderedDescending
+        {
+            isNewer = true
+        }
+        
+        //Return Result
+        return isNewer
+    }
+    
+    
+    func isOlderThanDate(dateToCompare : NSDate) -> Bool
+    {
+        //Declare Variables
+        var isOlder = false
+        
+        //Compare Values
+        if self.compare(dateToCompare) == NSComparisonResult.OrderedAscending
+        {
+            isOlder = true
+        }
+        
+        //Return Result
+        return isOlder
+    }
+    
+    
+    // Claims to be a redeclaration, but I can't find the other.
+    //    func isEqualToDate(dateToCompare : NSDate) -> Bool
+    //    {
+    //        //Declare Variables
+    //        var isEqualTo = false
+    //
+    //        //Compare Values
+    //        if self.compare(dateToCompare) == NSComparisonResult.OrderedSame
+    //        {
+    //            isEqualTo = true
+    //        }
+    //
+    //        //Return Result
+    //        return isEqualTo
+    //    }
+    
+    
+    
+    func addDays(daysToAdd : Int) -> NSDate
+    {
+        let secondsInDays : NSTimeInterval = Double(daysToAdd) * 60 * 60 * 24
+        let dateWithDaysAdded : NSDate = self.dateByAddingTimeInterval(secondsInDays)
+        
+        //Return Result
+        return dateWithDaysAdded
+    }
+    
+    
+    func addHours(hoursToAdd : Int) -> NSDate
+    {
+        let secondsInHours : NSTimeInterval = Double(hoursToAdd) * 60 * 60
+        let dateWithHoursAdded : NSDate = self.dateByAddingTimeInterval(secondsInHours)
+        
+        //Return Result
+        return dateWithHoursAdded
+    }
+}
+
 func documentsURL() -> NSURL?
 {
     let fileManager = NSFileManager.defaultManager()
@@ -88,11 +169,11 @@ func loadDefaults()
     }
     
     if let filter = defaults.stringForKey(Constants.FILTER) {
-        Globals.filter = filter
         if (filter == Constants.All) {
             Globals.filter = nil
             Globals.showing = .all
         } else {
+            Globals.filter = filter
             Globals.showing = .filtered
         }
     }
@@ -223,15 +304,9 @@ func seriesFromSeriesDicts(seriesDicts:[[String:String]]?) -> [Series]?
             var sermons = [Sermon]()
             for i in 0..<series.numberOfSermons {
                 let sermon = Sermon(series: series,id:series.startingIndex+i)
-                //            if sermon.isDownloaded() {
-                //                sermon.download.state = .downloaded
-                //            }
                 sermons.append(sermon)
             }
             series.sermons = sermons
-            
-            //        series.bookFromScripture()
-            //        series.titleSort = stringWithoutLeadingTheOrAOrAn(series.title)?.lowercaseString
             
             seriesArray.append(series)
         }
@@ -240,27 +315,6 @@ func seriesFromSeriesDicts(seriesDicts:[[String:String]]?) -> [Series]?
     } else {
         return nil
     }
-}
-
-func jsonDataFromURL() -> JSON
-{
-    if let url = NSURL(string: Constants.JSON_URL_PREFIX + "cbc.sermons.json") {
-        do {
-            let data = try NSData(contentsOfURL: url, options: NSDataReadingOptions.DataReadingMappedIfSafe)
-            let json = JSON(data: data)
-            if json != JSON.null {
-                return json
-            } else {
-                print("could not get json from file, make sure that file contains valid json.")
-            }
-        } catch let error as NSError {
-            print(error.localizedDescription)
-        }
-    } else {
-        print("Invalid filename/path.")
-    }
-    
-    return nil
 }
 
 func jsonDataFromBundle() -> JSON
@@ -284,16 +338,99 @@ func jsonDataFromBundle() -> JSON
     return nil
 }
 
+func jsonToDocumentsDirectory()
+{
+    let fileManager = NSFileManager.defaultManager()
+    
+    //Get documents directory URL
+    let jsonDocumentsURL = documentsURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
+    
+    let jsonBundlePath = NSBundle.mainBundle().pathForResource(Constants.JSON_ARRAY_KEY, ofType: "json")
+    
+    // Check if file exist
+    if (!fileManager.fileExistsAtPath(jsonDocumentsURL!.path!)){
+        if (jsonBundlePath != nil) {
+            do {
+                // Copy File From Bundle To Documents Directory
+                try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonDocumentsURL!.path!)
+            } catch _ {
+                print("failed to copy sermons.json")
+            }
+        }
+    } else {
+        // Which is newer, the bundle file or the file in the Documents folder?
+        do {
+            let jsonBundleAttributes = try fileManager.attributesOfItemAtPath(jsonBundlePath!)
+            
+            let jsonDocumentsAttributes = try fileManager.attributesOfItemAtPath(jsonDocumentsURL!.path!)
+            
+            let jsonBundleModDate = jsonBundleAttributes[NSFileModificationDate] as! NSDate
+            let jsonDocumentsModDate = jsonDocumentsAttributes[NSFileModificationDate] as! NSDate
+            
+            if (jsonBundleModDate.isOlderThanDate(jsonDocumentsModDate)) {
+                //Do nothing, the json in Documents is newer, i.e. it was downloaded after the install.
+                print("JSON in Documents is newer than JSON in bundle")
+            }
+            
+            if (jsonBundleModDate.isEqualToDate(jsonDocumentsModDate)) {
+                let jsonBundleFileSize = jsonBundleAttributes[NSFileSize] as! Int
+                let jsonDocumentsFileSize = jsonDocumentsAttributes[NSFileSize] as! Int
+                
+                if (jsonBundleFileSize != jsonDocumentsFileSize) {
+                    print("Same dates different file sizes")
+                    //We have a problem.
+                } else {
+                    print("Same dates same file sizes")
+                    //Do nothing, they are the same.
+                }
+            }
+            
+            if (jsonBundleModDate.isNewerThanDate(jsonDocumentsModDate)) {
+                print("JSON in bundle is newer than JSON in Documents")
+                //copy the bundle into Documents directory
+                do {
+                    // Copy File From Bundle To Documents Directory
+                    try fileManager.removeItemAtPath(jsonDocumentsURL!.path!)
+                    try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonDocumentsURL!.path!)
+                } catch _ {
+                    print("failed to copy sermons.json")
+                }
+            }
+        } catch _ {
+            
+        }
+        
+    }
+}
+
+func jsonDataFromDocuments() -> JSON
+{
+    if let url = documentsURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
+        do {
+            let data = try NSData(contentsOfURL: url, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+            let json = JSON(data: data)
+            if json != JSON.null {
+                return json
+            } else {
+                print("could not get json from file, make sure that file contains valid json.")
+            }
+        } catch let error as NSError {
+            print(error.localizedDescription)
+        }
+    } else {
+        print("Invalid filename/path.")
+    }
+    
+    return nil
+}
+
 func loadSeriesDictsFromJSON() -> [[String:String]]?
 {
-    //    var json = jsonDataFromURL()
-    //    if (json == nil) {
-    //        json = jsonDataFromBundle()
-    //    }
+    jsonToDocumentsDirectory()
     
-    let json = jsonDataFromBundle()
+    let json = jsonDataFromDocuments()
     
-    if json != JSON.null {
+    if json != nil {
         //                print("json:\(json)")
         
         var seriesDicts = [[String:String]]()
@@ -547,13 +684,3 @@ func setupPlayingInfoCenter()
 }
 
 
-func removeEndPlayObserver()
-{
-
-}
-
-
-func addEndPlayObserver()
-{
-
-}

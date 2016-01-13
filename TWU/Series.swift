@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class ScriptureReference {
     var book:String
@@ -144,6 +145,34 @@ class Series : Equatable, CustomStringConvertible {
             
             return dict![Constants.BOOK]
         }
+    }
+    
+    func getArt() -> UIImage?
+    {
+        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"
+        var image = UIImage(named:imageName)
+        
+        // If we don't have it, see if it is in Documents and if not, download it and store it in Documents.
+        
+        if (image == nil) {
+            // Check to see if it is in Documents.
+            let imageDocumentsURL = documentsURL()?.URLByAppendingPathComponent(imageName + Constants.JPEG_FILE_EXTENSION)
+            image = UIImage(contentsOfFile: imageDocumentsURL!.path!)
+            
+            if (image == nil) {
+                // Try to get it from the cloud
+                let imageCloudURL = Constants.baseImageURL + imageName + Constants.JPEG_FILE_EXTENSION
+                //                print("\(imageCloudURL)")
+                image = UIImage(data: NSData(contentsOfURL: NSURL(string: imageCloudURL)!)!)
+                if (image != nil) {
+                    UIImageJPEGRepresentation(image!, 1.0)?.writeToURL(imageDocumentsURL!, atomically: true)
+                } else {
+                    // Can't get it from anywhere.
+                }
+            }
+        }
+        
+        return image
     }
     
     var sermons:[Sermon]?

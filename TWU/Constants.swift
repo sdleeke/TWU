@@ -15,6 +15,11 @@ struct Constants {
     static let JSON_ARRAY_KEY = "series"
     static let JSON_URL_PREFIX = "https://s3.amazonaws.com/jd2-86d4fd0ec0a8fca71eef54e388261c5b-us/"
     
+    static let TWU_SHORT = "TWU"
+    static let TWU_LONG = "The Word Unleashed"
+    
+    static let SERIES_JSON = "series.json"
+    
     static let SERIES_CELL_IDENTIFIER = "SeriesCell"
     static let SERMON_CELL_IDENTIFIER = "SeriesSermon"
     
@@ -34,7 +39,7 @@ struct Constants {
     
     //Used for testing downloading the album art in real time - which didn't meet performance requirements,
     //we would have to implement caching, which is more work that embedding the album art in the app resources, at least for now.
-    //    static var baseImageURL:String = "https://sitedata.thewordunleashed.org/avmedia/series/"
+    static var baseImageURL:String = "http://sitedata.thewordunleashed.org/avmedia/series/"
     
     //Doesn't work for our downloading purposes
     //    static var baseDownloadURL:String = "http://www.thewordunleashed.org/modules/mod_media_series/download_twu.php?dnldid="
@@ -66,10 +71,13 @@ struct Constants {
     static let Show_About = "Show About"
     static let Show_Series = "Show Series"
     
+    static let DOWNLOADING_TITLE = "Downloading Sermons"
+    
     static let DOWNLOAD_IDENTIFIER = "com.leeke.TWU.download."
     
     static let MP3_FILE_EXTENSION = ".mp3"
     static let TMP_FILE_EXTENSION = ".tmp"
+    static let JPEG_FILE_EXTENSION = ".jpg"
     
     static let FILENAME_FORMAT = "%04d"+Constants.MP3_FILE_EXTENSION
     
