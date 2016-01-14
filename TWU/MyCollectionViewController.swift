@@ -764,6 +764,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                                     navigationItem.setRightBarButtonItem(nil, animated: true)
                                 }
                             }
+                        } else {
+                            // Different series than the one playing.
+                            setPlayingPausedButton()
                         }
                     } else {
                         // Only master view controller is present, not detail view controller
@@ -775,9 +778,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 }
             } else {
                 // Showing About
-                if (Globals.sermonPlaying != nil) {
-                    setPlayingPausedButton()
-                }
+                setPlayingPausedButton()
             }
         } else {
             if (navigationItem.rightBarButtonItem != nil) {
