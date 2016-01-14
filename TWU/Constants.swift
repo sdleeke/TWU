@@ -18,6 +18,13 @@ struct Constants {
     static let TWU_SHORT = "TWU"
     static let TWU_LONG = "The Word Unleashed"
     
+    static let Loading_Sermons = "Loading Sermons"
+    static let Loading_Defaults = "Loading Defaults"
+    static let Sorting = "Sorting"
+    static let Setting_up_Player = "Setting up Player"
+    
+    static let Unable_to_Load_Sermons = "Unable to Load Sermons"
+    
     static let SERIES_JSON = "series.json"
     
     static let SERIES_CELL_IDENTIFIER = "SeriesCell"
@@ -95,7 +102,7 @@ struct Constants {
     static let All = "All"
     
     static let SORTING = "sorting"
-    static let Sorting = "Sort"
+    static let Sort = "Sort"
     static let Sorting_Options_Title = "Sort"
     
     static let Newest_to_Oldest = "Newest to Oldest"

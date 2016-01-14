@@ -655,9 +655,6 @@ func updatePlayingInfoCenter()
 func setupPlayingInfoCenter()
 {
     if (Globals.sermonPlaying != nil) {
-        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(Globals.sermonPlaying!.series!.name)\(Constants.COVER_ART_POSTAMBLE)"
-        //    println("\(imageName)")
-        
         var sermonInfo = [String:AnyObject]()
         
         sermonInfo.updateValue(Globals.sermonPlaying!.series!.title + " (Part \(Globals.sermonPlaying!.index + 1))",    forKey: MPMediaItemPropertyTitle)
@@ -665,7 +662,7 @@ func setupPlayingInfoCenter()
         
         sermonInfo.updateValue(Globals.sermonPlaying!.series!.title,                                                forKey: MPMediaItemPropertyAlbumTitle)
         sermonInfo.updateValue(Constants.Tom_Pennington,                                                            forKey: MPMediaItemPropertyAlbumArtist)
-        sermonInfo.updateValue(MPMediaItemArtwork(image: UIImage(named:imageName)!),                        forKey: MPMediaItemPropertyArtwork)
+        sermonInfo.updateValue(MPMediaItemArtwork(image: Globals.sermonPlaying!.series!.getArt()!),                        forKey: MPMediaItemPropertyArtwork)
         
         sermonInfo.updateValue(Globals.sermonPlaying!.index + 1,                                                forKey: MPMediaItemPropertyAlbumTrackNumber)
         sermonInfo.updateValue(Globals.sermonPlaying!.series!.numberOfSermons,                                      forKey: MPMediaItemPropertyAlbumTrackCount)

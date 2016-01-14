@@ -139,8 +139,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                         Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
                         self.collectionView.reloadData()
                         
-                        //Moving the list can be very disruptive
-                        //                self.selectOrScrollToSermon(self.selectedSermon, select: true, scroll: false, position: UITableViewScrollPosition.None)
+                        let indexPath = NSIndexPath(forItem:0,inSection:0)
+                        self.collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:UICollectionViewScrollPosition.CenteredVertically, animated: true)
                     }
                 })
 
@@ -169,7 +169,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     private func setupSortingAndGroupingOptions()
     {
-        let sortingButton = UIBarButtonItem(title: Constants.Sorting, style: UIBarButtonItemStyle.Plain, target: self, action: "sorting:")
+        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.Plain, target: self, action: "sorting:")
         let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.Plain, target: self, action: "filtering:")
         
         let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
@@ -319,11 +319,13 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 
                 print("\(Globals.mpPlayer!.currentPlaybackTime)")
                 
-                if let nvc = self.splitViewController?.viewControllers[1] as? UINavigationController {
-                    //iPad
-                    if let myvc = nvc.topViewController as? MyViewController {
-                        //                    println("myvc = MyViewController")
-                        myvc.spinner.stopAnimating()
+                if (self.splitViewController != nil) {
+                    //iPad (but multitasking may make it behave like an iphone, i.e. detail view controller may not be present.
+                    if let nvc = self.splitViewController?.viewControllers[self.splitViewController!.viewControllers.count - 1] as? UINavigationController {
+                        if let myvc = nvc.topViewController as? MyViewController {
+                            //                    println("myvc = MyViewController")
+                            myvc.spinner.stopAnimating()
+                        }
                     }
                 } else {
                     //iPhone
@@ -358,11 +360,18 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         
         if let svc = self.splitViewController {
             //iPad
-            if let nvc = svc.viewControllers[0] as? UINavigationController {
-                mycvc = nvc.topViewController as? MyCollectionViewController
-            }
-            if let nvc = svc.viewControllers[1] as? UINavigationController {
-                myvc = nvc.topViewController as? MyViewController
+            if (!svc.collapsed) {
+                if let nvc = svc.viewControllers[0] as? UINavigationController {
+                    mycvc = nvc.topViewController as? MyCollectionViewController
+                }
+                if let nvc = svc.viewControllers[1] as? UINavigationController {
+                    myvc = nvc.topViewController as? MyViewController
+                }
+            } else {
+                if let nvc = svc.viewControllers[0] as? UINavigationController {
+                    mycvc = nvc.topViewController as? MyCollectionViewController
+                    myvc = nvc.topViewController as? MyViewController
+                }
             }
         } else {
             mycvc = self.navigationController?.topViewController as? MyCollectionViewController
@@ -379,7 +388,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             mycvc?.setupPlayingPausedButton()
             
             if (mycvc!.seriesSelected != nil) && (Globals.activeSeries?.indexOf(mycvc!.seriesSelected!) != nil) {
-                print("\(Globals.activeSeries!.indexOf(mycvc!.seriesSelected!))")
+//                print("\(Globals.activeSeries!.indexOf(mycvc!.seriesSelected!))")
                 let indexPath = NSIndexPath(forItem: Globals.activeSeries!.indexOf(mycvc!.seriesSelected!)!, inSection: 0)
                 mycvc?.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredVertically, animated: true)
             }
@@ -402,7 +411,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.navigationItem.title = "Loading Sermons"
+                self.navigationItem.title = Constants.Loading_Sermons
             })
             
             var success = false
@@ -412,21 +421,22 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     Globals.series = series
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.navigationItem.title = "Loading Defaults"
+                        self.navigationItem.title = Constants.Loading_Defaults
                     })
                     loadDefaults()
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.navigationItem.title = "Sorting"
+                        self.navigationItem.title = Constants.Sorting
                     })
                     Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
 
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.navigationItem.title = "Setting up Player"
+                        self.navigationItem.title = Constants.Setting_up_Player
                         self.setupSermonPlaying()
                     })
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.navigationItem.title = Constants.TWU_LONG
                         self.setupViews()
                     })
                     
@@ -443,7 +453,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     self.refreshControl?.endRefreshing()
                     
                     if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-                        let alert = UIAlertController(title:"Unable to Load Sermons",
+                        let alert = UIAlertController(title:Constants.Unable_to_Load_Sermons,
                             message: "Please try to refresh the list or send an email to support@countrysidebible.org to report the problem.",
                             preferredStyle: UIAlertControllerStyle.Alert)
                         
@@ -662,11 +672,25 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         
         if let svc = self.splitViewController {
             //iPad
-            if let nvc = svc.viewControllers[1] as? UINavigationController {
-                if let myvc = nvc.topViewController as? MyViewController {
-                    myvc.seriesSelected = nil
-                    myvc.sermonSelected = nil
-                    myvc.updateUI()
+
+            // Instead of testing for collapsed:
+            //                if let nvc = svc.viewControllers[svc.viewControllers.count - 1] as? UINavigationController {
+            
+            if (svc.collapsed) {
+                if let nvc = svc.viewControllers[0] as? UINavigationController {
+                    if let myvc = nvc.topViewController as? MyViewController {
+                        myvc.seriesSelected = nil
+                        myvc.sermonSelected = nil
+                        myvc.updateUI()
+                    }
+                }
+            } else {
+                if let nvc = svc.viewControllers[1] as? UINavigationController {
+                    if let myvc = nvc.topViewController as? MyViewController {
+                        myvc.seriesSelected = nil
+                        myvc.sermonSelected = nil
+                        myvc.updateUI()
+                    }
                 }
             }
         }
@@ -679,6 +703,10 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if Globals.series == nil {
+            loadSeries(nil)
+        }
+
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
         
         refreshControl = UIRefreshControl()
@@ -697,42 +725,59 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     func setPlayingPausedButton()
     {
-        var title:String = ""
-        
-        if (Globals.playerPaused) {
-            title = Constants.Paused
+        if (Globals.sermonPlaying != nil) {
+            var title:String?
+            
+            if (Globals.playerPaused) {
+                title = Constants.Paused
+            } else {
+                title = Constants.Playing
+            }
+            
+            var playingPausedButton = navigationItem.rightBarButtonItem
+            
+            if (playingPausedButton == nil) {
+                playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.Plain, target: self, action: "gotoNowPlaying")
+            }
+            
+            playingPausedButton!.title = title
+            
+            navigationItem.setRightBarButtonItem(playingPausedButton, animated: true)
         } else {
-            title = Constants.Playing
+            navigationItem.setRightBarButtonItem(nil, animated: true)
         }
-        
-        var playingPausedButton = navigationItem.rightBarButtonItem
-        
-        if (playingPausedButton == nil) {
-            playingPausedButton = UIBarButtonItem(title: "", style: UIBarButtonItemStyle.Plain, target: self, action: "gotoNowPlaying")
-        }
-        
-        playingPausedButton!.title = title
-
-        navigationItem.setRightBarButtonItem(playingPausedButton, animated: true)
     }
 
     func setupPlayingPausedButton()
     {
         if (Globals.mpPlayer != nil) && (Globals.sermonPlaying != nil) {
             if (!Globals.showingAbout) {
-                if (splitViewController != nil) && (Globals.seriesSelected == Globals.sermonPlaying?.series) {
-                    if (Globals.sermonSelected != Globals.sermonPlaying) {
-                        setPlayingPausedButton()
-                    } else {
-                        if (navigationItem.rightBarButtonItem != nil) {
-                            navigationItem.setRightBarButtonItem(nil, animated: true)
+                if (splitViewController != nil) {
+                    // iPad
+                    if (!splitViewController!.collapsed) {
+                        // Master and detail view controllers are both present
+                        if (Globals.seriesSelected == Globals.sermonPlaying?.series) {
+                            if (Globals.sermonSelected != nil) && (Globals.sermonSelected != Globals.sermonPlaying) {
+                                setPlayingPausedButton()
+                            } else {
+                                if (navigationItem.rightBarButtonItem != nil) {
+                                    navigationItem.setRightBarButtonItem(nil, animated: true)
+                                }
+                            }
                         }
+                    } else {
+                        // Only master view controller is present, not detail view controller
+                        setPlayingPausedButton()
                     }
                 } else {
+                    // iPhone
                     setPlayingPausedButton()
                 }
             } else {
-                setPlayingPausedButton()
+                // Showing About
+                if (Globals.sermonPlaying != nil) {
+                    setPlayingPausedButton()
+                }
             }
         } else {
             if (navigationItem.rightBarButtonItem != nil) {
@@ -808,25 +853,32 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     override func remoteControlReceivedWithEvent(event: UIEvent?) {
         remoteControlEvent(event!)
-        if let nvc = splitViewController?.viewControllers[1] as? UINavigationController {
-            if let myvc = nvc.topViewController as? MyViewController {
-                myvc.setupPlayPauseButton()
+        if (splitViewController != nil) {
+            if (!splitViewController!.collapsed) {
+                if let nvc = splitViewController?.viewControllers[1] as? UINavigationController {
+                    if let myvc = nvc.topViewController as? MyViewController {
+                        myvc.setupPlayPauseButton()
+                    }
+                }
             }
         }
         setupPlayingPausedButton()
     }
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        collectionView.reloadData()
+        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
+            self.collectionView.reloadData()
+            }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
+        }
     }
 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
-        if Globals.series == nil {
-            disableBarButtons()
-            loadSeries(nil)
-        }
+//        if Globals.series == nil {
+//            disableBarButtons()
+//            loadSeries(nil)
+//        }
 
 //        setupPlayingInfoCenter()
 
@@ -902,8 +954,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     }
 
                     if (Globals.seriesSelected != nil) {
-                        if (splitViewController != nil) { //iPad only
-                            //The block below only matters on an iPad
+                        if (splitViewController != nil) && (!splitViewController!.collapsed) {
+                            //iPad only
+                            //The block below only matters when master and detail view controllers are both present.
                             setupPlayingPausedButton()
                         }
                     }

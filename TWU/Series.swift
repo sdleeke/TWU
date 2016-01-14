@@ -163,9 +163,13 @@ class Series : Equatable, CustomStringConvertible {
                 // Try to get it from the cloud
                 let imageCloudURL = Constants.baseImageURL + imageName + Constants.JPEG_FILE_EXTENSION
                 //                print("\(imageCloudURL)")
-                image = UIImage(data: NSData(contentsOfURL: NSURL(string: imageCloudURL)!)!)
-                if (image != nil) {
-                    UIImageJPEGRepresentation(image!, 1.0)?.writeToURL(imageDocumentsURL!, atomically: true)
+                if let imageData = NSData(contentsOfURL: NSURL(string: imageCloudURL)!) {
+                    image = UIImage(data: imageData)
+                    if (image != nil) {
+                        UIImageJPEGRepresentation(image!, 1.0)?.writeToURL(imageDocumentsURL!, atomically: true)
+                    } else {
+                        // Can't get it from anywhere.
+                    }
                 } else {
                     // Can't get it from anywhere.
                 }

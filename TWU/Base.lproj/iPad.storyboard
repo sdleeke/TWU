@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="Xai-Yi-pif">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="Xai-Yi-pif">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
@@ -144,12 +144,14 @@
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="sSN-Ac-J4R" secondAttribute="height" multiplier="1:1" id="2a0-Sf-VQS"/>
                                     <constraint firstAttribute="centerY" secondItem="ufB-oq-a4t" secondAttribute="centerY" id="BNq-tG-s23"/>
+                                    <constraint firstItem="x2f-dd-r2d" firstAttribute="width" relation="lessThanOrEqual" secondItem="sSN-Ac-J4R" secondAttribute="width" id="BcF-eX-wzP"/>
                                     <constraint firstAttribute="centerX" secondItem="ufB-oq-a4t" secondAttribute="centerX" id="MNb-Y4-hR1"/>
                                     <constraint firstItem="x2f-dd-r2d" firstAttribute="height" secondItem="sSN-Ac-J4R" secondAttribute="height" id="Mbo-E0-AmL"/>
                                     <constraint firstAttribute="width" secondItem="ufB-oq-a4t" secondAttribute="width" constant="20" id="Z60-Zj-Wua"/>
                                     <constraint firstAttribute="centerX" secondItem="x2f-dd-r2d" secondAttribute="centerX" id="mU8-70-DEX"/>
                                     <constraint firstItem="x2f-dd-r2d" firstAttribute="width" secondItem="sSN-Ac-J4R" secondAttribute="width" id="pOq-KA-OKS"/>
                                     <constraint firstItem="x2f-dd-r2d" firstAttribute="top" secondItem="sSN-Ac-J4R" secondAttribute="top" id="rFV-an-kKC"/>
+                                    <constraint firstItem="x2f-dd-r2d" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="sSN-Ac-J4R" secondAttribute="leading" id="tzp-ux-Phs"/>
                                     <constraint firstItem="ufB-oq-a4t" firstAttribute="top" secondItem="sSN-Ac-J4R" secondAttribute="top" id="uF5-SX-dH0"/>
                                     <constraint firstAttribute="centerY" secondItem="x2f-dd-r2d" secondAttribute="centerY" id="yv6-ST-or2"/>
                                     <constraint firstAttribute="height" secondItem="ufB-oq-a4t" secondAttribute="height" id="zfe-9S-oCb"/>
@@ -428,7 +430,7 @@ Southlake, Texas 76092
                             </mask>
                         </variation>
                     </view>
-                    <navigationItem key="navigationItem" id="587-nf-hBR">
+                    <navigationItem key="navigationItem" title="About" id="587-nf-hBR">
                         <barButtonItem key="rightBarButtonItem" systemItem="action" id="dEw-Eq-oYB">
                             <connections>
                                 <action selector="actions:" destination="lBu-Wa-0uM" id="5vY-Wd-WP8"/>

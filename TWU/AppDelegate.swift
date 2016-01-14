@@ -140,18 +140,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         //iPad
         if let rvc = self.window?.rootViewController as? UISplitViewController {
             //            println("rvc = UISplitViewController")
-            if let nvc = rvc.viewControllers[0] as? UINavigationController {
-                //                println("nvc = UINavigationController")
-                if let cvc = nvc.topViewController as? MyCollectionViewController {
-                    //                    println("nvc = MyCollectionViewController")
-                    cvc.setupPlayingPausedButton()
-                    cvc.collectionView.reloadData()
+            if (rvc.collapsed) {
+                if let nvc = rvc.viewControllers[0] as? UINavigationController {
+                    //                println("nvc = UINavigationController")
+                    if let cvc = nvc.topViewController as? MyCollectionViewController {
+                        //                    println("nvc = MyCollectionViewController")
+                        cvc.setupPlayingPausedButton()
+                        cvc.collectionView.reloadData()
+                    }
+                    if let myvc = nvc.topViewController as? MyViewController {
+                        //                    println("myvc = MyViewController")
+                        myvc.setupPlayPauseButton()
+                    }
                 }
-            }
-            if let nvc = rvc.viewControllers[1] as? UINavigationController {
-                if let myvc = nvc.topViewController as? MyViewController {
-                    //                    println("myvc = MyViewController")
-                    myvc.setupPlayPauseButton()
+            } else {
+                if let nvc = rvc.viewControllers[0] as? UINavigationController {
+                    //                println("nvc = UINavigationController")
+                    if let cvc = nvc.topViewController as? MyCollectionViewController {
+                        //                    println("nvc = MyCollectionViewController")
+                        cvc.setupPlayingPausedButton()
+                        cvc.collectionView.reloadData()
+                    }
+                }
+                if let nvc = rvc.viewControllers[1] as? UINavigationController {
+                    if let myvc = nvc.topViewController as? MyViewController {
+                        //                    println("myvc = MyViewController")
+                        myvc.setupPlayPauseButton()
+                    }
                 }
             }
         }
