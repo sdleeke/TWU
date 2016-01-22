@@ -360,22 +360,15 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         
         if let svc = self.splitViewController {
             //iPad
-            if (!svc.collapsed) {
-                if let nvc = svc.viewControllers[0] as? UINavigationController {
-                    mycvc = nvc.topViewController as? MyCollectionViewController
-                }
-                if let nvc = svc.viewControllers[1] as? UINavigationController {
-                    myvc = nvc.topViewController as? MyViewController
-                }
-            } else {
-                if let nvc = svc.viewControllers[0] as? UINavigationController {
-                    mycvc = nvc.topViewController as? MyCollectionViewController
-                    myvc = nvc.topViewController as? MyViewController
-                }
+            if let nvc = svc.viewControllers[0] as? UINavigationController {
+                mycvc = nvc.visibleViewController as? MyCollectionViewController
+            }
+            if let nvc = svc.viewControllers[svc.viewControllers.count - 1] as? UINavigationController {
+                myvc = nvc.visibleViewController as? MyViewController
             }
         } else {
-            mycvc = self.navigationController?.topViewController as? MyCollectionViewController
-            myvc = self.navigationController?.topViewController as? MyViewController
+            mycvc = self.navigationController?.visibleViewController as? MyCollectionViewController
+            myvc = self.navigationController?.visibleViewController as? MyViewController
         }
         
         mycvc?.seriesSelected = Globals.seriesSelected
@@ -395,7 +388,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         }
 
         if (myvc != nil) {
-            myvc?.seriesSelected = mycvc?.seriesSelected
+            myvc?.seriesSelected = Globals.seriesSelected
 
             myvc?.sermonSelected = Globals.sermonSelected
 

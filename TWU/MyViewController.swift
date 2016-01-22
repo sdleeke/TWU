@@ -754,7 +754,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         if (sermon != nil) {
             var indexPath = NSIndexPath(forRow: 0, inSection: 0)
             
-            if (seriesSelected!.numberOfSermons > 1) {
+            if (seriesSelected?.numberOfSermons > 1) {
                 if let sermonIndex = seriesSelected?.sermons?.indexOf(sermon!) {
 //                    print("\(sermonIndex)")
                     indexPath = NSIndexPath(forRow: sermonIndex, inSection: 0)

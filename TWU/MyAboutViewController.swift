@@ -315,6 +315,10 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
+        tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
+        theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
+//        tomPenningtonBio.scrollRangeToVisible(NSMakeRange(0,0))
+//        theWordUnleashedDescription.scrollRangeToVisible(NSMakeRange(0,0))
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -329,8 +333,8 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     }
     
     override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-        tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 50, 50), animated:false)
-        theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 50, 50), animated:false)
+        tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
+        theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
 //        tomPenningtonBio.scrollRangeToVisible(NSMakeRange(0,0))
 //        theWordUnleashedDescription.scrollRangeToVisible(NSMakeRange(0,0))
     }
