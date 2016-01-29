@@ -52,6 +52,20 @@ func != (lhs:Series,rhs:Series) -> Bool
 class Series : Equatable, CustomStringConvertible {
     var dict:[String:String]?
     
+    init(seriesDict:[String:String]?)
+    {
+        dict = seriesDict
+        
+        for i in 0..<numberOfSermons {
+            let sermon = Sermon(series: self,id:startingIndex+i)
+            if sermons == nil {
+                sermons = [sermon]
+            } else {
+                sermons?.append(sermon)
+            }
+        }
+    }
+    
     var id:Int {
         get {
             return Int(dict![Constants.ID]!)!
@@ -119,16 +133,15 @@ class Series : Equatable, CustomStringConvertible {
     var book:String? {
         get {
             if (dict![Constants.BOOK] == nil) {
-                let selectedScriptures:String = Constants.Selected_Scriptures
-                
-                if (scripture == selectedScriptures) {
-                    dict![Constants.BOOK] = selectedScriptures
+                if (scripture == Constants.Selected_Scriptures) {
+                    dict![Constants.BOOK] = Constants.Selected_Scriptures
                 } else {
                     if (dict![Constants.BOOK] == nil) {
                         for bookTitle in Constants.OLD_TESTAMENT {
                             if (scripture.endIndex >= bookTitle.endIndex) &&
                                 (scripture.substringToIndex(bookTitle.endIndex) == bookTitle) {
                                     dict![Constants.BOOK] = bookTitle
+                                    break
                             }
                         }
                     }
@@ -137,6 +150,7 @@ class Series : Equatable, CustomStringConvertible {
                             if (scripture.endIndex >= bookTitle.endIndex) &&
                                 (scripture.substringToIndex(bookTitle.endIndex) == bookTitle) {
                                     dict![Constants.BOOK] = bookTitle
+                                    break
                             }
                         }
                     }
@@ -146,7 +160,7 @@ class Series : Equatable, CustomStringConvertible {
             return dict![Constants.BOOK]
         }
     }
-    
+
     func getArt() -> UIImage?
     {
         let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"

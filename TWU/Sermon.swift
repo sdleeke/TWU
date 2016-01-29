@@ -36,6 +36,11 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
     
     var id:Int
     
+    init(series:Series,id:Int) {
+        self.series = series
+        self.id = id
+    }
+    
     var index:Int {
         get {
             return id - series!.startingIndex
@@ -54,11 +59,6 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         sermonString = "\(sermonString) Part:\(index+1)"
         
         return sermonString
-    }
-    
-    init(series:Series,id:Int) {
-        self.series = series
-        self.id = id
     }
     
     lazy var download:Download! = {

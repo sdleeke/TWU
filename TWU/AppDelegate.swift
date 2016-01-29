@@ -37,13 +37,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         
         var selectedSeries:Series?
         
-        for series in Globals.series! {
-            if (series.name == host) {
-                selectedSeries = series
-                break
-            }
-        }
-
+        selectedSeries = Globals.series?.filter({ (series:Series) -> Bool in
+            return series.name == host
+        }).first
+        
         //iPad
         if let svc = self.window?.rootViewController as? UISplitViewController {
             //            println("rvc = UISplitViewController")

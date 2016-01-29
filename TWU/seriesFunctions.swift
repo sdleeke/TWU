@@ -140,24 +140,30 @@ func bookNumberInBible(book:String?) -> Int?
 
 func booksFromSeries(series:[Series]?) -> [String]?
 {
-    var bookSet = Set<String>()
-    var bookArray = [String]()
+//    var bookSet = Set<String>()
+//    var bookArray = [String]()
     
-    if (series != nil) {
-        for singleSeries in series! {
-            if (singleSeries.book != nil) {
-                bookSet.insert(singleSeries.book!)
-            }
-        }
-        
-        for book in bookSet {
-            bookArray.append(book)
-        }
-        
-        bookArray.sortInPlace() { bookNumberInBible($0) < bookNumberInBible($1) }
-    }
+    return Array(Set(series!.filter({ (series:Series) -> Bool in
+        return series.book != nil
+    }).map { (series:Series) -> String in
+        return series.book!
+    })).sort({ bookNumberInBible($0) < bookNumberInBible($1) })
     
-    return bookArray.count > 0 ? bookArray : nil
+//    if (series != nil) {
+//        for singleSeries in series! {
+//            if (singleSeries.book != nil) {
+//                bookSet.insert(singleSeries.book!)
+//            }
+//        }
+//        
+//        for book in bookSet {
+//            bookArray.append(book)
+//        }
+//        
+//        bookArray.sortInPlace() { bookNumberInBible($0) < bookNumberInBible($1) }
+//    }
+//    
+//    return bookArray.count > 0 ? bookArray : nil
 }
 
 func loadDefaults()
@@ -211,6 +217,107 @@ func loadDefaults()
     }
 }
 
+func setupSeriesAndSermonPlayingUserDefaults()
+{
+    let defaults = NSUserDefaults.standardUserDefaults()
+    
+    if (Globals.sermonPlaying != nil) {
+        defaults.setObject("\(Globals.sermonPlaying!.series!.id)", forKey: Constants.SERIES_PLAYING)
+        defaults.setObject("\(Globals.sermonPlaying!.index)", forKey: Constants.SERMON_PLAYING_INDEX)
+        defaults.setObject("0", forKey: Constants.CURRENT_TIME)
+        //
+        //            println("seriesPlaying.title: \(Globals.seriesPlaying?.title)")
+        //            println("seriesPlayingIndex: \(Globals.seriesPlayingIndex)")
+        //            println("sermonPlayingIndex: \(Globals.sermonPlayingIndex)")
+    }
+    
+    defaults.synchronize()
+}
+
+func networkUnavailable(message:String?)
+{
+    if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+        let alert = UIAlertController(title:Constants.Network_Error,
+            message: message,
+            preferredStyle: UIAlertControllerStyle.Alert)
+        
+        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+            
+        })
+        alert.addAction(action)
+        
+//        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+        
+        UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+    }
+}
+
+func removeSliderObserver() {
+    if (Globals.sliderObserver != nil) {
+        Globals.sliderObserver!.invalidate()
+        Globals.sliderObserver = nil
+    }
+}
+
+func removePlayObserver() {
+    if (Globals.playObserver != nil) {
+        Globals.playObserver!.invalidate()
+        Globals.playObserver = nil
+    }
+}
+
+func playNewSermon(sermon:Sermon?)
+{
+    // This is independent of any UI.
+    
+    Globals.playerPaused = false
+    Globals.mpPlayer?.stop()
+    
+    //        Globals.seriesPlaying = seriesSelected
+    Globals.sermonPlaying = sermon
+    
+    setupSeriesAndSermonPlayingUserDefaults()
+    
+    var sermonURL:String?
+    var url:NSURL?
+    
+    let filename = String(format: Constants.FILENAME_FORMAT, Globals.sermonPlaying!.id)
+    url = documentsURL()?.URLByAppendingPathComponent(filename)
+    // Check if file exist
+    if (!NSFileManager.defaultManager().fileExistsAtPath(url!.path!)){
+        sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
+        //        println("playNewSermon: \(sermonURL)")
+        url = NSURL(string:sermonURL!)
+        if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
+            networkUnavailable("Unable to open audio: \(url!)")
+            url = nil
+        }
+    }
+    
+    if (url != nil) {
+        removeSliderObserver()
+        removePlayObserver()
+        
+        //This guarantees a fresh start.
+        Globals.mpPlayer = MPMoviePlayerController(contentURL: url)
+        
+        Globals.mpPlayer?.shouldAutoplay = false
+        Globals.mpPlayer?.controlStyle = MPMovieControlStyle.Embedded
+        Globals.mpPlayer?.prepareToPlay()
+        
+//        // mpPlayerLoadStateDidChange stops the spinner spinning once the audio starts.
+//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "mpPlayerLoadStateDidChange:", name: MPMoviePlayerLoadStateDidChangeNotification, object: nil)
+        
+        setupPlayingInfoCenter()
+        
+        //Does this crash if prepareToPlay is not complete?
+        //Can we even call this here if the sermon is not available?
+        //If the sermon isn't available, how do we timeout?
+        //Do we need to set a flag and call this from mpPlayerLoadStateDidChange?  What if it never gets called?
+        //Is this causing crashes when prepareToPlay() is not completed and Globals.mpPlayer.loadState does not include MPMovieLoadState.PlaythroughOK?
+        Globals.mpPlayer?.play() // Might want to move this into mpPlayerLoadStateDidChange as we did in TPS and GTY
+    }
+}
 
 func setupPlayer(sermon:Sermon?)
 {
@@ -289,32 +396,36 @@ func stringWithoutLeadingTheOrAOrAn(fromString:String?) -> String?
 
 func seriesFromSeriesDicts(seriesDicts:[[String:String]]?) -> [Series]?
 {
-    if seriesDicts != nil {
-        //    print("\(Globals.seriesDicts.count)")
-        var seriesArray = [Series]()
-        
-        for seriesDict in seriesDicts! {
-            let series = Series()
-            
-            //        print("\(seriesDict)")
-            series.dict = seriesDict
-            
-            //        print("\(sermon)")
-            
-            var sermons = [Sermon]()
-            for i in 0..<series.numberOfSermons {
-                let sermon = Sermon(series: series,id:series.startingIndex+i)
-                sermons.append(sermon)
-            }
-            series.sermons = sermons
-            
-            seriesArray.append(series)
-        }
-        
-        return seriesArray.count > 0 ? seriesArray : nil
-    } else {
-        return nil
-    }
+    return seriesDicts?.map({ (seriesDict:[String:String]) -> Series in
+        return Series(seriesDict: seriesDict)
+    })
+//
+//    if seriesDicts != nil {
+//        //    print("\(Globals.seriesDicts.count)")
+//        var seriesArray = [Series]()
+//        
+//        for seriesDict in seriesDicts! {
+//            let series = Series()
+//            
+//            //        print("\(seriesDict)")
+//            series.dict = seriesDict
+//            
+//            //        print("\(sermon)")
+//            
+//            var sermons = [Sermon]()
+//            for i in 0..<series.numberOfSermons {
+//                let sermon = Sermon(series: series,id:series.startingIndex+i)
+//                sermons.append(sermon)
+//            }
+//            series.sermons = sermons
+//            
+//            seriesArray.append(series)
+//        }
+//        
+//        return seriesArray.count > 0 ? seriesArray : nil
+//    } else {
+//        return nil
+//    }
 }
 
 func jsonDataFromBundle() -> JSON
@@ -441,7 +552,7 @@ func loadSeriesDictsFromJSON() -> [[String:String]]?
             //                    print("sermon: \(series[i])")
             
             var dict = [String:String]()
-            
+        
             for (key,value) in series[i] {
                 dict["\(key)"] = "\(value)"
             }
@@ -535,90 +646,6 @@ func addAccessoryEvents()
     MPRemoteCommandCenter.sharedCommandCenter().bookmarkCommand.enabled = false
 }
 
-func remoteControlEvent(event: UIEvent) {
-    print("remoteControlReceivedWithEvent")
-    
-    switch event.subtype {
-    case UIEventSubtype.MotionShake:
-        print("RemoteControlEvent.MotionShake")
-        break
-        
-    case UIEventSubtype.None:
-        print("RemoteControlEvent.None")
-        break
-        
-    case UIEventSubtype.RemoteControlStop:
-        print("RemoteControlStop")
-        Globals.mpPlayer?.stop()
-        Globals.playerPaused = true
-        break
-        
-    case UIEventSubtype.RemoteControlPlay:
-        print("RemoteControlPlay")
-        Globals.mpPlayer?.play()
-        Globals.playerPaused = false
-        setupPlayingInfoCenter()
-        break
-        
-    case UIEventSubtype.RemoteControlPause:
-        print("RemoteControlPause")
-        Globals.mpPlayer?.pause()
-        Globals.playerPaused = true
-        updateUserDefaultsCurrentTimeExact()
-        break
-        
-    case UIEventSubtype.RemoteControlTogglePlayPause:
-        print("RemoteControlTogglePlayPause")
-        if (Globals.playerPaused) {
-            Globals.mpPlayer?.play()
-        } else {
-            Globals.mpPlayer?.pause()
-            updateUserDefaultsCurrentTimeExact()
-        }
-        Globals.playerPaused = !Globals.playerPaused
-        break
-        
-    case UIEventSubtype.RemoteControlPreviousTrack:
-        print("RemoteControlPreviousTrack")
-        break
-        
-    case UIEventSubtype.RemoteControlNextTrack:
-        print("RemoteControlNextTrack")
-        break
-        
-        //The lock screen time elapsed/remaining don't track well with seeking
-        //But at least this has them moving in the right direction.
-        
-    case UIEventSubtype.RemoteControlBeginSeekingBackward:
-        print("RemoteControlBeginSeekingBackward")
-        Globals.mpPlayer?.beginSeekingBackward()
-//        updatePlayingInfoCenter()
-        setupPlayingInfoCenter()
-        break
-        
-    case UIEventSubtype.RemoteControlEndSeekingBackward:
-        Globals.mpPlayer?.endSeeking()
-        updateUserDefaultsCurrentTimeExact()
-//        updatePlayingInfoCenter()
-        setupPlayingInfoCenter()
-        break
-        
-    case UIEventSubtype.RemoteControlBeginSeekingForward:
-        print("RemoteControlBeginSeekingForward")
-        Globals.mpPlayer?.beginSeekingForward()
-//        updatePlayingInfoCenter()
-        setupPlayingInfoCenter()
-        break
-        
-    case UIEventSubtype.RemoteControlEndSeekingForward:
-        Globals.mpPlayer?.endSeeking()
-        updateUserDefaultsCurrentTimeExact()
-//        updatePlayingInfoCenter()
-        setupPlayingInfoCenter()
-        break
-    }
-}
-
 func updateUserDefaultsCurrentTimeExact()
 {
     if (Globals.mpPlayer != nil) {
@@ -632,24 +659,6 @@ func updateUserDefaultsCurrentTimeExact(seekToTime:Float)
     print("\(Float(seekToTime).description)")
     defaults.setObject(Float(seekToTime).description,forKey: Constants.CURRENT_TIME)
     defaults.synchronize()
-}
-
-func updatePlayingInfoCenter()
-{
-    if (Globals.sermonPlaying != nil) {
-        //        let imageName = "\(Globals.coverArtPreamble)\(Globals.seriesPlaying!.name)\(Globals.coverArtPostamble)"
-        //    print("\(imageName)")
-        
-        var sermonInfo = [String:AnyObject]()
-        
-        sermonInfo.updateValue(NSNumber(double: Globals.mpPlayer!.duration),            forKey: MPMediaItemPropertyPlaybackDuration)
-        sermonInfo.updateValue(NSNumber(double: Globals.mpPlayer!.currentPlaybackTime), forKey: MPNowPlayingInfoPropertyElapsedPlaybackTime)
-        sermonInfo.updateValue(NSNumber(float: Globals.mpPlayer!.currentPlaybackRate),  forKey: MPNowPlayingInfoPropertyPlaybackRate)
-        
-        //    print("\(sermonInfo.count)")
-        
-        MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = sermonInfo
-    }
 }
 
 func setupPlayingInfoCenter()
@@ -670,9 +679,9 @@ func setupPlayingInfoCenter()
         if (Globals.mpPlayer != nil) {
             sermonInfo.updateValue(NSNumber(double: Globals.mpPlayer!.duration),                                forKey: MPMediaItemPropertyPlaybackDuration)
             sermonInfo.updateValue(NSNumber(double: Globals.mpPlayer!.currentPlaybackTime),                     forKey: MPNowPlayingInfoPropertyElapsedPlaybackTime)
+            
+            sermonInfo.updateValue(NSNumber(float:Globals.mpPlayer!.currentPlaybackRate),                       forKey: MPNowPlayingInfoPropertyPlaybackRate)
         }
-        
-        sermonInfo.updateValue(NSNumber(float:Globals.mpPlayer!.currentPlaybackRate),                       forKey: MPNowPlayingInfoPropertyPlaybackRate)
         
         //    println("\(sermonInfo.count)")
         

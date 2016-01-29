@@ -207,11 +207,11 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         
     }
     
-    private func networkUnavailable()
+    private func networkUnavailable(message:String?)
     {
         if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-            let alert = UIAlertController(title: Constants.Network_Unavailable,
-                message: "",
+            let alert = UIAlertController(title: Constants.Network_Error,
+                message: message,
                 preferredStyle: UIAlertControllerStyle.Alert)
             
             let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
@@ -228,7 +228,7 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         if (Reachability.isConnectedToNetwork() && UIApplication.sharedApplication().canOpenURL(NSURL(string:urlString)!)) {
             UIApplication.sharedApplication().openURL(NSURL(string:urlString)!)
         } else {
-            networkUnavailable()
+            networkUnavailable("Unable to open web site: \(urlString)")
         }
     }
 

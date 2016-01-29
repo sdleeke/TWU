@@ -408,10 +408,14 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         //        println("\(urlString)")
         
         if let url = NSURL(string:urlString) {
-            if (Reachability.isConnectedToNetwork() && UIApplication.sharedApplication().canOpenURL(url)) {
-                UIApplication.sharedApplication().openURL(url)
+            if Reachability.isConnectedToNetwork() {
+                if UIApplication.sharedApplication().canOpenURL(url) {
+                    UIApplication.sharedApplication().openURL(url)
+                } else {
+                    networkUnavailable("Unable to open url: \(url)")
+                }
             } else {
-                networkUnavailable()
+                networkUnavailable("Unable to connect to the internet to open: \(url)")
             }
         }
     }
@@ -433,7 +437,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 self.presentViewController(alert, animated: true, completion: nil)
             }
         } else {
-            networkUnavailable()
+            networkUnavailable("Unable to connect to the internet to tweet.")
         }
     }
     
@@ -458,7 +462,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 self.presentViewController(alert, animated: true, completion: nil)
             }
         } else {
-            networkUnavailable()
+            networkUnavailable("Unable to connect to the internet to post to Facebook.")
         }
     }
     
@@ -516,14 +520,18 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 
         if (sermonsToDownload > 0) {
             action = UIAlertAction(title: Constants.Download_All, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                //            println("mail!")
-                for i in 0..<self.seriesSelected!.numberOfSermons {
-                    if (self.seriesSelected?.sermons?[i].download.state == .none) {
-                        self.seriesSelected?.sermons?[i].downloadAudio()
+                if (Reachability.isConnectedToNetwork()) {
+                    //            println("mail!")
+                    for i in 0..<self.seriesSelected!.numberOfSermons {
+                        if (self.seriesSelected?.sermons?[i].download.state == .none) {
+                            self.seriesSelected?.sermons?[i].downloadAudio()
+                        }
                     }
+                    self.tableView.reloadData()
+                    self.selectSermon(Globals.sermonPlaying)
+                } else {
+                    self.networkUnavailable("Unable to download audio.")
                 }
-                self.tableView.reloadData()
-                self.selectSermon(Globals.sermonPlaying)
             })
             alert.addAction(action)
         }
@@ -868,20 +876,6 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //            var point = CGPointZero //tableView.bounds.origin
 //            point.y += tableView.rowHeight * CGFloat(sermonSelected!.index)
 //            tableView.setContentOffset(point, animated: true)
-        }
-    }
-    
-    func removeSliderObserver() {
-        if (Globals.sliderObserver != nil) {
-            Globals.sliderObserver!.invalidate()
-            Globals.sliderObserver = nil
-        }
-    }
-    
-    func removePlayObserver() {
-        if (Globals.playObserver != nil) {
-            Globals.playObserver!.invalidate()
-            Globals.playObserver = nil
         }
     }
     
@@ -1357,18 +1351,32 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 spinner.hidden = true
 
                 if (!Globals.playerPaused) {
-                    advanceSermon()
+                    nextSermon()
                 }
             }
         }
     }
     
-    func advanceSermon()
+    func nextSermon()
     {
         if (Globals.sermonPlaying!.index < (Globals.sermonPlaying!.series!.numberOfSermons - 1)) {
-//            print("\(sermonSelected!)")
+            //            print("\(sermonSelected!)")
             sermonSelected = Globals.sermonPlaying?.series?.sermons?[Globals.sermonPlaying!.index + 1]
-//            print("\(sermonSelected!)")
+            //            print("\(sermonSelected!)")
+            selectSermon(sermonSelected)
+            playNewSermon()
+        } else {
+            Globals.playerPaused = true
+            setupPlayPauseButton()
+        }
+    }
+    
+    func priorSermon()
+    {
+        if (Globals.sermonPlaying!.index > 0) {
+            //            print("\(sermonSelected!)")
+            sermonSelected = Globals.sermonPlaying?.series?.sermons?[Globals.sermonPlaying!.index - 1]
+            //            print("\(sermonSelected!)")
             selectSermon(sermonSelected)
             playNewSermon()
         } else {
@@ -1438,28 +1446,11 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
-    private func setupSeriesAndSermonPlayingUserDefaults()
-    {
-        let defaults = NSUserDefaults.standardUserDefaults()
-        
-        if (Globals.sermonPlaying != nil) {
-            defaults.setObject("\(Globals.sermonPlaying!.series!.id)", forKey: Constants.SERIES_PLAYING)
-            defaults.setObject("\(Globals.sermonPlaying!.index)", forKey: Constants.SERMON_PLAYING_INDEX)
-            defaults.setObject("0", forKey: Constants.CURRENT_TIME)
-            //
-            //            println("seriesPlaying.title: \(Globals.seriesPlaying?.title)")
-            //            println("seriesPlayingIndex: \(Globals.seriesPlayingIndex)")
-            //            println("sermonPlayingIndex: \(Globals.sermonPlayingIndex)")
-        }
-        
-        defaults.synchronize()
-    }
-    
-    private func networkUnavailable()
+    private func networkUnavailable(message:String?)
     {
         if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-            let alert = UIAlertController(title: Constants.Network_Unavailable,
-                message: "",
+            let alert = UIAlertController(title: Constants.Network_Error,
+                message: message,
                 preferredStyle: UIAlertControllerStyle.Alert)
             
             let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
@@ -1516,8 +1507,107 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //        }
 //    }
     
+    func seekingTimer()
+    {
+        setupPlayingInfoCenter()
+    }
+    
     override func remoteControlReceivedWithEvent(event: UIEvent?) {
-        remoteControlEvent(event!)
+        print("remoteControlReceivedWithEvent")
+        
+        switch event!.subtype {
+        case UIEventSubtype.MotionShake:
+            print("RemoteControlShake")
+            break
+            
+        case UIEventSubtype.None:
+            print("RemoteControlNone")
+            break
+            
+        case UIEventSubtype.RemoteControlStop:
+            print("RemoteControlStop")
+            Globals.mpPlayer?.stop()
+            Globals.playerPaused = true
+            break
+            
+        case UIEventSubtype.RemoteControlPlay:
+            print("RemoteControlPlay")
+            Globals.mpPlayer?.play()
+            Globals.playerPaused = false
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlPause:
+            print("RemoteControlPause")
+            Globals.mpPlayer?.pause()
+            Globals.playerPaused = true
+            updateUserDefaultsCurrentTimeExact()
+            break
+            
+        case UIEventSubtype.RemoteControlTogglePlayPause:
+            print("RemoteControlTogglePlayPause")
+            if (Globals.playerPaused) {
+                Globals.mpPlayer?.play()
+            } else {
+                Globals.mpPlayer?.pause()
+                updateUserDefaultsCurrentTimeExact()
+            }
+            Globals.playerPaused = !Globals.playerPaused
+            break
+            
+        case UIEventSubtype.RemoteControlPreviousTrack:
+            print("RemoteControlPreviousTrack")
+            if (Globals.mpPlayer?.currentPlaybackTime == 0) {
+                // Would like it to skip to the prior sermon in the series if there is one.
+            } else {
+                Globals.mpPlayer?.currentPlaybackTime = 0
+            }
+            break
+            
+        case UIEventSubtype.RemoteControlNextTrack:
+            print("RemoteControlNextTrack")
+            Globals.mpPlayer?.currentPlaybackTime = Globals.mpPlayer!.duration
+            break
+            
+            //The lock screen time elapsed/remaining don't track well with seeking
+            //But at least this has them moving in the right direction.
+            
+        case UIEventSubtype.RemoteControlBeginSeekingBackward:
+            print("RemoteControlBeginSeekingBackward")
+            
+            Globals.seekingObserver = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "seekingTimer", userInfo: nil, repeats: true)
+            
+            Globals.mpPlayer?.beginSeekingBackward()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlEndSeekingBackward:
+            print("RemoteControlEndSeekingBackward")
+            Globals.mpPlayer?.endSeeking()
+            Globals.seekingObserver?.invalidate()
+            Globals.seekingObserver = nil
+            updateUserDefaultsCurrentTimeExact()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlBeginSeekingForward:
+            print("RemoteControlBeginSeekingForward")
+            Globals.mpPlayer?.beginSeekingForward()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlEndSeekingForward:
+            print("RemoteControlEndSeekingForward")
+            Globals.mpPlayer?.endSeeking()
+            updateUserDefaultsCurrentTimeExact()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+        }
+
         setupPlayPauseButton()
     }
 
@@ -1613,7 +1703,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             //        println("playNewSermon: \(sermonURL)")
             url = NSURL(string:sermonURL!)
             if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
-                networkUnavailable()
+                networkUnavailable("Unable to open audio: \(url!)")
                 url = nil
             }
         }

@@ -115,8 +115,12 @@ class MyTableViewCell: UITableViewCell {
     
     func downloadAudio()
     {
-        sermon!.downloadAudio()
-        downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
+        if (Reachability.isConnectedToNetwork()) {
+            sermon!.downloadAudio()
+            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
+        } else {
+            networkUnavailable("Can't download audio.")
+        }
     }
     
     @IBOutlet weak var downloadProgressBar: UIProgressView!
@@ -130,5 +134,26 @@ class MyTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+
+    
+    private func networkUnavailable(message:String?)
+    {
+        if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+            let alert = UIAlertController(title:Constants.Network_Error,
+                message: message,
+                preferredStyle: UIAlertControllerStyle.ActionSheet)
+            
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                
+            })
+            alert.addAction(action)
+            
+            alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+            alert.popoverPresentationController?.sourceView = self
+            alert.popoverPresentationController?.sourceRect = downloadSwitch.frame
+            
+            UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+        }
     }
 }

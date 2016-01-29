@@ -195,18 +195,21 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func updateSearchResults()
     {
         if (searchBar.text != "") {
-            Globals.searchSeries = nil
-            
-            var searchSeries = [Series]()
-            
-            for series in Globals.seriesToSearch! {
-                if (((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
-                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)) {
-                        searchSeries.append(series)
-                }
-            }
-            
-            Globals.searchSeries = searchSeries
+//            Globals.searchSeries = nil
+//            
+//            var searchSeries = [Series]()
+//            
+//            for series in Globals.seriesToSearch! {
+//                if (((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
+//                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)) {
+//                        searchSeries.append(series)
+//                }
+//            }
+//            
+            Globals.searchSeries = Globals.seriesToSearch?.filter({ (series:Series) -> Bool in
+                return ((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
+                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
+            })
             
         } else {
             Globals.searchSeries = Globals.series
@@ -845,8 +848,107 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 ////        }
 //    }
     
+    func seekingTimer()
+    {
+        setupPlayingInfoCenter()
+    }
+    
     override func remoteControlReceivedWithEvent(event: UIEvent?) {
-        remoteControlEvent(event!)
+        print("remoteControlReceivedWithEvent")
+        
+        switch event!.subtype {
+        case UIEventSubtype.MotionShake:
+            print("RemoteControlShake")
+            break
+            
+        case UIEventSubtype.None:
+            print("RemoteControlNone")
+            break
+            
+        case UIEventSubtype.RemoteControlStop:
+            print("RemoteControlStop")
+            Globals.mpPlayer?.stop()
+            Globals.playerPaused = true
+            break
+            
+        case UIEventSubtype.RemoteControlPlay:
+            print("RemoteControlPlay")
+            Globals.mpPlayer?.play()
+            Globals.playerPaused = false
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlPause:
+            print("RemoteControlPause")
+            Globals.mpPlayer?.pause()
+            Globals.playerPaused = true
+            updateUserDefaultsCurrentTimeExact()
+            break
+            
+        case UIEventSubtype.RemoteControlTogglePlayPause:
+            print("RemoteControlTogglePlayPause")
+            if (Globals.playerPaused) {
+                Globals.mpPlayer?.play()
+            } else {
+                Globals.mpPlayer?.pause()
+                updateUserDefaultsCurrentTimeExact()
+            }
+            Globals.playerPaused = !Globals.playerPaused
+            break
+            
+        case UIEventSubtype.RemoteControlPreviousTrack:
+            print("RemoteControlPreviousTrack")
+            if (Globals.mpPlayer?.currentPlaybackTime == 0) {
+                // Would like it to skip to the prior sermon in the series if there is one.
+            } else {
+                Globals.mpPlayer?.currentPlaybackTime = 0
+            }
+            break
+            
+        case UIEventSubtype.RemoteControlNextTrack:
+            print("RemoteControlNextTrack")
+            Globals.mpPlayer?.currentPlaybackTime = Globals.mpPlayer!.duration
+            break
+            
+            //The lock screen time elapsed/remaining don't track well with seeking
+            //But at least this has them moving in the right direction.
+            
+        case UIEventSubtype.RemoteControlBeginSeekingBackward:
+            print("RemoteControlBeginSeekingBackward")
+            
+            Globals.seekingObserver = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "seekingTimer", userInfo: nil, repeats: true)
+            
+            Globals.mpPlayer?.beginSeekingBackward()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlEndSeekingBackward:
+            print("RemoteControlEndSeekingBackward")
+            Globals.mpPlayer?.endSeeking()
+            Globals.seekingObserver?.invalidate()
+            Globals.seekingObserver = nil
+            updateUserDefaultsCurrentTimeExact()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlBeginSeekingForward:
+            print("RemoteControlBeginSeekingForward")
+            Globals.mpPlayer?.beginSeekingForward()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+            
+        case UIEventSubtype.RemoteControlEndSeekingForward:
+            print("RemoteControlEndSeekingForward")
+            Globals.mpPlayer?.endSeeking()
+            updateUserDefaultsCurrentTimeExact()
+            //        updatePlayingInfoCenter()
+            setupPlayingInfoCenter()
+            break
+        }
+
         if (splitViewController != nil) {
             if (!splitViewController!.collapsed) {
                 if let nvc = splitViewController?.viewControllers[1] as? UINavigationController {

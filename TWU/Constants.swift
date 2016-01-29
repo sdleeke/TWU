@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 struct Constants {
-    static let REACHABILITY_TEST_URL = "https://www.google.com/"
+    static let REACHABILITY_TEST_URL = Constants.TWU_WEBSITE // "https://www.google.com/"
 
     static let JSON_ARRAY_KEY = "series"
     static let JSON_URL_PREFIX = "https://s3.amazonaws.com/jd2-86d4fd0ec0a8fca71eef54e388261c5b-us/"
@@ -93,7 +93,7 @@ struct Constants {
     static let FORWARD_SLASH = "/"
 //    static let CHECKMARK = "√"
     
-    static let Network_Unavailable = "Network Unavailable"
+    static let Network_Error = "Network Error"
     static let The_Word_Unleashed = "The Word Unleashed"
     
     static let TWU_EMAIL = "listeners@thewordunleashed.org"

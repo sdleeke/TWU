@@ -40,7 +40,8 @@ struct Globals {
     
     static var sliderObserver: NSTimer?
     static var playObserver: NSTimer?
-    
+    static var seekingObserver: NSTimer?
+
     static var gotoNowPlaying:Bool = false
     static var searchActive:Bool = false
     static var showingAbout:Bool = false
