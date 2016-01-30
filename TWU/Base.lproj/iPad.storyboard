@@ -187,7 +187,7 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="sE0-gY-Yu6">
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="sE0-gY-Yu6" customClass="OBSlider" customModule="TWU" customModuleProvider="target">
                                 <rect key="frame" x="109" y="248" width="426" height="31"/>
                                 <connections>
                                     <action selector="sliderTouchDown:" destination="H2E-ZS-FbW" eventType="touchDown" id="gx9-aV-TP5"/>
