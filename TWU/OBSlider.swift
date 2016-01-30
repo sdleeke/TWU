@@ -43,7 +43,7 @@ class OBSlider: UISlider {
 		let trackingOffset = currentLocation.x - previousLocation.x // delta x
 		
 		let verticalOffset = fabs(currentLocation.y - beganTrackingLocation!.y)/(self.superview!.bounds.height - beganTrackingLocation!.y)
-        print("verticalOffset: \(CGFloat(verticalOffset))")
+//        print("verticalOffset: \(CGFloat(verticalOffset))")
         
         var scrubbingSpeedChangePosIndex: NSInteger = self.indexOfLowerScrubbingSpeed(scrubbingSpeedChangePositions, forOffset: verticalOffset)
 		

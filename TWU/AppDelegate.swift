@@ -16,7 +16,48 @@ import MessageUI
 class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 
     var window: UIWindow?
-   
+
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData)
+    {
+        print("application:didRegisterForRemoteNotificationsWithDeviceToken")
+        print("Device token: \(deviceToken.description)")
+//        notification("Device token: \(deviceToken.description)")
+    }
+    
+    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError)
+    {
+        print("application:didFailToRegisterForRemoteNotificationsWithError")
+        notification("FailedToRegisterForRemoteNotifications: \(error.description)")
+    }
+    
+//    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void)
+//    {
+//        
+//    }
+    
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject])
+    {
+        print("application:didReceiveRemoteNotification")
+        application.applicationIconBadgeNumber = 0
+//        let msg = userInfo[aps] as! Dictionary //["alert"]
+        
+        let msg = userInfo["aps"]!["alert"] as? String
+        notification(msg)
+    }
+    
+    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void)
+    {
+        print("application:handleActionWithIdentifier:forRemoteNotification")
+        notification(identifier)
+        completionHandler()
+    }
+    
+    func notification(message:String?)
+    {
+        let alert = UIAlertView(title: "Remote Notification", message: message, delegate: self, cancelButtonTitle: "OK")
+        alert.show()
+    }
+
     func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool
     {
 //        println("application:openURL")
@@ -95,7 +136,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             try audioSession.setActive(true)
         } catch _ {
         }
+        
+        application.applicationIconBadgeNumber = 0;
+        
+        let readAction = UIMutableUserNotificationAction()
+        readAction.identifier = "READ_IDENTIFIER"
+        readAction.title = "Read"
+        readAction.activationMode = UIUserNotificationActivationMode.Foreground
+        readAction.destructive = false
+        readAction.authenticationRequired = true
+        
+        let ignoreAction = UIMutableUserNotificationAction()
+        ignoreAction.identifier = "IGNORE_IDENTIFIER"
+        ignoreAction.title = "Ignore"
+        ignoreAction.activationMode = UIUserNotificationActivationMode.Background
+        ignoreAction.destructive = false
+        ignoreAction.authenticationRequired = false
+        
+        let deleteAction = UIMutableUserNotificationAction()
+        deleteAction.identifier = "DELETE_IDENTIFIER"
+        deleteAction.title = "Delete"
+        deleteAction.activationMode = UIUserNotificationActivationMode.Foreground;
+        deleteAction.destructive = true
+        deleteAction.authenticationRequired = true
 
+        let messageCategory = UIMutableUserNotificationCategory()
+        
+        messageCategory.identifier = "MESSAGE_CATEGORY"
+    
+        messageCategory.setActions([readAction, ignoreAction, deleteAction], forContext:UIUserNotificationActionContext.Default)
+        messageCategory.setActions([readAction, deleteAction], forContext:UIUserNotificationActionContext.Minimal)
+        
+        let categories = Set(arrayLiteral: messageCategory)
+
+        let settings = UIUserNotificationSettings(forTypes: [.Alert,.Badge,.Sound], categories: categories)
+        
+        UIApplication.sharedApplication().registerForRemoteNotifications()
+        UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+        
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         return true
