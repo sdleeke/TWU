@@ -38,7 +38,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
     func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject])
     {
         print("application:didReceiveRemoteNotification")
-        application.applicationIconBadgeNumber = 0
 //        let msg = userInfo[aps] as! Dictionary //["alert"]
         
         let msg = userInfo["aps"]!["alert"] as? String
@@ -54,7 +53,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
     
     func notification(message:String?)
     {
-        let alert = UIAlertView(title: "Remote Notification", message: message, delegate: self, cancelButtonTitle: "OK")
+        let application = UIApplication.sharedApplication()
+        application.applicationIconBadgeNumber++
+        let alert = UIAlertView(title: "Remote Notification: \(application.applicationIconBadgeNumber)", message: message, delegate: self, cancelButtonTitle: "OK")
         alert.show()
     }
 
@@ -137,42 +138,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         } catch _ {
         }
         
-        application.applicationIconBadgeNumber = 0;
-        
-        let readAction = UIMutableUserNotificationAction()
-        readAction.identifier = "READ_IDENTIFIER"
-        readAction.title = "Read"
-        readAction.activationMode = UIUserNotificationActivationMode.Foreground
-        readAction.destructive = false
-        readAction.authenticationRequired = true
-        
-        let ignoreAction = UIMutableUserNotificationAction()
-        ignoreAction.identifier = "IGNORE_IDENTIFIER"
-        ignoreAction.title = "Ignore"
-        ignoreAction.activationMode = UIUserNotificationActivationMode.Background
-        ignoreAction.destructive = false
-        ignoreAction.authenticationRequired = false
-        
-        let deleteAction = UIMutableUserNotificationAction()
-        deleteAction.identifier = "DELETE_IDENTIFIER"
-        deleteAction.title = "Delete"
-        deleteAction.activationMode = UIUserNotificationActivationMode.Foreground;
-        deleteAction.destructive = true
-        deleteAction.authenticationRequired = true
-
-        let messageCategory = UIMutableUserNotificationCategory()
-        
-        messageCategory.identifier = "MESSAGE_CATEGORY"
-    
-        messageCategory.setActions([readAction, ignoreAction, deleteAction], forContext:UIUserNotificationActionContext.Default)
-        messageCategory.setActions([readAction, deleteAction], forContext:UIUserNotificationActionContext.Minimal)
-        
-        let categories = Set(arrayLiteral: messageCategory)
-
-        let settings = UIUserNotificationSettings(forTypes: [.Alert,.Badge,.Sound], categories: categories)
-        
-        UIApplication.sharedApplication().registerForRemoteNotifications()
-        UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+        if (Constants.SUPPORT_REMOTE_NOTIFICATION) {
+            let readAction = UIMutableUserNotificationAction()
+            readAction.identifier = "READ_IDENTIFIER"
+            readAction.title = "Read"
+            readAction.activationMode = UIUserNotificationActivationMode.Foreground
+            readAction.destructive = false
+            readAction.authenticationRequired = true
+            
+            let ignoreAction = UIMutableUserNotificationAction()
+            ignoreAction.identifier = "IGNORE_IDENTIFIER"
+            ignoreAction.title = "Ignore"
+            ignoreAction.activationMode = UIUserNotificationActivationMode.Background
+            ignoreAction.destructive = false
+            ignoreAction.authenticationRequired = false
+            
+            let deleteAction = UIMutableUserNotificationAction()
+            deleteAction.identifier = "DELETE_IDENTIFIER"
+            deleteAction.title = "Delete"
+            deleteAction.activationMode = UIUserNotificationActivationMode.Foreground;
+            deleteAction.destructive = true
+            deleteAction.authenticationRequired = true
+            
+            let messageCategory = UIMutableUserNotificationCategory()
+            
+            messageCategory.identifier = "MESSAGE_CATEGORY"
+            
+            messageCategory.setActions([readAction, ignoreAction, deleteAction], forContext:UIUserNotificationActionContext.Default)
+            messageCategory.setActions([readAction, deleteAction], forContext:UIUserNotificationActionContext.Minimal)
+            
+            let categories = Set(arrayLiteral: messageCategory)
+            
+            let settings = UIUserNotificationSettings(forTypes: [.Alert,.Badge,.Sound], categories: categories)
+            
+            UIApplication.sharedApplication().registerForRemoteNotifications()
+            UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+        }
         
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         

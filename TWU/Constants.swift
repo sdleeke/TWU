@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 
 struct Constants {
+    static let SUPPORT_REMOTE_NOTIFICATION = true
+
     static let REACHABILITY_TEST_URL = Constants.TWU_WEBSITE // "https://www.google.com/"
 
     static let JSON_ARRAY_KEY = "series"

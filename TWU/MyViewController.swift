@@ -235,6 +235,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             seriesDescription.addGestureRecognizer(swipeLeft)
             
             seriesDescription.text = seriesSelected?.text
+            seriesDescription.alwaysBounceVertical = true
             seriesDescription.selectable = false
         }
     }
