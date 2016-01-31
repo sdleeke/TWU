@@ -22,6 +22,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         print("application:didRegisterForRemoteNotificationsWithDeviceToken")
         print("Device token: \(deviceToken.description)")
 //        notification("Device token: \(deviceToken.description)")
+        let deviceTokenString = "\(deviceToken)"
+            .stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString:"<>"))
+            .stringByReplacingOccurrencesOfString(" ", withString: "")
+        print("deviceTokenString: \(deviceTokenString)")
+        
+        let sns = AWSSNS.defaultSNS()
+        let request = AWSSNSCreatePlatformEndpointInput()
+        request.token = deviceTokenString
+        request.platformApplicationArn = Constants.AWS_SNSPlatformApplicationArn
+        sns.createPlatformEndpoint(request).continueWithBlock { (task: AWSTask!) -> AnyObject! in
+            if task.error != nil {
+                print("Error: \(task.error)")
+            } else {
+                let createEndpointResponse = task.result as? AWSSNSCreateEndpointResponse
+                print("endpointArn: \(createEndpointResponse!.endpointArn)")
+            }
+            
+            return nil
+        }
     }
     
     func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError)
@@ -37,17 +56,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
     
     func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject])
     {
-        print("application:didReceiveRemoteNotification")
-//        let msg = userInfo[aps] as! Dictionary //["alert"]
-        
         let msg = userInfo["aps"]!["alert"] as? String
+
+        print("application:didReceiveRemoteNotification: \(msg)")
+
         notification(msg)
     }
     
     func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void)
     {
-        print("application:handleActionWithIdentifier:forRemoteNotification")
-        notification(identifier)
+        print("application:handleActionWithIdentifier:forRemoteNotification: \(identifier)")
+//        notification(identifier)
+
+        let mobileAnalytics = AWSMobileAnalytics(forAppId: "YOUR-APPID")
+        let eventClient = mobileAnalytics.eventClient
+        let pushNotificationEvent = eventClient.createEventWithEventType("PushNotificationEvent")
+        
+        if identifier == "READ_IDENTIFIER" {
+            print("User selected 'Read'")
+            
+        } else if identifier == "DELETE_IDENTIFIER" {
+            print("User selected 'Delete'")
+        }
+
+        
+        eventClient.recordEvent(pushNotificationEvent)
+        
         completionHandler()
     }
     
@@ -139,6 +173,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         }
         
         if (Constants.SUPPORT_REMOTE_NOTIFICATION) {
+            let credentialsProvider = AWSCognitoCredentialsProvider(
+                regionType: Constants.AWS_REGION, identityPoolId: Constants.AWS_CognitoIdentityPoolId)
+            
+            let defaultServiceConfiguration = AWSServiceConfiguration(
+                region: Constants.AWS_REGION, credentialsProvider: credentialsProvider)
+            
+            AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = defaultServiceConfiguration
+
             let readAction = UIMutableUserNotificationAction()
             readAction.identifier = "READ_IDENTIFIER"
             readAction.title = "Read"

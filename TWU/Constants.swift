@@ -10,6 +10,13 @@ import Foundation
 import UIKit
 
 struct Constants {
+    static let AWS_CognitoRegionType = AWSRegionType.Unknown
+    static let AWS_DefaultServiceRegionType = AWSRegionType.Unknown
+    static let AWS_CognitoIdentityPoolId = "us-east-1:2c897989-84a5-4641-a079-a34c07a36d19"
+    static let AWS_SNSPlatformApplicationArn = "arn:aws:sns:us-west-2:150305721051:app/APNS_SANDBOX/TWU"
+    static let AWS_MobileAnalyticsAppId = "1163a992024e484cb65e791e8a6fb893"
+    static let AWS_REGION = AWSRegionType.USWest2
+    
     static let SUPPORT_REMOTE_NOTIFICATION = true
 
     static let REACHABILITY_TEST_URL = Constants.TWU_WEBSITE // "https://www.google.com/"
