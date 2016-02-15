@@ -36,6 +36,40 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
     
     var id:Int
     
+    var audio:String? {
+        get {
+            return String(format: Constants.FILENAME_FORMAT, id)
+        }
+    }
+
+    var keyBase:String! {
+        get {
+            if (series == nil) {
+                print("keyBase: series nil")
+            }
+            return "\(series!.id):\(id)"
+        }
+    }
+
+    func hasCurrentTime() -> Bool
+    {
+        return (currentTime != nil) && (currentTime != "nan")
+    }
+    
+    // this supports settings values that are saved in defaults between sessions
+    var currentTime:String? {
+        get {
+            if (settings?[Constants.CURRENT_TIME] == nil) {
+                settings?[Constants.CURRENT_TIME] = Constants.ZERO
+            }
+            return settings?[Constants.CURRENT_TIME]
+        }
+        
+        set {
+            settings?[Constants.CURRENT_TIME] = newValue
+        }
+    }
+    
     init(series:Series,id:Int) {
         self.series = series
         self.id = id
@@ -60,6 +94,46 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         
         return sermonString
     }
+    
+    struct Settings {
+        var sermon:Sermon?
+        
+        init(sermon:Sermon?) {
+            if (sermon == nil) {
+                print("nil sermon in Settings init!")
+            }
+            self.sermon = sermon
+        }
+        
+        subscript(key:String) -> String? {
+            get {
+                var value:String?
+                value = Globals.sermonSettings?[self.sermon!.keyBase]?[key]
+                return value
+            }
+            set {
+                if (Globals.sermonSettings?[self.sermon!.keyBase] == nil) {
+                    Globals.sermonSettings?[self.sermon!.keyBase] = [String:String]()
+                }
+                if (newValue != nil) {
+                    if (self.sermon != nil) {
+                        //                        print("\(Globals.sermonSettings!)")
+                        //                        print("\(sermon!)")
+                        //                        print("\(newValue!)")
+                        Globals.sermonSettings?[self.sermon!.keyBase]?[key] = newValue
+                    } else {
+                        print("sermon == nil in Settings!")
+                    }
+                } else {
+                    print("newValue == nil in Settings!")
+                }
+            }
+        }
+    }
+    
+    lazy var settings:Settings? = {
+        return Settings(sermon:self)
+    }()
     
     lazy var download:Download! = {
         [unowned self] in

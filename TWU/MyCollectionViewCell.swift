@@ -19,6 +19,16 @@ class MyCollectionViewCell: UICollectionViewCell {
     
     private func updateUI() {
         if (series != nil) {
+            if (series == Globals.seriesSelected) {
+//                seriesArt.layer.opacity = 0.5
+//                seriesArt.layer.borderWidth = 4.0
+//                seriesArt.layer.borderColor = UIColor.blackColor().CGColor
+            } else {
+//                seriesArt.layer.opacity = 1.0
+//                seriesArt.layer.borderWidth = 0.0
+//                seriesArt.layer.borderColor = nil
+            }
+            
 //            print("\(series!.title)")
             seriesArt.image = series?.getArt()
             //        println("\(size)")

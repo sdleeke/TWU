@@ -168,6 +168,8 @@ func booksFromSeries(series:[Series]?) -> [String]?
 
 func loadDefaults()
 {
+    loadSermonSettings()
+
     let defaults = NSUserDefaults.standardUserDefaults()
     
     if let sorting = defaults.stringForKey(Constants.SORTING) {
@@ -193,9 +195,15 @@ func loadDefaults()
                 
                 if let sermonSelectedIndexStr = defaults.stringForKey(Constants.SERMON_SELECTED_INDEX) {
                     if let sermonSelectedIndex = Int(sermonSelectedIndexStr) {
-                        Globals.sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
+                        if (sermonSelectedIndex > (Globals.seriesSelected!.show! - 1)) {
+                            defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
+                        } else {
+                            Globals.sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
+                        }
                     }
                 }
+            } else {
+                defaults.removeObjectForKey(Constants.SERIES_SELECTED)
             }
         }
     }
@@ -209,9 +217,15 @@ func loadDefaults()
                 
                 if let sermonPlayingIndexStr = defaults.stringForKey(Constants.SERMON_PLAYING_INDEX) {
                     if let sermonPlayingIndex = Int(sermonPlayingIndexStr) {
-                        Globals.sermonPlaying = seriesPlaying?.sermons?[sermonPlayingIndex]
+                        if (sermonPlayingIndex > (Globals.seriesSelected!.show! - 1)) {
+                            defaults.removeObjectForKey(Constants.SERMON_PLAYING_INDEX)
+                        } else {
+                            Globals.sermonPlaying = seriesPlaying?.sermons?[sermonPlayingIndex]
+                        }
                     }
                 }
+            } else {
+                defaults.removeObjectForKey(Constants.SERIES_PLAYING)
             }
         }
     }
@@ -224,7 +238,7 @@ func setupSeriesAndSermonPlayingUserDefaults()
     if (Globals.sermonPlaying != nil) {
         defaults.setObject("\(Globals.sermonPlaying!.series!.id)", forKey: Constants.SERIES_PLAYING)
         defaults.setObject("\(Globals.sermonPlaying!.index)", forKey: Constants.SERMON_PLAYING_INDEX)
-        defaults.setObject("0", forKey: Constants.CURRENT_TIME)
+        defaults.setObject(Constants.ZERO, forKey: Constants.CURRENT_TIME)
         //
         //            println("seriesPlaying.title: \(Globals.seriesPlaying?.title)")
         //            println("seriesPlayingIndex: \(Globals.seriesPlayingIndex)")
@@ -259,10 +273,91 @@ func removeSliderObserver() {
     }
 }
 
-func removePlayObserver() {
-    if (Globals.playObserver != nil) {
-        Globals.playObserver!.invalidate()
-        Globals.playObserver = nil
+//func removePlayObserver() {
+//    if (Globals.playObserver != nil) {
+//        Globals.playObserver!.invalidate()
+//        Globals.playObserver = nil
+//    }
+//}
+
+func saveSermonSettingsBackground()
+{
+    print("saveSermonSettingsBackground")
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) { () -> Void in
+        saveSermonSettings()
+    }
+}
+
+func saveSermonSettings()
+{
+    print("saveSermonSettings")
+    let defaults = NSUserDefaults.standardUserDefaults()
+    //    print("\(Globals.sermonSettings)")
+    defaults.setObject(Globals.sermonSettings,forKey: Constants.SERMON_SETTINGS_KEY)
+    defaults.synchronize()
+}
+
+func loadSermonSettings()
+{
+    let defaults = NSUserDefaults.standardUserDefaults()
+    
+    if let settingsDictionary = defaults.dictionaryForKey(Constants.SERMON_SETTINGS_KEY) {
+        //        print("\(settingsDictionary)")
+        Globals.sermonSettings = settingsDictionary as? [String:[String:String]]
+    }
+    
+    if (Globals.sermonSettings == nil) {
+        Globals.sermonSettings = [String:[String:String]]()
+    }
+    
+    //    print("\(Globals.sermonSettings)")
+}
+
+func updateUserDefaultsCurrentTimeWhilePlaying()
+{
+    //        assert(Globals.player?.currentItem != nil,"Globals.player?.currentItem should not be nil if we're trying to update the currentTime in userDefaults")
+    assert(Globals.mpPlayer != nil,"Globals.mpPlayer should not be nil if we're trying to update the currentTime in userDefaults")
+    
+    if (Globals.mpPlayer != nil) {
+        //            let timeNow = Int64(Globals.player!.currentTime().value) / Int64(Globals.player!.currentTime().timescale)
+        
+        var timeNow = 0
+        
+        if (Globals.mpPlayer?.playbackState == .Playing) {
+            if (Globals.mpPlayer!.currentPlaybackTime > 0) && (Globals.mpPlayer!.currentPlaybackTime <= Globals.mpPlayer!.duration) {
+                timeNow = Int(Globals.mpPlayer!.currentPlaybackTime)
+            }
+            
+            if ((timeNow > 0) && (timeNow % 10) == 0) {
+                let defaults = NSUserDefaults.standardUserDefaults()
+                
+                if (Globals.sermonPlaying != nil) {
+                    //                println("\(timeNow.description)")
+                    defaults.setObject(timeNow.description,forKey:Constants.CURRENT_TIME)
+                }
+                
+                defaults.synchronize()
+            }
+        }
+    }
+}
+
+func updateUserDefaultsCurrentTimeExact()
+{
+    if (Globals.mpPlayer != nil) {
+        updateUserDefaultsCurrentTimeExact(Float(Globals.mpPlayer!.currentPlaybackTime))
+    }
+}
+
+func updateUserDefaultsCurrentTimeExact(seekToTime:Float)
+{
+    if (seekToTime >= 0) {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        //        print("\(seekToTime.description)")
+        defaults.setObject(seekToTime.description,forKey: Constants.CURRENT_TIME)
+        defaults.synchronize()
+        
+        Globals.sermonPlaying?.currentTime = seekToTime.description
     }
 }
 
@@ -278,25 +373,25 @@ func playNewSermon(sermon:Sermon?)
     
     setupSeriesAndSermonPlayingUserDefaults()
     
-    var sermonURL:String?
+//    var sermonURL:String?
     var url:NSURL?
     
     let filename = String(format: Constants.FILENAME_FORMAT, Globals.sermonPlaying!.id)
     url = documentsURL()?.URLByAppendingPathComponent(filename)
     // Check if file exist
     if (!NSFileManager.defaultManager().fileExistsAtPath(url!.path!)){
-        sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
+//        sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
         //        println("playNewSermon: \(sermonURL)")
-        url = NSURL(string:sermonURL!)
-        if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
-            networkUnavailable("Unable to open audio: \(url!)")
-            url = nil
-        }
+        url = NSURL(string:"\(Constants.BASE_AUDIO_URL)\(filename)")
+//        if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
+//            networkUnavailable("Unable to open audio: \(url!)")
+//            url = nil
+//        }
     }
     
     if (url != nil) {
         removeSliderObserver()
-        removePlayObserver()
+//        removePlayObserver()
         
         //This guarantees a fresh start.
         Globals.mpPlayer = MPMoviePlayerController(contentURL: url)
@@ -322,22 +417,24 @@ func playNewSermon(sermon:Sermon?)
 func setupPlayer(sermon:Sermon?)
 {
     if (sermon != nil) {
-        var sermonURL:String?
+//        var sermonURL:String?
         var url:NSURL?
         
         let filename = String(format: Constants.FILENAME_FORMAT, sermon!.series!.startingIndex + sermon!.index)
         url = documentsURL()?.URLByAppendingPathComponent(filename)
         // Check if file exist
         if (!NSFileManager.defaultManager().fileExistsAtPath(url!.path!)){
-            sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
+//            sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
             //        println("playNewSermon: \(sermonURL)")
-            url = NSURL(string:sermonURL!)
-            if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
-                url = nil
-            }
+            url = NSURL(string:"\(Constants.BASE_AUDIO_URL)\(filename)")
+//            if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
+//                url = nil
+//            }
         }
         
         if (url != nil) {
+            Globals.sermonLoaded = false
+
             Globals.mpPlayer = MPMoviePlayerController(contentURL: url)
             
             Globals.mpPlayer?.shouldAutoplay = false
@@ -347,9 +444,9 @@ func setupPlayer(sermon:Sermon?)
             setupPlayingInfoCenter()
             
             Globals.playerPaused = true
-            Globals.sermonLoaded = false
-        } else {
-            Globals.sermonLoaded = true
+//            Globals.sermonLoaded = false
+//        } else {
+//            Globals.sermonLoaded = true
         }
     }
 }
@@ -372,24 +469,34 @@ func removeTempFiles()
     }
 }
 
-func stringWithoutLeadingTheOrAOrAn(fromString:String?) -> String?
+func stringWithoutPrefixes(fromString:String?) -> String?
 {
-    let a:String = "A "
-    let an:String = "An "
-    let the:String = "The "
-    
     var sortString = fromString
     
-    if (fromString?.substringToIndex(a.endIndex) == a) {
-        sortString = fromString!.substringFromIndex(a.endIndex)
-    } else
-        if (fromString?.substringToIndex(an.endIndex) == an) {
-            sortString = fromString!.substringFromIndex(an.endIndex)
-        } else
-            if (fromString?.substringToIndex(the.endIndex) == the) {
-                sortString = fromString!.substringFromIndex(the.endIndex)
-                //        print("\(titleSort)")
+    let quote:String = "\""
+    let prefixes = ["A ","An ","And ","The "]
+    
+    if (fromString?.endIndex >= quote.endIndex) && (fromString?.substringToIndex(quote.endIndex) == quote) {
+        sortString = fromString!.substringFromIndex(quote.endIndex)
     }
+    
+    for prefix in prefixes {
+        if (fromString?.endIndex >= prefix.endIndex) && (fromString?.substringToIndex(prefix.endIndex) == prefix) {
+            sortString = fromString!.substringFromIndex(prefix.endIndex)
+            break
+        }
+    }
+
+//    if (fromString?.substringToIndex(a.endIndex) == a) {
+//        sortString = fromString!.substringFromIndex(a.endIndex)
+//    } else
+//        if (fromString?.substringToIndex(an.endIndex) == an) {
+//            sortString = fromString!.substringFromIndex(an.endIndex)
+//        } else
+//            if (fromString?.substringToIndex(the.endIndex) == the) {
+//                sortString = fromString!.substringFromIndex(the.endIndex)
+//                //        print("\(titleSort)")
+//    }
     
     return sortString
 }
@@ -644,21 +751,6 @@ func addAccessoryEvents()
     MPRemoteCommandCenter.sharedCommandCenter().likeCommand.enabled = false
     MPRemoteCommandCenter.sharedCommandCenter().dislikeCommand.enabled = false
     MPRemoteCommandCenter.sharedCommandCenter().bookmarkCommand.enabled = false
-}
-
-func updateUserDefaultsCurrentTimeExact()
-{
-    if (Globals.mpPlayer != nil) {
-        updateUserDefaultsCurrentTimeExact(Float(Globals.mpPlayer!.currentPlaybackTime))
-    }
-}
-
-func updateUserDefaultsCurrentTimeExact(seekToTime:Float)
-{
-    let defaults = NSUserDefaults.standardUserDefaults()
-    print("\(Float(seekToTime).description)")
-    defaults.setObject(Float(seekToTime).description,forKey: Constants.CURRENT_TIME)
-    defaults.synchronize()
 }
 
 func setupPlayingInfoCenter()

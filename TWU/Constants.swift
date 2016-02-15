@@ -10,12 +10,13 @@ import Foundation
 import UIKit
 
 struct Constants {
-    static let AWS_CognitoRegionType = AWSRegionType.Unknown
-    static let AWS_DefaultServiceRegionType = AWSRegionType.Unknown
+    static let AWS_CognitoRegionType = AWSRegionType.USEast1
+    static let AWS_DefaultServiceRegionType = AWSRegionType.USWest2
     static let AWS_CognitoIdentityPoolId = "us-east-1:2c897989-84a5-4641-a079-a34c07a36d19"
-    static let AWS_SNSPlatformApplicationArn = "arn:aws:sns:us-west-2:150305721051:app/APNS_SANDBOX/TWU"
+    static let AWS_SNSPlatformApplicationArn_Production = "arn:aws:sns:us-west-2:150305721051:app/APNS/TWUP"
+    static let AWS_SNSPlatformApplicationArn_Development = "arn:aws:sns:us-west-2:150305721051:app/APNS_SANDBOX/TWU"
     static let AWS_MobileAnalyticsAppId = "1163a992024e484cb65e791e8a6fb893"
-    static let AWS_REGION = AWSRegionType.USWest2
+    static let AWS_TOPIC_ARN = "arn:aws:sns:us-west-2:150305721051:TWU"
     
     static let SUPPORT_REMOTE_NOTIFICATION = true
 
@@ -23,6 +24,8 @@ struct Constants {
 
     static let JSON_ARRAY_KEY = "series"
     static let JSON_URL_PREFIX = "https://s3.amazonaws.com/jd2-86d4fd0ec0a8fca71eef54e388261c5b-us/"
+    
+    static let TWU_GIVING_URL = "https://countryside.infellowship.com/OnlineGiving/GiveNow/NoAccount/"
     
     static let TWU_SHORT = "TWU"
     static let TWU_LONG = "The Word Unleashed"
@@ -45,8 +48,12 @@ struct Constants {
     
     static let Tom_Pennington = "Tom Pennington"
     
-    static let VIEW_TRANSITION_TIME = 1.0 // seconds
+    static let PLAY_OBSERVER_TIME_INTERVAL = 10.0 // seconds
     
+    static let VIEW_TRANSITION_TIME = 1.0 // seconds
+    static let SKIP_TIME_INTERVAL = 15
+    static let ZERO = "0"
+
     //This must support https to be compatible with iOS 9
     static let BASE_AUDIO_URL = "http://sitedata.thewordunleashed.org/avmedia/broadcasts/twu"
     
@@ -83,6 +90,7 @@ struct Constants {
     static let SHOW = "show"
     
     static let CURRENT_TIME = "currentTime"
+    static let SERMON_SETTINGS_KEY = "Sermon Settings"
     
     static let Show_About = "Show About"
     static let Show_Series = "Show Series"

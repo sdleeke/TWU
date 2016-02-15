@@ -196,7 +196,7 @@
                                     <action selector="sliderValueChanging:" destination="H2E-ZS-FbW" eventType="valueChanged" id="UPe-KP-rYo"/>
                                 </connections>
                             </slider>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="01j-65-CbC">
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="01j-65-CbC">
                                 <rect key="frame" x="312" y="253" width="20" height="20"/>
                             </activityIndicatorView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3jv-Gb-bb7" userLabel="Time Remaining">
@@ -397,12 +397,20 @@ Southlake, Texas 76092
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TGM-cs-tyn">
+                                <rect key="frame" x="507" y="324" width="73" height="30"/>
+                                <state key="normal" title="Contribute"/>
+                                <connections>
+                                    <action selector="give:" destination="lBu-Wa-0uM" eventType="touchUpInside" id="0rp-fd-dyw"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="JJ6-2U-DAt" firstAttribute="leading" secondItem="oQh-5Y-6Pd" secondAttribute="leadingMargin" id="8Nv-oK-WHe"/>
                             <constraint firstItem="aCa-aF-Otc" firstAttribute="top" secondItem="aaG-AL-gpM" secondAttribute="bottom" constant="12" id="E1I-uR-jVx"/>
                             <constraint firstItem="td5-7c-QWi" firstAttribute="top" secondItem="OOw-K7-N5K" secondAttribute="bottom" constant="8" symbolic="YES" id="Kxl-Zm-h35"/>
+                            <constraint firstItem="TGM-cs-tyn" firstAttribute="baseline" secondItem="JJ6-2U-DAt" secondAttribute="baseline" id="L6Y-81-npY"/>
                             <constraint firstItem="2vS-ZB-L7s" firstAttribute="top" secondItem="bV4-JK-gyj" secondAttribute="bottom" constant="20" id="NUN-sa-Rnk"/>
                             <constraint firstItem="aCa-aF-Otc" firstAttribute="top" secondItem="aaG-AL-gpM" secondAttribute="bottom" constant="8" symbolic="YES" id="PKw-GK-Vdy"/>
                             <constraint firstItem="JJ6-2U-DAt" firstAttribute="trailing" secondItem="2vS-ZB-L7s" secondAttribute="trailing" id="R0k-Za-2KE"/>
@@ -411,6 +419,7 @@ Southlake, Texas 76092
                             <constraint firstItem="td5-7c-QWi" firstAttribute="top" secondItem="JJ6-2U-DAt" secondAttribute="bottom" constant="186" id="XUU-iC-5Oj"/>
                             <constraint firstItem="aCa-aF-Otc" firstAttribute="width" secondItem="2vS-ZB-L7s" secondAttribute="width" id="ZBf-Lw-GOg"/>
                             <constraint firstItem="OOw-K7-N5K" firstAttribute="leading" secondItem="oQh-5Y-6Pd" secondAttribute="leadingMargin" constant="-6" id="aKE-cq-IFH"/>
+                            <constraint firstItem="TGM-cs-tyn" firstAttribute="trailing" secondItem="JJ6-2U-DAt" secondAttribute="trailing" id="b3u-4U-oXR"/>
                             <constraint firstItem="JJ6-2U-DAt" firstAttribute="top" secondItem="aCa-aF-Otc" secondAttribute="bottom" constant="12" id="bHG-Av-2ay"/>
                             <constraint firstItem="2vS-ZB-L7s" firstAttribute="bottom" secondItem="aCa-aF-Otc" secondAttribute="bottom" id="cYF-dU-5Zk"/>
                             <constraint firstItem="2vS-ZB-L7s" firstAttribute="leading" secondItem="aCa-aF-Otc" secondAttribute="trailing" constant="8" symbolic="YES" id="iW6-9f-D5V"/>

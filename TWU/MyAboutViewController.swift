@@ -60,6 +60,11 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
 
     @IBOutlet weak var theWordUnleashedDescription: UITextView!
     
+    @IBAction func give(sender: UIButton)
+    {
+        openWebSite(Constants.TWU_GIVING_URL)
+    }
+    
     @IBOutlet weak var actionsButton: UIBarButtonItem!
     
     private func setVersion()
@@ -209,7 +214,7 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     
     private func networkUnavailable(message:String?)
     {
-        if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+        if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) { //  && (self.view.window != nil)
             let alert = UIAlertController(title: Constants.Network_Error,
                 message: message,
                 preferredStyle: UIAlertControllerStyle.Alert)
@@ -219,13 +224,13 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
             })
             alert.addAction(action)
             
-            presentViewController(alert, animated: true, completion: nil)
+            UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
         }
     }
     
     private func openWebSite(urlString:String)
     {
-        if (Reachability.isConnectedToNetwork() && UIApplication.sharedApplication().canOpenURL(NSURL(string:urlString)!)) {
+        if (UIApplication.sharedApplication().canOpenURL(NSURL(string:urlString)!)) { // Reachability.isConnectedToNetwork() &&
             UIApplication.sharedApplication().openURL(NSURL(string:urlString)!)
         } else {
             networkUnavailable("Unable to open web site: \(urlString)")
@@ -296,6 +301,29 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         presentViewController(alert, animated: true, completion: nil)
     }
     
+    func showUpdate(message message:String?,title:String?)
+    {
+        //        let application = UIApplication.sharedApplication()
+        //        application.applicationIconBadgeNumber++
+        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
+        //        alert.show()
+        
+        UIApplication.sharedApplication().applicationIconBadgeNumber++
+        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
+        alert.show()
+    }
+    
+    func sermonUpdateAvailable()
+    {
+        //        let application = UIApplication.sharedApplication()
+        //        application.applicationIconBadgeNumber++
+        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
+        //        alert.show()
+        
+        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
+        alert.show()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -315,8 +343,14 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
+        
+        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
+            sermonUpdateAvailable()
+        }
+        
         tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
         theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
+        
 //        tomPenningtonBio.scrollRangeToVisible(NSMakeRange(0,0))
 //        theWordUnleashedDescription.scrollRangeToVisible(NSMakeRange(0,0))
     }

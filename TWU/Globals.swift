@@ -33,6 +33,8 @@ struct Globals {
         }
     }
     
+    static var sermonSettings:[String:[String:String]]?
+
     static var mpPlayer:MPMoviePlayerController?
     
     static var playerPaused:Bool = false
@@ -54,7 +56,18 @@ struct Globals {
     static var searchSeries:[Series]?
 
     static var filteredSeries:[Series]?
-    static var series:[Series]?
+    
+    static var series:[Series]? {
+        didSet {
+            if (filter != nil) {
+                showing = .filtered
+                filteredSeries = Globals.series?.filter({ (series:Series) -> Bool in
+                    return series.book == Globals.filter
+                })
+            }
+
+        }
+    }
     
     static var showing:Showing = .all
 

@@ -25,18 +25,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         let deviceTokenString = "\(deviceToken)"
             .stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString:"<>"))
             .stringByReplacingOccurrencesOfString(" ", withString: "")
-        print("deviceTokenString: \(deviceTokenString)")
+        print("deviceTokenString: \(deviceTokenString)\n")
         
         let sns = AWSSNS.defaultSNS()
         let request = AWSSNSCreatePlatformEndpointInput()
         request.token = deviceTokenString
-        request.platformApplicationArn = Constants.AWS_SNSPlatformApplicationArn
+        
+        #if DEBUG
+            request.platformApplicationArn = Constants.AWS_SNSPlatformApplicationArn_Development
+        #endif
+
+        #if RELEASE
+            request.platformApplicationArn = Constants.AWS_SNSPlatformApplicationArn_Production
+        #endif
+        
         sns.createPlatformEndpoint(request).continueWithBlock { (task: AWSTask!) -> AnyObject! in
             if task.error != nil {
-                print("Error: \(task.error)")
+                print("Error: \(task.error)\n")
             } else {
                 let createEndpointResponse = task.result as? AWSSNSCreateEndpointResponse
-                print("endpointArn: \(createEndpointResponse!.endpointArn)")
+                print("endpointArn: \(createEndpointResponse!.endpointArn!)\n")
+
+                let si = AWSSNSSubscribeInput()
+                si.topicArn = Constants.AWS_TOPIC_ARN
+                si.endpoint = createEndpointResponse?.endpointArn
+                si.protocols = "application"
+                
+                sns.subscribe(si, completionHandler: { (response:AWSSNSSubscribeResponse?, error:NSError?) -> Void in
+                    print("response: \(response)")
+                    print("error: \(error)")
+                })
             }
             
             return nil
@@ -46,53 +64,215 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
     func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError)
     {
         print("application:didFailToRegisterForRemoteNotificationsWithError")
-        notification("FailedToRegisterForRemoteNotifications: \(error.description)")
+//        showAlert("FailedToRegisterForRemoteNotifications: \(error.description)")
     }
     
-//    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void)
-//    {
-//        
-//    }
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void)
+    {
+        let aps = userInfo["aps"]
+        
+        let alert = aps?["alert"] as? String
+        
+        let category = aps?["category"] as? String
+        
+        let message = aps?["message"] as? String
+        
+        let title = aps?["title"] as? String
+        
+        print("application:didReceiveRemoteNotification:fetchCompletionHandler: \(message) \(title) \(category)")
+        
+        if (category != nil) {
+            switch category! {
+            case "UPDATE":
+                showUpdate(message: message,title: title)
+                break
+                
+            default:
+                break
+            }
+        } else if (alert != nil) {
+            showAlert(alert)
+        }
+        
+        completionHandler(UIBackgroundFetchResult.NoData)
+    }
     
     func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject])
     {
-        let msg = userInfo["aps"]!["alert"] as? String
+        let alert = userInfo["aps"]!["alert"] as? String
+        let category = userInfo["aps"]!["category"] as? String
 
-        print("application:didReceiveRemoteNotification: \(msg)")
+        print("application:didReceiveRemoteNotification: \(alert) \(category)")
 
-        notification(msg)
+        showAlert("application:didReceiveRemoteNotification: \(alert) \(category)")
     }
+    
+//    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, completionHandler: () -> Void)
+//    {
+//        print("handleActionWithIdentifier:forLocalNotification")
+//        
+//        showMessage(identifier)
+//
+////        if identifier == "READ_IDENTIFIER" {
+////            print("User selected 'Read'")
+////        } else if identifier == "DELETE_IDENTIFIER" {
+////            print("User selected 'Delete'")
+////        }
+//        
+//        completionHandler()
+//    }
+//    
+//    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: () -> Void)
+//    {
+//        print("handleActionWithIdentifier:forLocalNotification:withResponseInfo")
+//
+//        showMessage(identifier)
+//        
+////        if identifier == "READ_IDENTIFIER" {
+////            print("User selected 'Read'")
+////        } else if identifier == "DELETE_IDENTIFIER" {
+////            print("User selected 'Delete'")
+////        }
+//
+//        completionHandler()
+//    }
     
     func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void)
     {
         print("application:handleActionWithIdentifier:forRemoteNotification: \(identifier)")
-//        notification(identifier)
+        
+//        showAlert(identifier)
 
-        let mobileAnalytics = AWSMobileAnalytics(forAppId: "YOUR-APPID")
+        let mobileAnalytics = AWSMobileAnalytics(forAppId: Constants.AWS_MobileAnalyticsAppId)
         let eventClient = mobileAnalytics.eventClient
         let pushNotificationEvent = eventClient.createEventWithEventType("PushNotificationEvent")
         
-        if identifier == "READ_IDENTIFIER" {
-            print("User selected 'Read'")
+        switch identifier! {
+        case "LATER":
+            pushNotificationEvent.addAttribute("Later", forKey: "Action")
+            print("User selected 'Later'")
+            application.applicationIconBadgeNumber++
+            break
             
-        } else if identifier == "DELETE_IDENTIFIER" {
-            print("User selected 'Delete'")
+        case "NOW":
+            pushNotificationEvent.addAttribute("Now", forKey: "Action")
+            print("User selected 'Now'")
+            application.applicationIconBadgeNumber = 0
+            handleRefresh()
+            break
+            
+        default:
+            pushNotificationEvent.addAttribute("Undefined", forKey: "Action")
+            break
         }
-
         
         eventClient.recordEvent(pushNotificationEvent)
         
         completionHandler()
     }
     
-    func notification(message:String?)
+    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+        print("application:didRegisterUserNotificationSettings: \(notificationSettings)")
+    }
+    
+    func showUpdate(message message:String?,title:String?)
+    {
+        //iPad
+        if let svc = self.window?.rootViewController as? UISplitViewController {
+            if let nvc = svc.viewControllers[0] as? UINavigationController {
+                if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+                    cvc.showUpdate(message: message,title: title)
+                }
+                if let mvc = nvc.visibleViewController as? MyViewController {
+                    mvc.showUpdate(message: message,title: title)
+                }
+                if let mavc = nvc.visibleViewController as? MyAboutViewController {
+                    mavc.showUpdate(message: message,title: title)
+                }
+            }
+        }
+        
+        //iPhone
+        if let nvc = self.window?.rootViewController as? UINavigationController {
+            if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+                cvc.showUpdate(message: message,title: title)
+            }
+            if let mvc = nvc.visibleViewController as? MyViewController {
+                mvc.showUpdate(message: message,title: title)
+            }
+            if let mavc = nvc.visibleViewController as? MyAboutViewController {
+                mavc.showUpdate(message: message,title: title)
+            }
+        }
+    }
+    
+    func sermonUpdateAvailable()
+    {
+        //iPad
+        if let svc = self.window?.rootViewController as? UISplitViewController {
+            if let nvc = svc.viewControllers[0] as? UINavigationController {
+                if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+                    cvc.sermonUpdateAvailable()
+                }
+                if let mvc = nvc.visibleViewController as? MyViewController {
+                    mvc.sermonUpdateAvailable()
+                }
+                if let mavc = nvc.visibleViewController as? MyAboutViewController {
+                    mavc.sermonUpdateAvailable()
+                }
+            }
+        }
+        
+        //iPhone
+        if let nvc = self.window?.rootViewController as? UINavigationController {
+            if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+                cvc.sermonUpdateAvailable()
+            }
+            if let mvc = nvc.visibleViewController as? MyViewController {
+                mvc.sermonUpdateAvailable()
+            }
+            if let mavc = nvc.visibleViewController as? MyAboutViewController {
+                mavc.sermonUpdateAvailable()
+            }
+        }
+    }
+    
+    func handleRefresh()
+    {
+        //iPad
+        if let svc = self.window?.rootViewController as? UISplitViewController {
+            if let nvc = svc.viewControllers[0] as? UINavigationController {
+                if let cvc = nvc.topViewController as? MyCollectionViewController {
+                    cvc.handleRefresh(cvc.refreshControl!)
+                }
+                if let _ = nvc.topViewController as? MyViewController {
+                    nvc.popToRootViewControllerAnimated(true)
+                    if let cvc = nvc.topViewController as? MyCollectionViewController {
+                        cvc.handleRefresh(cvc.refreshControl!)
+                    }
+                }
+            }
+        }
+        
+        //iPhone
+        if let nvc = self.window?.rootViewController as? UINavigationController {
+            if let _ = nvc.topViewController as? MyViewController {
+                nvc.popToRootViewControllerAnimated(true)
+            }
+            
+            if let cvc = nvc.topViewController as? MyCollectionViewController {
+                cvc.handleRefresh(cvc.refreshControl!)
+            }
+        }
+    }
+    
+    func showAlert(message:String?)
     {
         let application = UIApplication.sharedApplication()
-        application.applicationIconBadgeNumber++
-        let alert = UIAlertView(title: "Remote Notification: \(application.applicationIconBadgeNumber)", message: message, delegate: self, cancelButtonTitle: "OK")
+        let alert = UIAlertView(title: "Remote Notification \(application.applicationIconBadgeNumber)", message: message, delegate: self, cancelButtonTitle: "OK")
         alert.show()
     }
-
+    
     func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool
     {
 //        println("application:openURL")
@@ -173,48 +353,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         }
         
         if (Constants.SUPPORT_REMOTE_NOTIFICATION) {
-            let credentialsProvider = AWSCognitoCredentialsProvider(
-                regionType: Constants.AWS_REGION, identityPoolId: Constants.AWS_CognitoIdentityPoolId)
-            
-            let defaultServiceConfiguration = AWSServiceConfiguration(
-                region: Constants.AWS_REGION, credentialsProvider: credentialsProvider)
-            
-            AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = defaultServiceConfiguration
+//            application.applicationIconBadgeNumber = 0
 
-            let readAction = UIMutableUserNotificationAction()
-            readAction.identifier = "READ_IDENTIFIER"
-            readAction.title = "Read"
-            readAction.activationMode = UIUserNotificationActivationMode.Foreground
-            readAction.destructive = false
-            readAction.authenticationRequired = true
+            let nowAction = UIMutableUserNotificationAction()
+            nowAction.identifier = "NOW"
+            nowAction.title = "Update Now"
+            nowAction.activationMode = UIUserNotificationActivationMode.Foreground
+            nowAction.destructive = false
+            nowAction.authenticationRequired = true
             
-            let ignoreAction = UIMutableUserNotificationAction()
-            ignoreAction.identifier = "IGNORE_IDENTIFIER"
-            ignoreAction.title = "Ignore"
-            ignoreAction.activationMode = UIUserNotificationActivationMode.Background
-            ignoreAction.destructive = false
-            ignoreAction.authenticationRequired = false
-            
-            let deleteAction = UIMutableUserNotificationAction()
-            deleteAction.identifier = "DELETE_IDENTIFIER"
-            deleteAction.title = "Delete"
-            deleteAction.activationMode = UIUserNotificationActivationMode.Foreground;
-            deleteAction.destructive = true
-            deleteAction.authenticationRequired = true
+            let laterAction = UIMutableUserNotificationAction()
+            laterAction.identifier = "LATER"
+            laterAction.title = "Update Later"
+            laterAction.activationMode = UIUserNotificationActivationMode.Background
+            laterAction.destructive = false
+            laterAction.authenticationRequired = false
             
             let messageCategory = UIMutableUserNotificationCategory()
             
-            messageCategory.identifier = "MESSAGE_CATEGORY"
+            messageCategory.identifier = "UPDATE"
             
-            messageCategory.setActions([readAction, ignoreAction, deleteAction], forContext:UIUserNotificationActionContext.Default)
-            messageCategory.setActions([readAction, deleteAction], forContext:UIUserNotificationActionContext.Minimal)
+            messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Minimal)
+            messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Default)
             
-            let categories = Set(arrayLiteral: messageCategory)
-            
-            let settings = UIUserNotificationSettings(forTypes: [.Alert,.Badge,.Sound], categories: categories)
-            
-            UIApplication.sharedApplication().registerForRemoteNotifications()
+            let settings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: Set([messageCategory])) //
             UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+            UIApplication.sharedApplication().registerForRemoteNotifications()
+            
+            let credentialsProvider = AWSCognitoCredentialsProvider(
+                regionType: Constants.AWS_CognitoRegionType, identityPoolId: Constants.AWS_CognitoIdentityPoolId)
+            
+            let defaultServiceConfiguration = AWSServiceConfiguration(
+                region: Constants.AWS_DefaultServiceRegionType, credentialsProvider: credentialsProvider)
+            
+            AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = defaultServiceConfiguration
         }
         
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
@@ -241,6 +413,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 //        println("applicationWillEnterForeground")
         
         setupPlayingInfoCenter()
+        
+        if (application.applicationIconBadgeNumber > 0) {
+            sermonUpdateAvailable()
+        }
 
         if (Globals.mpPlayer?.currentPlaybackRate == 0) {
             //It is paused, possibly not by us, but by the system

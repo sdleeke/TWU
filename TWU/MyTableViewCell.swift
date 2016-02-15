@@ -115,12 +115,14 @@ class MyTableViewCell: UITableViewCell {
     
     func downloadAudio()
     {
-        if (Reachability.isConnectedToNetwork()) {
-            sermon!.downloadAudio()
-            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
-        } else {
-            networkUnavailable("Can't download audio.")
-        }
+        sermon!.downloadAudio()
+        downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
+//        if (Reachability.isConnectedToNetwork()) {
+//            sermon!.downloadAudio()
+//            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
+//        } else {
+//            networkUnavailable("Can't download audio.")
+//        }
     }
     
     @IBOutlet weak var downloadProgressBar: UIProgressView!

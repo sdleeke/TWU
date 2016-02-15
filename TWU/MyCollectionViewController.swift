@@ -192,6 +192,98 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         setToolbarItems(barButtons, animated: true)
     }
     
+    func showUpdate(message message:String?,title:String?)
+    {
+        //        let application = UIApplication.sharedApplication()
+        //        application.applicationIconBadgeNumber++
+        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
+        //        alert.show()
+        
+        let alert = UIAlertController(title:message,
+            message: title,
+            preferredStyle: UIAlertControllerStyle.ActionSheet)
+        
+        let updateAction = UIAlertAction(title: "Update Now", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+            self.handleRefresh(self.refreshControl!)
+        })
+        alert.addAction(updateAction)
+        
+//        if (!Reachability.isConnectedToNetwork()) {
+//            updateAction.enabled = false
+//        }
+        
+        let laterAction = UIAlertAction(title: "Update Later", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+            UIApplication.sharedApplication().applicationIconBadgeNumber++
+        })
+        alert.addAction(laterAction)
+        
+        let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+            UIApplication.sharedApplication().applicationIconBadgeNumber++
+        })
+        alert.addAction(cancelAction)
+        
+        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+        
+        alert.popoverPresentationController?.sourceView = self.searchBar
+        alert.popoverPresentationController?.sourceRect = self.searchBar.frame
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func sermonUpdateAvailable()
+    {
+        //        let application = UIApplication.sharedApplication()
+        //        application.applicationIconBadgeNumber++
+        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
+        //        alert.show()
+        
+        var title:String?
+        
+        switch UIApplication.sharedApplication().applicationIconBadgeNumber {
+        case 0:
+            // Error
+            return
+            
+        case 1:
+            title = "Sermon Update Available"
+            break
+            
+        default:
+            title = "Sermon Updates Available"
+            break
+        }
+        
+        let alert = UIAlertController(title:title,
+            message: nil,
+            preferredStyle: UIAlertControllerStyle.ActionSheet)
+
+        let updateAction = UIAlertAction(title: "Update Now", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+            self.handleRefresh(self.refreshControl!)
+        })
+        alert.addAction(updateAction)
+        
+//        if (!Reachability.isConnectedToNetwork()) {
+//            updateAction.enabled = false
+//        }
+        
+        let laterAction = UIAlertAction(title: "Update Later", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+            
+        })
+        alert.addAction(laterAction)
+        
+        let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+            
+        })
+        alert.addAction(cancelAction)
+        
+        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+        
+        alert.popoverPresentationController?.sourceView = self.searchBar
+        alert.popoverPresentationController?.sourceRect = self.searchBar.frame
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
+    
     func updateSearchResults()
     {
         if (searchBar.text != "") {
@@ -300,43 +392,56 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         /* Enough data has been buffered for playback to continue uninterrupted. */
         
         let loadstate:UInt8 = UInt8(player.loadState.rawValue)
-        let loadvalue:UInt8 = UInt8(MPMovieLoadState.PlaythroughOK.rawValue)
+        let loadvalue:UInt8 = UInt8(MPMovieLoadState.Playable.rawValue)
         
         // If there is a sermon that was playing before and we want to start back at the same place,
         // the PlayPause button must NOT be active until loadState & PlaythroughOK == 1.
         
-        //        println("\(loadstate)")
-        //        println("\(loadvalue)")
-        
+        print("\(loadstate)")
+        print("\(loadvalue)")
+
+        //For loading
+        if ((loadstate & loadvalue) != (1<<1)) {
+            print("mpPlayerLoadStateDidChange.MPMovieLoadState != PlaythroughOK")
+        }
         if ((loadstate & loadvalue) == (1<<1)) {
-            print("AppDelegate mpPlayerLoadStateDidChange.MPMovieLoadState.PlaythroughOK")
+            print("mpPlayerLoadStateDidChange.MPMovieLoadState == PlaythroughOK")
+        }
+        
+        if ((loadstate & loadvalue) == loadvalue) { // (1<<1)
+//        if (Globals.mpPlayer!.loadState == MPMovieLoadState.Playable) {
+//            print("AppDelegate mpPlayerLoadStateDidChange.MPMovieLoadState.PlaythroughOK")
+            print("AppDelegate mpPlayerLoadStateDidChange.MPMovieLoadState.Playable")
             //should be called only once, only for  first time audio load.
             if(!Globals.sermonLoaded) {
-                let defaults = NSUserDefaults.standardUserDefaults()
-                let currentTime = Float(defaults.stringForKey(Constants.CURRENT_TIME)!)
+//                if let currentTimeString = Globals.sermonPlaying?.currentTime { // NSUserDefaults.standardUserDefaults().stringForKey(Constants.CURRENT_TIME
+//                    let currentTime = Float(currentTimeString)
+//                    
+////                    print("\(currentTime!)")
+////                    print("\(NSTimeInterval(currentTime!))")
+//                    
+//                    Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(currentTime!)
+//                }
+   
+                Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(Float(Globals.sermonPlaying!.currentTime!)!)
+
+//                print("\(Globals.mpPlayer!.currentPlaybackTime)")
                 
-                print("\(currentTime!)")
-                print("\(NSTimeInterval(currentTime!))")
-                
-                Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(currentTime!)
-                
-                print("\(Globals.mpPlayer!.currentPlaybackTime)")
-                
-                if (self.splitViewController != nil) {
-                    //iPad (but multitasking may make it behave like an iphone, i.e. detail view controller may not be present.
-                    if let nvc = self.splitViewController?.viewControllers[self.splitViewController!.viewControllers.count - 1] as? UINavigationController {
-                        if let myvc = nvc.topViewController as? MyViewController {
-                            //                    println("myvc = MyViewController")
-                            myvc.spinner.stopAnimating()
-                        }
-                    }
-                } else {
-                    //iPhone
-                    if let myvc = self.navigationController?.topViewController as? MyViewController {
-                        //                    println("myvc = MyViewController")
-                        myvc.spinner.stopAnimating()
-                    }
-                }
+//                if (self.splitViewController != nil) {
+//                    //iPad (but multitasking may make it behave like an iphone, i.e. detail view controller may not be present.
+//                    if let nvc = self.splitViewController?.viewControllers[self.splitViewController!.viewControllers.count - 1] as? UINavigationController {
+//                        if let myvc = nvc.topViewController as? MyViewController {
+//                            //                    println("myvc = MyViewController")
+//                            myvc.spinner.stopAnimating()
+//                        }
+//                    }
+//                } else {
+//                    //iPhone
+//                    if let myvc = self.navigationController?.topViewController as? MyViewController {
+//                        //                    println("myvc = MyViewController")
+//                        myvc.spinner.stopAnimating()
+//                    }
+//                }
                 
                 Globals.sermonLoaded = true
             }
@@ -411,34 +516,11 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             })
             
             var success = false
+            var newSeries:[Series]?
             
             if let seriesDicts = loadSeriesDictsFromJSON() {
                 if let series = seriesFromSeriesDicts(seriesDicts) {
-                    Globals.series = series
-                    
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.navigationItem.title = Constants.Loading_Defaults
-                    })
-                    loadDefaults()
-                    
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.navigationItem.title = Constants.Sorting
-                    })
-                    Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
-
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.navigationItem.title = Constants.Setting_up_Player
-                        self.setupSermonPlaying()
-                    })
-                    
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.navigationItem.title = Constants.TWU_LONG
-                        self.setupViews()
-                    })
-                    
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        completion?()
-                    })
+                    newSeries = series
                     success = true
                 }
             }
@@ -464,6 +546,128 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 return
             }
             
+            var seriesNewToUser:[Series]?
+
+            var oldSermonCount = 0
+            var newSermonCount = 0
+            
+//            print("\(Globals.series?.count)")
+
+            if Globals.series != nil {
+                let old = Set(Globals.series!.map({ (series:Series) -> Int in
+                    return series.id
+                }))
+                
+                let new = Set(newSeries!.map({ (series:Series) -> Int in
+                    return series.id
+                }))
+                
+                let onlyInNew = new.subtract(old)
+                
+                if (onlyInNew.count > 0) {
+                    seriesNewToUser = onlyInNew.map({ (id:Int) -> Series in
+                        return newSeries!.filter({ (series:Series) -> Bool in
+                            return series.id == id
+                        }).first!
+                    })
+                }
+
+                for series in Globals.series! {
+                    oldSermonCount += series.sermons!.count
+                }
+                for series in newSeries! {
+                    newSermonCount += series.sermons!.count
+                }
+            }
+            
+            Globals.series = newSeries
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.navigationItem.title = Constants.Loading_Defaults
+            })
+            loadDefaults()
+
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.navigationItem.title = Constants.Sorting
+            })
+            Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.navigationItem.title = Constants.Setting_up_Player
+                self.setupSermonPlaying()
+            })
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.navigationItem.title = Constants.TWU_LONG
+                self.setupViews()
+            })
+            
+            if (completion != nil) {
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    var message:String?
+                    
+                    if (seriesNewToUser != nil) && (seriesNewToUser!.count > 0) {
+                        if (Globals.filter == nil) {
+                            if (Globals.sorting != Constants.Newest_to_Oldest) && (Globals.sorting != Constants.Oldest_to_Newest) {
+                                if (seriesNewToUser!.count == 1) {
+                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series at the beginning or end of the list."
+                                }
+                                if (seriesNewToUser!.count > 1) {
+                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the \(seriesNewToUser!.count) new sermon series at the beginning or end of the list."
+                                }
+                            }
+                            if (Globals.sorting == Constants.Newest_to_Oldest) {
+                                if (seriesNewToUser!.count == 1) {
+                                    message = "The new sermon series is at the beginning of the list."
+                                }
+                                if (seriesNewToUser!.count > 1) {
+                                    message = "There are \(seriesNewToUser!.count) new sermon series at the beginning of the list."
+                                }
+                            }
+                            if (Globals.sorting == Constants.Oldest_to_Newest) {
+                                if (seriesNewToUser!.count == 1) {
+                                    message = "The new sermon series is at the end of the list."
+                                }
+                                if (seriesNewToUser!.count > 1) {
+                                    message = "There are \(seriesNewToUser!.count) new sermon series at the end of the list."
+                                }
+                            }
+                        } else {
+                            if (seriesNewToUser!.count == 1) {
+                                message = "The new sermon series has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
+                            }
+                            if (seriesNewToUser!.count > 1) {
+                                message = "A total of \(seriesNewToUser!.count) new sermon series have been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
+                            }
+                        }
+                    } else {
+                        if (newSermonCount > 0) && (oldSermonCount > 0) { // Same as saying Globals.series != nil
+                            if (newSermonCount > oldSermonCount) {
+                                message = "Sermons added: \(newSermonCount - oldSermonCount)."
+    //                            let difference = newSermonCount - oldSermonCount
+    //                            if (difference == 1) {
+    //                                message = "There was \(difference) new sermon added."
+    //                            }
+    //                            if (difference > 1) {
+    //                                message = "There were \(difference) new sermons added."
+    //                            }
+                            } else {
+                                message = "No new sermons were added."
+                            }
+                            if (newSermonCount > oldSermonCount) {
+                                // This should not happen and would indicate something was wrong.
+                            }
+                        } else {
+                            message = nil
+                        }
+                    }
+                    
+                    let alert = UIAlertView(title: "Sermon Update Complete", message: message, delegate: self, cancelButtonTitle: "OK")
+                    alert.show()
+                    
+                    completion?()
+                })
+            }
         })
     }
     
@@ -521,7 +725,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 Globals.mpPlayer?.pause()
                 
                 updateUserDefaultsCurrentTimeExact()
-//                saveSermonSettings()
+                saveSermonSettingsBackground()
                 
                 Globals.mpPlayer?.view.hidden = true
                 Globals.mpPlayer?.view.removeFromSuperview()
@@ -529,6 +733,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 self.loadSeries() {
                     self.refreshControl?.endRefreshing()
                     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                    UIApplication.sharedApplication().applicationIconBadgeNumber = 0
                 }
             })
         } else {
@@ -661,10 +866,10 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func handleRefresh(refreshControl: UIRefreshControl) {
         cancelAllDownloads()
         
-        self.searchBar.placeholder = nil
-        Globals.filter = nil
-        Globals.activeSeries = nil
-        collectionView.reloadData()
+//        self.searchBar.placeholder = nil
+//        Globals.filter = nil
+//        Globals.activeSeries = nil
+//        collectionView.reloadData()
         
         if let svc = self.splitViewController {
             //iPad
@@ -971,6 +1176,10 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
+        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) {
+            sermonUpdateAvailable()
+        }
+        
 //        if Globals.series == nil {
 //            disableBarButtons()
 //            loadSeries(nil)
@@ -1041,12 +1250,17 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     Globals.seriesSelected = Globals.sermonPlaying?.series
                     Globals.sermonSelected = Globals.sermonPlaying
                     
+                    if let dvc = destination as? MyViewController {
+                        dvc.seriesSelected = Globals.sermonPlaying?.series
+                        dvc.sermonSelected = Globals.sermonPlaying
+                    }
+
                     Globals.gotoNowPlaying = !Globals.gotoNowPlaying
                     navigationItem.setRightBarButtonItem(nil, animated: true)
+                    collectionView.reloadData()
                 } else {
                     if let myCell = sender as? MyCollectionViewCell {
-                        let indexPath = collectionView!.indexPathForCell(myCell)
-                        Globals.seriesSelected = Globals.activeSeries?[indexPath!.row]
+                        Globals.seriesSelected = myCell.series
                     }
 
                     if (Globals.seriesSelected != nil) {
@@ -1056,11 +1270,11 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             setupPlayingPausedButton()
                         }
                     }
-                }
-
-                if let dvc = destination as? MyViewController {
-                    dvc.seriesSelected = Globals.seriesSelected
-                    dvc.sermonSelected = Globals.sermonSelected?.series == Globals.seriesSelected ? Globals.sermonSelected : nil
+                    
+                    if let dvc = destination as? MyViewController {
+                        dvc.seriesSelected = Globals.seriesSelected
+                        dvc.sermonSelected = Globals.sermonSelected?.series == Globals.seriesSelected ? Globals.sermonSelected : nil
+                    }
                 }
                 
                 setupSeriesSelectedUserDefaults()
@@ -1126,11 +1340,12 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
 //        println("didSelect")
 
-//        if let cell: MyCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MyCollectionViewCell {
-//
-//        } else {
-//            
-//        }
+        if let cell: MyCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MyCollectionViewCell {
+            Globals.seriesSelected = cell.series
+            collectionView.reloadData()
+        } else {
+            
+        }
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {

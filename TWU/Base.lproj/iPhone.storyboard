@@ -186,7 +186,7 @@
                                     <action selector="sliderValueChanging:" destination="ycx-j4-166" eventType="valueChanged" id="x7S-F0-cyf"/>
                                 </connections>
                             </slider>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="zbL-F7-Hsi">
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="zbL-F7-Hsi">
                                 <rect key="frame" x="312" y="272" width="20" height="20"/>
                             </activityIndicatorView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2o9-Jp-WbC" userLabel="Time Remaining">
@@ -608,7 +608,7 @@ Before Texas, Tom served 16 years in various roles connected to Grace Community 
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="749" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u5e-LB-ohU">
-                                        <rect key="frame" x="4" y="32" width="592" height="228"/>
+                                        <rect key="frame" x="4" y="32" width="592" height="220"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="116" id="ufE-7i-qSw"/>
@@ -634,14 +634,25 @@ Southlake, Texas 76092
                                             </mask>
                                         </variation>
                                     </textView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zXE-Gr-HdS">
+                                        <rect key="frame" x="519" y="4" width="73" height="30"/>
+                                        <state key="normal" title="Contribute"/>
+                                        <connections>
+                                            <action selector="give:" destination="6uU-x7-vf8" eventType="touchUpInside" id="6Jz-iz-ZdJ"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="u5e-LB-ohU" firstAttribute="top" secondItem="kvd-zI-tA2" secondAttribute="top" constant="32" id="0N9-hc-k0R"/>
+                                    <constraint firstItem="zXE-Gr-HdS" firstAttribute="baseline" secondItem="via-xW-KAF" secondAttribute="baseline" id="9qy-s7-tLW"/>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="200" id="JKZ-zr-pHE"/>
                                     <constraint firstItem="via-xW-KAF" firstAttribute="leading" secondItem="kvd-zI-tA2" secondAttribute="leading" constant="8" id="Uq6-J8-1Zc"/>
                                     <constraint firstItem="u5e-LB-ohU" firstAttribute="leading" secondItem="kvd-zI-tA2" secondAttribute="leading" constant="4" id="a0f-lC-MSy"/>
-                                    <constraint firstAttribute="bottom" secondItem="u5e-LB-ohU" secondAttribute="bottom" constant="4" id="bpu-Z9-3La"/>
+                                    <constraint firstAttribute="bottom" secondItem="u5e-LB-ohU" secondAttribute="bottom" constant="12" id="bpu-Z9-3La">
+                                        <variation key="heightClass=compact" constant="16"/>
+                                    </constraint>
+                                    <constraint firstItem="zXE-Gr-HdS" firstAttribute="trailing" secondItem="via-xW-KAF" secondAttribute="trailing" id="dEn-O0-PeG"/>
                                     <constraint firstItem="via-xW-KAF" firstAttribute="top" secondItem="kvd-zI-tA2" secondAttribute="top" constant="8" id="ncX-Rd-oxd"/>
                                     <constraint firstAttribute="trailing" secondItem="via-xW-KAF" secondAttribute="trailing" constant="8" id="vJF-sY-WdX"/>
                                     <constraint firstAttribute="trailing" secondItem="u5e-LB-ohU" secondAttribute="trailing" constant="4" id="zve-0O-SHY"/>
@@ -653,7 +664,7 @@ Southlake, Texas 76092
                                 </variation>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fIF-17-4YG" userLabel="Version">
-                                <rect key="frame" x="554" y="0.0" width="42" height="21"/>
+                                <rect key="frame" x="558" y="515" width="42" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="42" id="B2v-f8-1BJ"/>
                                     <constraint firstAttribute="height" constant="21" id="WJR-oI-9Jk"/>
@@ -666,8 +677,9 @@ Southlake, Texas 76092
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="kvd-zI-tA2" secondAttribute="trailing" id="3em-Bj-yJy"/>
+                            <constraint firstItem="fIF-17-4YG" firstAttribute="bottom" secondItem="Nwy-RF-QZY" secondAttribute="top" id="5nO-Dx-hyk"/>
                             <constraint firstItem="Jat-x9-E4e" firstAttribute="bottom" secondItem="kvd-zI-tA2" secondAttribute="top" id="7or-un-MMl"/>
-                            <constraint firstAttribute="trailing" secondItem="fIF-17-4YG" secondAttribute="trailing" constant="4" id="Aeb-Oe-LfD"/>
+                            <constraint firstAttribute="trailing" secondItem="fIF-17-4YG" secondAttribute="trailing" id="Aeb-Oe-LfD"/>
                             <constraint firstItem="kvd-zI-tA2" firstAttribute="height" secondItem="tt0-cF-Yhq" secondAttribute="height" id="BKE-pm-lyA"/>
                             <constraint firstItem="Jat-x9-E4e" firstAttribute="height" secondItem="tt0-cF-Yhq" secondAttribute="height" id="Bep-00-cPC"/>
                             <constraint firstItem="yBR-Hb-c8L" firstAttribute="width" secondItem="kvd-zI-tA2" secondAttribute="width" id="F7j-oL-rWH"/>
@@ -676,7 +688,7 @@ Southlake, Texas 76092
                             <constraint firstItem="Jat-x9-E4e" firstAttribute="top" secondItem="l0W-ar-kQU" secondAttribute="bottom" id="Hh2-YD-q9r"/>
                             <constraint firstItem="Jat-x9-E4e" firstAttribute="trailing" secondItem="kvd-zI-tA2" secondAttribute="leading" id="L2S-Hq-ppy"/>
                             <constraint firstItem="kvd-zI-tA2" firstAttribute="centerX" secondItem="tt0-cF-Yhq" secondAttribute="centerX" id="NFs-dH-e01"/>
-                            <constraint firstItem="fIF-17-4YG" firstAttribute="top" secondItem="l0W-ar-kQU" secondAttribute="bottom" id="RPV-71-aeL"/>
+                            <constraint firstItem="fIF-17-4YG" firstAttribute="top" secondItem="l0W-ar-kQU" secondAttribute="bottom" constant="515" id="RPV-71-aeL"/>
                             <constraint firstItem="kvd-zI-tA2" firstAttribute="top" secondItem="l0W-ar-kQU" secondAttribute="bottom" constant="8" id="Tdi-TR-Nef"/>
                             <constraint firstItem="Jat-x9-E4e" firstAttribute="centerY" secondItem="tt0-cF-Yhq" secondAttribute="centerY" id="TtL-8y-cmv"/>
                             <constraint firstItem="kvd-zI-tA2" firstAttribute="top" secondItem="yBS-hG-tFD" secondAttribute="bottom" constant="4" id="U2g-8M-uRI"/>
@@ -710,6 +722,7 @@ Southlake, Texas 76092
                                 <exclude reference="U2g-8M-uRI"/>
                                 <exclude reference="apT-de-OtB"/>
                                 <exclude reference="x3G-lv-iQs"/>
+                                <exclude reference="RPV-71-aeL"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">

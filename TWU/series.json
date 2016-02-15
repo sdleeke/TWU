@@ -1,6 +1,17 @@
 {
 "series": [
            {
+           "name":"this_is_your_life",
+           "title":"This Is Your Life",
+           "scripture":"Ephesians 2:1-10",
+           "text":"Ever been rescued from a situation where your very life depended on the intervening work of another – escaping, in essence, from death itself?\n\nTom Pennington in his series This Is Your Life takes you on the rescue mission that God Himself undertook on your behalf if you’re in Christ. It’s a story of regeneration, entirely the work of God, from beginning to end: dead in sins when God found you, then by an act of sovereign grace made alive in Jesus Christ. Learn the catalysts involved and by what means God effected regeneration in your soul, plus the exact reason behind why He did it the way He did it.",
+           "id":44,
+           "startingIndex":183,
+           "numberOfSermons":9,
+           "show":1
+           },
+           
+           {
            "name":"what_your_view_of_scripture_says_about_you",
            "title":"What Your View of Scripture Says About You",
            "scripture":"Matthew 5:17-20",

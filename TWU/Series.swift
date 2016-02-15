@@ -121,7 +121,7 @@ class Series : Equatable, CustomStringConvertible {
     var titleSort:String? {
         get {
             if (dict![Constants.TITLE+Constants.SORTING] == nil) {
-                dict![Constants.TITLE+Constants.SORTING] = stringWithoutLeadingTheOrAOrAn(title)?.lowercaseString
+                dict![Constants.TITLE+Constants.SORTING] = stringWithoutPrefixes(title)?.lowercaseString
             }
             
             return dict![Constants.TITLE+Constants.SORTING]
