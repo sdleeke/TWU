@@ -42,6 +42,31 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         }
     }
 
+    var audioURL:NSURL? {
+        get {
+            return NSURL(string: Constants.BASE_AUDIO_URL + audio!)
+        }
+    }
+
+    var audioURLInFileSystem:NSURL? {
+        get {
+            return cachesURL()?.URLByAppendingPathComponent(audio!)
+        }
+    }
+    var playingURL:NSURL? {
+        get {
+            if let url = audioURLInFileSystem {
+                if !NSFileManager.defaultManager().fileExistsAtPath(url.path!){
+                    return audioURL
+                } else {
+                    return audioURLInFileSystem
+                }
+            } else {
+                return nil
+            }
+        }
+    }
+
     var keyBase:String! {
         get {
             if (series == nil) {
@@ -121,6 +146,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
                         //                        print("\(sermon!)")
                         //                        print("\(newValue!)")
                         Globals.sermonSettings?[self.sermon!.keyBase]?[key] = newValue
+                        saveSermonSettingsBackground()
                     } else {
                         print("sermon == nil in Settings!")
                     }
@@ -145,7 +171,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
     func isDownloaded() -> Bool
     {
         let filename = String(format: Constants.FILENAME_FORMAT, id)
-        if let url = documentsURL()?.URLByAppendingPathComponent(filename) {
+        if let url = cachesURL()?.URLByAppendingPathComponent(filename) {
             return NSFileManager.defaultManager().fileExistsAtPath(url.path!)
         } else {
             return false
@@ -159,7 +185,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         
         //Delete any previously downloaded file
         let filename = String(format: Constants.FILENAME_FORMAT, id)
-        if let url = documentsURL()?.URLByAppendingPathComponent(filename) {
+        if let url = cachesURL()?.URLByAppendingPathComponent(filename) {
             // Check if file exist
             if (NSFileManager.defaultManager().fileExistsAtPath(url.path!)){
                 do {
@@ -189,7 +215,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         download.state = .downloading
         
         let filename = String(format: Constants.FILENAME_FORMAT, id)
-        let audioURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
+        let audioURL = Constants.BASE_AUDIO_URL + filename
         let downloadRequest = NSMutableURLRequest(URL: NSURL(string: audioURL)!)
         
         let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(Constants.DOWNLOAD_IDENTIFIER + filename)
@@ -231,7 +257,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         
         let fileManager = NSFileManager.defaultManager()
         
-        if let destinationURL = documentsURL()?.URLByAppendingPathComponent(filename) {
+        if let destinationURL = cachesURL()?.URLByAppendingPathComponent(filename) {
             // Check if file exist
             if (fileManager.fileExistsAtPath(destinationURL.path!)){
                 do {

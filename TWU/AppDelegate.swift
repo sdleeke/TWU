@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 import MessageUI
+import CloudKit
 
 
 @UIApplicationMain
@@ -27,38 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             .stringByReplacingOccurrencesOfString(" ", withString: "")
         print("deviceTokenString: \(deviceTokenString)\n")
         
-        let sns = AWSSNS.defaultSNS()
-        let request = AWSSNSCreatePlatformEndpointInput()
-        request.token = deviceTokenString
-        
-        #if DEBUG
-            request.platformApplicationArn = Constants.AWS_SNSPlatformApplicationArn_Development
-        #endif
-
-        #if RELEASE
-            request.platformApplicationArn = Constants.AWS_SNSPlatformApplicationArn_Production
-        #endif
-        
-        sns.createPlatformEndpoint(request).continueWithBlock { (task: AWSTask!) -> AnyObject! in
-            if task.error != nil {
-                print("Error: \(task.error)\n")
-            } else {
-                let createEndpointResponse = task.result as? AWSSNSCreateEndpointResponse
-                print("endpointArn: \(createEndpointResponse!.endpointArn!)\n")
-
-                let si = AWSSNSSubscribeInput()
-                si.topicArn = Constants.AWS_TOPIC_ARN
-                si.endpoint = createEndpointResponse?.endpointArn
-                si.protocols = "application"
-                
-                sns.subscribe(si, completionHandler: { (response:AWSSNSSubscribeResponse?, error:NSError?) -> Void in
-                    print("response: \(response)")
-                    print("error: \(error)")
-                })
-            }
-            
-            return nil
-        }
     }
     
     func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError)
@@ -69,29 +38,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
     
     func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void)
     {
-        let aps = userInfo["aps"]
-        
-        let alert = aps?["alert"] as? String
-        
-        let category = aps?["category"] as? String
-        
-        let message = aps?["message"] as? String
-        
-        let title = aps?["title"] as? String
-        
-        print("application:didReceiveRemoteNotification:fetchCompletionHandler: \(message) \(title) \(category)")
-        
-        if (category != nil) {
-            switch category! {
-            case "UPDATE":
-                showUpdate(message: message,title: title)
-                break
-                
-            default:
-                break
+        let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject])
+        if ckNotification.notificationType == .Query, let queryNotification = ckNotification as? CKQueryNotification
+        {
+            if #available(iOS 9.0, *) {
+                print("subscriptionID: \(queryNotification.subscriptionID)")
+            } else {
+                // Fallback on earlier versions
             }
-        } else if (alert != nil) {
-            showAlert(alert)
+            print("recordID: \(queryNotification.recordID)")
+            print("recordFields: \(queryNotification.recordFields)")
+            
+            let aps = userInfo["aps"]
+
+            print("application:didReceiveRemoteNotification:fetchCompletionHandler: \(aps)")
+
+            if queryNotification.recordID?.recordName == "Current Sermon Series" {
+                print("\(aps!["alert"])")
+                
+                if let alert = aps!["alert"] as? String {
+                    switch alert {
+                    case "Update Available":
+                        dispatch_async(dispatch_get_main_queue()) {
+                            self.showUpdate(message: "Update",title: "A sermon series update is available.")
+                        }
+                        break
+                        
+                    default:
+                        break
+                    }
+                }
+            }
         }
         
         completionHandler(UIBackgroundFetchResult.NoData)
@@ -143,30 +120,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         
 //        showAlert(identifier)
 
-        let mobileAnalytics = AWSMobileAnalytics(forAppId: Constants.AWS_MobileAnalyticsAppId)
-        let eventClient = mobileAnalytics.eventClient
-        let pushNotificationEvent = eventClient.createEventWithEventType("PushNotificationEvent")
-        
         switch identifier! {
         case "LATER":
-            pushNotificationEvent.addAttribute("Later", forKey: "Action")
             print("User selected 'Later'")
             application.applicationIconBadgeNumber++
+            //The app isn't started in this case.
             break
             
         case "NOW":
-            pushNotificationEvent.addAttribute("Now", forKey: "Action")
             print("User selected 'Now'")
-            application.applicationIconBadgeNumber = 0
-            handleRefresh()
+            application.applicationIconBadgeNumber++
+            // This starts the app and the user is asked to update because the badge numer isn't zero.
+//            application.applicationIconBadgeNumber = 0
+//            handleRefresh()
             break
             
         default:
-            pushNotificationEvent.addAttribute("Undefined", forKey: "Action")
             break
         }
-        
-        eventClient.recordEvent(pushNotificationEvent)
         
         completionHandler()
     }
@@ -273,66 +244,66 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         alert.show()
     }
     
-    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool
-    {
-//        println("application:openURL")
-
-        let host = url.host
-
-        //Never used
-//        let scheme = url.scheme
-//        let path = url.path
-//        let query = url.query
-        
-//        println("Host: \(host) Scheme: \(scheme) Path: \(path) Query: \(query)")
-//        println("BaseURL: \(url.baseURL) PathComponents: \(url.pathComponents)")
-//        println("AbsoluteURL: \(url.absoluteURL) PathExtension: \(url.pathExtension) RelativePath: \(url.relativePath)")
-        
-        //Why does this work without having to determine whether the app is sufficiently loaded to
-        //allow deep linking?
-        
-        var selectedSeries:Series?
-        
-        selectedSeries = Globals.series?.filter({ (series:Series) -> Bool in
-            return series.name == host
-        }).first
-        
-        //iPad
-        if let svc = self.window?.rootViewController as? UISplitViewController {
-            //            println("rvc = UISplitViewController")
-            if let nvc = svc.viewControllers[0] as? UINavigationController {
-                //                println("nvc = UINavigationController")
-                if let cvc = nvc.topViewController as? MyCollectionViewController {
-                    //                    println("nvc = MyCollectionViewController")
-                    if (selectedSeries != nil) {
-                        Globals.seriesSelected = selectedSeries
-                        cvc.performSegueWithIdentifier(Constants.Show_Series, sender: cvc)
-                    }
-                }
-            }
-        }
-        
-        //iPhone
-        if let nvc = self.window?.rootViewController as? UINavigationController {
-            //     _   println("rvc = UINavigationController")
-            if let _ = nvc.topViewController as? MyViewController {
-                //                    println("myvc = MyViewController")
-
-                nvc.popToRootViewControllerAnimated(true)
-            }
-
-            if let cvc = nvc.topViewController as? MyCollectionViewController {
-                //                println("cvc = MyCollectionViewController")
-                
-                if (selectedSeries != nil) {
-                    Globals.seriesSelected = selectedSeries
-                    cvc.performSegueWithIdentifier(Constants.Show_Series, sender: cvc)
-                }
-            }
-        }
-
-        return true
-    }
+//    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool
+//    {
+////        println("application:openURL")
+//
+//        let host = url.host
+//
+//        //Never used
+////        let scheme = url.scheme
+////        let path = url.path
+////        let query = url.query
+//        
+////        println("Host: \(host) Scheme: \(scheme) Path: \(path) Query: \(query)")
+////        println("BaseURL: \(url.baseURL) PathComponents: \(url.pathComponents)")
+////        println("AbsoluteURL: \(url.absoluteURL) PathExtension: \(url.pathExtension) RelativePath: \(url.relativePath)")
+//        
+//        //Why does this work without having to determine whether the app is sufficiently loaded to
+//        //allow deep linking?
+//        
+//        var selectedSeries:Series?
+//        
+//        selectedSeries = Globals.series?.filter({ (series:Series) -> Bool in
+//            return series.name == host
+//        }).first
+//        
+//        //iPad
+//        if let svc = self.window?.rootViewController as? UISplitViewController {
+//            //            println("rvc = UISplitViewController")
+//            if let nvc = svc.viewControllers[0] as? UINavigationController {
+//                //                println("nvc = UINavigationController")
+//                if let cvc = nvc.topViewController as? MyCollectionViewController {
+//                    //                    println("nvc = MyCollectionViewController")
+//                    if (selectedSeries != nil) {
+//                        Globals.seriesSelected = selectedSeries
+//                        cvc.performSegueWithIdentifier(Constants.Show_Series, sender: cvc)
+//                    }
+//                }
+//            }
+//        }
+//        
+//        //iPhone
+//        if let nvc = self.window?.rootViewController as? UINavigationController {
+//            //     _   println("rvc = UINavigationController")
+//            if let _ = nvc.topViewController as? MyViewController {
+//                //                    println("myvc = MyViewController")
+//
+//                nvc.popToRootViewControllerAnimated(true)
+//            }
+//
+//            if let cvc = nvc.topViewController as? MyCollectionViewController {
+//                //                println("cvc = MyCollectionViewController")
+//                
+//                if (selectedSeries != nil) {
+//                    Globals.seriesSelected = selectedSeries
+//                    cvc.performSegueWithIdentifier(Constants.Show_Series, sender: cvc)
+//                }
+//            }
+//        }
+//
+//        return true
+//    }
     
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -352,6 +323,66 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         } catch _ {
         }
         
+//        let predicate = NSPredicate(value: true)
+//        
+//        let query = CKQuery(recordType: "Globals", predicate: predicate)
+//        CKContainer.defaultContainer().publicCloudDatabase.performQuery(query, inZoneWithID: nil) { results, error in
+//            if error != nil {
+//                dispatch_async(dispatch_get_main_queue()) {
+//                    print("error loading: \(error)")
+//                }
+//            } else {
+//                for record in results! {
+//                    print("\(record)")
+//                }
+//            }
+//        }
+
+//        let recordID = CKRecordID(recordName: "Current Sermon Series")
+//
+//        CKContainer.defaultContainer().publicCloudDatabase.fetchRecordWithID(recordID) { fetchedRecord, error in
+////            guard let fetchedRecord = fetchedRecord else {
+////                print("\(error!.localizedDescription)")
+////                return
+////            }
+//
+//            print("\(fetchedRecord!["ID"]!)")
+//            print("\(fetchedRecord!["Title"]!)")
+//            print("\(fetchedRecord!["Show"]!)")
+//        }
+
+//        let database = CKContainer.defaultContainer().publicCloudDatabase
+//        database.fetchAllSubscriptionsWithCompletionHandler { (subscriptions:[CKSubscription]?, error:NSError?) -> Void in
+//            print("\(subscriptions)")
+//            for subscriptionObject in subscriptions! {
+//                let subscription = subscriptionObject as CKSubscription
+//                print("\(subscription)")
+//                database.deleteSubscriptionWithID(subscription.subscriptionID, completionHandler: { (string:String?, error:NSError?) -> Void in
+//                    
+//                })
+//            }
+//        }
+        
+        let subscription = CKSubscription(recordType: "Globals", predicate: NSPredicate(value: true), subscriptionID: "com.leeke.TWU", options: CKSubscriptionOptions.FiresOnRecordUpdate)
+        
+        let info = CKNotificationInfo()
+        info.shouldSendContentAvailable = true
+        if #available(iOS 9.0, *) {
+            info.category = "UPDATE"
+        }
+        info.alertBody = "Update Available"
+        info.desiredKeys = ["Title","ID","Show"]
+
+        subscription.notificationInfo = info
+        
+        CKContainer.defaultContainer().publicCloudDatabase.saveSubscription(subscription) { (subscription:CKSubscription?, error:NSError?) -> Void in
+            
+        }
+        
+//        CKContainer.defaultContainer().publicCloudDatabase.deleteSubscriptionWithID("SERMON_SERIES_UPDATE") { (string:String?, error:NSError?) -> Void in
+//        
+//        }
+
         if (Constants.SUPPORT_REMOTE_NOTIFICATION) {
 //            application.applicationIconBadgeNumber = 0
 
@@ -379,14 +410,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             let settings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: Set([messageCategory])) //
             UIApplication.sharedApplication().registerUserNotificationSettings(settings)
             UIApplication.sharedApplication().registerForRemoteNotifications()
-            
-            let credentialsProvider = AWSCognitoCredentialsProvider(
-                regionType: Constants.AWS_CognitoRegionType, identityPoolId: Constants.AWS_CognitoIdentityPoolId)
-            
-            let defaultServiceConfiguration = AWSServiceConfiguration(
-                region: Constants.AWS_DefaultServiceRegionType, credentialsProvider: credentialsProvider)
-            
-            AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = defaultServiceConfiguration
         }
         
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
@@ -422,7 +445,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             //It is paused, possibly not by us, but by the system
             //But how do we know it hasn't simply finished playing?
             if (Globals.sermonLoaded) {
-                updateUserDefaultsCurrentTimeExact()
+                updateCurrentTimeExact()
             }
             Globals.playerPaused = true
         } else {

@@ -20,6 +20,8 @@ class MyTableViewCell: UITableViewCell {
     
     var downloadObserver:NSTimer?
     
+    var vc:UIViewController?
+    
     func updateUI()
     {
 //        print("updateUI: \(sermon!.series!.title) \(sermon!.id)")
@@ -142,6 +144,8 @@ class MyTableViewCell: UITableViewCell {
     private func networkUnavailable(message:String?)
     {
         if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+            vc?.dismissViewControllerAnimated(true, completion: nil)
+            
             let alert = UIAlertController(title:Constants.Network_Error,
                 message: message,
                 preferredStyle: UIAlertControllerStyle.ActionSheet)
@@ -155,7 +159,7 @@ class MyTableViewCell: UITableViewCell {
             alert.popoverPresentationController?.sourceView = self
             alert.popoverPresentationController?.sourceRect = downloadSwitch.frame
             
-            UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+            vc?.presentViewController(alert, animated: true, completion: nil)
         }
     }
 }

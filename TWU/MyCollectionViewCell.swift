@@ -11,6 +11,8 @@ import UIKit
 class MyCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var seriesArt: UIImageView!
 
+    var vc:MyCollectionViewController?
+    
     var series:Series? {
         didSet {
             updateUI()
@@ -19,7 +21,7 @@ class MyCollectionViewCell: UICollectionViewCell {
     
     private func updateUI() {
         if (series != nil) {
-            if (series == Globals.seriesSelected) {
+            if (series == vc?.seriesSelected) {
 //                seriesArt.layer.opacity = 0.5
 //                seriesArt.layer.borderWidth = 4.0
 //                seriesArt.layer.borderColor = UIColor.blackColor().CGColor

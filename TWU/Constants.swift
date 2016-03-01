@@ -10,14 +10,6 @@ import Foundation
 import UIKit
 
 struct Constants {
-    static let AWS_CognitoRegionType = AWSRegionType.USEast1
-    static let AWS_DefaultServiceRegionType = AWSRegionType.USWest2
-    static let AWS_CognitoIdentityPoolId = "us-east-1:2c897989-84a5-4641-a079-a34c07a36d19"
-    static let AWS_SNSPlatformApplicationArn_Production = "arn:aws:sns:us-west-2:150305721051:app/APNS/TWUP"
-    static let AWS_SNSPlatformApplicationArn_Development = "arn:aws:sns:us-west-2:150305721051:app/APNS_SANDBOX/TWU"
-    static let AWS_MobileAnalyticsAppId = "1163a992024e484cb65e791e8a6fb893"
-    static let AWS_TOPIC_ARN = "arn:aws:sns:us-west-2:150305721051:TWU"
-    
     static let SUPPORT_REMOTE_NOTIFICATION = true
 
     static let REACHABILITY_TEST_URL = Constants.TWU_WEBSITE // "https://www.google.com/"
@@ -30,6 +22,8 @@ struct Constants {
     static let TWU_SHORT = "TWU"
     static let TWU_LONG = "The Word Unleashed"
     
+    static let AUTO_ADVANCE = "AUTO_ADVANCE"
+    
     static let Loading_Sermons = "Loading Sermons"
     static let Loading_Defaults = "Loading Defaults"
     static let Sorting = "Sorting"
@@ -38,6 +32,8 @@ struct Constants {
     static let Unable_to_Load_Sermons = "Unable to Load Sermons"
     
     static let SERIES_JSON = "series.json"
+    
+    static let Show_Settings = "Show Settings"
     
     static let SERIES_CELL_IDENTIFIER = "SeriesCell"
     static let SERMON_CELL_IDENTIFIER = "SeriesSermon"
@@ -132,6 +128,9 @@ struct Constants {
     static let FILTER = "filter"
     static let Filter = "Filter"
     static let Filtering_Options_Title = "Filter by Scripture"
+
+    static let Settings = "Settings"
+    static let Settings_Title = "Settings"
     
     static let Play = "Play"
     static let Pause = "Pause"

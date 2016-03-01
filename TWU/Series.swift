@@ -170,7 +170,7 @@ class Series : Equatable, CustomStringConvertible {
         
         if (image == nil) {
             // Check to see if it is in Documents.
-            let imageDocumentsURL = documentsURL()?.URLByAppendingPathComponent(imageName + Constants.JPEG_FILE_EXTENSION)
+            let imageDocumentsURL = cachesURL()?.URLByAppendingPathComponent(imageName + Constants.JPEG_FILE_EXTENSION)
             image = UIImage(contentsOfFile: imageDocumentsURL!.path!)
             
             if (image == nil) {

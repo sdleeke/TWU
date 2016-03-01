@@ -22,39 +22,41 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     
     @IBOutlet weak var tpView: UIView!
     
+    @IBOutlet weak var scrollView: UIScrollView!
+    
     var frontView:UIView?
     
     @IBOutlet weak var tomPenningtonBio: UITextView! {
         didSet {
-            if (splitViewController == nil) {
-                let tap = UITapGestureRecognizer(target: self, action: "flip:")
-                tomPenningtonBio.addGestureRecognizer(tap)
-                
-                let swipeRight = UISwipeGestureRecognizer(target: self, action: "flipFromLeft:")
-                swipeRight.direction = UISwipeGestureRecognizerDirection.Right
-                tomPenningtonBio.addGestureRecognizer(swipeRight)
-                
-                let swipeLeft = UISwipeGestureRecognizer(target: self, action: "flipFromRight:")
-                swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
-                tomPenningtonBio.addGestureRecognizer(swipeLeft)
-            }
+//            if (splitViewController == nil) {
+//                let tap = UITapGestureRecognizer(target: self, action: "flip:")
+//                tomPenningtonBio.addGestureRecognizer(tap)
+//                
+//                let swipeRight = UISwipeGestureRecognizer(target: self, action: "flipFromLeft:")
+//                swipeRight.direction = UISwipeGestureRecognizerDirection.Right
+//                tomPenningtonBio.addGestureRecognizer(swipeRight)
+//                
+//                let swipeLeft = UISwipeGestureRecognizer(target: self, action: "flipFromRight:")
+//                swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
+//                tomPenningtonBio.addGestureRecognizer(swipeLeft)
+//            }
         }
     }
     
     @IBOutlet weak var tomPenningtonImage: UIImageView! {
         didSet {
-            if (splitViewController == nil) {
-                let tap = UITapGestureRecognizer(target: self, action: "flip:")
-                tomPenningtonImage.addGestureRecognizer(tap)
-                
-                let swipeRight = UISwipeGestureRecognizer(target: self, action: "flipFromLeft:")
-                swipeRight.direction = UISwipeGestureRecognizerDirection.Right
-                tomPenningtonImage.addGestureRecognizer(swipeRight)
-                
-                let swipeLeft = UISwipeGestureRecognizer(target: self, action: "flipFromRight:")
-                swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
-                tomPenningtonImage.addGestureRecognizer(swipeLeft)
-            }
+//            if (splitViewController == nil) {
+//                let tap = UITapGestureRecognizer(target: self, action: "flip:")
+//                tomPenningtonImage.addGestureRecognizer(tap)
+//                
+//                let swipeRight = UISwipeGestureRecognizer(target: self, action: "flipFromLeft:")
+//                swipeRight.direction = UISwipeGestureRecognizerDirection.Right
+//                tomPenningtonImage.addGestureRecognizer(swipeRight)
+//                
+//                let swipeLeft = UISwipeGestureRecognizer(target: self, action: "flipFromRight:")
+//                swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
+//                tomPenningtonImage.addGestureRecognizer(swipeLeft)
+//            }
         }
     }
 
@@ -90,7 +92,7 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
                     Globals.mpPlayer?.play()
                 } else {
                     Globals.mpPlayer?.pause()
-                    updateUserDefaultsCurrentTimeExact()
+                    updateCurrentTimeExact()
                 }
                 Globals.playerPaused = !Globals.playerPaused
             } else {
@@ -215,6 +217,8 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     private func networkUnavailable(message:String?)
     {
         if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) { //  && (self.view.window != nil)
+            dismissViewControllerAnimated(true, completion: nil)
+            
             let alert = UIAlertController(title: Constants.Network_Error,
                 message: message,
                 preferredStyle: UIAlertControllerStyle.Alert)
@@ -224,7 +228,7 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
             })
             alert.addAction(action)
             
-            UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+            presentViewController(alert, animated: true, completion: nil)
         }
     }
     
@@ -333,10 +337,10 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         setVersion()
-        if (splitViewController == nil) {
-            tomPenningtonImage.hidden = false
-            tomPenningtonBio.hidden = true
-        }
+//        if (splitViewController == nil) {
+//            tomPenningtonImage.hidden = false
+//            tomPenningtonBio.hidden = true
+//        }
         tomPenningtonBio.scrollRangeToVisible(NSMakeRange(0,0))
         theWordUnleashedDescription.scrollRangeToVisible(NSMakeRange(0,0))
     }
@@ -344,6 +348,8 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
+        scrollView.flashScrollIndicators()
+
         if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
             sermonUpdateAvailable()
         }

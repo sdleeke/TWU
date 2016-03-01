@@ -10,13 +10,24 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-class MyCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate {
+class MyCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate, UIPopoverPresentationControllerDelegate {
 
 //    var endObserver: AnyObject?
 
     var refreshControl:UIRefreshControl?
 
-    var seriesSelected:Series?
+    var seriesSelected:Series? {
+        didSet {
+//            Globals.seriesSelected = seriesSelected
+            if (seriesSelected != nil) {
+                let defaults = NSUserDefaults.standardUserDefaults()
+                defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
+                defaults.synchronize()
+            } else {
+                print("MyCollectionViewController:seriesSelected nil")
+            }
+        }
+    }
 
     @IBOutlet weak var searchBar: UISearchBar!
     
@@ -37,7 +48,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     Globals.mpPlayer?.play()
                 } else {
                     Globals.mpPlayer?.pause()
-                    updateUserDefaultsCurrentTimeExact()
+                    updateCurrentTimeExact()
                 }
                 Globals.playerPaused = !Globals.playerPaused
             } else {
@@ -61,18 +72,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         
         for option in Constants.Sorting_Options {
             alertTitle = option
-//            if (Globals.sorting == option) {
-//                alertTitle = Constants.CHECKMARK + Constants.SINGLE_SPACE_STRING + alertTitle
-//            }
             action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
                 if (Globals.sorting != option) {
                     Globals.sorting = option
-                    
-                    let defaults = NSUserDefaults.standardUserDefaults()
-                    defaults.setObject(option,forKey: Constants.SORTING)
-                    defaults.synchronize()
-                    
-                    //                sortAndGroupSermons()
                     
                     Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
                     self.collectionView.reloadData()
@@ -118,12 +120,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 alertTitle = book
                 action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
                     if (Globals.filter != book) {
-                        let defaults = NSUserDefaults.standardUserDefaults()
-                        defaults.setObject(book,forKey: Constants.FILTER)
-                        defaults.synchronize()
-                        
                         self.searchBar.placeholder = book
-
+                        
                         if (book == Constants.All) {
                             Globals.showing = .all
                             Globals.filter = nil
@@ -135,7 +133,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                         if Globals.searchActive {
                             self.updateSearchResults()
                         }
-
+                        
                         Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
                         self.collectionView.reloadData()
                         
@@ -143,14 +141,14 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                         self.collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:UICollectionViewScrollPosition.CenteredVertically, animated: true)
                     }
                 })
-
+                
                 if (Globals.showing == .filtered) && (Globals.filter == book) {
                     action.enabled = false
                 }
                 if (Globals.showing == .all) && (Globals.filter == nil) && (book == Constants.All) {
                     action.enabled = false
                 }
-
+                
                 alert.addAction(action)
             }
         }
@@ -167,10 +165,21 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         presentViewController(alert, animated: true, completion: nil)
     }
     
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.None
+    }
+
+    func settings(button:UIBarButtonItem?)
+    {
+        dismissViewControllerAnimated(true, completion: nil)
+        performSegueWithIdentifier(Constants.Show_Settings, sender: nil)
+    }
+    
     private func setupSortingAndGroupingOptions()
     {
         let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.Plain, target: self, action: "sorting:")
         let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.Plain, target: self, action: "filtering:")
+        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.Plain, target: self, action: "settings:")
         
         let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
         
@@ -183,6 +192,10 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         barButtons.append(spaceButton)
 
         barButtons.append(filterButton)
+        
+        barButtons.append(spaceButton)
+        
+        barButtons.append(settingsButton)
         
         barButtons.append(spaceButton)
         
@@ -287,17 +300,6 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func updateSearchResults()
     {
         if (searchBar.text != "") {
-//            Globals.searchSeries = nil
-//            
-//            var searchSeries = [Series]()
-//            
-//            for series in Globals.seriesToSearch! {
-//                if (((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
-//                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)) {
-//                        searchSeries.append(series)
-//                }
-//            }
-//            
             Globals.searchSeries = Globals.seriesToSearch?.filter({ (series:Series) -> Bool in
                 return ((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
                     ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
@@ -308,6 +310,11 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         }
     }
     
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool
+    {
+        return !Globals.loading && !Globals.refreshing && (Globals.series != nil)
+    }
+
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
 //        println("Text changed: \(searchText)")
         
@@ -347,6 +354,33 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         collectionView!.reloadData()
     }
     
+    func searchBarResultsListButtonClicked(searchBar: UISearchBar) {
+        //        print("searchBarResultsListButtonClicked")
+        
+        if !Globals.loading && !Globals.refreshing && (Globals.series != nil) && (self.storyboard != nil) {
+//            popover = storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? PopoverTableViewController
+//            
+//            popover?.modalPresentationStyle = .Popover
+//            //            popover?.preferredContentSize = CGSizeMake(300, 500)
+//            
+//            popover?.popoverPresentationController?.permittedArrowDirections = .Up
+//            popover?.popoverPresentationController?.delegate = self
+//            
+//            popover?.popoverPresentationController?.sourceView = searchBar
+//            popover?.popoverPresentationController?.sourceRect = searchBar.bounds
+//            
+//            popover?.delegate = self
+//            popover?.purpose = .selectingTags
+//            popover?.strings = Globals.sermons.all?.sermonTags
+//            
+//            popover?.strings?.append(Constants.All)
+//            
+//            if (popover != nil) {
+//                presentViewController(popover!, animated: true, completion: nil)
+//            }
+        }
+    }
+
     func applicationWillResignActive(notification:NSNotification)
     {
         print("MyCollectionViewController.applicationWillResignActive")
@@ -357,7 +391,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         if (Globals.mpPlayer?.currentPlaybackRate == 0) {
             //It is paused, possibly not by us, but by the system
             //But how do we know it hasn't simply finished playing?
-            updateUserDefaultsCurrentTimeExact()
+            updateCurrentTimeExact()
             Globals.playerPaused = true
         } else {
             Globals.playerPaused = false
@@ -389,64 +423,35 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     {
         let player = notification.object as! MPMoviePlayerController
         
-        /* Enough data has been buffered for playback to continue uninterrupted. */
-        
         let loadstate:UInt8 = UInt8(player.loadState.rawValue)
-        let loadvalue:UInt8 = UInt8(MPMovieLoadState.Playable.rawValue)
         
-        // If there is a sermon that was playing before and we want to start back at the same place,
-        // the PlayPause button must NOT be active until loadState & PlaythroughOK == 1.
+        let playable = (loadstate & UInt8(MPMovieLoadState.Playable.rawValue)) > 0
+        let playthrough = (loadstate & UInt8(MPMovieLoadState.PlaythroughOK.rawValue)) > 0
         
-        print("\(loadstate)")
-        print("\(loadvalue)")
+//        print("\(loadstate)")
+//        print("\(playable)")
+//        print("\(playthrough)")
 
-        //For loading
-        if ((loadstate & loadvalue) != (1<<1)) {
-            print("mpPlayerLoadStateDidChange.MPMovieLoadState != PlaythroughOK")
-        }
-        if ((loadstate & loadvalue) == (1<<1)) {
-            print("mpPlayerLoadStateDidChange.MPMovieLoadState == PlaythroughOK")
-        }
-        
-        if ((loadstate & loadvalue) == loadvalue) { // (1<<1)
-//        if (Globals.mpPlayer!.loadState == MPMovieLoadState.Playable) {
-//            print("AppDelegate mpPlayerLoadStateDidChange.MPMovieLoadState.PlaythroughOK")
-            print("AppDelegate mpPlayerLoadStateDidChange.MPMovieLoadState.Playable")
+        if (playable || playthrough) {
+            print("MyCVC.mpPlayerLoadStateDidChange.MPMovieLoadState.Playable")
             //should be called only once, only for  first time audio load.
             if(!Globals.sermonLoaded) {
-//                if let currentTimeString = Globals.sermonPlaying?.currentTime { // NSUserDefaults.standardUserDefaults().stringForKey(Constants.CURRENT_TIME
-//                    let currentTime = Float(currentTimeString)
-//                    
-////                    print("\(currentTime!)")
-////                    print("\(NSTimeInterval(currentTime!))")
-//                    
-//                    Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(currentTime!)
-//                }
+//                print("\(currentTime!)")
+//                print("\(NSTimeInterval(currentTime!))")
    
-                Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(Float(Globals.sermonPlaying!.currentTime!)!)
-
-//                print("\(Globals.mpPlayer!.currentPlaybackTime)")
-                
-//                if (self.splitViewController != nil) {
-//                    //iPad (but multitasking may make it behave like an iphone, i.e. detail view controller may not be present.
-//                    if let nvc = self.splitViewController?.viewControllers[self.splitViewController!.viewControllers.count - 1] as? UINavigationController {
-//                        if let myvc = nvc.topViewController as? MyViewController {
-//                            //                    println("myvc = MyViewController")
-//                            myvc.spinner.stopAnimating()
-//                        }
-//                    }
-//                } else {
-//                    //iPhone
-//                    if let myvc = self.navigationController?.topViewController as? MyViewController {
-//                        //                    println("myvc = MyViewController")
-//                        myvc.spinner.stopAnimating()
-//                    }
-//                }
+                if (Globals.sermonPlaying != nil) && Globals.sermonPlaying!.hasCurrentTime() {
+                    Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(Float(Globals.sermonPlaying!.currentTime!)!)
+                } else {
+                    Globals.sermonPlaying?.currentTime = Constants.ZERO
+                    Globals.mpPlayer?.currentPlaybackTime = NSTimeInterval(0)
+                }
                 
                 Globals.sermonLoaded = true
             }
             
             NSNotificationCenter.defaultCenter().removeObserver(self)
+        } else {
+            print("MyCVC.mpPlayerLoadStateDidChange.MPMovieLoadState.Playthrough NOT OK")
         }
     }
     
@@ -479,7 +484,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             myvc = self.navigationController?.visibleViewController as? MyViewController
         }
         
-        mycvc?.seriesSelected = Globals.seriesSelected
+        mycvc?.seriesSelected = seriesSelected
 
         if (mycvc != nil) {
             mycvc?.setupSearchBar()
@@ -497,7 +502,6 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 
         if (myvc != nil) {
             myvc?.seriesSelected = Globals.seriesSelected
-
             myvc?.sermonSelected = Globals.sermonSelected
 
             myvc?.updateUI()
@@ -510,7 +514,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func loadSeries(completion: (() -> Void)?)
     {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
-            
+            Globals.loading = true
+
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self.navigationItem.title = Constants.Loading_Sermons
             })
@@ -582,6 +587,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             
             Globals.series = newSeries
             
+            self.seriesSelected = Globals.seriesSelected
+
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self.navigationItem.title = Constants.Loading_Defaults
             })
@@ -668,6 +675,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     completion?()
                 })
             }
+
+            Globals.loading = false
         })
     }
     
@@ -695,7 +704,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             let fileManager = NSFileManager.defaultManager()
             
             //Get documents directory URL
-            if let destinationURL = documentsURL()?.URLByAppendingPathComponent(filename) {
+            if let destinationURL = cachesURL()?.URLByAppendingPathComponent(filename) {
                 // Check if file exist
                 if (fileManager.fileExistsAtPath(destinationURL.path!)){
                     do {
@@ -724,8 +733,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 Globals.playerPaused = true
                 Globals.mpPlayer?.pause()
                 
-                updateUserDefaultsCurrentTimeExact()
-                saveSermonSettingsBackground()
+                updateCurrentTimeExact()
                 
                 Globals.mpPlayer?.view.hidden = true
                 Globals.mpPlayer?.view.removeFromSuperview()
@@ -734,6 +742,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     self.refreshControl?.endRefreshing()
                     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
                     UIApplication.sharedApplication().applicationIconBadgeNumber = 0
+                    
+                    Globals.refreshing = false
                 }
             })
         } else {
@@ -757,6 +767,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 
                 self.collectionView.reloadData()
                 self.setupViews()
+                
+                Globals.refreshing = false
             })
         }
     }
@@ -864,6 +876,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     }
     
     func handleRefresh(refreshControl: UIRefreshControl) {
+        Globals.refreshing = true
+
         cancelAllDownloads()
         
 //        self.searchBar.placeholder = nil
@@ -957,9 +971,17 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     // iPad
                     if (!splitViewController!.collapsed) {
                         // Master and detail view controllers are both present
-                        if (Globals.seriesSelected == Globals.sermonPlaying?.series) {
-                            if (Globals.sermonSelected != nil) && (Globals.sermonSelected != Globals.sermonPlaying) {
-                                setPlayingPausedButton()
+//                        print("seriesSelected: \(seriesSelected)")
+//                        print("Globals.sermonPlaying?.series: \(Globals.sermonPlaying?.series)")
+                        if (seriesSelected == Globals.sermonPlaying?.series) {
+                            if let sermonSelected = Globals.sermonSelected {
+                                if (sermonSelected != Globals.sermonPlaying) {
+                                    setPlayingPausedButton()
+                                } else {
+                                    if (navigationItem.rightBarButtonItem != nil) {
+                                        navigationItem.setRightBarButtonItem(nil, animated: true)
+                                    }
+                                }
                             } else {
                                 if (navigationItem.rightBarButtonItem != nil) {
                                     navigationItem.setRightBarButtonItem(nil, animated: true)
@@ -1087,7 +1109,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             print("RemoteControlPause")
             Globals.mpPlayer?.pause()
             Globals.playerPaused = true
-            updateUserDefaultsCurrentTimeExact()
+            updateCurrentTimeExact()
             break
             
         case UIEventSubtype.RemoteControlTogglePlayPause:
@@ -1096,7 +1118,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 Globals.mpPlayer?.play()
             } else {
                 Globals.mpPlayer?.pause()
-                updateUserDefaultsCurrentTimeExact()
+                updateCurrentTimeExact()
             }
             Globals.playerPaused = !Globals.playerPaused
             break
@@ -1133,7 +1155,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             Globals.mpPlayer?.endSeeking()
             Globals.seekingObserver?.invalidate()
             Globals.seekingObserver = nil
-            updateUserDefaultsCurrentTimeExact()
+            updateCurrentTimeExact()
             //        updatePlayingInfoCenter()
             setupPlayingInfoCenter()
             break
@@ -1148,7 +1170,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         case UIEventSubtype.RemoteControlEndSeekingForward:
             print("RemoteControlEndSeekingForward")
             Globals.mpPlayer?.endSeeking()
-            updateUserDefaultsCurrentTimeExact()
+            updateCurrentTimeExact()
             //        updatePlayingInfoCenter()
             setupPlayingInfoCenter()
             break
@@ -1234,6 +1256,14 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         }
         if let identifier = segue.identifier {
             switch identifier {
+            case Constants.Show_Settings:
+                if let svc = destination as? MySettingsViewController {
+                    svc.modalPresentationStyle = .Popover
+                    svc.popoverPresentationController?.delegate = self
+                    svc.popoverPresentationController?.barButtonItem = toolbarItems?[5]
+                }
+                break
+                
             case Constants.Show_About:
                 //The block below only matters on an iPad
                 Globals.showingAbout = true
@@ -1243,12 +1273,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             case Constants.Show_Series:
 //                println("ShowSeries")
                 if (Globals.gotoNowPlaying) {
-//                    Globals.seriesSelectedIndex = Globals.seriesPlayingIndex
-                    
                     //This pushes a NEW MyViewController.
                     
-                    Globals.seriesSelected = Globals.sermonPlaying?.series
-                    Globals.sermonSelected = Globals.sermonPlaying
+                    seriesSelected = Globals.sermonPlaying?.series
                     
                     if let dvc = destination as? MyViewController {
                         dvc.seriesSelected = Globals.sermonPlaying?.series
@@ -1256,28 +1283,24 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     }
 
                     Globals.gotoNowPlaying = !Globals.gotoNowPlaying
-                    navigationItem.setRightBarButtonItem(nil, animated: true)
-                    collectionView.reloadData()
+//                    let indexPath = NSIndexPath(forItem: Globals.activeSeries!.indexOf(seriesSelected!)!, inSection: 0)
+//                    collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredVertically, animated: true)
                 } else {
                     if let myCell = sender as? MyCollectionViewCell {
-                        Globals.seriesSelected = myCell.series
+                        seriesSelected = myCell.series
                     }
 
                     if (Globals.seriesSelected != nil) {
                         if (splitViewController != nil) && (!splitViewController!.collapsed) {
-                            //iPad only
-                            //The block below only matters when master and detail view controllers are both present.
                             setupPlayingPausedButton()
                         }
                     }
                     
                     if let dvc = destination as? MyViewController {
                         dvc.seriesSelected = Globals.seriesSelected
-                        dvc.sermonSelected = Globals.sermonSelected?.series == Globals.seriesSelected ? Globals.sermonSelected : nil
+                        dvc.sermonSelected = nil
                     }
                 }
-                
-                setupSeriesSelectedUserDefaults()
                 break
                 
             default:
@@ -1285,20 +1308,6 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             }
         }
 
-    }
-    
-    private func setupSeriesSelectedUserDefaults()
-    {
-        let defaults = NSUserDefaults.standardUserDefaults()
-        
-        if (Globals.seriesSelected != nil) {
-            defaults.setObject("\(Globals.seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
-            defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
-            //
-            //            println("seriesSelectedIndex: \(Globals.seriesSelectedIndex)")
-        }
-        
-        defaults.synchronize()
     }
     
     func gotoNowPlaying()
@@ -1341,7 +1350,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 //        println("didSelect")
 
         if let cell: MyCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MyCollectionViewCell {
-            Globals.seriesSelected = cell.series
+            seriesSelected = cell.series
             collectionView.reloadData()
         } else {
             

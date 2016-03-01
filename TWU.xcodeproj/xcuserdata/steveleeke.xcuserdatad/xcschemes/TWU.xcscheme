@@ -52,6 +52,16 @@
                ReferencedContainer = "container:TWU.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "176DEAB61C8330F6001EBBC4"
+               BuildableName = "TWUUITests.xctest"
+               BlueprintName = "TWUUITests"
+               ReferencedContainer = "container:TWU.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

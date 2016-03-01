@@ -97,6 +97,12 @@ func documentsURL() -> NSURL?
     return fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first
 }
 
+func cachesURL() -> NSURL?
+{
+    let fileManager = NSFileManager.defaultManager()
+    return fileManager.URLsForDirectory(.CachesDirectory, inDomains: .UserDomainMask).first
+}
+
 func sortSeries(series:[Series]?,sorting:String?) -> [Series]?
 {
     var results:[Series]?
@@ -186,27 +192,27 @@ func loadDefaults()
         }
     }
     
-    if let seriesSelectedStr = defaults.stringForKey(Constants.SERIES_SELECTED) {
-        if let seriesSelected = Int(seriesSelectedStr) {
-            if let index = Globals.series?.indexOf({ (series) -> Bool in
-                return series.id == seriesSelected
-            }) {
-                Globals.seriesSelected = Globals.series?[index]
-                
-                if let sermonSelectedIndexStr = defaults.stringForKey(Constants.SERMON_SELECTED_INDEX) {
-                    if let sermonSelectedIndex = Int(sermonSelectedIndexStr) {
-                        if (sermonSelectedIndex > (Globals.seriesSelected!.show! - 1)) {
-                            defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
-                        } else {
-                            Globals.sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
-                        }
-                    }
-                }
-            } else {
-                defaults.removeObjectForKey(Constants.SERIES_SELECTED)
-            }
-        }
-    }
+//    if let seriesSelectedStr = defaults.stringForKey(Constants.SERIES_SELECTED) {
+//        if let seriesSelected = Int(seriesSelectedStr) {
+//            if let index = Globals.series?.indexOf({ (series) -> Bool in
+//                return series.id == seriesSelected
+//            }) {
+//                Globals.seriesSelected = Globals.series?[index]
+//                
+//                if let sermonSelectedIndexStr = defaults.stringForKey(Constants.SERMON_SELECTED_INDEX) {
+//                    if let sermonSelectedIndex = Int(sermonSelectedIndexStr) {
+//                        if (sermonSelectedIndex > (Globals.seriesSelected!.show! - 1)) {
+//                            defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
+//                        } else {
+//                            Globals.sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
+//                        }
+//                    }
+//                }
+//            } else {
+//                defaults.removeObjectForKey(Constants.SERIES_SELECTED)
+//            }
+//        }
+//    }
     
     if let seriesPlayingIDStr = defaults.stringForKey(Constants.SERIES_PLAYING) {
         if let seriesPlayingID = Int(seriesPlayingIDStr) {
@@ -217,8 +223,12 @@ func loadDefaults()
                 
                 if let sermonPlayingIndexStr = defaults.stringForKey(Constants.SERMON_PLAYING_INDEX) {
                     if let sermonPlayingIndex = Int(sermonPlayingIndexStr) {
-                        if (sermonPlayingIndex > (Globals.seriesSelected!.show! - 1)) {
-                            defaults.removeObjectForKey(Constants.SERMON_PLAYING_INDEX)
+                        if seriesPlaying?.show != nil {
+                            if (sermonPlayingIndex > (seriesPlaying!.show! - 1)) {
+                                Globals.sermonPlaying = nil
+                            } else {
+                                Globals.sermonPlaying = seriesPlaying?.sermons?[sermonPlayingIndex]
+                            }
                         } else {
                             Globals.sermonPlaying = seriesPlaying?.sermons?[sermonPlayingIndex]
                         }
@@ -231,26 +241,11 @@ func loadDefaults()
     }
 }
 
-func setupSeriesAndSermonPlayingUserDefaults()
-{
-    let defaults = NSUserDefaults.standardUserDefaults()
-    
-    if (Globals.sermonPlaying != nil) {
-        defaults.setObject("\(Globals.sermonPlaying!.series!.id)", forKey: Constants.SERIES_PLAYING)
-        defaults.setObject("\(Globals.sermonPlaying!.index)", forKey: Constants.SERMON_PLAYING_INDEX)
-        defaults.setObject(Constants.ZERO, forKey: Constants.CURRENT_TIME)
-        //
-        //            println("seriesPlaying.title: \(Globals.seriesPlaying?.title)")
-        //            println("seriesPlayingIndex: \(Globals.seriesPlayingIndex)")
-        //            println("sermonPlayingIndex: \(Globals.sermonPlayingIndex)")
-    }
-    
-    defaults.synchronize()
-}
-
 func networkUnavailable(message:String?)
 {
     if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+        UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
+        
         let alert = UIAlertController(title:Constants.Network_Error,
             message: message,
             preferredStyle: UIAlertControllerStyle.Alert)
@@ -272,13 +267,6 @@ func removeSliderObserver() {
         Globals.sliderObserver = nil
     }
 }
-
-//func removePlayObserver() {
-//    if (Globals.playObserver != nil) {
-//        Globals.playObserver!.invalidate()
-//        Globals.playObserver = nil
-//    }
-//}
 
 func saveSermonSettingsBackground()
 {
@@ -313,7 +301,7 @@ func loadSermonSettings()
     //    print("\(Globals.sermonSettings)")
 }
 
-func updateUserDefaultsCurrentTimeWhilePlaying()
+func updateCurrentTimeWhilePlaying()
 {
     //        assert(Globals.player?.currentItem != nil,"Globals.player?.currentItem should not be nil if we're trying to update the currentTime in userDefaults")
     assert(Globals.mpPlayer != nil,"Globals.mpPlayer should not be nil if we're trying to update the currentTime in userDefaults")
@@ -329,125 +317,68 @@ func updateUserDefaultsCurrentTimeWhilePlaying()
             }
             
             if ((timeNow > 0) && (timeNow % 10) == 0) {
-                let defaults = NSUserDefaults.standardUserDefaults()
-                
-                if (Globals.sermonPlaying != nil) {
-                    //                println("\(timeNow.description)")
-                    defaults.setObject(timeNow.description,forKey:Constants.CURRENT_TIME)
-                }
-                
-                defaults.synchronize()
+//                println("\(timeNow.description)")
+                Globals.sermonPlaying?.currentTime = Globals.mpPlayer!.currentPlaybackTime.description
             }
         }
     }
 }
 
-func updateUserDefaultsCurrentTimeExact()
+func updateCurrentTimeExact()
 {
     if (Globals.mpPlayer != nil) {
-        updateUserDefaultsCurrentTimeExact(Float(Globals.mpPlayer!.currentPlaybackTime))
+        updateCurrentTimeExact(Float(Globals.mpPlayer!.currentPlaybackTime))
     }
 }
 
-func updateUserDefaultsCurrentTimeExact(seekToTime:Float)
+func updateCurrentTimeExact(seekToTime:Float)
 {
     if (seekToTime >= 0) {
-        let defaults = NSUserDefaults.standardUserDefaults()
-        //        print("\(seekToTime.description)")
-        defaults.setObject(seekToTime.description,forKey: Constants.CURRENT_TIME)
-        defaults.synchronize()
-        
         Globals.sermonPlaying?.currentTime = seekToTime.description
     }
 }
 
-func playNewSermon(sermon:Sermon?)
-{
-    // This is independent of any UI.
-    
-    Globals.playerPaused = false
-    Globals.mpPlayer?.stop()
-    
-    //        Globals.seriesPlaying = seriesSelected
-    Globals.sermonPlaying = sermon
-    
-    setupSeriesAndSermonPlayingUserDefaults()
-    
-//    var sermonURL:String?
-    var url:NSURL?
-    
-    let filename = String(format: Constants.FILENAME_FORMAT, Globals.sermonPlaying!.id)
-    url = documentsURL()?.URLByAppendingPathComponent(filename)
-    // Check if file exist
-    if (!NSFileManager.defaultManager().fileExistsAtPath(url!.path!)){
-//        sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
-        //        println("playNewSermon: \(sermonURL)")
-        url = NSURL(string:"\(Constants.BASE_AUDIO_URL)\(filename)")
-//        if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
-//            networkUnavailable("Unable to open audio: \(url!)")
-//            url = nil
-//        }
-    }
-    
-    if (url != nil) {
-        removeSliderObserver()
-//        removePlayObserver()
-        
-        //This guarantees a fresh start.
-        Globals.mpPlayer = MPMoviePlayerController(contentURL: url)
-        
-        Globals.mpPlayer?.shouldAutoplay = false
-        Globals.mpPlayer?.controlStyle = MPMovieControlStyle.Embedded
-        Globals.mpPlayer?.prepareToPlay()
-        
-//        // mpPlayerLoadStateDidChange stops the spinner spinning once the audio starts.
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "mpPlayerLoadStateDidChange:", name: MPMoviePlayerLoadStateDidChangeNotification, object: nil)
-        
-        setupPlayingInfoCenter()
-        
-        //Does this crash if prepareToPlay is not complete?
-        //Can we even call this here if the sermon is not available?
-        //If the sermon isn't available, how do we timeout?
-        //Do we need to set a flag and call this from mpPlayerLoadStateDidChange?  What if it never gets called?
-        //Is this causing crashes when prepareToPlay() is not completed and Globals.mpPlayer.loadState does not include MPMovieLoadState.PlaythroughOK?
-        Globals.mpPlayer?.play() // Might want to move this into mpPlayerLoadStateDidChange as we did in TPS and GTY
-    }
-}
+//func playNewSermon(sermon:Sermon?)
+//{
+//    // This is independent of any UI.
+//    
+//    Globals.sermonPlaying = sermon
+//    Globals.playerPaused = false
+//
+//    Globals.mpPlayer?.stop()
+//    
+//    setupSeriesAndSermonPlayingUserDefaults()
+//
+//    removeSliderObserver()
+//        
+//    //This guarantees a fresh start.
+//    Globals.mpPlayer = MPMoviePlayerController(contentURL: sermon?.playingURL)
+//    
+//    Globals.mpPlayer?.shouldAutoplay = false
+//    Globals.mpPlayer?.controlStyle = MPMovieControlStyle.None
+//    Globals.mpPlayer?.prepareToPlay()
+//    
+//    // This stops the spinner spinning once the audio starts
+//    Globals.sermonLoaded = false
+//    NSNotificationCenter.defaultCenter().addObserver(self, selector: "mpPlayerLoadStateDidChange:", name: MPMoviePlayerLoadStateDidChangeNotification, object: Globals.mpPlayer)
+//    
+//    setupPlayingInfoCenter()
+//}
 
 func setupPlayer(sermon:Sermon?)
 {
     if (sermon != nil) {
-//        var sermonURL:String?
-        var url:NSURL?
+        Globals.sermonLoaded = false
         
-        let filename = String(format: Constants.FILENAME_FORMAT, sermon!.series!.startingIndex + sermon!.index)
-        url = documentsURL()?.URLByAppendingPathComponent(filename)
-        // Check if file exist
-        if (!NSFileManager.defaultManager().fileExistsAtPath(url!.path!)){
-//            sermonURL = "\(Constants.BASE_AUDIO_URL)\(filename)"
-            //        println("playNewSermon: \(sermonURL)")
-            url = NSURL(string:"\(Constants.BASE_AUDIO_URL)\(filename)")
-//            if (!Reachability.isConnectedToNetwork()) { //  || !UIApplication.sharedApplication().canOpenURL(url!)
-//                url = nil
-//            }
-        }
+        Globals.mpPlayer = MPMoviePlayerController(contentURL: sermon?.playingURL)
         
-        if (url != nil) {
-            Globals.sermonLoaded = false
-
-            Globals.mpPlayer = MPMoviePlayerController(contentURL: url)
-            
-            Globals.mpPlayer?.shouldAutoplay = false
-            Globals.mpPlayer?.controlStyle = MPMovieControlStyle.None
-            Globals.mpPlayer?.prepareToPlay()
-            
-            setupPlayingInfoCenter()
-            
-            Globals.playerPaused = true
-//            Globals.sermonLoaded = false
-//        } else {
-//            Globals.sermonLoaded = true
-        }
+        Globals.mpPlayer?.shouldAutoplay = false
+        Globals.mpPlayer?.controlStyle = MPMovieControlStyle.None
+        Globals.mpPlayer?.prepareToPlay()
+        
+        setupPlayingInfoCenter()
+        
+        Globals.playerPaused = true
     }
 }
 
@@ -556,21 +487,21 @@ func jsonDataFromBundle() -> JSON
     return nil
 }
 
-func jsonToDocumentsDirectory()
+func jsonToFileSystem()
 {
     let fileManager = NSFileManager.defaultManager()
     
     //Get documents directory URL
-    let jsonDocumentsURL = documentsURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
+    let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
     
     let jsonBundlePath = NSBundle.mainBundle().pathForResource(Constants.JSON_ARRAY_KEY, ofType: "json")
     
     // Check if file exist
-    if (!fileManager.fileExistsAtPath(jsonDocumentsURL!.path!)){
+    if (!fileManager.fileExistsAtPath(jsonFileSystemURL!.path!)){
         if (jsonBundlePath != nil) {
             do {
                 // Copy File From Bundle To Documents Directory
-                try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonDocumentsURL!.path!)
+                try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonFileSystemURL!.path!)
             } catch _ {
                 print("failed to copy sermons.json")
             }
@@ -580,21 +511,21 @@ func jsonToDocumentsDirectory()
         do {
             let jsonBundleAttributes = try fileManager.attributesOfItemAtPath(jsonBundlePath!)
             
-            let jsonDocumentsAttributes = try fileManager.attributesOfItemAtPath(jsonDocumentsURL!.path!)
+            let jsonFileSystemAttributes = try fileManager.attributesOfItemAtPath(jsonFileSystemURL!.path!)
             
             let jsonBundleModDate = jsonBundleAttributes[NSFileModificationDate] as! NSDate
-            let jsonDocumentsModDate = jsonDocumentsAttributes[NSFileModificationDate] as! NSDate
+            let jsonFileSystemModDate = jsonFileSystemAttributes[NSFileModificationDate] as! NSDate
             
-            if (jsonBundleModDate.isOlderThanDate(jsonDocumentsModDate)) {
+            if (jsonBundleModDate.isOlderThanDate(jsonFileSystemModDate)) {
                 //Do nothing, the json in Documents is newer, i.e. it was downloaded after the install.
                 print("JSON in Documents is newer than JSON in bundle")
             }
             
-            if (jsonBundleModDate.isEqualToDate(jsonDocumentsModDate)) {
+            if (jsonBundleModDate.isEqualToDate(jsonFileSystemModDate)) {
                 let jsonBundleFileSize = jsonBundleAttributes[NSFileSize] as! Int
-                let jsonDocumentsFileSize = jsonDocumentsAttributes[NSFileSize] as! Int
+                let jsonFileSystemFileSize = jsonFileSystemAttributes[NSFileSize] as! Int
                 
-                if (jsonBundleFileSize != jsonDocumentsFileSize) {
+                if (jsonBundleFileSize != jsonFileSystemFileSize) {
                     print("Same dates different file sizes")
                     //We have a problem.
                 } else {
@@ -603,13 +534,13 @@ func jsonToDocumentsDirectory()
                 }
             }
             
-            if (jsonBundleModDate.isNewerThanDate(jsonDocumentsModDate)) {
+            if (jsonBundleModDate.isNewerThanDate(jsonFileSystemModDate)) {
                 print("JSON in bundle is newer than JSON in Documents")
                 //copy the bundle into Documents directory
                 do {
                     // Copy File From Bundle To Documents Directory
-                    try fileManager.removeItemAtPath(jsonDocumentsURL!.path!)
-                    try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonDocumentsURL!.path!)
+                    try fileManager.removeItemAtPath(jsonFileSystemURL!.path!)
+                    try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonFileSystemURL!.path!)
                 } catch _ {
                     print("failed to copy sermons.json")
                 }
@@ -621,9 +552,9 @@ func jsonToDocumentsDirectory()
     }
 }
 
-func jsonDataFromDocuments() -> JSON
+func jsonDataFromFileSystem() -> JSON
 {
-    if let url = documentsURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
+    if let url = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
         do {
             let data = try NSData(contentsOfURL: url, options: NSDataReadingOptions.DataReadingMappedIfSafe)
             let json = JSON(data: data)
@@ -644,9 +575,9 @@ func jsonDataFromDocuments() -> JSON
 
 func loadSeriesDictsFromJSON() -> [[String:String]]?
 {
-    jsonToDocumentsDirectory()
+    jsonToFileSystem()
     
-    let json = jsonDataFromDocuments()
+    let json = jsonDataFromFileSystem()
     
     if json != nil {
         //                print("json:\(json)")
@@ -682,7 +613,7 @@ func addAccessoryEvents()
         print("RemoteControlPause")
         Globals.mpPlayer?.pause()
         Globals.playerPaused = true
-        updateUserDefaultsCurrentTimeExact()
+        updateCurrentTimeExact()
         return MPRemoteCommandHandlerStatus.Success
     }
     
@@ -708,7 +639,7 @@ func addAccessoryEvents()
             Globals.mpPlayer?.play()
         } else {
             Globals.mpPlayer?.pause()
-            updateUserDefaultsCurrentTimeExact()
+            updateCurrentTimeExact()
         }
         Globals.playerPaused = !Globals.playerPaused
         return MPRemoteCommandHandlerStatus.Success
@@ -729,7 +660,7 @@ func addAccessoryEvents()
     MPRemoteCommandCenter.sharedCommandCenter().skipBackwardCommand.enabled = false
     MPRemoteCommandCenter.sharedCommandCenter().skipBackwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
         Globals.mpPlayer?.currentPlaybackTime -= NSTimeInterval(15)
-        updateUserDefaultsCurrentTimeExact()
+        updateCurrentTimeExact()
         setupPlayingInfoCenter()
         return MPRemoteCommandHandlerStatus.Success
     }
@@ -737,7 +668,7 @@ func addAccessoryEvents()
     MPRemoteCommandCenter.sharedCommandCenter().skipForwardCommand.enabled = false
     MPRemoteCommandCenter.sharedCommandCenter().skipForwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
         Globals.mpPlayer?.currentPlaybackTime += NSTimeInterval(15)
-        updateUserDefaultsCurrentTimeExact()
+        updateCurrentTimeExact()
         setupPlayingInfoCenter()
         return MPRemoteCommandHandlerStatus.Success
     }
