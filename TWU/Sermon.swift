@@ -146,6 +146,8 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
                         //                        print("\(sermon!)")
                         //                        print("\(newValue!)")
                         Globals.sermonSettings?[self.sermon!.keyBase]?[key] = newValue
+                        
+                        // For a high volume of activity this can be very expensive.
                         saveSermonSettingsBackground()
                     } else {
                         print("sermon == nil in Settings!")

@@ -10,6 +10,22 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+func startAudio()
+{
+    let audioSession: AVAudioSession  = AVAudioSession.sharedInstance()
+    
+    do {
+        try audioSession.setCategory(AVAudioSessionCategoryPlayback)
+    } catch _ {
+    }
+    
+    do {
+        //        audioSession.setCategory(AVAudioSessionCategoryPlayback, withOptions: AVAudioSessionCategoryOptions.MixWithOthers, error:nil)
+        try audioSession.setActive(true)
+    } catch _ {
+    }
+}
+
 extension NSDate
 {
     convenience

@@ -72,6 +72,12 @@ class Series : Equatable, CustomStringConvertible {
         }
     }
     
+    var url:NSURL? {
+        get {
+            return NSURL(string: Constants.BASE_WEB_URL + "\(id)")
+        }
+    }
+    
     var name:String {
         get {
             return dict![Constants.NAME]!
@@ -166,12 +172,12 @@ class Series : Equatable, CustomStringConvertible {
         let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"
         var image = UIImage(named:imageName)
         
-        // If we don't have it, see if it is in Documents and if not, download it and store it in Documents.
+        // If we don't have it, see if it is in the file system and if not, download it and store it in the file system.
         
         if (image == nil) {
-            // Check to see if it is in Documents.
-            let imageDocumentsURL = cachesURL()?.URLByAppendingPathComponent(imageName + Constants.JPEG_FILE_EXTENSION)
-            image = UIImage(contentsOfFile: imageDocumentsURL!.path!)
+            // Check to see if it is in the file system.
+            let imageURL = cachesURL()?.URLByAppendingPathComponent(imageName + Constants.JPEG_FILE_EXTENSION)
+            image = UIImage(contentsOfFile: imageURL!.path!)
             
             if (image == nil) {
                 // Try to get it from the cloud
@@ -180,7 +186,7 @@ class Series : Equatable, CustomStringConvertible {
                 if let imageData = NSData(contentsOfURL: NSURL(string: imageCloudURL)!) {
                     image = UIImage(data: imageData)
                     if (image != nil) {
-                        UIImageJPEGRepresentation(image!, 1.0)?.writeToURL(imageDocumentsURL!, atomically: true)
+                        UIImageJPEGRepresentation(image!, 1.0)?.writeToURL(imageURL!, atomically: true)
                     } else {
                         // Can't get it from anywhere.
                     }

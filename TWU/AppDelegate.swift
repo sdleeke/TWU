@@ -311,78 +311,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 
         // Override point for customization after application launch.
                 
-        let audioSession: AVAudioSession  = AVAudioSession.sharedInstance()
-
-        do {
-            try audioSession.setCategory(AVAudioSessionCategoryPlayback)
-        } catch _ {
-        }
-        do {
-            //        audioSession.setCategory(AVAudioSessionCategoryPlayback, withOptions: AVAudioSessionCategoryOptions.MixWithOthers, error:nil)
-            try audioSession.setActive(true)
-        } catch _ {
-        }
-        
-//        let predicate = NSPredicate(value: true)
-//        
-//        let query = CKQuery(recordType: "Globals", predicate: predicate)
-//        CKContainer.defaultContainer().publicCloudDatabase.performQuery(query, inZoneWithID: nil) { results, error in
-//            if error != nil {
-//                dispatch_async(dispatch_get_main_queue()) {
-//                    print("error loading: \(error)")
-//                }
-//            } else {
-//                for record in results! {
-//                    print("\(record)")
-//                }
-//            }
-//        }
-
-//        let recordID = CKRecordID(recordName: "Current Sermon Series")
-//
-//        CKContainer.defaultContainer().publicCloudDatabase.fetchRecordWithID(recordID) { fetchedRecord, error in
-////            guard let fetchedRecord = fetchedRecord else {
-////                print("\(error!.localizedDescription)")
-////                return
-////            }
-//
-//            print("\(fetchedRecord!["ID"]!)")
-//            print("\(fetchedRecord!["Title"]!)")
-//            print("\(fetchedRecord!["Show"]!)")
-//        }
-
-//        let database = CKContainer.defaultContainer().publicCloudDatabase
-//        database.fetchAllSubscriptionsWithCompletionHandler { (subscriptions:[CKSubscription]?, error:NSError?) -> Void in
-//            print("\(subscriptions)")
-//            for subscriptionObject in subscriptions! {
-//                let subscription = subscriptionObject as CKSubscription
-//                print("\(subscription)")
-//                database.deleteSubscriptionWithID(subscription.subscriptionID, completionHandler: { (string:String?, error:NSError?) -> Void in
-//                    
-//                })
-//            }
-//        }
-        
-        let subscription = CKSubscription(recordType: "Globals", predicate: NSPredicate(value: true), subscriptionID: "com.leeke.TWU", options: CKSubscriptionOptions.FiresOnRecordUpdate)
-        
-        let info = CKNotificationInfo()
-        info.shouldSendContentAvailable = true
-        if #available(iOS 9.0, *) {
-            info.category = "UPDATE"
-        }
-        info.alertBody = "Update Available"
-        info.desiredKeys = ["Title","ID","Show"]
-
-        subscription.notificationInfo = info
-        
-        CKContainer.defaultContainer().publicCloudDatabase.saveSubscription(subscription) { (subscription:CKSubscription?, error:NSError?) -> Void in
+        let database = CKContainer.defaultContainer().publicCloudDatabase
+        database.fetchAllSubscriptionsWithCompletionHandler({ (subscriptions:[CKSubscription]?, error:NSError?) -> Void in
+            print("\(subscriptions)")
             
-        }
+            for subscriptionObject in subscriptions! {
+                let subscription = subscriptionObject as CKSubscription
+                print("\(subscription)")
+                database.deleteSubscriptionWithID(subscription.subscriptionID, completionHandler: { (string:String?, error:NSError?) -> Void in
+                })
+            }
+            
+            let subscription = CKSubscription(recordType: "Globals", predicate: NSPredicate(value: true), subscriptionID: "com.leeke.TWU", options: CKSubscriptionOptions.FiresOnRecordUpdate)
+            
+            let info = CKNotificationInfo()
+            info.shouldSendContentAvailable = true
+            if #available(iOS 9.0, *) {
+                info.category = "UPDATE"
+            }
+            info.alertBody = "Update Available"
+            info.desiredKeys = ["Title","ID","Show"]
+            
+            subscription.notificationInfo = info
+            
+            CKContainer.defaultContainer().publicCloudDatabase.saveSubscription(subscription) { (subscription:CKSubscription?, error:NSError?) -> Void in
+                
+            }
+        })
         
-//        CKContainer.defaultContainer().publicCloudDatabase.deleteSubscriptionWithID("SERMON_SERIES_UPDATE") { (string:String?, error:NSError?) -> Void in
-//        
-//        }
-
         if (Constants.SUPPORT_REMOTE_NOTIFICATION) {
 //            application.applicationIconBadgeNumber = 0
 
@@ -411,6 +367,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             UIApplication.sharedApplication().registerUserNotificationSettings(settings)
             UIApplication.sharedApplication().registerForRemoteNotifications()
         }
+        
+        startAudio()
         
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         

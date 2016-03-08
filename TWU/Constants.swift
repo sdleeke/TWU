@@ -54,7 +54,7 @@ struct Constants {
     static let BASE_AUDIO_URL = "http://sitedata.thewordunleashed.org/avmedia/broadcasts/twu"
     
     //Used in the email and social media for series
-    static let BASE_WEB_URL = "https://www.thewordunleashed.org/index.php/series?seriesId="
+    static let BASE_WEB_URL = "http://www.thewordunleashed.org/index.php/series?seriesId="
     
     //Used for testing downloading the album art in real time - which didn't meet performance requirements,
     //we would have to implement caching, which is more work that embedding the album art in the app resources, at least for now.

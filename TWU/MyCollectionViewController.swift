@@ -522,10 +522,14 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             
             var success = false
             var newSeries:[Series]?
+            var newSeriesIndex = [Int:Series]()
             
             if let seriesDicts = loadSeriesDictsFromJSON() {
                 if let series = seriesFromSeriesDicts(seriesDicts) {
                     newSeries = series
+                    for newSermonSeries in newSeries! {
+                        newSeriesIndex[newSermonSeries.id] = newSermonSeries
+                    }
                     success = true
                 }
             }
@@ -552,9 +556,10 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             }
             
             var seriesNewToUser:[Series]?
+            var sermonsNewToUser = [Int:Int]()
 
-            var oldSermonCount = 0
-            var newSermonCount = 0
+//            var oldSermonCount = 0
+//            var newSermonCount = 0
             
 //            print("\(Globals.series?.count)")
 
@@ -571,17 +576,14 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 
                 if (onlyInNew.count > 0) {
                     seriesNewToUser = onlyInNew.map({ (id:Int) -> Series in
-                        return newSeries!.filter({ (series:Series) -> Bool in
-                            return series.id == id
-                        }).first!
+                        return newSeriesIndex[id]!
                     })
-                }
-
-                for series in Globals.series! {
-                    oldSermonCount += series.sermons!.count
-                }
-                for series in newSeries! {
-                    newSermonCount += series.sermons!.count
+                } else {
+                    for oldSeries in Globals.series! {
+                        if (newSeriesIndex[oldSeries.id]!.show! - oldSeries.show!) != 0 {
+                            sermonsNewToUser[oldSeries.id] = newSeriesIndex[oldSeries.id]!.show! - oldSeries.show!
+                        }
+                    }
                 }
             }
             
@@ -617,7 +619,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                         if (Globals.filter == nil) {
                             if (Globals.sorting != Constants.Newest_to_Oldest) && (Globals.sorting != Constants.Oldest_to_Newest) {
                                 if (seriesNewToUser!.count == 1) {
-                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series at the beginning or end of the list."
+                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series \"\(seriesNewToUser!.first!.title)\" at the beginning or end of the list."
                                 }
                                 if (seriesNewToUser!.count > 1) {
                                     message = "Change sorting to Newest to Oldest or Oldest to Newest to see the \(seriesNewToUser!.count) new sermon series at the beginning or end of the list."
@@ -625,7 +627,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             }
                             if (Globals.sorting == Constants.Newest_to_Oldest) {
                                 if (seriesNewToUser!.count == 1) {
-                                    message = "The new sermon series is at the beginning of the list."
+                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title)\" is at the beginning of the list."
                                 }
                                 if (seriesNewToUser!.count > 1) {
                                     message = "There are \(seriesNewToUser!.count) new sermon series at the beginning of the list."
@@ -633,7 +635,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             }
                             if (Globals.sorting == Constants.Oldest_to_Newest) {
                                 if (seriesNewToUser!.count == 1) {
-                                    message = "The new sermon series is at the end of the list."
+                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title)\" is at the end of the list."
                                 }
                                 if (seriesNewToUser!.count > 1) {
                                     message = "There are \(seriesNewToUser!.count) new sermon series at the end of the list."
@@ -641,31 +643,41 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             }
                         } else {
                             if (seriesNewToUser!.count == 1) {
-                                message = "The new sermon series has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
+                                message = "The new sermon series \"\(seriesNewToUser!.first!.title)\" has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
                             }
                             if (seriesNewToUser!.count > 1) {
                                 message = "A total of \(seriesNewToUser!.count) new sermon series have been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
                             }
                         }
                     } else {
-                        if (newSermonCount > 0) && (oldSermonCount > 0) { // Same as saying Globals.series != nil
-                            if (newSermonCount > oldSermonCount) {
-                                message = "Sermons added: \(newSermonCount - oldSermonCount)."
-    //                            let difference = newSermonCount - oldSermonCount
-    //                            if (difference == 1) {
-    //                                message = "There was \(difference) new sermon added."
-    //                            }
-    //                            if (difference > 1) {
-    //                                message = "There were \(difference) new sermons added."
-    //                            }
-                            } else {
-                                message = "No new sermons were added."
+                        print("\(sermonsNewToUser)")
+                        if (sermonsNewToUser.count > 0) {
+                            if sermonsNewToUser.keys.count == 1 {
+                                if let sermonsAdded = sermonsNewToUser[sermonsNewToUser.keys.first!] {
+                                    if sermonsAdded == 1 {
+                                        message = "One sermon was added "
+                                    }
+                                    if sermonsAdded > 1 {
+                                        message = "\(sermonsAdded) sermons were added "
+                                    }
+                                    message = message! + "to the series \(newSeriesIndex[sermonsNewToUser.keys.first!]!.title)."
+                                }
+                            } else
+                            if sermonsNewToUser.keys.count > 1 {
+                                var seriesCount = 0
+                                var sermonCount = 0
+                                
+                                for (_,value) in sermonsNewToUser {
+                                    seriesCount++
+                                    sermonCount += value
+                                }
+                                message = "\(sermonCount) sermons were added across \(seriesCount) different series."
                             }
-                            if (newSermonCount > oldSermonCount) {
-                                // This should not happen and would indicate something was wrong.
+                            else {
+                                message = "An error occured."
                             }
                         } else {
-                            message = nil
+                            message = "No new sermons were added."
                         }
                     }
                     

@@ -347,7 +347,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         bodyString = bodyString + seriesSelected!.title
         bodyString = bodyString + "\" by Tom Pennington and thought you would enjoy it as well."
         bodyString = bodyString + "\n\nThis series of sermons is available at "
-        bodyString = bodyString + Constants.BASE_WEB_URL + String(seriesSelected!.id)
+        bodyString = bodyString + seriesSelected!.url!.absoluteString
         
         return bodyString
     }
@@ -356,7 +356,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         var bodyString = String()
         
         bodyString = "I've enjoyed the sermon series "
-        bodyString = bodyString + "<a href=\"" + Constants.BASE_WEB_URL + String(seriesSelected!.id) + "\">" + seriesSelected!.title + "</a>"
+        bodyString = bodyString + "<a href=\"" + seriesSelected!.url!.absoluteString + "\">" + seriesSelected!.title + "</a>"
         bodyString = bodyString + " by " + "Tom Pennington"
         bodyString = bodyString + " from <a href=\"http://www.thewordunleashed.org\">" + "The Word Unleashed" + "</a>"
         bodyString = bodyString + " and thought you would enjoy it as well."
@@ -400,6 +400,17 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
+    private func openSeriesOnWeb(series:Series?)
+    {
+        if let url = series?.url {
+            if UIApplication.sharedApplication().canOpenURL(url) {
+                UIApplication.sharedApplication().openURL(url)
+            } else {
+                networkUnavailable("Unable to open url: \(url)")
+            }
+        }
+    }
+    
     private func openScripture()
     {
         var urlString = Constants.SCRIPTURE_URL_PREFIX + seriesSelected!.scripture + Constants.SCRIPTURE_URL_POSTFIX
@@ -430,7 +441,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         if SLComposeViewController.isAvailableForServiceType(SLServiceTypeTwitter){
             var bodyString = String()
             
-            bodyString = "Great sermon series: \"\(seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + Constants.BASE_WEB_URL + String(seriesSelected!.id)
+            bodyString = "Great sermon series: \"\(seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
             
             let twitterSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
             twitterSheet.setInitialText(bodyString)
@@ -464,7 +475,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         if SLComposeViewController.isAvailableForServiceType(SLServiceTypeFacebook){
             var bodyString = String()
             
-            bodyString = "Great sermon series: \"\(seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + Constants.BASE_WEB_URL + String(seriesSelected!.id)
+            bodyString = "Great sermon series: \"\(seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
             
             //So the user can paste the initialText into the post dialog/view
             //This is because of the known bug that when the latest FB app is installed it prevents prefilling the post.
@@ -515,12 +526,16 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         
         if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
             action = UIAlertAction(title: Constants.Open_Scripture, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                //            println("mail!")
                 self.openScripture()
             })
             alert.addAction(action)
         }
         
+        action = UIAlertAction(title: "Open Series on TWU Web Site", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+            self.openSeriesOnWeb(self.seriesSelected)
+        })
+        alert.addAction(action)
+
         action = UIAlertAction(title: Constants.EMail_Series, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
             //            println("mail!")
             self.mail()
@@ -914,12 +929,13 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         if (sermonSelected != nil) {
             if (sermonSelected == Globals.sermonPlaying) {
                 setupSlider()  // calls addSliderObserver()
-                
-                if let nvc = self.splitViewController?.viewControllers[0] as? UINavigationController {
-                    if let mycvc = nvc.topViewController as? MyCollectionViewController {
-                        mycvc.setupPlayingPausedButton()
-                    }
-                }
+                updateCVC()
+//                
+//                if let nvc = self.splitViewController?.viewControllers[0] as? UINavigationController {
+//                    if let mycvc = nvc.topViewController as? MyCollectionViewController {
+//                        mycvc.setupPlayingPausedButton()
+//                    }
+//                }
             }
             
             //Have to wait until viewDidAppear to do the selection because the row heights aren't yet set in viewWillAppear
@@ -1402,7 +1418,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 break
 
             case .Stopped:
-                print("sliderTimer.Stopped")
+//                print("sliderTimer.Stopped")
                 break
             }
             
@@ -1446,6 +1462,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         } else {
             Globals.playerPaused = true
             setupPlayPauseButton()
+            updateCVC()
         }
     }
     
@@ -1713,6 +1730,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 setupSlider()
                 setupPlayPauseButton()
                 setupActionsButton()
+                updateCVC()
             }
         }
     }
