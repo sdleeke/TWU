@@ -78,27 +78,27 @@ class Series : Equatable, CustomStringConvertible {
         }
     }
     
-    var name:String {
+    var name:String? {
         get {
-            return dict![Constants.NAME]!
+            return dict![Constants.NAME]
         }
     }
     
-    var title:String {
+    var title:String? {
         get {
-            return dict![Constants.TITLE]!
+            return dict![Constants.TITLE]
         }
     }
     
-    var scripture:String {
+    var scripture:String? {
         get {
-            return dict![Constants.SCRIPTURE]!
+            return dict![Constants.SCRIPTURE]
         }
     }
     
-    var text:String {
+    var text:String? {
         get {
-            return dict![Constants.TEXT]!
+            return dict![Constants.TEXT]
         }
     }
     
@@ -144,8 +144,8 @@ class Series : Equatable, CustomStringConvertible {
                 } else {
                     if (dict![Constants.BOOK] == nil) {
                         for bookTitle in Constants.OLD_TESTAMENT {
-                            if (scripture.endIndex >= bookTitle.endIndex) &&
-                                (scripture.substringToIndex(bookTitle.endIndex) == bookTitle) {
+                            if (scripture!.endIndex >= bookTitle.endIndex) &&
+                                (scripture!.substringToIndex(bookTitle.endIndex) == bookTitle) {
                                     dict![Constants.BOOK] = bookTitle
                                     break
                             }
@@ -153,8 +153,8 @@ class Series : Equatable, CustomStringConvertible {
                     }
                     if (dict![Constants.BOOK] == nil) {
                         for bookTitle in Constants.NEW_TESTAMENT {
-                            if (scripture.endIndex >= bookTitle.endIndex) &&
-                                (scripture.substringToIndex(bookTitle.endIndex) == bookTitle) {
+                            if (scripture!.endIndex >= bookTitle.endIndex) &&
+                                (scripture!.substringToIndex(bookTitle.endIndex) == bookTitle) {
                                     dict![Constants.BOOK] = bookTitle
                                     break
                             }
@@ -169,7 +169,7 @@ class Series : Equatable, CustomStringConvertible {
 
     func getArt() -> UIImage?
     {
-        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"
+        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name!)\(Constants.COVER_ART_POSTAMBLE)"
         var image = UIImage(named:imageName)
         
         // If we don't have it, see if it is in the file system and if not, download it and store it in the file system.

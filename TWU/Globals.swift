@@ -59,7 +59,16 @@ struct Globals {
 
     static var mpPlayer:MPMoviePlayerController?
     
-    static var playerPaused:Bool = false
+    static var playerPaused:Bool = false {
+        didSet {
+            if (playerPaused != oldValue) {
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+                })
+            }
+        }
+    }
+    
     static var sermonLoaded:Bool = false
     
     static var sliderObserver: NSTimer?
@@ -67,7 +76,18 @@ struct Globals {
     static var seekingObserver: NSTimer?
 
     static var gotoNowPlaying:Bool = false
-    static var searchActive:Bool = false
+    
+    static var searchButtonClicked = false
+    static var searchActive:Bool = false {
+        didSet {
+            if !searchActive {
+                searchText = nil
+            }
+        }
+    }
+
+    static var searchText:String?
+
     static var showingAbout:Bool = false
     
 //    static var seriesSelected:Series? {
@@ -106,11 +126,6 @@ struct Globals {
             if let seriesSelectedStr = defaults.stringForKey(Constants.SERIES_SELECTED) {
                 if let seriesSelectedID = Int(seriesSelectedStr) {
                     seriesSelected = Globals.index?[seriesSelectedID]
-//                    if let index = Globals.series?.indexOf({ (series) -> Bool in
-//                        return series.id == seriesSelectedID
-//                    }) {
-//                        seriesSelected = Globals.series?[index]
-//                    }
                 }
             }
             defaults.synchronize()

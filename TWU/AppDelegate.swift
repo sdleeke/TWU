@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             print("application:didReceiveRemoteNotification:fetchCompletionHandler: \(aps)")
 
             if queryNotification.recordID?.recordName == "Current Sermon Series" {
-                print("\(aps!["alert"])")
+//                print("\(aps!["alert"])")
                 
                 if let alert = aps!["alert"] as? String {
                     switch alert {
@@ -208,34 +208,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         }
     }
     
-    func handleRefresh()
-    {
-        //iPad
-        if let svc = self.window?.rootViewController as? UISplitViewController {
-            if let nvc = svc.viewControllers[0] as? UINavigationController {
-                if let cvc = nvc.topViewController as? MyCollectionViewController {
-                    cvc.handleRefresh(cvc.refreshControl!)
-                }
-                if let _ = nvc.topViewController as? MyViewController {
-                    nvc.popToRootViewControllerAnimated(true)
-                    if let cvc = nvc.topViewController as? MyCollectionViewController {
-                        cvc.handleRefresh(cvc.refreshControl!)
-                    }
-                }
-            }
-        }
-        
-        //iPhone
-        if let nvc = self.window?.rootViewController as? UINavigationController {
-            if let _ = nvc.topViewController as? MyViewController {
-                nvc.popToRootViewControllerAnimated(true)
-            }
-            
-            if let cvc = nvc.topViewController as? MyCollectionViewController {
-                cvc.handleRefresh(cvc.refreshControl!)
-            }
-        }
-    }
+//    func handleRefresh()
+//    {
+//        //iPad
+//        if let svc = self.window?.rootViewController as? UISplitViewController {
+//            if let nvc = svc.viewControllers[0] as? UINavigationController {
+//                if let cvc = nvc.topViewController as? MyCollectionViewController {
+//                    cvc.handleRefresh(cvc.refreshControl!)
+//                }
+//                if let _ = nvc.topViewController as? MyViewController {
+//                    nvc.popToRootViewControllerAnimated(true)
+//                    if let cvc = nvc.topViewController as? MyCollectionViewController {
+//                        cvc.handleRefresh(cvc.refreshControl!)
+//                    }
+//                }
+//            }
+//        }
+//        
+//        //iPhone
+//        if let nvc = self.window?.rootViewController as? UINavigationController {
+//            if let _ = nvc.topViewController as? MyViewController {
+//                nvc.popToRootViewControllerAnimated(true)
+//            }
+//            
+//            if let cvc = nvc.topViewController as? MyCollectionViewController {
+//                cvc.handleRefresh(cvc.refreshControl!)
+//            }
+//        }
+//    }
     
     func showAlert(message:String?)
     {
@@ -313,11 +313,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
                 
         let database = CKContainer.defaultContainer().publicCloudDatabase
         database.fetchAllSubscriptionsWithCompletionHandler({ (subscriptions:[CKSubscription]?, error:NSError?) -> Void in
-            print("\(subscriptions)")
+//            print("\(subscriptions)")
             
             for subscriptionObject in subscriptions! {
                 let subscription = subscriptionObject as CKSubscription
-                print("\(subscription)")
+//                print("\(subscription)")
                 database.deleteSubscriptionWithID(subscription.subscriptionID, completionHandler: { (string:String?, error:NSError?) -> Void in
                 })
             }
@@ -492,8 +492,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         for series in Globals.series! {
             for sermon in series.sermons! {
                 if (sermon.id == Int(filename!)) {
-                    sermon.download.session = NSURLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
-                    sermon.download.completionHandler = completionHandler
+                    sermon.audioDownload.session = NSURLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
+                    sermon.audioDownload.completionHandler = completionHandler
                     //Do we need to recreate the downloadTask for this session?
                 }
             }

@@ -372,11 +372,13 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         // Dispose of any resources that can be recreated.
     }
     
-    override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-        tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
-        theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
-//        tomPenningtonBio.scrollRangeToVisible(NSMakeRange(0,0))
-//        theWordUnleashedDescription.scrollRangeToVisible(NSMakeRange(0,0))
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
+
+            }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
+                self.tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
+                self.theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
+        }
     }
 
     /*

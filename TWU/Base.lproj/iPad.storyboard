@@ -39,7 +39,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="90" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="91J-fh-SJo">
-                                <rect key="frame" x="0.0" y="286" width="600" height="250"/>
+                                <rect key="frame" x="0.0" y="282" width="600" height="254"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationWidth="0.0" reuseIdentifier="SeriesSermon" id="weh-rh-66T" customClass="MyTableViewCell" customModule="TWU" customModuleProvider="target">
@@ -123,17 +123,17 @@
                                 </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sSN-Ac-J4R" userLabel="Series Art And Description">
-                                <rect key="frame" x="0.0" y="8" width="600" height="208"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="212"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ufB-oq-a4t">
-                                        <rect key="frame" x="10" y="0.0" width="580" height="208"/>
+                                        <rect key="frame" x="10" y="0.0" width="580" height="212"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <imageView multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="x2f-dd-r2d">
-                                        <rect key="frame" x="196" y="0.0" width="208" height="208"/>
+                                        <rect key="frame" x="205" y="11" width="191" height="191"/>
                                         <gestureRecognizers/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="x2f-dd-r2d" secondAttribute="height" multiplier="1:1" id="Cer-hh-zmi"/>
@@ -144,9 +144,10 @@
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="sSN-Ac-J4R" secondAttribute="height" multiplier="1:1" id="2a0-Sf-VQS"/>
                                     <constraint firstAttribute="centerY" secondItem="ufB-oq-a4t" secondAttribute="centerY" id="BNq-tG-s23"/>
-                                    <constraint firstItem="x2f-dd-r2d" firstAttribute="width" relation="lessThanOrEqual" secondItem="sSN-Ac-J4R" secondAttribute="width" id="BcF-eX-wzP"/>
+                                    <constraint firstItem="x2f-dd-r2d" firstAttribute="width" relation="lessThanOrEqual" secondItem="sSN-Ac-J4R" secondAttribute="width" multiplier="0.9" id="BcF-eX-wzP"/>
                                     <constraint firstAttribute="centerX" secondItem="ufB-oq-a4t" secondAttribute="centerX" id="MNb-Y4-hR1"/>
-                                    <constraint firstItem="x2f-dd-r2d" firstAttribute="height" secondItem="sSN-Ac-J4R" secondAttribute="height" id="Mbo-E0-AmL"/>
+                                    <constraint firstItem="x2f-dd-r2d" firstAttribute="height" secondItem="sSN-Ac-J4R" secondAttribute="height" multiplier="0.9" id="Mbo-E0-AmL"/>
+                                    <constraint firstItem="x2f-dd-r2d" firstAttribute="centerY" secondItem="sSN-Ac-J4R" secondAttribute="centerY" id="Odd-ih-Sc2"/>
                                     <constraint firstAttribute="width" secondItem="ufB-oq-a4t" secondAttribute="width" constant="20" id="Z60-Zj-Wua"/>
                                     <constraint firstAttribute="centerX" secondItem="x2f-dd-r2d" secondAttribute="centerX" id="mU8-70-DEX"/>
                                     <constraint firstAttribute="bottom" secondItem="ufB-oq-a4t" secondAttribute="bottom" id="onw-i4-OYM"/>
@@ -162,6 +163,8 @@
                                         <exclude reference="2a0-Sf-VQS"/>
                                         <exclude reference="BNq-tG-s23"/>
                                         <exclude reference="pOq-KA-OKS"/>
+                                        <exclude reference="rFV-an-kKC"/>
+                                        <exclude reference="tzp-ux-Phs"/>
                                         <exclude reference="yv6-ST-or2"/>
                                     </mask>
                                 </variation>
@@ -182,13 +185,13 @@
                                 </variation>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5fj-n9-FSw" userLabel="Time Elapsed">
-                                <rect key="frame" x="64" y="255" width="39" height="17"/>
+                                <rect key="frame" x="64" y="251" width="39" height="17"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="sE0-gY-Yu6" customClass="OBSlider" customModule="TWU" customModuleProvider="target">
-                                <rect key="frame" x="109" y="248" width="426" height="31"/>
+                                <rect key="frame" x="109" y="244" width="426" height="31"/>
                                 <connections>
                                     <action selector="sliderTouchDown:" destination="H2E-ZS-FbW" eventType="touchDown" id="gx9-aV-TP5"/>
                                     <action selector="sliderTouchUpInside:" destination="H2E-ZS-FbW" eventType="touchUpInside" id="fJj-Rq-HbQ"/>
@@ -197,16 +200,16 @@
                                 </connections>
                             </slider>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="01j-65-CbC">
-                                <rect key="frame" x="312" y="253" width="20" height="20"/>
+                                <rect key="frame" x="312" y="249" width="20" height="20"/>
                             </activityIndicatorView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3jv-Gb-bb7" userLabel="Time Remaining">
-                                <rect key="frame" x="541" y="255" width="39" height="17"/>
+                                <rect key="frame" x="541" y="251" width="39" height="17"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BBU-FH-IlP" userLabel="PlayPause">
-                                <rect key="frame" x="8" y="243" width="48" height="40"/>
+                                <rect key="frame" x="8" y="239" width="48" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="vdr-WW-o8u"/>
                                 </constraints>
@@ -225,7 +228,7 @@
                                 </constraints>
                             </imageView>
                             <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="vgK-rU-B9W">
-                                <rect key="frame" x="-1" y="211" width="601" height="45"/>
+                                <rect key="frame" x="150" y="207" width="300" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="gQ5-pt-2hg"/>
                                 </constraints>
@@ -259,8 +262,8 @@
                             <constraint firstAttribute="centerX" secondItem="sSN-Ac-J4R" secondAttribute="centerX" id="XjV-lr-cwp"/>
                             <constraint firstItem="91J-fh-SJo" firstAttribute="height" secondItem="sSN-Ac-J4R" secondAttribute="height" multiplier="1.2" id="Yic-aQ-dH2"/>
                             <constraint firstItem="3jv-Gb-bb7" firstAttribute="centerY" secondItem="sE0-gY-Yu6" secondAttribute="centerY" id="b2m-Yd-h4E"/>
-                            <constraint firstItem="sSN-Ac-J4R" firstAttribute="top" secondItem="q7U-Fv-YgR" secondAttribute="bottom" constant="8" symbolic="YES" id="fij-RT-gse"/>
-                            <constraint firstItem="vgK-rU-B9W" firstAttribute="width" secondItem="sSN-Ac-J4R" secondAttribute="width" id="g7K-09-6sQ"/>
+                            <constraint firstItem="sSN-Ac-J4R" firstAttribute="top" secondItem="q7U-Fv-YgR" secondAttribute="bottom" id="fij-RT-gse"/>
+                            <constraint firstItem="vgK-rU-B9W" firstAttribute="width" secondItem="sSN-Ac-J4R" secondAttribute="width" multiplier="0.5" id="g7K-09-6sQ"/>
                             <constraint firstItem="hyM-uV-ueX" firstAttribute="top" relation="greaterThanOrEqual" secondItem="PgQ-UT-9Es" secondAttribute="bottom" id="i9j-gB-Qw7"/>
                             <constraint firstItem="vgK-rU-B9W" firstAttribute="height" secondItem="sSN-Ac-J4R" secondAttribute="height" constant="40" id="jHa-5q-9i4"/>
                             <constraint firstItem="PgQ-UT-9Es" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ev9-lG-hyo" secondAttribute="leading" id="oGi-oo-7C4"/>

@@ -705,10 +705,10 @@ func setupPlayingInfoCenter()
     if (Globals.sermonPlaying != nil) {
         var sermonInfo = [String:AnyObject]()
         
-        sermonInfo.updateValue(Globals.sermonPlaying!.series!.title + " (Part \(Globals.sermonPlaying!.index + 1))",    forKey: MPMediaItemPropertyTitle)
+        sermonInfo.updateValue(Globals.sermonPlaying!.series!.title! + " (Part \(Globals.sermonPlaying!.index + 1))",    forKey: MPMediaItemPropertyTitle)
         sermonInfo.updateValue(Constants.Tom_Pennington,                                                            forKey: MPMediaItemPropertyArtist)
         
-        sermonInfo.updateValue(Globals.sermonPlaying!.series!.title,                                                forKey: MPMediaItemPropertyAlbumTitle)
+        sermonInfo.updateValue(Globals.sermonPlaying!.series!.title!,                                                forKey: MPMediaItemPropertyAlbumTitle)
         sermonInfo.updateValue(Constants.Tom_Pennington,                                                            forKey: MPMediaItemPropertyAlbumArtist)
         sermonInfo.updateValue(MPMediaItemArtwork(image: Globals.sermonPlaying!.series!.getArt()!),                        forKey: MPMediaItemPropertyArtwork)
         

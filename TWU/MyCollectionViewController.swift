@@ -299,10 +299,23 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     func updateSearchResults()
     {
-        if (searchBar.text != "") {
+        if Globals.searchActive && (Globals.searchText != nil) && (Globals.searchText != Constants.EMPTY_STRING) {
             Globals.searchSeries = Globals.seriesToSearch?.filter({ (series:Series) -> Bool in
-                return ((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
-                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
+                var seriesResult = false
+                
+                if series.title != nil {
+                    seriesResult = seriesResult ||
+                        ((series.title!.rangeOfString(Globals.searchText!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
+                }
+                if series.name != nil {
+                    seriesResult = seriesResult ||
+                        ((series.scripture!.rangeOfString(Globals.searchText!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
+                }
+
+                return seriesResult
+                
+//                return ((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
+//                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
             })
             
         } else {
@@ -318,15 +331,24 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
 //        println("Text changed: \(searchText)")
         
+        Globals.searchButtonClicked = false
+        
+        Globals.searchText = searchBar.text
+        
         updateSearchResults()
         
         collectionView!.reloadData()
     }
     
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        Globals.searchButtonClicked = false
+
         if (!Globals.searchActive) {
             Globals.searchActive = true
             searchBar.showsCancelButton = true
+            
+            Globals.searchText = searchBar.text
+            
             updateSearchResults()
         }
     }
@@ -337,6 +359,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
 //        println("Search clicked!")
+        Globals.searchButtonClicked = true
         searchBar.resignFirstResponder()
     }
     
@@ -449,7 +472,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 Globals.sermonLoaded = true
             }
             
-            NSNotificationCenter.defaultCenter().removeObserver(self)
+            NSNotificationCenter.defaultCenter().removeObserver(self, name: MPMoviePlayerLoadStateDidChangeNotification, object: Globals.mpPlayer)
         } else {
             print("MyCVC.mpPlayerLoadStateDidChange.MPMovieLoadState.Playthrough NOT OK")
         }
@@ -466,49 +489,75 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         }
     }
     
+    func scrollToSeries(series:Series?)
+    {
+        if (seriesSelected != nil) && (Globals.activeSeries?.indexOf(series!) != nil) {
+            let indexPath = NSIndexPath(forItem: Globals.activeSeries!.indexOf(series!)!, inSection: 0)
+            
+            //Without this background/main dispatching there isn't time to scroll after a reload.
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.Top, animated: true)
+                })
+            })
+        }
+    }
+    
     func setupViews()
     {
-        var mycvc:MyCollectionViewController?
-        var myvc:MyViewController?
+        setupSearchBar()
+        collectionView.reloadData()
+        enableBarButtons()
+        setupTitle()
+        setupPlayingPausedButton()
         
-        if let svc = self.splitViewController {
-            //iPad
-            if let nvc = svc.viewControllers[0] as? UINavigationController {
-                mycvc = nvc.visibleViewController as? MyCollectionViewController
-            }
-            if let nvc = svc.viewControllers[svc.viewControllers.count - 1] as? UINavigationController {
-                myvc = nvc.visibleViewController as? MyViewController
-            }
-        } else {
-            mycvc = self.navigationController?.visibleViewController as? MyCollectionViewController
-            myvc = self.navigationController?.visibleViewController as? MyViewController
+        scrollToSeries(seriesSelected)
+        
+        if (splitViewController != nil) {
+            NSNotificationCenter.defaultCenter().postNotificationName(Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
         }
         
-        mycvc?.seriesSelected = seriesSelected
-
-        if (mycvc != nil) {
-            mycvc?.setupSearchBar()
-            mycvc?.collectionView.reloadData()
-            mycvc?.enableBarButtons()
-            mycvc?.setupTitle()
-            mycvc?.setupPlayingPausedButton()
-            
-            if (mycvc!.seriesSelected != nil) && (Globals.activeSeries?.indexOf(mycvc!.seriesSelected!) != nil) {
-//                print("\(Globals.activeSeries!.indexOf(mycvc!.seriesSelected!))")
-                let indexPath = NSIndexPath(forItem: Globals.activeSeries!.indexOf(mycvc!.seriesSelected!)!, inSection: 0)
-                mycvc?.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredVertically, animated: true)
-            }
-        }
-
-        if (myvc != nil) {
-            myvc?.seriesSelected = Globals.seriesSelected
-            myvc?.sermonSelected = Globals.sermonSelected
-
-            myvc?.updateUI()
-            
-            myvc?.scrollToSermon(myvc?.sermonSelected,select:true,position:UITableViewScrollPosition.Top)
-        }
-
+//        var mycvc:MyCollectionViewController?
+//        var myvc:MyViewController?
+//        
+//        if let svc = self.splitViewController {
+//            //iPad
+//            if let nvc = svc.viewControllers[0] as? UINavigationController {
+//                mycvc = nvc.visibleViewController as? MyCollectionViewController
+//            }
+//            if let nvc = svc.viewControllers[svc.viewControllers.count - 1] as? UINavigationController {
+//                myvc = nvc.visibleViewController as? MyViewController
+//            }
+//        } else {
+//            mycvc = self.navigationController?.visibleViewController as? MyCollectionViewController
+//            myvc = self.navigationController?.visibleViewController as? MyViewController
+//        }
+//        
+//        mycvc?.seriesSelected = seriesSelected
+//
+//        if (mycvc != nil) {
+//            mycvc?.setupSearchBar()
+//            mycvc?.collectionView.reloadData()
+//            mycvc?.enableBarButtons()
+//            mycvc?.setupTitle()
+//            mycvc?.setupPlayingPausedButton()
+//            
+//            if (mycvc!.seriesSelected != nil) && (Globals.activeSeries?.indexOf(mycvc!.seriesSelected!) != nil) {
+////                print("\(Globals.activeSeries!.indexOf(mycvc!.seriesSelected!))")
+//                let indexPath = NSIndexPath(forItem: Globals.activeSeries!.indexOf(mycvc!.seriesSelected!)!, inSection: 0)
+//                mycvc?.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredVertically, animated: true)
+//            }
+//        }
+//
+//        if (myvc != nil) {
+//            myvc?.seriesSelected = Globals.seriesSelected
+//            myvc?.sermonSelected = Globals.sermonSelected
+//
+//            myvc?.updateUI()
+//            
+//            myvc?.scrollToSermon(myvc?.sermonSelected,select:true,position:UITableViewScrollPosition.Top)
+//        }
+//
     }
     
     func loadSeries(completion: (() -> Void)?)
@@ -650,7 +699,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             }
                         }
                     } else {
-                        print("\(sermonsNewToUser)")
+//                        print("\(sermonsNewToUser)")
                         if (sermonsNewToUser.count > 0) {
                             if sermonsNewToUser.keys.count == 1 {
                                 if let sermonsAdded = sermonsNewToUser[sermonsNewToUser.keys.first!] {
@@ -837,14 +886,14 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         if (Globals.series != nil) {
             for series in Globals.series! {
                 for sermon in series.sermons! {
-                    if sermon.download.active {
-                        sermon.download.task?.cancel()
-                        sermon.download.task = nil
+                    if sermon.audioDownload.active {
+                        sermon.audioDownload.task?.cancel()
+                        sermon.audioDownload.task = nil
                         
-                        sermon.download.totalBytesWritten = 0
-                        sermon.download.totalBytesExpectedToWrite = 0
+                        sermon.audioDownload.totalBytesWritten = 0
+                        sermon.audioDownload.totalBytesExpectedToWrite = 0
                         
-                        sermon.download.state = .none
+                        sermon.audioDownload.state = .none
                     }
                 }
             }
@@ -892,35 +941,39 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 
         cancelAllDownloads()
         
-//        self.searchBar.placeholder = nil
+        self.searchBar.placeholder = nil
 //        Globals.filter = nil
 //        Globals.activeSeries = nil
 //        collectionView.reloadData()
         
-        if let svc = self.splitViewController {
-            //iPad
-
-            // Instead of testing for collapsed:
-            //                if let nvc = svc.viewControllers[svc.viewControllers.count - 1] as? UINavigationController {
-            
-            if (svc.collapsed) {
-                if let nvc = svc.viewControllers[0] as? UINavigationController {
-                    if let myvc = nvc.topViewController as? MyViewController {
-                        myvc.seriesSelected = nil
-                        myvc.sermonSelected = nil
-                        myvc.updateUI()
-                    }
-                }
-            } else {
-                if let nvc = svc.viewControllers[1] as? UINavigationController {
-                    if let myvc = nvc.topViewController as? MyViewController {
-                        myvc.seriesSelected = nil
-                        myvc.sermonSelected = nil
-                        myvc.updateUI()
-                    }
-                }
-            }
+        if splitViewController != nil {
+            NSNotificationCenter.defaultCenter().postNotificationName(Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
         }
+        
+//        if let svc = self.splitViewController {
+//            //iPad
+//
+//            // Instead of testing for collapsed:
+//            //                if let nvc = svc.viewControllers[svc.viewControllers.count - 1] as? UINavigationController {
+//            
+//            if (svc.collapsed) {
+//                if let nvc = svc.viewControllers[0] as? UINavigationController {
+//                    if let myvc = nvc.topViewController as? MyViewController {
+//                        myvc.seriesSelected = nil
+//                        myvc.sermonSelected = nil
+//                        myvc.updateUI()
+//                    }
+//                }
+//            } else {
+//                if let nvc = svc.viewControllers[1] as? UINavigationController {
+//                    if let myvc = nvc.topViewController as? MyViewController {
+//                        myvc.seriesSelected = nil
+//                        myvc.sermonSelected = nil
+//                        myvc.updateUI()
+//                    }
+//                }
+//            }
+//        }
         
         disableBarButtons()
         
@@ -933,6 +986,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         if Globals.series == nil {
             loadSeries(nil)
         }
+
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "setupPlayingPausedButton", name: Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
 
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
         
@@ -1027,7 +1082,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 
         navigationController?.toolbarHidden = false
 
-        if (Globals.searchActive) {
+        if Globals.searchActive && !Globals.searchButtonClicked {
             searchBar.becomeFirstResponder()
         }
         
@@ -1040,21 +1095,22 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 
         setupPlayingPausedButton()
         
-        collectionView.reloadData()
+        //Why?  This just makes the list move to an unexpected location.
+//        collectionView.reloadData()
     }
     
-    func collectionView(_: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize
+    func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize
     {
         var size:CGFloat = 0.0
 
         var index = 1
         
+        let measure = min(view.bounds.height,view.bounds.width)
+        
         repeat {
-            size = (view.bounds.width - CGFloat(10*(index+1)))/CGFloat(index)
+            size = (measure - CGFloat(10*(index+1)))/CGFloat(index)
             index++
-        } while (size > min(view.bounds.height,view.bounds.width)/1.5)
+        } while (size > measure/1.5)
 
 //        print("Size: \(size)")
 //        print("\(UIDevice.currentDevice().model)")
@@ -1202,8 +1258,13 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
         coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
-            self.collectionView.reloadData()
+            if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) { //  && (self.view.window != nil)
+                self.collectionView.reloadData()
+            }
+            //Not quite what we want.  What we want is for the list to "look" the same.
+            self.scrollToSeries(self.seriesSelected)
             }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
+                self.setupTitle()
         }
     }
 

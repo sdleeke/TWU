@@ -14,6 +14,9 @@ class MyTableViewCell: UITableViewCell {
     
     var sermon:Sermon? {
         didSet {
+            NSNotificationCenter.defaultCenter().removeObserver(self, name: Constants.SERMON_UPDATE_UI_NOTIFICATION, object: oldValue)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: Constants.SERMON_UPDATE_UI_NOTIFICATION, object: sermon)
+            
             updateUI()
         }
     }
@@ -30,11 +33,11 @@ class MyTableViewCell: UITableViewCell {
 //        print("\(selected)")
      
         if (sermon?.series?.numberOfSermons == 1) {
-            title!.text = "\(sermon!.series!.title)"
+            title!.text = "\(sermon!.series!.title!)"
         }
         
         if (sermon?.series?.numberOfSermons > 1) {
-            title!.text = "\(sermon!.series!.title) (Part\u{00a0}\(row!+1))"
+            title!.text = "\(sermon!.series!.title!) (Part\u{00a0}\(row!+1))"
         }
         
         if (sermon == Globals.sermonPlaying) {
@@ -47,7 +50,7 @@ class MyTableViewCell: UITableViewCell {
 //            }
         }
         
-        switch sermon!.download.state {
+        switch sermon!.audioDownload.state {
         case .none:
             downloadLabel.text = Constants.Download
             downloadProgressBar.progress = 0
@@ -60,8 +63,8 @@ class MyTableViewCell: UITableViewCell {
             
         case .downloading:
             downloadLabel.text = Constants.Downloading
-            if (sermon!.download.totalBytesExpectedToWrite > 0) {
-                downloadProgressBar.progress = Float(sermon!.download.totalBytesWritten) / Float(sermon!.download.totalBytesExpectedToWrite)
+            if (sermon!.audioDownload.totalBytesExpectedToWrite > 0) {
+                downloadProgressBar.progress = Float(sermon!.audioDownload.totalBytesWritten) / Float(sermon!.audioDownload.totalBytesExpectedToWrite)
             } else {
                 downloadProgressBar.progress = 0
             }
@@ -69,15 +72,15 @@ class MyTableViewCell: UITableViewCell {
         }
         downloadLabel.sizeToFit()
 
-        downloadSwitch.on = sermon!.download.state != .none
+        downloadSwitch.on = sermon!.audioDownload.state != .none
 
-        if (sermon!.download.active) && (downloadObserver == nil) {
+        if (sermon!.audioDownload.active) && (downloadObserver == nil) {
             downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
         }
 
         if (downloadObserver != nil) &&
-            (sermon!.download.totalBytesExpectedToWrite > 0) && (sermon!.download.totalBytesExpectedToWrite > 0) &&
-            (sermon!.download.totalBytesWritten == sermon!.download.totalBytesExpectedToWrite) {
+            (sermon!.audioDownload.totalBytesExpectedToWrite > 0) && (sermon!.audioDownload.totalBytesExpectedToWrite > 0) &&
+            (sermon!.audioDownload.totalBytesWritten == sermon!.audioDownload.totalBytesExpectedToWrite) {
             downloadLabel.text = Constants.Downloaded
             downloadLabel.sizeToFit()
             downloadObserver?.invalidate()
@@ -105,19 +108,19 @@ class MyTableViewCell: UITableViewCell {
     
     func deleteDownload()
     {
-        sermon?.deleteDownload()
+        sermon?.audioDownload.deleteDownload()
         updateUI()
     }
     
     func cancelDownload()
     {
-        sermon?.deleteDownload()
+        sermon?.audioDownload.deleteDownload()
         updateUI()
     }
     
     func downloadAudio()
     {
-        sermon!.downloadAudio()
+        sermon?.audioDownload.download()
         downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
 //        if (Reachability.isConnectedToNetwork()) {
 //            sermon!.downloadAudio()

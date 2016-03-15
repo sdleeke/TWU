@@ -215,7 +215,7 @@
                                 </constraints>
                             </imageView>
                             <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="AuR-Xp-8MH">
-                                <rect key="frame" x="0.0" y="244" width="600" height="15"/>
+                                <rect key="frame" x="150" y="244" width="300" height="15"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="15" id="ZeG-uq-eGE">
                                         <variation key="heightClass=compact" constant="25"/>
@@ -249,7 +249,7 @@
                             <constraint firstAttribute="centerX" secondItem="B7w-cL-h3O" secondAttribute="centerX" id="M0p-au-Z7g"/>
                             <constraint firstAttribute="centerX" secondItem="JQ3-7L-eUm" secondAttribute="centerX" id="Nxs-wP-KiQ"/>
                             <constraint firstItem="N47-DQ-rqI" firstAttribute="trailing" secondItem="5Kp-N3-hiY" secondAttribute="trailing" id="QoZ-jg-6cU"/>
-                            <constraint firstItem="AuR-Xp-8MH" firstAttribute="width" secondItem="B7w-cL-h3O" secondAttribute="width" id="R7a-yH-9Us"/>
+                            <constraint firstItem="AuR-Xp-8MH" firstAttribute="width" secondItem="B7w-cL-h3O" secondAttribute="width" multiplier="0.5" id="R7a-yH-9Us"/>
                             <constraint firstItem="h2e-pb-PKr" firstAttribute="centerY" secondItem="rSQ-EM-moJ" secondAttribute="centerY" id="TTH-s0-ups"/>
                             <constraint firstItem="B7w-cL-h3O" firstAttribute="top" secondItem="qer-bR-w5O" secondAttribute="bottom" constant="46" id="TvR-zR-YH7"/>
                             <constraint firstItem="h2e-pb-PKr" firstAttribute="centerY" secondItem="iPn-wE-Y4v" secondAttribute="centerY" id="UAe-Xb-f5W"/>
@@ -293,8 +293,8 @@
                                 <exclude reference="Cfb-zM-zYn"/>
                                 <exclude reference="TvR-zR-YH7"/>
                                 <exclude reference="WDb-8E-QRH"/>
-                                <exclude reference="sCo-MJ-00i"/>
                                 <exclude reference="Ir7-2D-22b"/>
+                                <exclude reference="sCo-MJ-00i"/>
                                 <exclude reference="2Zi-o7-zkS"/>
                                 <exclude reference="Kar-Dh-M9e"/>
                                 <exclude reference="aew-zT-NbP"/>

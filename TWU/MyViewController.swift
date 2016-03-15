@@ -30,6 +30,8 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 let defaults = NSUserDefaults.standardUserDefaults()
                 defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
                 defaults.synchronize()
+
+                NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
             } else {
                 print("MyViewController:seriesSelected nil")
             }
@@ -45,6 +47,8 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 let defaults = NSUserDefaults.standardUserDefaults()
                 defaults.setObject("\(sermonSelected!.index)", forKey: Constants.SERMON_SELECTED_INDEX)
                 defaults.synchronize()
+
+                NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
             } else {
                 print("MyViewController:sermonSelected nil")
             }
@@ -344,7 +348,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         var bodyString = String()
         
         bodyString = "I've enjoyed the sermon series \""
-        bodyString = bodyString + seriesSelected!.title
+        bodyString = bodyString + seriesSelected!.title!
         bodyString = bodyString + "\" by Tom Pennington and thought you would enjoy it as well."
         bodyString = bodyString + "\n\nThis series of sermons is available at "
         bodyString = bodyString + seriesSelected!.url!.absoluteString
@@ -356,7 +360,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         var bodyString = String()
         
         bodyString = "I've enjoyed the sermon series "
-        bodyString = bodyString + "<a href=\"" + seriesSelected!.url!.absoluteString + "\">" + seriesSelected!.title + "</a>"
+        bodyString = bodyString + "<a href=\"" + seriesSelected!.url!.absoluteString + "\">" + seriesSelected!.title! + "</a>"
         bodyString = bodyString + " by " + "Tom Pennington"
         bodyString = bodyString + " from <a href=\"http://www.thewordunleashed.org\">" + "The Word Unleashed" + "</a>"
         bodyString = bodyString + " and thought you would enjoy it as well."
@@ -413,7 +417,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     
     private func openScripture()
     {
-        var urlString = Constants.SCRIPTURE_URL_PREFIX + seriesSelected!.scripture + Constants.SCRIPTURE_URL_POSTFIX
+        var urlString = Constants.SCRIPTURE_URL_PREFIX + seriesSelected!.scripture! + Constants.SCRIPTURE_URL_POSTFIX
         
         urlString = urlString.stringByReplacingOccurrencesOfString(" ", withString: "+", options: NSStringCompareOptions.LiteralSearch, range: nil)
         //        println("\(urlString)")
@@ -544,13 +548,21 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
      
         var sermonsToDownload = 0
         var sermonsDownloaded = 0
+        var sermonsDownloading = 0
         
-        for i in 0..<self.seriesSelected!.numberOfSermons {
-            if (self.seriesSelected?.sermons?[i].download.state == .none) {
+        for sermon in seriesSelected!.sermons! {
+            switch sermon.audioDownload.state {
+            case .none:
                 sermonsToDownload++
-            }
-            if (self.seriesSelected?.sermons?[i].download.state != .none) {
+                break
+                
+            case .downloading:
+                sermonsDownloading++
+                break
+                
+            case .downloaded:
                 sermonsDownloaded++
+                break
             }
         }
 
@@ -558,31 +570,23 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             action = UIAlertAction(title: Constants.Download_All, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
                 if let sermons = self.seriesSelected?.sermons {
                     for sermon in sermons {
-                        if (sermon.download.state == .none) {
-                            sermon.downloadAudio()
-                        }
+                        sermon.audioDownload.download()
                     }
                 }
-//                for i in 0..<self.seriesSelected!.numberOfSermons {
-//                    if (self.seriesSelected?.sermons?[i].download.state == .none) {
-//                        self.seriesSelected?.sermons?[i].downloadAudio()
-//                    }
-//                }
-                self.tableView.reloadData()
-                self.selectSermon(Globals.sermonPlaying)
-
-//                if (Reachability.isConnectedToNetwork()) {
-//                    //            println("mail!")
-//                    for i in 0..<self.seriesSelected!.numberOfSermons {
-//                        if (self.seriesSelected?.sermons?[i].download.state == .none) {
-//                            self.seriesSelected?.sermons?[i].downloadAudio()
-//                        }
-//                    }
-//                    self.tableView.reloadData()
-//                    self.selectSermon(Globals.sermonPlaying)
-//                } else {
-//                    self.networkUnavailable("Unable to download audio.")
-//                }
+//                self.tableView.reloadData()
+//                self.selectSermon(Globals.sermonPlaying)
+            })
+            alert.addAction(action)
+        }
+        
+        if (sermonsDownloading > 0) {
+            action = UIAlertAction(title: Constants.Cancel_All_Downloads, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                //            println("mail!")
+                for i in 0..<self.seriesSelected!.sermons!.count {
+                    self.seriesSelected?.sermons?[i].audioDownload.cancelDownload()
+                }
+                //                self.tableView.reloadData()
+                //                self.selectSermon(Globals.sermonPlaying)
             })
             alert.addAction(action)
         }
@@ -591,29 +595,27 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             action = UIAlertAction(title: Constants.Delete_All_Downloads, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
                 //            println("mail!")
                 for i in 0..<self.seriesSelected!.numberOfSermons {
-                    if (self.seriesSelected?.sermons?[i].download.state != .none) {
-                        self.seriesSelected?.sermons?[i].deleteDownload()
-                    }
+                    self.seriesSelected?.sermons?[i].audioDownload.deleteDownload()
                 }
-                self.tableView.reloadData()
-                self.selectSermon(Globals.sermonPlaying)
+//                self.tableView.reloadData()
+//                self.selectSermon(Globals.sermonPlaying)
             })
             alert.addAction(action)
         }
         
-        if (splitViewController == nil) {
-            action = UIAlertAction(title: Constants.Share_on_Facebook, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                //            println("mail!")
-                self.facebook()
-            })
-            alert.addAction(action)
-            
-            action = UIAlertAction(title: Constants.Share_on_Twitter, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                //            println("mail!")
-                self.twitter()
-            })
-            alert.addAction(action)
-        }
+//        if (splitViewController == nil) {
+//            action = UIAlertAction(title: Constants.Share_on_Facebook, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                //            println("mail!")
+//                self.facebook()
+//            })
+//            alert.addAction(action)
+//            
+//            action = UIAlertAction(title: Constants.Share_on_Twitter, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                //            println("mail!")
+//                self.twitter()
+//            })
+//            alert.addAction(action)
+//        }
         
         //        action = UIAlertAction(title: "Message", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
         ////            println("message!")
@@ -661,12 +663,42 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         setupPlayPauseButton()
     }
 
+    func updateView()
+    {
+        seriesSelected = Globals.seriesSelected
+        sermonSelected = Globals.sermonSelected
+        
+        //        print(seriesSelected)
+        //        print(sermonSelected)
+        
+        tableView.reloadData()
+        selectSermon(sermonSelected)
+
+        updateUI()
+    }
+    
+    func clearView()
+    {
+        seriesSelected = nil
+        sermonSelected = nil
+        
+        tableView.reloadData()
+        
+        updateUI()
+    }
+    
     override func viewDidLoad() {
         // Do any additional setup after loading the view.
         super.viewDidLoad()
+        
+        if (splitViewController != nil) {
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateView", name: Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearView", name: Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
+        }
 
         //Eliminates blank cells at end.
         tableView.tableFooterView = UIView()
+        tableView.allowsSelection = true
 
 //        tableView.allowsSelection = true
 
@@ -675,10 +707,14 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //        tableView.rowHeight = UITableViewAutomaticDimension
     }
 
-    override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-        if let view = self.seriesArtAndDescription.subviews[1] as? UITextView {
-//            view.scrollRectToVisible(CGRectMake(0, 0, 50, 50), animated: false)
-            view.scrollRangeToVisible(NSMakeRange(0, 0))
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
+            
+            }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
+                if let view = self.seriesArtAndDescription.subviews[1] as? UITextView {
+                    //            view.scrollRectToVisible(CGRectMake(0, 0, 50, 50), animated: false)
+                    view.scrollRangeToVisible(NSMakeRange(0, 0))
+                }
         }
     }
     
@@ -737,16 +773,16 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
-    func updateCVC()
-    {
-        if (sermonSelected != nil) { // && (sermonSelected == Globals.sermonPlaying)
-            if let nvc = self.splitViewController?.viewControllers[0] as? UINavigationController {
-                if let mycvc = nvc.topViewController as? MyCollectionViewController {
-                    mycvc.setupPlayingPausedButton()
-                }
-            }
-        }
-    }
+//    func updateCVC()
+//    {
+//        if (sermonSelected != nil) { // && (sermonSelected == Globals.sermonPlaying)
+//            if let nvc = self.splitViewController?.viewControllers[0] as? UINavigationController {
+//                if let mycvc = nvc.topViewController as? MyCollectionViewController {
+//                    mycvc.setupPlayingPausedButton()
+//                }
+//            }
+//        }
+//    }
     
     private func setupTitle()
     {
@@ -824,14 +860,11 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         
         setupActionsButton()
         setupArtAndDescription()
-        updateCVC()
+//        updateCVC()
         
         setupTitle()
         setupPlayPauseButton()
         setupSlider()
-        
-        tableView.allowsSelection = true
-        tableView.reloadData()
     }
     
     func scrollToSermon(sermon:Sermon?,select:Bool,position:UITableViewScrollPosition)
@@ -849,6 +882,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             //            print("\(tableView.bounds)")
             
             if (select) {
+//                print(indexPath)
                 tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: position)
             }
             
@@ -869,7 +903,8 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     }
 
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(animated: Bool)
+    {
         super.viewWillAppear(animated)
 
         //Unreliable
@@ -892,6 +927,8 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             sermonSelected = Globals.sermonPlaying
         }
 
+//        tableView.reloadData()
+
         updateUI()
         
 //        println("\(Globals.mpPlayer!.currentPlaybackTime)")
@@ -903,7 +940,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         if (seriesSelected != nil) {
             setupPlayPauseButton()
             
-            print("\(seriesSelected!.title)")
+//            print("\(seriesSelected!.title)")
             if (seriesSelected == sermon?.series) {
                 if (sermon != nil) {
                     let indexPath = NSIndexPath(forItem: sermon!.index, inSection: 0)
@@ -929,8 +966,8 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         if (sermonSelected != nil) {
             if (sermonSelected == Globals.sermonPlaying) {
                 setupSlider()  // calls addSliderObserver()
-                updateCVC()
-//                
+//                updateCVC()
+//
 //                if let nvc = self.splitViewController?.viewControllers[0] as? UINavigationController {
 //                    if let mycvc = nvc.topViewController as? MyCollectionViewController {
 //                        mycvc.setupPlayingPausedButton()
@@ -939,11 +976,12 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             }
             
             //Have to wait until viewDidAppear to do the selection because the row heights aren't yet set in viewWillAppear
-            let indexPath = NSIndexPath(forItem: sermonSelected!.index, inSection: 0)
+//            let indexPath = NSIndexPath(forItem: sermonSelected!.index, inSection: 0)
 //            print("\(sermonSelected!.index)")
-            
-            tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Top)
-            tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Top, animated: true)
+//            
+//            tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Top)
+//            tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Top, animated: true)
+            scrollToSermon(sermonSelected,select:true,position:UITableViewScrollPosition.Top)
 
 //            var point = CGPointZero //tableView.bounds.origin
 //            point.y += tableView.rowHeight * CGFloat(sermonSelected!.index)
@@ -1435,9 +1473,11 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                     // The comparison below is Int because I'm concerned Float leaves room for small differences.  We'll see.
 //            (Int(Globals.mpPlayer!.currentPlaybackTime) == Int(Globals.mpPlayer!.duration)) {
 //                print("sliderTimer currentPlaybackTime == duration")
-                Globals.mpPlayer?.pause()
-                Globals.playerPaused = true
-                setupPlayPauseButton()
+                if (!Globals.playerPaused) {
+                    Globals.mpPlayer?.pause()
+                    Globals.playerPaused = true
+                    setupPlayPauseButton()
+                }
                 
                 if (Globals.sermonPlaying?.currentTime != Globals.mpPlayer!.duration.description) {
                     Globals.sermonPlaying?.currentTime = Globals.mpPlayer!.duration.description
@@ -1452,7 +1492,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     
     func nextSermon()
     {
-        if (Globals.sermonPlaying!.index < (Globals.sermonPlaying!.series!.numberOfSermons - 1)) {
+        if (Globals.sermonPlaying!.index < (Globals.sermonPlaying!.series!.show! - 1)) {
             //            print("\(sermonSelected!)")
             sermonSelected = Globals.sermonPlaying?.series?.sermons?[Globals.sermonPlaying!.index + 1]
             //            print("\(sermonSelected!)")
@@ -1462,7 +1502,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         } else {
             Globals.playerPaused = true
             setupPlayPauseButton()
-            updateCVC()
+//            updateCVC()
         }
     }
     
@@ -1641,7 +1681,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             playPauseButton.enabled = true
             slider.enabled = true
             
-            NSNotificationCenter.defaultCenter().removeObserver(self)
+            NSNotificationCenter.defaultCenter().removeObserver(self, name: MPMoviePlayerLoadStateDidChangeNotification, object: Globals.mpPlayer)
         }
 
         if (Globals.mpPlayer != nil) {
@@ -1656,10 +1696,11 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 
             case .Playing:
                 print("mpPlayerLoadStateDidChange.Playing")
+                //Why are the following statement required?
                 spinner.stopAnimating()
                 spinner.hidden = true
                 setupPlayingInfoCenter()
-                NSNotificationCenter.defaultCenter().removeObserver(self)
+                NSNotificationCenter.defaultCenter().removeObserver(self, name: MPMoviePlayerLoadStateDidChangeNotification, object: Globals.mpPlayer)
                 break
                 
             case .SeekingBackward:
@@ -1672,6 +1713,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 
             case .Stopped:
                 print("mpPlayerLoadStateDidChange.Stopped")
+                //Why are the following statement required?
                 if !Globals.playerPaused {
                     Globals.mpPlayer?.play()
                 }
@@ -1730,7 +1772,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                 setupSlider()
                 setupPlayPauseButton()
                 setupActionsButton()
-                updateCVC()
+//                updateCVC()
             }
         }
     }
@@ -1746,7 +1788,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         
         setupSlider() // calls addSliderObserver()
         setupPlayPauseButton()
-        updateCVC()
+//        updateCVC()
         //        println("didSelect")
     }
     

@@ -11,7 +11,10 @@ import UIKit
 
 struct Constants {
     static let SUPPORT_REMOTE_NOTIFICATION = true
-
+    
+    static let UPDATE_VIEW_NOTIFICATION = "UPDATE VIEW"
+    static let CLEAR_VIEW_NOTIFICATION = "CLEAR VIEW"
+    
     static let REACHABILITY_TEST_URL = Constants.TWU_WEBSITE // "https://www.google.com/"
 
     static let JSON_ARRAY_KEY = "series"
@@ -34,6 +37,9 @@ struct Constants {
     static let SERIES_JSON = "series.json"
     
     static let Show_Settings = "Show Settings"
+    
+    static let SERMON_UPDATE_UI_NOTIFICATION = "SERMON UPDATE UI"
+    static let SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION = "SERMON UPDATE PLAYING PAUSED"
     
     static let SERIES_CELL_IDENTIFIER = "SeriesCell"
     static let SERMON_CELL_IDENTIFIER = "SeriesSermon"
@@ -148,6 +154,7 @@ struct Constants {
     static let Downloading = "Downloading"
     
     static let Download_All = "Download All"
+    static let Cancel_All_Downloads = "Cancel All Downloads"
     static let Delete_All_Downloads = "Delete All Downloads"
     
     static let Selected_Scriptures = "Selected Scriptures"
