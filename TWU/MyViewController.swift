@@ -13,7 +13,7 @@ import MediaPlayer
 import Social
 
 
-class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate {
+class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
 
     @IBOutlet weak var pageControl: UIPageControl!
     @IBAction func pageControlAction(sender: UIPageControl)
@@ -21,32 +21,36 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         flip(self)
     }
     
-    var seriesSelected:Series? {
-        didSet {
-            if (seriesSelected != nil) {
-//                print("\(seriesSelected)")
-                // We can only set, not unset
-//                Globals.seriesSelected = seriesSelected // Set to nil means key removed means not in defaults any longer (this is done in Globals)
-                let defaults = NSUserDefaults.standardUserDefaults()
-                defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
-                defaults.synchronize()
-
-                NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
-            } else {
-                print("MyViewController:seriesSelected nil")
-            }
-        }
-    }
+    var seriesSelected:Series?
+//        {
+//        didSet {
+//            if (seriesSelected != nil) {
+////                print("\(seriesSelected)")
+//                // We can only set, not unset
+////                Globals.seriesSelected = seriesSelected // Set to nil means key removed means not in defaults any longer (this is done in Globals)
+//                let defaults = NSUserDefaults.standardUserDefaults()
+//                defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
+//                defaults.synchronize()
+//
+//                NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+//            } else {
+//                print("MyViewController:seriesSelected nil")
+//            }
+//        }
+//    }
     
     var sermonSelected:Sermon? {
         didSet {
+            seriesSelected?.sermonSelected = sermonSelected
+
             if (sermonSelected != nil) {
 //                print("\(sermonSelected)")
                 // We can only set, not unset
 //                Globals.sermonSelected = sermonSelected // Set to nil means key removed means not in defaults any longer (this is done in Globals)
-                let defaults = NSUserDefaults.standardUserDefaults()
-                defaults.setObject("\(sermonSelected!.index)", forKey: Constants.SERMON_SELECTED_INDEX)
-                defaults.synchronize()
+
+//                let defaults = NSUserDefaults.standardUserDefaults()
+//                defaults.setObject("\(sermonSelected!.index)", forKey: Constants.SERMON_SELECTED_INDEX)
+//                defaults.synchronize()
 
                 NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
             } else {
@@ -356,15 +360,17 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         return bodyString
     }
     
-    private func setupBodyHTML() -> String {
-        var bodyString = String()
+    private func setupBodyHTML(series:Series?) -> String? {
+        var bodyString:String!
         
-        bodyString = "I've enjoyed the sermon series "
-        bodyString = bodyString + "<a href=\"" + seriesSelected!.url!.absoluteString + "\">" + seriesSelected!.title! + "</a>"
-        bodyString = bodyString + " by " + "Tom Pennington"
-        bodyString = bodyString + " from <a href=\"http://www.thewordunleashed.org\">" + "The Word Unleashed" + "</a>"
-        bodyString = bodyString + " and thought you would enjoy it as well."
-        bodyString = bodyString + "</br>"
+        if (series?.url != nil) && (series?.title != nil) {
+            bodyString = "I've enjoyed the sermon series "
+            bodyString = bodyString + "<a href=\"" + series!.url!.absoluteString + "\">" + series!.title! + "</a>"
+            bodyString = bodyString + " by " + "Tom Pennington"
+            bodyString = bodyString + " from <a href=\"http://www.thewordunleashed.org\">" + "The Word Unleashed" + "</a>"
+            bodyString = bodyString + " and thought you would enjoy it as well."
+            bodyString = bodyString + "</br>"
+        }
         
         return bodyString
     }
@@ -383,9 +389,9 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         return addressString
     }
     
-    private func mail()
+    private func emailSeries(series:Series?)
     {
-        let bodyString:String=setupBodyHTML()
+        let bodyString:String! = setupBodyHTML(series)
         
 //        bodyString = bodyString + addressStringHTML()
         
@@ -415,28 +421,30 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
-    private func openScripture()
+    private func openScripture(series:Series?)
     {
-        var urlString = Constants.SCRIPTURE_URL_PREFIX + seriesSelected!.scripture! + Constants.SCRIPTURE_URL_POSTFIX
-        
-        urlString = urlString.stringByReplacingOccurrencesOfString(" ", withString: "+", options: NSStringCompareOptions.LiteralSearch, range: nil)
-        //        println("\(urlString)")
-        
-        if let url = NSURL(string:urlString) {
-            if UIApplication.sharedApplication().canOpenURL(url) {
-                UIApplication.sharedApplication().openURL(url)
-            } else {
-                networkUnavailable("Unable to open url: \(url)")
+        if (series?.scripture != nil) {
+            var urlString = Constants.SCRIPTURE_URL_PREFIX + series!.scripture! + Constants.SCRIPTURE_URL_POSTFIX
+            
+            urlString = urlString.stringByReplacingOccurrencesOfString(" ", withString: "+", options: NSStringCompareOptions.LiteralSearch, range: nil)
+            //        println("\(urlString)")
+            
+            if let url = NSURL(string:urlString) {
+                if UIApplication.sharedApplication().canOpenURL(url) {
+                    UIApplication.sharedApplication().openURL(url)
+                } else {
+                    networkUnavailable("Unable to open url: \(url)")
+                }
+                //            if Reachability.isConnectedToNetwork() {
+                //                if UIApplication.sharedApplication().canOpenURL(url) {
+                //                    UIApplication.sharedApplication().openURL(url)
+                //                } else {
+                //                    networkUnavailable("Unable to open url: \(url)")
+                //                }
+                //            } else {
+                //                networkUnavailable("Unable to connect to the internet to open: \(url)")
+                //            }
             }
-//            if Reachability.isConnectedToNetwork() {
-//                if UIApplication.sharedApplication().canOpenURL(url) {
-//                    UIApplication.sharedApplication().openURL(url)
-//                } else {
-//                    networkUnavailable("Unable to open url: \(url)")
-//                }
-//            } else {
-//                networkUnavailable("Unable to connect to the internet to open: \(url)")
-//            }
         }
     }
     
@@ -516,92 +524,229 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //        }
     }
     
-    func action()
+    // Specifically for Plus size iPhones.
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    {
+        return UIModalPresentationStyle.None
+    }
+    
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.None
+    }
+    
+    func rowClickedAtIndex(index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+        dismissViewControllerAnimated(true, completion: nil)
+        
+        switch purpose {
+            
+        case .selectingAction:
+            switch strings[index] {
+            case Constants.Open_Scripture:
+                openScripture(seriesSelected)
+                break
+                
+            case Constants.Open_Series:
+                openSeriesOnWeb(seriesSelected)
+                break
+                
+            case Constants.Download_All:
+                if (seriesSelected?.sermons != nil) {
+                    for sermon in seriesSelected!.sermons! {
+                        sermon.audioDownload?.download()
+                    }
+                }
+                //                tableView.reloadData()
+                //                scrollToSermon(selectedSermon, select: true, position: UITableViewScrollPosition.Middle)
+                break
+                
+            case Constants.Cancel_All_Downloads:
+                if (seriesSelected?.sermons != nil) {
+                    for sermon in seriesSelected!.sermons! {
+                        sermon.audioDownload?.cancelDownload()
+                    }
+                }
+                //                tableView.reloadData()
+                //                scrollToSermon(selectedSermon, select: true, position: UITableViewScrollPosition.Middle)
+                break
+                
+            case Constants.Delete_All_Downloads:
+                if (seriesSelected?.sermons != nil) {
+                    for sermon in seriesSelected!.sermons! {
+                        sermon.audioDownload?.deleteDownload()
+                    }
+                }
+                //                tableView.reloadData()
+                //                scrollToSermon(selectedSermon, select: true, position: UITableViewScrollPosition.Middle)
+                break
+                
+            case Constants.Email_Series:
+                emailSeries(seriesSelected)
+                break
+                
+            default:
+                break
+            }
+            break
+            
+        default:
+            break
+        }
+    }
+    
+    func actions()
     {
         //        println("action!")
         
         // Put up an action sheet
         
-        let alert = UIAlertController(title: "",
-            message: "",
-            preferredStyle: UIAlertControllerStyle.ActionSheet)
-        
-        var action : UIAlertAction
-        
-        if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
-            action = UIAlertAction(title: Constants.Open_Scripture, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                self.openScripture()
-            })
-            alert.addAction(action)
-        }
-        
-        action = UIAlertAction(title: "Open Series on TWU Web Site", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            self.openSeriesOnWeb(self.seriesSelected)
-        })
-        alert.addAction(action)
+        if let navigationController = self.storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? UINavigationController {
+            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
+                navigationController.modalPresentationStyle = .Popover
+                //            popover?.preferredContentSize = CGSizeMake(300, 500)
+                
+                navigationController.popoverPresentationController?.permittedArrowDirections = .Up
+                navigationController.popoverPresentationController?.delegate = self
+                
+                navigationController.popoverPresentationController?.barButtonItem = actionButton
+                
+                //                popover.navigationItem.title = "Show"
+                
+                popover.navigationController?.navigationBarHidden = true
+                
+                popover.delegate = self
+                popover.purpose = .selectingAction
+                
+                var actionMenu = [String]()
+                
+                if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
+                    actionMenu.append(Constants.Open_Scripture)
+                }
 
-        action = UIAlertAction(title: Constants.EMail_Series, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            //            println("mail!")
-            self.mail()
-        })
-        alert.addAction(action)
-     
-        var sermonsToDownload = 0
-        var sermonsDownloaded = 0
-        var sermonsDownloading = 0
-        
-        for sermon in seriesSelected!.sermons! {
-            switch sermon.audioDownload.state {
-            case .none:
-                sermonsToDownload++
-                break
+                actionMenu.append(Constants.Open_Series)
                 
-            case .downloading:
-                sermonsDownloading++
-                break
+                if (seriesSelected?.sermons != nil) {
+                    var sermonsToDownload = 0
+                    var sermonsDownloading = 0
+                    var sermonsDownloaded = 0
+                    
+                    for sermon in seriesSelected!.sermons! {
+                        switch sermon.audioDownload!.state {
+                        case .none:
+                            sermonsToDownload++
+                            break
+                        case .downloading:
+                            sermonsDownloading++
+                            break
+                        case .downloaded:
+                            sermonsDownloaded++
+                            break
+                        }
+                    }
+                    
+                    if (sermonsToDownload > 0) {
+                        actionMenu.append(Constants.Download_All)
+                    }
+                    
+                    if (sermonsDownloading > 0) {
+                        actionMenu.append(Constants.Cancel_All_Downloads)
+                    }
+                    
+                    if (sermonsDownloaded > 0) {
+                        actionMenu.append(Constants.Delete_All_Downloads)
+                    }
+                }
                 
-            case .downloaded:
-                sermonsDownloaded++
-                break
+                actionMenu.append(Constants.Email_Series)
+                
+                popover.strings = actionMenu
+                
+                popover.showIndex = false //(Globals.grouping == .series)
+                popover.showSectionHeaders = false
+                
+                presentViewController(navigationController, animated: true, completion: nil)
             }
         }
 
-        if (sermonsToDownload > 0) {
-            action = UIAlertAction(title: Constants.Download_All, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                if let sermons = self.seriesSelected?.sermons {
-                    for sermon in sermons {
-                        sermon.audioDownload.download()
-                    }
-                }
-//                self.tableView.reloadData()
-//                self.selectSermon(Globals.sermonPlaying)
-            })
-            alert.addAction(action)
-        }
-        
-        if (sermonsDownloading > 0) {
-            action = UIAlertAction(title: Constants.Cancel_All_Downloads, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                //            println("mail!")
-                for i in 0..<self.seriesSelected!.sermons!.count {
-                    self.seriesSelected?.sermons?[i].audioDownload.cancelDownload()
-                }
-                //                self.tableView.reloadData()
-                //                self.selectSermon(Globals.sermonPlaying)
-            })
-            alert.addAction(action)
-        }
-        
-        if (sermonsDownloaded > 0) {
-            action = UIAlertAction(title: Constants.Delete_All_Downloads, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                //            println("mail!")
-                for i in 0..<self.seriesSelected!.numberOfSermons {
-                    self.seriesSelected?.sermons?[i].audioDownload.deleteDownload()
-                }
-//                self.tableView.reloadData()
-//                self.selectSermon(Globals.sermonPlaying)
-            })
-            alert.addAction(action)
-        }
+//        let alert = UIAlertController(title: "",
+//            message: "",
+//            preferredStyle: UIAlertControllerStyle.ActionSheet)
+//        
+//        var action : UIAlertAction
+//        
+//        if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
+//            action = UIAlertAction(title: Constants.Open_Scripture, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                self.openScripture()
+//            })
+//            alert.addAction(action)
+//        }
+//        
+//        action = UIAlertAction(title: "Open Series on TWU Web Site", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//            self.openSeriesOnWeb(self.seriesSelected)
+//        })
+//        alert.addAction(action)
+//
+//        action = UIAlertAction(title: Constants.EMail_Series, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//            //            println("mail!")
+//            self.mail()
+//        })
+//        alert.addAction(action)
+//     
+//        var sermonsToDownload = 0
+//        var sermonsDownloaded = 0
+//        var sermonsDownloading = 0
+//        
+//        for sermon in seriesSelected!.sermons! {
+//            switch sermon.audioDownload.state {
+//            case .none:
+//                sermonsToDownload++
+//                break
+//                
+//            case .downloading:
+//                sermonsDownloading++
+//                break
+//                
+//            case .downloaded:
+//                sermonsDownloaded++
+//                break
+//            }
+//        }
+//
+//        if (sermonsToDownload > 0) {
+//            action = UIAlertAction(title: Constants.Download_All, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                if let sermons = self.seriesSelected?.sermons {
+//                    for sermon in sermons {
+//                        sermon.audioDownload.download()
+//                    }
+//                }
+////                self.tableView.reloadData()
+////                self.selectSermon(Globals.sermonPlaying)
+//            })
+//            alert.addAction(action)
+//        }
+//        
+//        if (sermonsDownloading > 0) {
+//            action = UIAlertAction(title: Constants.Cancel_All_Downloads, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                //            println("mail!")
+//                for i in 0..<self.seriesSelected!.sermons!.count {
+//                    self.seriesSelected?.sermons?[i].audioDownload.cancelDownload()
+//                }
+//                //                self.tableView.reloadData()
+//                //                self.selectSermon(Globals.sermonPlaying)
+//            })
+//            alert.addAction(action)
+//        }
+//        
+//        if (sermonsDownloaded > 0) {
+//            action = UIAlertAction(title: Constants.Delete_All_Downloads, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                //            println("mail!")
+//                for i in 0..<self.seriesSelected!.numberOfSermons {
+//                    self.seriesSelected?.sermons?[i].audioDownload.deleteDownload()
+//                }
+////                self.tableView.reloadData()
+////                self.selectSermon(Globals.sermonPlaying)
+//            })
+//            alert.addAction(action)
+//        }
         
 //        if (splitViewController == nil) {
 //            action = UIAlertAction(title: Constants.Share_on_Facebook, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
@@ -628,16 +773,16 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         //        })
         //        alert.addAction(action)
         //
-        action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-//            println("cancel!")
-        })
-        alert.addAction(action)
-        
-        //on iPad this is a popover
-        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        alert.popoverPresentationController?.barButtonItem = actionButton
-        
-        presentViewController(alert, animated: true, completion: nil)
+//        action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+////            println("cancel!")
+//        })
+//        alert.addAction(action)
+//        
+//        //on iPad this is a popover
+//        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+//        alert.popoverPresentationController?.barButtonItem = actionButton
+//        
+//        presentViewController(alert, animated: true, completion: nil)
     }
     
     func applicationWillResignActive(notification:NSNotification)
@@ -666,7 +811,9 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     func updateView()
     {
         seriesSelected = Globals.seriesSelected
-        sermonSelected = Globals.sermonSelected
+        sermonSelected = seriesSelected?.sermonSelected
+        
+//        sermonSelected = Globals.sermonSelected
         
         //        print(seriesSelected)
         //        print(sermonSelected)
@@ -691,6 +838,8 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         // Do any additional setup after loading the view.
         super.viewDidLoad()
         
+        navigationController?.toolbarHidden = true
+        
         if (splitViewController != nil) {
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateView", name: Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearView", name: Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
@@ -699,7 +848,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         //Eliminates blank cells at end.
         tableView.tableFooterView = UIView()
         tableView.allowsSelection = true
-
+        
 //        tableView.allowsSelection = true
 
         // Can't do this or selecting a row doesn't work reliably.
@@ -715,13 +864,14 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                     //            view.scrollRectToVisible(CGRectMake(0, 0, 50, 50), animated: false)
                     view.scrollRangeToVisible(NSMakeRange(0, 0))
                 }
+                self.navigationController?.toolbarHidden = true
         }
     }
     
     private func setupActionsButton()
     {
         if (seriesSelected != nil) {
-            actionButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Action, target: self, action: "action")
+            actionButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Action, target: self, action: "actions")
             self.navigationItem.rightBarButtonItem = actionButton
         } else {
             self.navigationItem.rightBarButtonItem = nil
@@ -918,11 +1068,12 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         if (seriesSelected == nil) { //  && (Globals.seriesSelected != nil)
             // Should only happen on an iPad on initial startup, i.e. when this view initially loads, not because of a segue.
             seriesSelected = Globals.seriesSelected
-            sermonSelected = Globals.sermonSelected
 
 //            sermonSelected = Globals.sermonSelected?.series == Globals.seriesSelected ? Globals.sermonSelected : nil
         }
         
+        sermonSelected = seriesSelected?.sermonSelected
+
         if (sermonSelected == nil) && (seriesSelected != nil) && (seriesSelected == Globals.sermonPlaying?.series) {
             sermonSelected = Globals.sermonPlaying
         }
@@ -981,7 +1132,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //            
 //            tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Top)
 //            tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Top, animated: true)
-            scrollToSermon(sermonSelected,select:true,position:UITableViewScrollPosition.Top)
+            scrollToSermon(sermonSelected,select:true,position:UITableViewScrollPosition.Middle)
 
 //            var point = CGPointZero //tableView.bounds.origin
 //            point.y += tableView.rowHeight * CGFloat(sermonSelected!.index)

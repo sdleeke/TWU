@@ -20,41 +20,52 @@ struct Globals {
     //    static var session:NSURLSession!
     static var sorting:String? = Constants.Newest_to_Oldest {
         didSet {
-            let defaults = NSUserDefaults.standardUserDefaults()
-            if (sorting != nil) {
-                defaults.setObject(sorting,forKey: Constants.SORTING)
-            } else {
-                defaults.removeObjectForKey(Constants.SORTING)
+            if sorting != oldValue {
+                activeSeries = sortSeries(activeSeries,sorting: sorting)
+                
+                let defaults = NSUserDefaults.standardUserDefaults()
+                if (sorting != nil) {
+                    defaults.setObject(sorting,forKey: Constants.SORTING)
+                } else {
+                    defaults.removeObjectForKey(Constants.SORTING)
+                }
+                defaults.synchronize()
             }
-            defaults.synchronize()
         }
     }
     
     static var filter:String? {
         didSet {
-            if (filter != nil) {
-                showing = .filtered
-                filteredSeries = Globals.series?.filter({ (series:Series) -> Bool in
-                    return series.book == Globals.filter
-                })
-            } else {
-                showing = .all
-                filteredSeries = nil
+            if filter != oldValue {
+                if (filter != nil) {
+                    showing = .filtered
+                    filteredSeries = Globals.series?.filter({ (series:Series) -> Bool in
+                        return series.book == Globals.filter
+                    })
+                } else {
+                    showing = .all
+                    filteredSeries = nil
+                }
+                
+                updateSearchResults()
+                
+                activeSeries = sortSeries(activeSeries,sorting: sorting)
+
+                let defaults = NSUserDefaults.standardUserDefaults()
+                if (filter != nil) {
+                    defaults.setObject(filter,forKey: Constants.FILTER)
+                } else {
+                    defaults.removeObjectForKey(Constants.FILTER)
+                }
+                defaults.synchronize()
             }
-            
-            let defaults = NSUserDefaults.standardUserDefaults()
-            if (sorting != nil) {
-                defaults.setObject(filter,forKey: Constants.FILTER)
-            } else {
-                defaults.removeObjectForKey(Constants.FILTER)
-            }
-            defaults.synchronize()
         }
     }
     
     static var refreshing:Bool = false
     static var loading:Bool = false
     
+    static var seriesSettings:[String:[String:String]]?
     static var sermonSettings:[String:[String:String]]?
 
     static var mpPlayer:MPMoviePlayerController?
@@ -82,11 +93,18 @@ struct Globals {
         didSet {
             if !searchActive {
                 searchText = nil
+                activeSeries = sortSeries(activeSeries,sorting: sorting)
             }
         }
     }
 
-    static var searchText:String?
+    static var searchText:String? {
+        didSet {
+            if searchText != oldValue {
+                updateSearchResults()
+            }
+        }
+    }
 
     static var showingAbout:Bool = false
     
@@ -134,25 +152,25 @@ struct Globals {
         }
     }
     
-    static var sermonSelected:Sermon? {
-        get {
-            var sermonSelected:Sermon?
-            
-            let defaults = NSUserDefaults.standardUserDefaults()
-            if let sermonSelectedIndexStr = defaults.stringForKey(Constants.SERMON_SELECTED_INDEX) {
-                if let sermonSelectedIndex = Int(sermonSelectedIndexStr) {
-                    if (sermonSelectedIndex > (seriesSelected!.show! - 1)) {
-                        defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
-                    } else {
-                        sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
-                    }
-                }
-            }
-            defaults.synchronize()
-            
-            return sermonSelected
-        }
-    }
+//    static var sermonSelected:Sermon? {
+//        get {
+//            var sermonSelected:Sermon?
+//            
+//            let defaults = NSUserDefaults.standardUserDefaults()
+//            if let sermonSelectedIndexStr = defaults.stringForKey(Constants.SERMON_SELECTED_INDEX) {
+//                if let sermonSelectedIndex = Int(sermonSelectedIndexStr) {
+//                    if (sermonSelectedIndex > (seriesSelected!.show! - 1)) {
+//                        defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
+//                    } else {
+//                        sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
+//                    }
+//                }
+//            }
+//            defaults.synchronize()
+//            
+//            return sermonSelected
+//        }
+//    }
     
     static var sermonPlaying:Sermon? {
         didSet {
@@ -186,6 +204,7 @@ struct Globals {
                     return series.book == Globals.filter
                 })
             }
+            updateSearchResults()
         }
     }
     

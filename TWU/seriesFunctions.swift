@@ -188,9 +188,20 @@ func booksFromSeries(series:[Series]?) -> [String]?
 //    return bookArray.count > 0 ? bookArray : nil
 }
 
+func lastNameFromName(name:String?) -> String?
+{
+    if var lastname = name {
+        while (lastname.rangeOfString(Constants.SINGLE_SPACE_STRING) != nil) {
+            lastname = lastname.substringFromIndex(lastname.rangeOfString(Constants.SINGLE_SPACE_STRING)!.endIndex)
+        }
+        return lastname
+    }
+    return nil
+}
+
 func loadDefaults()
 {
-    loadSermonSettings()
+    loadSettings()
 
     let defaults = NSUserDefaults.standardUserDefaults()
     
@@ -284,26 +295,61 @@ func removeSliderObserver() {
     }
 }
 
-func saveSermonSettingsBackground()
+func updateSearchResults()
 {
-    print("saveSermonSettingsBackground")
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) { () -> Void in
-        saveSermonSettings()
+    if Globals.searchActive && (Globals.searchText != nil) && (Globals.searchText != Constants.EMPTY_STRING) {
+        Globals.searchSeries = Globals.seriesToSearch?.filter({ (series:Series) -> Bool in
+            var seriesResult = false
+            
+            if series.title != nil {
+                seriesResult = seriesResult ||
+                    ((series.title!.rangeOfString(Globals.searchText!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
+            }
+            if series.name != nil {
+                seriesResult = seriesResult ||
+                    ((series.scripture!.rangeOfString(Globals.searchText!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
+            }
+            
+            return seriesResult
+            
+            //                return ((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
+            //                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
+        })
+    } else {
+        Globals.searchSeries = nil
     }
 }
 
-func saveSermonSettings()
+func saveSettingsBackground()
+{
+    print("saveSermonSettingsBackground")
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) { () -> Void in
+        saveSettings()
+    }
+}
+
+func saveSettings()
 {
     print("saveSermonSettings")
     let defaults = NSUserDefaults.standardUserDefaults()
     //    print("\(Globals.sermonSettings)")
+    defaults.setObject(Globals.seriesSettings,forKey: Constants.SERIES_SETTINGS_KEY)
     defaults.setObject(Globals.sermonSettings,forKey: Constants.SERMON_SETTINGS_KEY)
     defaults.synchronize()
 }
 
-func loadSermonSettings()
+func loadSettings()
 {
     let defaults = NSUserDefaults.standardUserDefaults()
+    
+    if let settingsDictionary = defaults.dictionaryForKey(Constants.SERIES_SETTINGS_KEY) {
+        //        print("\(settingsDictionary)")
+        Globals.seriesSettings = settingsDictionary as? [String:[String:String]]
+    }
+    
+    if (Globals.seriesSettings == nil) {
+        Globals.seriesSettings = [String:[String:String]]()
+    }
     
     if let settingsDictionary = defaults.dictionaryForKey(Constants.SERMON_SETTINGS_KEY) {
         //        print("\(settingsDictionary)")

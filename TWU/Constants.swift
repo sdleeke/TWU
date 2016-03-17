@@ -12,6 +12,8 @@ import UIKit
 struct Constants {
     static let SUPPORT_REMOTE_NOTIFICATION = true
     
+    static let COLON = ":"
+    
     static let UPDATE_VIEW_NOTIFICATION = "UPDATE VIEW"
     static let CLEAR_VIEW_NOTIFICATION = "CLEAR VIEW"
     
@@ -40,6 +42,9 @@ struct Constants {
     
     static let SERMON_UPDATE_UI_NOTIFICATION = "SERMON UPDATE UI"
     static let SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION = "SERMON UPDATE PLAYING PAUSED"
+    
+    static let POPOVER_CELL_IDENTIFIER = "PopoverCell"
+    static let POPOVER_TABLEVIEW_IDENTIFIER = "PopoverTableView"
     
     static let SERIES_CELL_IDENTIFIER = "SeriesCell"
     static let SERMON_CELL_IDENTIFIER = "SeriesSermon"
@@ -73,7 +78,9 @@ struct Constants {
     static let COVER_ART_POSTAMBLE = "_512w512h"
     
     static let SERIES_SELECTED = "series selected"
-    static let SERMON_SELECTED_INDEX = "sermon selected index"
+//    static let SERMON_SELECTED_INDEX = "sermon selected index"
+
+    static let SERMON_SELECTED = "sermon selected"
 
     static let SERIES_PLAYING = "series playing"
     static let SERMON_PLAYING_INDEX = "sermon playing index"
@@ -92,6 +99,7 @@ struct Constants {
     static let SHOW = "show"
     
     static let CURRENT_TIME = "currentTime"
+    static let SERIES_SETTINGS_KEY = "Series Settings"
     static let SERMON_SETTINGS_KEY = "Sermon Settings"
     
     static let Show_About = "Show About"
@@ -110,7 +118,6 @@ struct Constants {
     static let EMPTY_STRING = ""
     static let SINGLE_SPACE_STRING = " "
     static let FORWARD_SLASH = "/"
-//    static let CHECKMARK = "√"
     
     static let Network_Error = "Network Error"
     static let The_Word_Unleashed = "The Word Unleashed"
@@ -160,7 +167,9 @@ struct Constants {
     static let Selected_Scriptures = "Selected Scriptures"
     static let Open_Scripture = "Open Scripture"
     
-    static let EMail_Series = "E-Mail Series"
+    static let Open_Series = "Open Series on TWU Web Site"
+    static let Email_Series = "E-Mail Series"
+    
     static let Share_on_Facebook = "Share on Facebook"
     static let Share_on_Twitter = "Share on Twitter"
 

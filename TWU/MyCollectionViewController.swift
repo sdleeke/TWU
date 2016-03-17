@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-class MyCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate, UIPopoverPresentationControllerDelegate {
+class MyCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
 
 //    var endObserver: AnyObject?
 
@@ -23,6 +23,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 let defaults = NSUserDefaults.standardUserDefaults()
                 defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
                 defaults.synchronize()
+     
+                NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
             } else {
                 print("MyCollectionViewController:seriesSelected nil")
             }
@@ -62,43 +64,100 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         //In case we have one already showing
         dismissViewControllerAnimated(true, completion: nil)
         
-        let alert = UIAlertController(title: Constants.Sorting_Options_Title,
-            message: Constants.EMPTY_STRING,
-            preferredStyle: UIAlertControllerStyle.ActionSheet)
-        
-        var action : UIAlertAction
-        
-        var alertTitle:String = Constants.EMPTY_STRING
-        
-        for option in Constants.Sorting_Options {
-            alertTitle = option
-            action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                if (Globals.sorting != option) {
-                    Globals.sorting = option
-                    
-                    Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
-                    self.collectionView.reloadData()
-                    
-                    //Moving the list can be very disruptive
-                    //                selectOrScrollToSermon(selectedSermon, select: true, scroll: false, position: UITableViewScrollPosition.None)
-                }
-            })
-            if (Globals.sorting == option) {
-                action.enabled = false
+        if let navigationController = self.storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? UINavigationController {
+            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
+                navigationController.modalPresentationStyle = .Popover
+                //            popover?.preferredContentSize = CGSizeMake(300, 500)
+                
+                navigationController.popoverPresentationController?.permittedArrowDirections = .Down
+                navigationController.popoverPresentationController?.delegate = self
+                
+                navigationController.popoverPresentationController?.barButtonItem = button
+                
+                popover.navigationItem.title = Constants.Sorting_Options_Title
+                
+                popover.delegate = self
+                
+                popover.purpose = .selectingSorting
+                popover.strings = Constants.Sorting_Options
+                
+                presentViewController(navigationController, animated: true, completion: nil)
             }
-            alert.addAction(action)
         }
+
+//        let alert = UIAlertController(title: Constants.Sorting_Options_Title,
+//            message: Constants.EMPTY_STRING,
+//            preferredStyle: UIAlertControllerStyle.ActionSheet)
+//        
+//        var action : UIAlertAction
+//        
+//        var alertTitle:String = Constants.EMPTY_STRING
+//        
+//        for option in Constants.Sorting_Options {
+//            alertTitle = option
+//            action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                if (Globals.sorting != option) {
+//                    Globals.sorting = option
+//                    
+//                    Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+//                    self.collectionView.reloadData()
+//                    
+//                    //Moving the list can be very disruptive
+//                    //                selectOrScrollToSermon(selectedSermon, select: true, scroll: false, position: UITableViewScrollPosition.None)
+//                }
+//            })
+//            if (Globals.sorting == option) {
+//                action.enabled = false
+//            }
+//            alert.addAction(action)
+//        }
+//        
+//        action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+//            
+//        })
+//        alert.addAction(action)
+//        
+//        //on iPad this is a popover
+//        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+//        alert.popoverPresentationController?.barButtonItem = button //as? UIBarButtonItem
+//        
+//        presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func rowClickedAtIndex(index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+        dismissViewControllerAnimated(true, completion: nil)
         
-        action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+        switch purpose {
+        case .selectingSorting:
+            Globals.sorting = strings[index]
+            collectionView.reloadData()
+            break
             
-        })
-        alert.addAction(action)
-        
-        //on iPad this is a popover
-        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        alert.popoverPresentationController?.barButtonItem = button //as? UIBarButtonItem
-        
-        presentViewController(alert, animated: true, completion: nil)
+        case .selectingFiltering:
+            if (Globals.filter != strings[index]) {
+                self.searchBar.placeholder = strings[index]
+                
+                if (strings[index] == Constants.All) {
+                    Globals.showing = .all
+                    Globals.filter = nil
+                } else {
+                    Globals.showing = .filtered
+                    Globals.filter = strings[index]
+                }
+                
+                self.collectionView.reloadData()
+                
+                let indexPath = NSIndexPath(forItem:0,inSection:0)
+                self.collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:UICollectionViewScrollPosition.CenteredVertically, animated: true)
+            }
+            break
+            
+        case .selectingShow:
+            break
+            
+        default:
+            break
+        }
     }
     
     func filtering(button:UIBarButtonItem?)
@@ -106,63 +165,87 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         //In case we have one already showing
         dismissViewControllerAnimated(true, completion: nil)
         
-        let alert = UIAlertController(title: Constants.Filtering_Options_Title,
-            message: Constants.EMPTY_STRING,
-            preferredStyle: UIAlertControllerStyle.ActionSheet)
-        
-        var action : UIAlertAction
-        
-        var alertTitle:String = Constants.EMPTY_STRING
-        
-        if var books = booksFromSeries(Globals.series) {
-            books.append(Constants.All)
-            for book in books {
-                alertTitle = book
-                action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                    if (Globals.filter != book) {
-                        self.searchBar.placeholder = book
-                        
-                        if (book == Constants.All) {
-                            Globals.showing = .all
-                            Globals.filter = nil
-                        } else {
-                            Globals.showing = .filtered
-                            Globals.filter = book
-                        }
-                        
-                        if Globals.searchActive {
-                            self.updateSearchResults()
-                        }
-                        
-                        Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
-                        self.collectionView.reloadData()
-                        
-                        let indexPath = NSIndexPath(forItem:0,inSection:0)
-                        self.collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:UICollectionViewScrollPosition.CenteredVertically, animated: true)
-                    }
-                })
+        if let navigationController = self.storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? UINavigationController {
+            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
+                navigationController.modalPresentationStyle = .Popover
+                //            popover?.preferredContentSize = CGSizeMake(300, 500)
                 
-                if (Globals.showing == .filtered) && (Globals.filter == book) {
-                    action.enabled = false
-                }
-                if (Globals.showing == .all) && (Globals.filter == nil) && (book == Constants.All) {
-                    action.enabled = false
-                }
+                navigationController.popoverPresentationController?.permittedArrowDirections = .Down
+                navigationController.popoverPresentationController?.delegate = self
                 
-                alert.addAction(action)
+                navigationController.popoverPresentationController?.barButtonItem = button
+                
+                popover.navigationItem.title = Constants.Filtering_Options_Title
+                
+                popover.delegate = self
+                
+                popover.purpose = .selectingFiltering
+                popover.strings = booksFromSeries(Globals.series)
+                popover.strings?.insert(Constants.All, atIndex: 0)
+                
+                presentViewController(navigationController, animated: true, completion: nil)
             }
         }
-        
-        action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-            
-        })
-        alert.addAction(action)
-        
-        //on iPad this is a popover
-        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        alert.popoverPresentationController?.barButtonItem = button //as? UIBarButtonItem
-        
-        presentViewController(alert, animated: true, completion: nil)
+
+//        let alert = UIAlertController(title: Constants.Filtering_Options_Title,
+//            message: Constants.EMPTY_STRING,
+//            preferredStyle: UIAlertControllerStyle.ActionSheet)
+//        
+//        var action : UIAlertAction
+//        
+//        var alertTitle:String = Constants.EMPTY_STRING
+//        
+//        if var books = booksFromSeries(Globals.series) {
+//            books.append(Constants.All)
+//            for book in books {
+//                alertTitle = book
+//                action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                    if (Globals.filter != book) {
+//                        self.searchBar.placeholder = book
+//                        
+//                        if (book == Constants.All) {
+//                            Globals.showing = .all
+//                            Globals.filter = nil
+//                        } else {
+//                            Globals.showing = .filtered
+//                            Globals.filter = book
+//                        }
+//                        
+//                        Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+//                        self.collectionView.reloadData()
+//                        
+//                        let indexPath = NSIndexPath(forItem:0,inSection:0)
+//                        self.collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:UICollectionViewScrollPosition.CenteredVertically, animated: true)
+//                    }
+//                })
+//                
+//                if (Globals.showing == .filtered) && (Globals.filter == book) {
+//                    action.enabled = false
+//                }
+//                if (Globals.showing == .all) && (Globals.filter == nil) && (book == Constants.All) {
+//                    action.enabled = false
+//                }
+//                
+//                alert.addAction(action)
+//            }
+//        }
+//        
+//        action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+//            
+//        })
+//        alert.addAction(action)
+//        
+//        //on iPad this is a popover
+//        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+//        alert.popoverPresentationController?.barButtonItem = button //as? UIBarButtonItem
+//        
+//        presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    // Specifically for Plus size iPhones.
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    {
+        return UIModalPresentationStyle.None
     }
     
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
@@ -297,32 +380,6 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         presentViewController(alert, animated: true, completion: nil)
     }
     
-    func updateSearchResults()
-    {
-        if Globals.searchActive && (Globals.searchText != nil) && (Globals.searchText != Constants.EMPTY_STRING) {
-            Globals.searchSeries = Globals.seriesToSearch?.filter({ (series:Series) -> Bool in
-                var seriesResult = false
-                
-                if series.title != nil {
-                    seriesResult = seriesResult ||
-                        ((series.title!.rangeOfString(Globals.searchText!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
-                }
-                if series.name != nil {
-                    seriesResult = seriesResult ||
-                        ((series.scripture!.rangeOfString(Globals.searchText!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
-                }
-
-                return seriesResult
-                
-//                return ((series.title.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil) ||
-//                    ((series.scripture.rangeOfString(searchBar.text!, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil)) != nil)
-            })
-            
-        } else {
-            Globals.searchSeries = Globals.series
-        }
-    }
-    
     func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool
     {
         return !Globals.loading && !Globals.refreshing && (Globals.series != nil)
@@ -335,8 +392,6 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         
         Globals.searchText = searchBar.text
         
-        updateSearchResults()
-        
         collectionView!.reloadData()
     }
     
@@ -348,8 +403,6 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             searchBar.showsCancelButton = true
             
             Globals.searchText = searchBar.text
-            
-            updateSearchResults()
         }
     }
     
@@ -369,10 +422,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         searchBar.resignFirstResponder()
         searchBar.text = nil
 
+        Globals.searchText = nil
         Globals.searchSeries = nil
         Globals.searchActive = false
-        
-        Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
         
         collectionView!.reloadData()
     }
@@ -645,10 +697,11 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             })
             loadDefaults()
 
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.navigationItem.title = Constants.Sorting
-            })
-            Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+            //Handled in didSet's when defaults are loaded.
+//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                self.navigationItem.title = Constants.Sorting
+//            })
+//            Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self.navigationItem.title = Constants.Setting_up_Player
@@ -1041,7 +1094,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 //                        print("seriesSelected: \(seriesSelected)")
 //                        print("Globals.sermonPlaying?.series: \(Globals.sermonPlaying?.series)")
                         if (seriesSelected == Globals.sermonPlaying?.series) {
-                            if let sermonSelected = Globals.sermonSelected {
+                            if let sermonSelected = seriesSelected?.sermonSelected {
                                 if (sermonSelected != Globals.sermonPlaying) {
                                     setPlayingPausedButton()
                                 } else {
@@ -1095,8 +1148,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 
         setupPlayingPausedButton()
         
-        //Why?  This just makes the list move to an unexpected location.
-//        collectionView.reloadData()
+        //Solves icon sizing problem in split screen multitasking.
+        collectionView.reloadData()
     }
     
     func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize
@@ -1265,6 +1318,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             self.scrollToSeries(self.seriesSelected)
             }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
                 self.setupTitle()
+                //Solves icon sizing problem in split screen multitasking.
+                self.collectionView.reloadData()
         }
     }
 

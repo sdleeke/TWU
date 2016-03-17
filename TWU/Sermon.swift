@@ -171,12 +171,12 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         }
     }
 
-    var keyBase:String! {
+    var sermonID:String! {
         get {
             if (series == nil) {
-                print("keyBase: series nil")
+                print("sermonID: series nil")
             }
-            return "\(series!.id):\(id)"
+            return "\(series!.id)\(Constants.COLON)\(id)"
         }
     }
 
@@ -225,7 +225,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
     }
     
     struct Settings {
-        var sermon:Sermon?
+        weak var sermon:Sermon?
         
         init(sermon:Sermon?) {
             if (sermon == nil) {
@@ -237,22 +237,22 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         subscript(key:String) -> String? {
             get {
                 var value:String?
-                value = Globals.sermonSettings?[self.sermon!.keyBase]?[key]
+                value = Globals.sermonSettings?[self.sermon!.sermonID]?[key]
                 return value
             }
             set {
-                if (Globals.sermonSettings?[self.sermon!.keyBase] == nil) {
-                    Globals.sermonSettings?[self.sermon!.keyBase] = [String:String]()
+                if (Globals.sermonSettings?[self.sermon!.sermonID] == nil) {
+                    Globals.sermonSettings?[self.sermon!.sermonID] = [String:String]()
                 }
                 if (newValue != nil) {
                     if (self.sermon != nil) {
                         //                        print("\(Globals.sermonSettings!)")
                         //                        print("\(sermon!)")
                         //                        print("\(newValue!)")
-                        Globals.sermonSettings?[self.sermon!.keyBase]?[key] = newValue
+                        Globals.sermonSettings?[self.sermon!.sermonID]?[key] = newValue
                         
                         // For a high volume of activity this can be very expensive.
-                        saveSermonSettingsBackground()
+                        saveSettingsBackground()
                     } else {
                         print("sermon == nil in Settings!")
                     }

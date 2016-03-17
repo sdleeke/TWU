@@ -68,8 +68,13 @@ class Series : Equatable, CustomStringConvertible {
     
     var id:Int {
         get {
-            return Int(dict![Constants.ID]!)!
+            return Int(seriesID!)!
         }
+    }
+    
+    var seriesID:String? {
+        get {
+            return dict![Constants.ID]        }
     }
     
     var url:NSURL? {
@@ -200,6 +205,68 @@ class Series : Equatable, CustomStringConvertible {
     }
     
     var sermons:[Sermon]?
+    
+    struct Settings {
+        weak var series:Series?
+        
+        init(series:Series?) {
+            if (series == nil) {
+                print("nil series in Settings init!")
+            }
+            self.series = series
+        }
+        
+        subscript(key:String) -> String? {
+            get {
+                var value:String?
+                value = Globals.seriesSettings?[self.series!.seriesID!]?[key]
+                return value
+            }
+            set {
+                if (Globals.seriesSettings?[self.series!.seriesID!] == nil) {
+                    Globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
+                }
+                if (newValue != nil) {
+                    if (self.series != nil) {
+                        //                        print("\(Globals.sermonSettings!)")
+                        //                        print("\(sermon!)")
+                        //                        print("\(newValue!)")
+                        Globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
+                        
+                        // For a high volume of activity this can be very expensive.
+                        saveSettingsBackground()
+                    } else {
+                        print("sermon == nil in Settings!")
+                    }
+                } else {
+                    print("newValue == nil in Settings!")
+                }
+            }
+        }
+    }
+    
+    lazy var settings:Settings? = {
+        return Settings(series:self)
+    }()
+    
+    var sermonSelected:Sermon? {
+        get {
+            if let sermonID = settings?[Constants.SERMON_SELECTED] {
+//                print(sermonID)
+//                print(sermonID.substringFromIndex(sermonID.rangeOfString(":")!.endIndex))
+//                print(Int(sermonID.substringFromIndex(sermonID.rangeOfString(":")!.endIndex))! - startingIndex)
+                return sermons?[Int(sermonID.substringFromIndex(sermonID.rangeOfString(Constants.COLON)!.endIndex))! - startingIndex]
+            } else {
+                return nil
+            }
+        }
+        
+        set {
+            if (newValue != nil) {
+                settings?[Constants.SERMON_SELECTED] = newValue!.sermonID!
+            }
+        }
+    }
     
     init() {
     }

@@ -11,6 +11,7 @@
 		1705173E1B6FDD8D00144ED6 /* iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1705173B1B6FDD8D00144ED6 /* iPhone.storyboard */; };
 		1712CD6A1C76B2BF005E09D6 /* MySettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1712CD691C76B2BF005E09D6 /* MySettingsViewController.swift */; };
 		171C73521B6C1B3400CF85AE /* MyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171C73511B6C1B3400CF85AE /* MyViewController.swift */; };
+		17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */; };
 		175EDA2A1BAC8BF200942E6D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175EDA291BAC8BF200942E6D /* Reachability.swift */; };
 		176703951B6D076300A8435F /* MyTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176703941B6D076300A8435F /* MyTableViewCell.swift */; };
 		176D4C1E1C01FD10009EC031 /* fontawesome-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 176D4C1D1C01FCFA009EC031 /* fontawesome-webfont.ttf */; };
@@ -58,6 +59,7 @@
 		1705173C1B6FDD8D00144ED6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/iPhone.storyboard; sourceTree = "<group>"; };
 		1712CD691C76B2BF005E09D6 /* MySettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MySettingsViewController.swift; sourceTree = "<group>"; };
 		171C73511B6C1B3400CF85AE /* MyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MyViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewController.swift; sourceTree = "<group>"; };
 		175EDA291BAC8BF200942E6D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		176703941B6D076300A8435F /* MyTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyTableViewCell.swift; sourceTree = "<group>"; };
 		176D4C1D1C01FCFA009EC031 /* fontawesome-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontawesome-webfont.ttf"; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				17DD52391BC2AE5E00FFD95C /* series.json */,
 				179C4FC71B6803C900727DE0 /* MyCollectionViewCell.swift */,
 				179C4FC51B68035B00727DE0 /* MyCollectionViewController.swift */,
+				17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */,
 				170517391B6FDD8D00144ED6 /* iPad.storyboard */,
 				1705173B1B6FDD8D00144ED6 /* iPhone.storyboard */,
 				176703941B6D076300A8435F /* MyTableViewCell.swift */,
@@ -371,6 +374,7 @@
 				179C4FC61B68035B00727DE0 /* MyCollectionViewController.swift in Sources */,
 				175EDA2A1BAC8BF200942E6D /* Reachability.swift in Sources */,
 				177FBA931C5CE1B800AFBB50 /* OBSlider.swift in Sources */,
+				17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */,
 				17A5711E1BEA365900C0D278 /* Series.swift in Sources */,
 				176703951B6D076300A8435F /* MyTableViewCell.swift in Sources */,
 				17A571201BEA370000C0D278 /* Globals.swift in Sources */,
