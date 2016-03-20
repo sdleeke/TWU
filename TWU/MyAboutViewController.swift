@@ -305,17 +305,17 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         presentViewController(alert, animated: true, completion: nil)
     }
     
-    func showUpdate(message message:String?,title:String?)
-    {
-        //        let application = UIApplication.sharedApplication()
-        //        application.applicationIconBadgeNumber++
-        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
-        //        alert.show()
-        
-        UIApplication.sharedApplication().applicationIconBadgeNumber++
-        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
-        alert.show()
-    }
+//    func showUpdate(message message:String?,title:String?)
+//    {
+//        //        let application = UIApplication.sharedApplication()
+//        //        application.applicationIconBadgeNumber++
+//        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
+//        //        alert.show()
+//        
+//        UIApplication.sharedApplication().applicationIconBadgeNumber++
+//        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
+//        alert.show()
+//    }
     
     func sermonUpdateAvailable()
     {
@@ -324,12 +324,18 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
         //        alert.show()
         
-        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
-        alert.show()
+        if (navigationController?.visibleViewController == self) {
+            let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
+            alert.show()
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        if (splitViewController == nil) {
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "sermonUpdateAvailable", name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+        }
 
         // Do any additional setup after loading the view.
     }

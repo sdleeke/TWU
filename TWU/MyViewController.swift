@@ -52,7 +52,9 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //                defaults.setObject("\(sermonSelected!.index)", forKey: Constants.SERMON_SELECTED_INDEX)
 //                defaults.synchronize()
 
-                NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+                })
             } else {
                 print("MyViewController:sermonSelected nil")
             }
@@ -845,6 +847,10 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "clearView", name: Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
         }
 
+        if (splitViewController == nil) {
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "sermonUpdateAvailable", name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+        }
+        
         //Eliminates blank cells at end.
         tableView.tableFooterView = UIView()
         tableView.allowsSelection = true
@@ -950,17 +956,17 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
-    func showUpdate(message message:String?,title:String?)
-    {
-        //        let application = UIApplication.sharedApplication()
-        //        application.applicationIconBadgeNumber++
-        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
-        //        alert.show()
-        
-        UIApplication.sharedApplication().applicationIconBadgeNumber++
-        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
-        alert.show()
-    }
+//    func showUpdate(message message:String?,title:String?)
+//    {
+//        //        let application = UIApplication.sharedApplication()
+//        //        application.applicationIconBadgeNumber++
+//        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
+//        //        alert.show()
+//        
+//        UIApplication.sharedApplication().applicationIconBadgeNumber++
+//        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
+//        alert.show()
+//    }
     
     func sermonUpdateAvailable()
     {
@@ -969,8 +975,10 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
         //        alert.show()
         
-        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
-        alert.show()
+        if navigationController?.visibleViewController == self {
+            let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
+            alert.show()
+        }
     }
     
     func updateUI()
@@ -1107,8 +1115,10 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
-        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
-            sermonUpdateAvailable()
+        if (splitViewController == nil) {
+            if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
+                sermonUpdateAvailable()
+            }
         }
         
 //        print("Series Selected: \(seriesSelected?.title) Playing: \(Globals.sermonPlaying?.series?.title)")

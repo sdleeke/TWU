@@ -42,6 +42,19 @@ struct Constants {
     
     static let SERMON_UPDATE_UI_NOTIFICATION = "SERMON UPDATE UI"
     static let SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION = "SERMON UPDATE PLAYING PAUSED"
+    static let SERMON_UPDATE_AVAILABLE_NOTIFICATION = "SERMON UPDATE AVAILABLE"
+    
+    static let SUBSCRIPTION_RECORD_TYPE = "Globals"
+    static let REMOTE_NOTIFICATION_CATEGORY = "UPDATE"
+    static let REMOTE_NOTIFICATION_ALERT_BODY = "Update Available"
+    static let REMOTE_NOTIFICATION_DESIRED_KEYS = ["Title","ID","Show"]
+    static let REMOTE_NOTIFICATION_NOW_ACTION_IDENTIFIER = "NOW"
+    static let REMOTE_NOTIFICATION_NOW_ACTION_TITLE = "Update Now"
+    static let REMOTE_NOTIFICATION_LATER_ACTION_IDENTIFIER = "LATER"
+    static let REMOTE_NOTIFICATION_LATER_ACTION_TITLE = "Update Later"
+    
+    static let Sermon_Update_Available = "Sermon Update Available"
+    static let Sermon_Updates_Available = "Sermon Updates Available"
     
     static let POPOVER_CELL_IDENTIFIER = "PopoverCell"
     static let POPOVER_TABLEVIEW_IDENTIFIER = "PopoverTableView"

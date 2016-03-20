@@ -23,8 +23,10 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                 let defaults = NSUserDefaults.standardUserDefaults()
                 defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
                 defaults.synchronize()
-     
-                NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+                })
             } else {
                 print("MyCollectionViewController:seriesSelected nil")
             }
@@ -288,43 +290,43 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         setToolbarItems(barButtons, animated: true)
     }
     
-    func showUpdate(message message:String?,title:String?)
-    {
-        //        let application = UIApplication.sharedApplication()
-        //        application.applicationIconBadgeNumber++
-        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
-        //        alert.show()
-        
-        let alert = UIAlertController(title:message,
-            message: title,
-            preferredStyle: UIAlertControllerStyle.ActionSheet)
-        
-        let updateAction = UIAlertAction(title: "Update Now", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            self.handleRefresh(self.refreshControl!)
-        })
-        alert.addAction(updateAction)
-        
-//        if (!Reachability.isConnectedToNetwork()) {
-//            updateAction.enabled = false
-//        }
-        
-        let laterAction = UIAlertAction(title: "Update Later", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            UIApplication.sharedApplication().applicationIconBadgeNumber++
-        })
-        alert.addAction(laterAction)
-        
-        let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-            UIApplication.sharedApplication().applicationIconBadgeNumber++
-        })
-        alert.addAction(cancelAction)
-        
-        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        
-        alert.popoverPresentationController?.sourceView = self.searchBar
-        alert.popoverPresentationController?.sourceRect = self.searchBar.frame
-        
-        presentViewController(alert, animated: true, completion: nil)
-    }
+//    func showUpdate(message message:String?,title:String?)
+//    {
+//        //        let application = UIApplication.sharedApplication()
+//        //        application.applicationIconBadgeNumber++
+//        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
+//        //        alert.show()
+//        
+//        let alert = UIAlertController(title:message,
+//            message: title,
+//            preferredStyle: UIAlertControllerStyle.ActionSheet)
+//        
+//        let updateAction = UIAlertAction(title: "Update Now", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//            self.handleRefresh(self.refreshControl!)
+//        })
+//        alert.addAction(updateAction)
+//        
+////        if (!Reachability.isConnectedToNetwork()) {
+////            updateAction.enabled = false
+////        }
+//        
+//        let laterAction = UIAlertAction(title: "Update Later", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//            UIApplication.sharedApplication().applicationIconBadgeNumber++
+//        })
+//        alert.addAction(laterAction)
+//        
+//        let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+//            UIApplication.sharedApplication().applicationIconBadgeNumber++
+//        })
+//        alert.addAction(cancelAction)
+//        
+//        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+//        
+//        alert.popoverPresentationController?.sourceView = self.searchBar
+//        alert.popoverPresentationController?.sourceRect = self.searchBar.frame
+//        
+//        presentViewController(alert, animated: true, completion: nil)
+//    }
     
     func sermonUpdateAvailable()
     {
@@ -333,51 +335,53 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
         //        alert.show()
         
-        var title:String?
-        
-        switch UIApplication.sharedApplication().applicationIconBadgeNumber {
-        case 0:
-            // Error
-            return
+        if (navigationController?.visibleViewController == self) {
+            var title:String?
             
-        case 1:
-            title = "Sermon Update Available"
-            break
+            switch UIApplication.sharedApplication().applicationIconBadgeNumber {
+            case 0:
+                // Error
+                return
+                
+            case 1:
+                title = Constants.Sermon_Update_Available
+                break
+                
+            default:
+                title = Constants.Sermon_Updates_Available
+                break
+            }
             
-        default:
-            title = "Sermon Updates Available"
-            break
+            let alert = UIAlertController(title:title,
+                message: nil,
+                preferredStyle: UIAlertControllerStyle.ActionSheet)
+            
+            let updateAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_NOW_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                self.handleRefresh(self.refreshControl!)
+            })
+            alert.addAction(updateAction)
+            
+            //        if (!Reachability.isConnectedToNetwork()) {
+            //            updateAction.enabled = false
+            //        }
+            
+            let laterAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_LATER_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                
+            })
+            alert.addAction(laterAction)
+            
+            let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                
+            })
+            alert.addAction(cancelAction)
+            
+            alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+            
+            alert.popoverPresentationController?.sourceView = self.searchBar
+            alert.popoverPresentationController?.sourceRect = self.searchBar.frame
+            
+            presentViewController(alert, animated: true, completion: nil)
         }
-        
-        let alert = UIAlertController(title:title,
-            message: nil,
-            preferredStyle: UIAlertControllerStyle.ActionSheet)
-
-        let updateAction = UIAlertAction(title: "Update Now", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            self.handleRefresh(self.refreshControl!)
-        })
-        alert.addAction(updateAction)
-        
-//        if (!Reachability.isConnectedToNetwork()) {
-//            updateAction.enabled = false
-//        }
-        
-        let laterAction = UIAlertAction(title: "Update Later", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            
-        })
-        alert.addAction(laterAction)
-        
-        let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-            
-        })
-        alert.addAction(cancelAction)
-        
-        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        
-        alert.popoverPresentationController?.sourceView = self.searchBar
-        alert.popoverPresentationController?.sourceRect = self.searchBar.frame
-        
-        presentViewController(alert, animated: true, completion: nil)
     }
     
     func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool
@@ -479,7 +483,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     {
         switch Globals.showing {
         case .all:
-            searchBar.placeholder = "All"
+            searchBar.placeholder = Constants.All
             break
         case .filtered:
             searchBar.placeholder = Globals.filter
@@ -566,7 +570,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         scrollToSeries(seriesSelected)
         
         if (splitViewController != nil) {
-            NSNotificationCenter.defaultCenter().postNotificationName(Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                NSNotificationCenter.defaultCenter().postNotificationName(Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
+            })
         }
         
 //        var mycvc:MyCollectionViewController?
@@ -1000,7 +1006,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
 //        collectionView.reloadData()
         
         if splitViewController != nil {
-            NSNotificationCenter.defaultCenter().postNotificationName(Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                NSNotificationCenter.defaultCenter().postNotificationName(Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
+            })
         }
         
 //        if let svc = self.splitViewController {
@@ -1041,6 +1049,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         }
 
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "setupPlayingPausedButton", name: Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "sermonUpdateAvailable", name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
 
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
         

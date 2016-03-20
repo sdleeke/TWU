@@ -60,7 +60,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
                     switch alert {
                     case "Update Available":
                         dispatch_async(dispatch_get_main_queue()) {
-                            self.showUpdate(message: "Update",title: "A sermon series update is available.")
+                            UIApplication.sharedApplication().applicationIconBadgeNumber++
+                            self.sermonUpdateAvailable()
+//                            self.showUpdate(message: "Update",title: "A sermon series update is available.")
                         }
                         break
                         
@@ -146,66 +148,69 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         print("application:didRegisterUserNotificationSettings: \(notificationSettings)")
     }
     
-    func showUpdate(message message:String?,title:String?)
-    {
-        //iPad
-        if let svc = self.window?.rootViewController as? UISplitViewController {
-            if let nvc = svc.viewControllers[0] as? UINavigationController {
-                if let cvc = nvc.visibleViewController as? MyCollectionViewController {
-                    cvc.showUpdate(message: message,title: title)
-                }
-                if let mvc = nvc.visibleViewController as? MyViewController {
-                    mvc.showUpdate(message: message,title: title)
-                }
-                if let mavc = nvc.visibleViewController as? MyAboutViewController {
-                    mavc.showUpdate(message: message,title: title)
-                }
-            }
-        }
-        
-        //iPhone
-        if let nvc = self.window?.rootViewController as? UINavigationController {
-            if let cvc = nvc.visibleViewController as? MyCollectionViewController {
-                cvc.showUpdate(message: message,title: title)
-            }
-            if let mvc = nvc.visibleViewController as? MyViewController {
-                mvc.showUpdate(message: message,title: title)
-            }
-            if let mavc = nvc.visibleViewController as? MyAboutViewController {
-                mavc.showUpdate(message: message,title: title)
-            }
-        }
-    }
+//    func showUpdate(message message:String?,title:String?)
+//    {
+//        //iPad
+//        if let svc = self.window?.rootViewController as? UISplitViewController {
+//            if let nvc = svc.viewControllers[0] as? UINavigationController {
+//                if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+//                    cvc.showUpdate(message: message,title: title)
+//                }
+//                if let mvc = nvc.visibleViewController as? MyViewController {
+//                    mvc.showUpdate(message: message,title: title)
+//                }
+//                if let mavc = nvc.visibleViewController as? MyAboutViewController {
+//                    mavc.showUpdate(message: message,title: title)
+//                }
+//            }
+//        }
+//        
+//        //iPhone
+//        if let nvc = self.window?.rootViewController as? UINavigationController {
+//            if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+//                cvc.showUpdate(message: message,title: title)
+//            }
+//            if let mvc = nvc.visibleViewController as? MyViewController {
+//                mvc.showUpdate(message: message,title: title)
+//            }
+//            if let mavc = nvc.visibleViewController as? MyAboutViewController {
+//                mavc.showUpdate(message: message,title: title)
+//            }
+//        }
+//    }
     
     func sermonUpdateAvailable()
     {
-        //iPad
-        if let svc = self.window?.rootViewController as? UISplitViewController {
-            if let nvc = svc.viewControllers[0] as? UINavigationController {
-                if let cvc = nvc.visibleViewController as? MyCollectionViewController {
-                    cvc.sermonUpdateAvailable()
-                }
-                if let mvc = nvc.visibleViewController as? MyViewController {
-                    mvc.sermonUpdateAvailable()
-                }
-                if let mavc = nvc.visibleViewController as? MyAboutViewController {
-                    mavc.sermonUpdateAvailable()
-                }
-            }
-        }
-        
-        //iPhone
-        if let nvc = self.window?.rootViewController as? UINavigationController {
-            if let cvc = nvc.visibleViewController as? MyCollectionViewController {
-                cvc.sermonUpdateAvailable()
-            }
-            if let mvc = nvc.visibleViewController as? MyViewController {
-                mvc.sermonUpdateAvailable()
-            }
-            if let mavc = nvc.visibleViewController as? MyAboutViewController {
-                mavc.sermonUpdateAvailable()
-            }
-        }
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+        })
+//        //iPad
+//        if let svc = self.window?.rootViewController as? UISplitViewController {
+//            if let nvc = svc.viewControllers[0] as? UINavigationController {
+//                if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+//                    cvc.sermonUpdateAvailable()
+//                }
+//                if let mvc = nvc.visibleViewController as? MyViewController {
+//                    mvc.sermonUpdateAvailable()
+//                }
+//                if let mavc = nvc.visibleViewController as? MyAboutViewController {
+//                    mavc.sermonUpdateAvailable()
+//                }
+//            }
+//        }
+//        
+//        //iPhone
+//        if let nvc = self.window?.rootViewController as? UINavigationController {
+//            if let cvc = nvc.visibleViewController as? MyCollectionViewController {
+//                cvc.sermonUpdateAvailable()
+//            }
+//            if let mvc = nvc.visibleViewController as? MyViewController {
+//                mvc.sermonUpdateAvailable()
+//            }
+//            if let mavc = nvc.visibleViewController as? MyAboutViewController {
+//                mavc.sermonUpdateAvailable()
+//            }
+//        }
     }
     
 //    func handleRefresh()
@@ -322,15 +327,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
                 })
             }
             
-            let subscription = CKSubscription(recordType: "Globals", predicate: NSPredicate(value: true), subscriptionID: "com.leeke.TWU", options: CKSubscriptionOptions.FiresOnRecordUpdate)
+            let subscription = CKSubscription(recordType: Constants.SUBSCRIPTION_RECORD_TYPE, predicate: NSPredicate(value: true), subscriptionID: "com.leeke.TWU", options: CKSubscriptionOptions.FiresOnRecordUpdate)
             
             let info = CKNotificationInfo()
             info.shouldSendContentAvailable = true
             if #available(iOS 9.0, *) {
-                info.category = "UPDATE"
+                info.category = Constants.REMOTE_NOTIFICATION_CATEGORY
             }
-            info.alertBody = "Update Available"
-            info.desiredKeys = ["Title","ID","Show"]
+            info.alertBody = Constants.REMOTE_NOTIFICATION_ALERT_BODY
+            info.desiredKeys = Constants.REMOTE_NOTIFICATION_DESIRED_KEYS
             
             subscription.notificationInfo = info
             
@@ -343,22 +348,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 //            application.applicationIconBadgeNumber = 0
 
             let nowAction = UIMutableUserNotificationAction()
-            nowAction.identifier = "NOW"
-            nowAction.title = "Update Now"
+            nowAction.identifier = Constants.REMOTE_NOTIFICATION_NOW_ACTION_IDENTIFIER
+            nowAction.title = Constants.REMOTE_NOTIFICATION_NOW_ACTION_TITLE
             nowAction.activationMode = UIUserNotificationActivationMode.Foreground
             nowAction.destructive = false
             nowAction.authenticationRequired = true
             
             let laterAction = UIMutableUserNotificationAction()
-            laterAction.identifier = "LATER"
-            laterAction.title = "Update Later"
+            laterAction.identifier = Constants.REMOTE_NOTIFICATION_LATER_ACTION_IDENTIFIER
+            laterAction.title = Constants.REMOTE_NOTIFICATION_LATER_ACTION_TITLE
             laterAction.activationMode = UIUserNotificationActivationMode.Background
             laterAction.destructive = false
             laterAction.authenticationRequired = false
             
             let messageCategory = UIMutableUserNotificationCategory()
             
-            messageCategory.identifier = "UPDATE"
+            messageCategory.identifier = Constants.REMOTE_NOTIFICATION_CATEGORY
             
             messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Minimal)
             messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Default)
@@ -369,7 +374,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         }
         
         startAudio()
-        
+
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         return true

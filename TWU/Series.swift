@@ -9,28 +9,28 @@
 import Foundation
 import UIKit
 
-class ScriptureReference {
-    var book:String
-    var chapter:Int
-    var verse:Int //could also have a qualifier, e.g. a lowercase letter.
-    
-    init() {
-        book = ""
-        chapter = 0
-        verse = 0
-    }
-}
-
-class ScripturePassage {
-    //could both be the same book for an intrabook passage
-    var startingScriptureReference : ScriptureReference
-    var endingScriptureReference : ScriptureReference
-    
-    init() {
-        startingScriptureReference = ScriptureReference()
-        endingScriptureReference = ScriptureReference()
-    }
-}
+//class ScriptureReference {
+//    var book:String
+//    var chapter:Int
+//    var verse:Int //could also have a qualifier, e.g. a lowercase letter.
+//    
+//    init() {
+//        book = ""
+//        chapter = 0
+//        verse = 0
+//    }
+//}
+//
+//class ScripturePassage {
+//    //could both be the same book for an intrabook passage
+//    var startingScriptureReference : ScriptureReference
+//    var endingScriptureReference : ScriptureReference
+//    
+//    init() {
+//        startingScriptureReference = ScriptureReference()
+//        endingScriptureReference = ScriptureReference()
+//    }
+//}
 
 func removeObject<T:Equatable>(inout arr:Array<T>, object:T) -> T? {
     if let found = arr.indexOf(object) {
