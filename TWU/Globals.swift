@@ -15,6 +15,35 @@ enum Showing {
     case filtered
 }
 
+enum PlayerState {
+    case none
+    
+    case paused
+    case playing
+    case stopped
+    
+    case seekingForward
+    case seekingBackward
+}
+
+class PlayerStateTime {
+    var sermon:Sermon?
+    
+    var state:PlayerState = .none
+    
+    var dateEntered:NSDate?
+    var timeElapsed:NSTimeInterval {
+        get {
+            return NSDate().timeIntervalSinceDate(dateEntered!)
+        }
+    }
+    
+    init()
+    {
+        dateEntered = NSDate()
+    }
+}
+
 struct Globals {
     //    static var downloadTasks = [NSURLSessionDownloadTask]()
     //    static var session:NSURLSession!
@@ -70,9 +99,21 @@ struct Globals {
 
     static var mpPlayer:MPMoviePlayerController?
     
-    static var playerPaused:Bool = false {
+    static var mpPlayerStateTime : PlayerStateTime?
+    
+    static var playerPaused:Bool = true {
         didSet {
-            if (playerPaused != oldValue) {
+            if (playerPaused != oldValue) || (sermonPlaying != mpPlayerStateTime?.sermon) || (mpPlayerStateTime?.sermon == nil) {
+                mpPlayerStateTime = PlayerStateTime()
+                
+                mpPlayerStateTime?.sermon = sermonPlaying
+                
+                if playerPaused {
+                    mpPlayerStateTime?.state = .paused
+                } else {
+                    mpPlayerStateTime?.state = .playing
+                }
+                
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
                 })
@@ -80,11 +121,10 @@ struct Globals {
         }
     }
     
+    static var playOnLoad:Bool = false
     static var sermonLoaded:Bool = false
     
-    static var sliderObserver: NSTimer?
-    static var playObserver: NSTimer?
-    static var seekingObserver: NSTimer?
+    static var playerObserver: NSTimer?
 
     static var gotoNowPlaying:Bool = false
     
@@ -108,34 +148,6 @@ struct Globals {
 
     static var showingAbout:Bool = false
     
-//    static var seriesSelected:Series? {
-//        didSet {
-//            let defaults = NSUserDefaults.standardUserDefaults()
-//            if (seriesSelected != nil) {
-//                defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
-//            } else {
-//                // This should never happen.
-//                defaults.removeObjectForKey(Constants.SERIES_SELECTED)
-//            }
-//            defaults.synchronize()
-//
-////            The next line removes the sermonSelected when defaults are loaded - so leave it commented out.
-////            sermonSelected = nil
-//        }
-//    }
-//    static var sermonSelected:Sermon? {
-//        didSet {
-//            let defaults = NSUserDefaults.standardUserDefaults()
-//            if (sermonSelected != nil) {
-//                defaults.setObject("\(sermonSelected!.index)", forKey: Constants.SERMON_SELECTED_INDEX)
-//            } else {
-//                // This should never happen.
-//                defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
-//            }
-//            defaults.synchronize()
-//        }
-//    }
-    
     static var seriesSelected:Series? {
         get {
             var seriesSelected:Series?
@@ -151,26 +163,6 @@ struct Globals {
             return seriesSelected
         }
     }
-    
-//    static var sermonSelected:Sermon? {
-//        get {
-//            var sermonSelected:Sermon?
-//            
-//            let defaults = NSUserDefaults.standardUserDefaults()
-//            if let sermonSelectedIndexStr = defaults.stringForKey(Constants.SERMON_SELECTED_INDEX) {
-//                if let sermonSelectedIndex = Int(sermonSelectedIndexStr) {
-//                    if (sermonSelectedIndex > (seriesSelected!.show! - 1)) {
-//                        defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
-//                    } else {
-//                        sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
-//                    }
-//                }
-//            }
-//            defaults.synchronize()
-//            
-//            return sermonSelected
-//        }
-//    }
     
     static var sermonPlaying:Sermon? {
         didSet {
@@ -195,7 +187,11 @@ struct Globals {
             if (series != nil) {
                 index = [Int:Series]()
                 for sermonSeries in series! {
-                    index?[sermonSeries.id] = sermonSeries
+                    if index![sermonSeries.id] == nil {
+                        index![sermonSeries.id] = sermonSeries
+                    } else {
+                        print("DUPLICATE SERIES ID: \(sermonSeries)")
+                    }
                 }
             }
             if (filter != nil) {

@@ -15,7 +15,7 @@ class MyTableViewCell: UITableViewCell {
     var sermon:Sermon? {
         didSet {
             NSNotificationCenter.defaultCenter().removeObserver(self, name: Constants.SERMON_UPDATE_UI_NOTIFICATION, object: oldValue)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: Constants.SERMON_UPDATE_UI_NOTIFICATION, object: sermon)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyTableViewCell.updateUI), name: Constants.SERMON_UPDATE_UI_NOTIFICATION, object: sermon)
             
             updateUI()
         }
@@ -75,7 +75,7 @@ class MyTableViewCell: UITableViewCell {
         downloadSwitch.on = sermon!.audioDownload.state != .none
 
         if (sermon!.audioDownload.active) && (downloadObserver == nil) {
-            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
+            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(Constants.DOWNLOAD_TIMER_INTERVAL, target: self, selector: #selector(MyTableViewCell.updateUI), userInfo: nil, repeats: true)
         }
 
         if (downloadObserver != nil) &&
@@ -98,37 +98,38 @@ class MyTableViewCell: UITableViewCell {
         case true:
             //Download the audio file and use it in future playback.
             //The file should not already exist.
-            downloadAudio()
+            sermon?.audioDownload.download()
             break
+            
         case false:
-            deleteDownload()
+            sermon?.audioDownload.cancelOrDeleteDownload()
             break
         }
     }
     
-    func deleteDownload()
-    {
-        sermon?.audioDownload.deleteDownload()
-        updateUI()
-    }
-    
-    func cancelDownload()
-    {
-        sermon?.audioDownload.deleteDownload()
-        updateUI()
-    }
-    
-    func downloadAudio()
-    {
-        sermon?.audioDownload.download()
-        downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
-//        if (Reachability.isConnectedToNetwork()) {
-//            sermon!.downloadAudio()
-//            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
-//        } else {
-//            networkUnavailable("Can't download audio.")
-//        }
-    }
+//    func deleteDownload()
+//    {
+//        sermon?.audioDownload.deleteDownload()
+//        updateUI()
+//    }
+//    
+//    func cancelOrDeleteDownload()
+//    {
+//        sermon?.audioDownload.cancelOrDeleteDownload()
+//        updateUI()
+//    }
+//    
+//    func downloadAudio()
+//    {
+//        sermon?.audioDownload.download()
+//        downloadObserver = NSTimer.scheduledTimerWithTimeInterval(Constants.DOWNLOAD_TIMER_INTERVAL, target: self, selector: #selector(MyTableViewCell.updateUI), userInfo: nil, repeats: true)
+////        if (Reachability.isConnectedToNetwork()) {
+////            sermon!.downloadAudio()
+////            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateUI", userInfo: nil, repeats: true)
+////        } else {
+////            networkUnavailable("Can't download audio.")
+////        }
+//    }
     
     @IBOutlet weak var downloadProgressBar: UIProgressView!
     

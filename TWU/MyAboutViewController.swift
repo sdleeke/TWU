@@ -9,58 +9,13 @@
 import UIKit
 import MessageUI
 
-class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelegate {
+class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
 
     @IBOutlet weak var versionLabel: UILabel!
-    
-    @IBOutlet weak var pageControl: UIPageControl!
-    
-    @IBAction func pageControlAction(sender: UIPageControl)
-    {
-        flip(self)
-    }
-    
-    @IBOutlet weak var tpView: UIView!
     
     @IBOutlet weak var scrollView: UIScrollView!
     
     var frontView:UIView?
-    
-    @IBOutlet weak var tomPenningtonBio: UITextView! {
-        didSet {
-//            if (splitViewController == nil) {
-//                let tap = UITapGestureRecognizer(target: self, action: "flip:")
-//                tomPenningtonBio.addGestureRecognizer(tap)
-//                
-//                let swipeRight = UISwipeGestureRecognizer(target: self, action: "flipFromLeft:")
-//                swipeRight.direction = UISwipeGestureRecognizerDirection.Right
-//                tomPenningtonBio.addGestureRecognizer(swipeRight)
-//                
-//                let swipeLeft = UISwipeGestureRecognizer(target: self, action: "flipFromRight:")
-//                swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
-//                tomPenningtonBio.addGestureRecognizer(swipeLeft)
-//            }
-        }
-    }
-    
-    @IBOutlet weak var tomPenningtonImage: UIImageView! {
-        didSet {
-//            if (splitViewController == nil) {
-//                let tap = UITapGestureRecognizer(target: self, action: "flip:")
-//                tomPenningtonImage.addGestureRecognizer(tap)
-//                
-//                let swipeRight = UISwipeGestureRecognizer(target: self, action: "flipFromLeft:")
-//                swipeRight.direction = UISwipeGestureRecognizerDirection.Right
-//                tomPenningtonImage.addGestureRecognizer(swipeRight)
-//                
-//                let swipeLeft = UISwipeGestureRecognizer(target: self, action: "flipFromRight:")
-//                swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
-//                tomPenningtonImage.addGestureRecognizer(swipeLeft)
-//            }
-        }
-    }
-
-    @IBOutlet weak var theWordUnleashedDescription: UITextView!
     
     @IBAction func give(sender: UIButton)
     {
@@ -99,119 +54,6 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
                 
             }
         }
-    }
-
-    func flipFromLeft(sender: MyAboutViewController) {
-        //        println("tap")
-        
-        // set a transition style
-        let transitionOptions = UIViewAnimationOptions.TransitionFlipFromLeft
-        
-        if let view = self.tpView.subviews[0] as? UITextView {
-            view.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: false)
-            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
-        }
-        
-        UIView.transitionWithView(self.tpView, duration: Constants.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-            //            println("\(self.seriesArtAndDescription.subviews.count)")
-            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-            let frontView = self.tpView.subviews[0]
-            let backView = self.tpView.subviews[1]
-            
-            frontView.hidden = false
-            self.tpView.bringSubviewToFront(frontView)
-            backView.hidden = true
-            
-            if frontView == self.tomPenningtonImage {
-                self.pageControl.currentPage = 0
-            }
-            
-            if frontView == self.tomPenningtonBio {
-                self.pageControl.currentPage = 1
-            }
-            
-            }, completion: { finished in
-                
-        })
-        
-    }
-    
-    func flipFromRight(sender: MyAboutViewController) {
-        //        println("tap")
-        
-        // set a transition style
-        let transitionOptions = UIViewAnimationOptions.TransitionFlipFromRight
-        
-        if let view = self.tpView.subviews[0] as? UITextView {
-            view.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: false)
-            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
-        }
-        
-        UIView.transitionWithView(self.tpView, duration: Constants.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-            //            println("\(self.seriesArtAndDescription.subviews.count)")
-            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-            let frontView = self.tpView.subviews[0]
-            let backView = self.tpView.subviews[1]
-            
-            frontView.hidden = false
-            self.tpView.bringSubviewToFront(frontView)
-            backView.hidden = true
-            
-            if frontView == self.tomPenningtonImage {
-                self.pageControl.currentPage = 0
-            }
-            
-            if frontView == self.tomPenningtonBio {
-                self.pageControl.currentPage = 1
-            }
-            
-            }, completion: { finished in
-                
-        })
-        
-    }
-    
-    func flip(sender: MyAboutViewController) {
-        //        println("tap")
-        
-        // set a transition style
-        var transitionOptions:UIViewAnimationOptions!
-        
-        let frontView = self.tpView.subviews[0]
-        let backView = self.tpView.subviews[1]
-        
-        if frontView == self.tomPenningtonImage {
-            transitionOptions = UIViewAnimationOptions.TransitionFlipFromRight
-        }
-        
-        if frontView == self.tomPenningtonBio {
-            transitionOptions = UIViewAnimationOptions.TransitionFlipFromLeft
-        }
-        
-        if let view = self.tpView.subviews[0] as? UITextView {
-            view.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: false)
-            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
-        }
-        
-        UIView.transitionWithView(self.tpView, duration: Constants.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-            //            println("\(self.seriesArtAndDescription.subviews.count)")
-            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-            frontView.hidden = false
-            self.tpView.bringSubviewToFront(frontView)
-            backView.hidden = true
-            
-            if frontView == self.tomPenningtonImage {
-                self.pageControl.currentPage = 0
-            }
-            
-            if frontView == self.tomPenningtonBio {
-                self.pageControl.currentPage = 1
-            }
-            
-            }, completion: { finished in
-                
-        })
-        
     }
     
     private func networkUnavailable(message:String?)
@@ -272,58 +114,80 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         }
     }
     
-    @IBAction func actions(sender: UIBarButtonItem) {
-        //        println("action!")
-        
-        // Put up an action sheet
-        
-        let alert = UIAlertController(title: "",
-            message: "",
-            preferredStyle: UIAlertControllerStyle.ActionSheet)
-        
-        var action : UIAlertAction
-        
-        action = UIAlertAction(title: "E-mail TWU", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            self.email()
-        })
-        alert.addAction(action)
-        
-        action = UIAlertAction(title: "TWU website", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-            self.openWebSite(Constants.TWU_WEBSITE)
-        })
-        alert.addAction(action)
-        
-        action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-            
-        })
-        alert.addAction(action)
-        
-        //on iPad this is a popover
-        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        alert.popoverPresentationController?.barButtonItem = actionsButton
-        
-        presentViewController(alert, animated: true, completion: nil)
+    // Specifically for Plus size iPhones.
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    {
+        return UIModalPresentationStyle.None
     }
     
-//    func showUpdate(message message:String?,title:String?)
-//    {
-//        //        let application = UIApplication.sharedApplication()
-//        //        application.applicationIconBadgeNumber++
-//        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
-//        //        alert.show()
-//        
-//        UIApplication.sharedApplication().applicationIconBadgeNumber++
-//        let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
-//        alert.show()
-//    }
+    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.None
+    }
+    
+    func rowClickedAtIndex(index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+        dismissViewControllerAnimated(true, completion: nil)
+        
+        switch purpose {
+        case .selectingAction:
+            switch strings[index] {
+                
+            case Constants.Email_TWU:
+                email()
+                break
+                
+            case Constants.TWU_Website:
+                openWebSite(Constants.TWU_WEBSITE)
+                break
+                
+            default:
+                break
+            }
+            break
+            
+        default:
+            break
+        }
+    }
+    
+    @IBAction func actions(sender: UIBarButtonItem) {
+        
+        //In case we have one already showing
+        dismissViewControllerAnimated(true, completion: nil)
+        
+        if let navigationController = self.storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? UINavigationController {
+            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
+                navigationController.modalPresentationStyle = .Popover
+                //            popover?.preferredContentSize = CGSizeMake(300, 500)
+                
+                navigationController.popoverPresentationController?.permittedArrowDirections = .Up
+                navigationController.popoverPresentationController?.delegate = self
+                
+                navigationController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+                
+                //                popover.navigationItem.title = "Actions"
+                
+                popover.navigationController?.navigationBarHidden = true
+                
+                popover.delegate = self
+                popover.purpose = .selectingAction
+                
+                var actionMenu = [String]()
+                
+                actionMenu.append(Constants.Email_TWU)
+                actionMenu.append(Constants.TWU_Website)
+                
+                popover.strings = actionMenu
+                
+                popover.showIndex = false //(Globals.grouping == .series)
+                popover.showSectionHeaders = false
+                
+                presentViewController(navigationController, animated: true, completion: nil)
+            }
+        }
+    }
     
     func sermonUpdateAvailable()
     {
-        //        let application = UIApplication.sharedApplication()
-        //        application.applicationIconBadgeNumber++
-        //        let alert = UIAlertView(title: message, message: title, delegate: self, cancelButtonTitle: "OK")
-        //        alert.show()
-        
         if (navigationController?.visibleViewController == self) {
             let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
             alert.show()
@@ -334,7 +198,7 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         super.viewDidLoad()
 
         if (splitViewController == nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "sermonUpdateAvailable", name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyAboutViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
         }
 
         // Do any additional setup after loading the view.
@@ -343,12 +207,6 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         setVersion()
-//        if (splitViewController == nil) {
-//            tomPenningtonImage.hidden = false
-//            tomPenningtonBio.hidden = true
-//        }
-        tomPenningtonBio.scrollRangeToVisible(NSMakeRange(0,0))
-        theWordUnleashedDescription.scrollRangeToVisible(NSMakeRange(0,0))
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -359,18 +217,14 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
             sermonUpdateAvailable()
         }
-        
-        tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
-        theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
-        
-//        tomPenningtonBio.scrollRangeToVisible(NSMakeRange(0,0))
-//        theWordUnleashedDescription.scrollRangeToVisible(NSMakeRange(0,0))
     }
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
         Globals.showingAbout = false
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     override func didReceiveMemoryWarning() {
@@ -379,11 +233,16 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
     }
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        
+        if (self.view.window == nil) {
+            return
+        }
+        
         coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
 
             }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
-                self.tomPenningtonBio.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
-                self.theWordUnleashedDescription.scrollRectToVisible(CGRectMake(0, 0, 10, 10), animated:false)
+
         }
     }
 

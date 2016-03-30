@@ -12,6 +12,17 @@ import UIKit
 struct Constants {
     static let SUPPORT_REMOTE_NOTIFICATION = true
     
+    static let Email_TWU = "E-mail TWU"
+    static let TWU_Website = "TWU Website"
+    
+    static let MIN_PLAY_TIME = 15.0
+    static let MIN_LOAD_TIME = 15.0
+    
+    static let DOWNLOAD_TIMER_INTERVAL = 0.5
+    static let PLAYER_TIMER_INTERVAL = 0.25
+    static let SLIDER_TIMER_INTERVAL = 0.25
+    static let SEEKING_TIMER_INTERVAL = 0.1
+    
     static let COLON = ":"
     
     static let UPDATE_VIEW_NOTIFICATION = "UPDATE VIEW"
@@ -42,6 +53,7 @@ struct Constants {
     
     static let SERMON_UPDATE_UI_NOTIFICATION = "SERMON UPDATE UI"
     static let SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION = "SERMON UPDATE PLAYING PAUSED"
+    static let SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION = "SERMON UPDATE PLAY PAUSE"
     static let SERMON_UPDATE_AVAILABLE_NOTIFICATION = "SERMON UPDATE AVAILABLE"
     
     static let SUBSCRIPTION_RECORD_TYPE = "Globals"

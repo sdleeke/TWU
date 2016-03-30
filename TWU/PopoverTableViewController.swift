@@ -139,7 +139,7 @@ class PopoverTableViewController: UITableViewController {
                             if (counter == 0) {
                                 indexes.append(index)
                             }
-                            counter++
+                            counter += 1
                         }
                     }
                     

@@ -80,7 +80,9 @@ class Download {
             
             task?.resume()
             
-            UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+            })
         }
     }
     
@@ -249,10 +251,12 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
                         //                        print("\(Globals.sermonSettings!)")
                         //                        print("\(sermon!)")
                         //                        print("\(newValue!)")
-                        Globals.sermonSettings?[self.sermon!.sermonID]?[key] = newValue
-                        
-                        // For a high volume of activity this can be very expensive.
-                        saveSettingsBackground()
+                        if (Globals.sermonSettings?[self.sermon!.sermonID]?[key] != newValue) {
+                            Globals.sermonSettings?[self.sermon!.sermonID]?[key] = newValue
+                            
+                            // For a high volume of activity this can be very expensive.
+                            saveSettingsBackground()
+                        }
                     } else {
                         print("sermon == nil in Settings!")
                     }
@@ -277,145 +281,103 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         return download
     }()
     
-//    func isDownloaded() -> Bool
-//    {
-//        let filename = String(format: Constants.FILENAME_FORMAT, id)
-//        if let url = cachesURL()?.URLByAppendingPathComponent(filename) {
-//            return NSFileManager.defaultManager().fileExistsAtPath(url.path!)
-//        } else {
-//            return false
-//        }
-//    }
-//    
-//    func deleteDownload()
-//    {
-//        //Need to check and see if we're already downloading
-//        cancelDownload()
-//        
-//        //Delete any previously downloaded file
-//        let filename = String(format: Constants.FILENAME_FORMAT, id)
-//        if let url = cachesURL()?.URLByAppendingPathComponent(filename) {
-//            // Check if file exist
-//            if (NSFileManager.defaultManager().fileExistsAtPath(url.path!)){
-//                do {
-//                    try NSFileManager.defaultManager().removeItemAtURL(url)
-//                } catch _ {
-//                }
-//            }
-//        }
-//    }
-//    
-//    func cancelDownload()
-//    {
-//        if download.active {
-//            //            download.task?.cancelByProducingResumeData({ (data: NSData?) -> Void in
-//            //            })
-//            download.task?.cancel()
-//            download.task = nil
-//        }
-//        
-//        download.state = .none
-//        download.totalBytesWritten = 0
-//        download.totalBytesExpectedToWrite = 0
-//    }
-//    
-//    func downloadAudio()
-//    {
-//        download.state = .downloading
-//        
-//        let filename = String(format: Constants.FILENAME_FORMAT, id)
-//        let audioURL = Constants.BASE_AUDIO_URL + filename
-//        let downloadRequest = NSMutableURLRequest(URL: NSURL(string: audioURL)!)
-//        
-//        let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(Constants.DOWNLOAD_IDENTIFIER + filename)
-//        configuration.sessionSendsLaunchEvents = true
-//        
-//        //        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
-//        
-//        download.session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-//        
-//        download.task = download.session?.downloadTaskWithRequest(downloadRequest)
-//        download.task?.taskDescription = filename
-//        
-//        download.task?.resume()
-//        
-//        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-//    }
-    
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        print("URLSession: \(session.description) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
+//        print("URLSession: \(session.description) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
         
-        let filename = downloadTask.taskDescription!
-        
-        if (audioDownload.state == .downloading) {
-            audioDownload.totalBytesWritten = totalBytesWritten
-            audioDownload.totalBytesExpectedToWrite = totalBytesExpectedToWrite
+//        let filename = downloadTask.taskDescription!
+  
+        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
+            print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
         }
         
-        print("filename: \(filename) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
+        switch audioDownload.state {
+        case .downloaded:
+            break
+            
+        case .downloading:
+            audioDownload.totalBytesWritten = totalBytesWritten
+            audioDownload.totalBytesExpectedToWrite = totalBytesExpectedToWrite
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+            })
+            break
+            
+        case .none:
+            audioDownload.task?.cancel()
+            break
+        }
         
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        print("filename: \(downloadTask.taskDescription!) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
     }
     
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
-        print("URLSession: \(session.description) didFinishDownloadingToURL: \(location)")
+        print("URLSession:downloadTask:didFinishDownloadingToURL:")
         
-        let filename = downloadTask.taskDescription!
+//        print("filename: \(filename) location: \(location)")
         
-        print("filename: \(filename) location: \(location)")
+        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
+            print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
+        }
         
         let fileManager = NSFileManager.defaultManager()
         
-        if let destinationURL = cachesURL()?.URLByAppendingPathComponent(filename) {
-            // Check if file exist
-            if (fileManager.fileExistsAtPath(destinationURL.path!)){
-                do {
-                    try fileManager.removeItemAtURL(destinationURL)
-                } catch _ {
-                }
-            }
-            
+        // Check if file exist
+        if (fileManager.fileExistsAtPath(audioDownload.fileSystemURL!.path!)){
             do {
-                if (audioDownload.state == .downloading) {
-                    try fileManager.copyItemAtURL(location, toURL: destinationURL)
-                    try fileManager.removeItemAtURL(location)
-                    audioDownload.state = .downloaded
-                }
+                try fileManager.removeItemAtURL(audioDownload.fileSystemURL!)
             } catch _ {
-                print("failed to copy temp audio download file")
-                audioDownload.state = .none
             }
-        } else {
-            print("Error!")
         }
         
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        do {
+            if (audioDownload.state == .downloading) {
+                try fileManager.copyItemAtURL(location, toURL: audioDownload.fileSystemURL!)
+                try fileManager.removeItemAtURL(location)
+                audioDownload.state = .downloaded
+            }
+        } catch _ {
+            print("failed to copy temp audio download file")
+            audioDownload.state = .none
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        })
     }
     
     func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+        print("URLSession:task:didCompleteWithError:")
+        
+        print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
+        print("bytes written: \(audioDownload.totalBytesWritten)")
+        print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        
         if (error != nil) {
-            print("Download failed for: \(session.description)")
+            print("with error: \(error!.localizedDescription)")
             audioDownload.state = .none
-        } else {
-            print("Download succeeded for: \(session.description)")
-            if (audioDownload.state == .downloading) { audioDownload.state = .downloaded }
         }
         
-        removeTempFiles()
-        
-        let filename = task.taskDescription
-        print("filename: \(filename!) error: \(error)")
+//        removeTempFiles()
         
         audioDownload.session?.invalidateAndCancel()
         
-        //        if let taskIndex = Globals.downloadTasks.indexOf(task as! NSURLSessionDownloadTask) {
-        //            Globals.downloadTasks.removeAtIndex(taskIndex)
-        //        }
-        
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        })
     }
     
     func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
+        print("URLSession:didBecomeInvalidWithError:")
+        
+        print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
+        print("bytes written: \(audioDownload.totalBytesWritten)")
+        print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        
+        if (error != nil) {
+            print("with error: \(error!.localizedDescription)")
+        }
+        
         audioDownload.session = nil
     }
     

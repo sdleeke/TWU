@@ -56,7 +56,7 @@ class Series : Equatable, CustomStringConvertible {
     {
         dict = seriesDict
         
-        for i in 0..<numberOfSermons {
+        for i in 0..<show {
             let sermon = Sermon(series: self,id:startingIndex+i)
             if sermons == nil {
                 sermons = [sermon]
@@ -113,12 +113,12 @@ class Series : Equatable, CustomStringConvertible {
         }
     }
     
-    var show:Int? {
+    var show:Int {
         get {
             if (dict![Constants.SHOW] != nil) {
                 return Int(dict![Constants.SHOW]!)!
             } else {
-                return Int(dict![Constants.NUMBER_OF_SERMONS]!)!
+                return numberOfSermons
             }
         }
     }

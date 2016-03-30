@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="Xai-Yi-pif">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="Xai-Yi-pif">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
@@ -884,8 +884,6 @@ Southlake, Texas 76092
                     <connections>
                         <outlet property="actionsButton" destination="cME-Hc-CwS" id="hdQ-S1-oGf"/>
                         <outlet property="scrollView" destination="hgr-hh-5uU" id="J2l-hM-NQS"/>
-                        <outlet property="theWordUnleashedDescription" destination="9FG-Cj-Yxb" id="yBY-9p-aWo"/>
-                        <outlet property="tomPenningtonBio" destination="nxG-97-xAs" id="enm-YX-clY"/>
                         <outlet property="versionLabel" destination="ct4-iu-yVp" id="OK7-Y7-yhP"/>
                     </connections>
                 </viewController>

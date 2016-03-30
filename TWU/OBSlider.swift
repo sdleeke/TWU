@@ -87,7 +87,7 @@ class OBSlider: UISlider {
 	}
 	
 	func indexOfLowerScrubbingSpeed (scrubbingSpeedPositions: NSArray, forOffset verticalOffset: CGFloat) -> NSInteger {
-		for (var i = 0; i < scrubbingSpeedPositions.count; i++) {
+		for i in 0..<scrubbingSpeedPositions.count {
 			let scrubbingSpeedOffset: NSNumber = scrubbingSpeedPositions[i] as! NSNumber
 //            print("indexOfLowerScrubbingSpeed: \(CGFloat(scrubbingSpeedOffset))")
 			if (verticalOffset < CGFloat(scrubbingSpeedOffset)) {

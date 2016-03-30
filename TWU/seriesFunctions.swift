@@ -170,22 +170,6 @@ func booksFromSeries(series:[Series]?) -> [String]?
     }).map { (series:Series) -> String in
         return series.book!
     })).sort({ bookNumberInBible($0) < bookNumberInBible($1) })
-    
-//    if (series != nil) {
-//        for singleSeries in series! {
-//            if (singleSeries.book != nil) {
-//                bookSet.insert(singleSeries.book!)
-//            }
-//        }
-//        
-//        for book in bookSet {
-//            bookArray.append(book)
-//        }
-//        
-//        bookArray.sortInPlace() { bookNumberInBible($0) < bookNumberInBible($1) }
-//    }
-//    
-//    return bookArray.count > 0 ? bookArray : nil
 }
 
 func lastNameFromName(name:String?) -> String?
@@ -219,28 +203,6 @@ func loadDefaults()
         }
     }
     
-//    if let seriesSelectedStr = defaults.stringForKey(Constants.SERIES_SELECTED) {
-//        if let seriesSelected = Int(seriesSelectedStr) {
-//            if let index = Globals.series?.indexOf({ (series) -> Bool in
-//                return series.id == seriesSelected
-//            }) {
-//                Globals.seriesSelected = Globals.series?[index]
-//                
-//                if let sermonSelectedIndexStr = defaults.stringForKey(Constants.SERMON_SELECTED_INDEX) {
-//                    if let sermonSelectedIndex = Int(sermonSelectedIndexStr) {
-//                        if (sermonSelectedIndex > (Globals.seriesSelected!.show! - 1)) {
-//                            defaults.removeObjectForKey(Constants.SERMON_SELECTED_INDEX)
-//                        } else {
-//                            Globals.sermonSelected = Globals.seriesSelected?.sermons?[sermonSelectedIndex]
-//                        }
-//                    }
-//                }
-//            } else {
-//                defaults.removeObjectForKey(Constants.SERIES_SELECTED)
-//            }
-//        }
-//    }
-    
     if let seriesPlayingIDStr = defaults.stringForKey(Constants.SERIES_PLAYING) {
         if let seriesPlayingID = Int(seriesPlayingIDStr) {
             if let index = Globals.series?.indexOf({ (series) -> Bool in
@@ -250,12 +212,8 @@ func loadDefaults()
                 
                 if let sermonPlayingIndexStr = defaults.stringForKey(Constants.SERMON_PLAYING_INDEX) {
                     if let sermonPlayingIndex = Int(sermonPlayingIndexStr) {
-                        if seriesPlaying?.show != nil {
-                            if (sermonPlayingIndex > (seriesPlaying!.show! - 1)) {
-                                Globals.sermonPlaying = nil
-                            } else {
-                                Globals.sermonPlaying = seriesPlaying?.sermons?[sermonPlayingIndex]
-                            }
+                        if (sermonPlayingIndex > (seriesPlaying!.show - 1)) {
+                            Globals.sermonPlaying = nil
                         } else {
                             Globals.sermonPlaying = seriesPlaying?.sermons?[sermonPlayingIndex]
                         }
@@ -285,13 +243,6 @@ func networkUnavailable(message:String?)
 //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
         
         UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
-    }
-}
-
-func removeSliderObserver() {
-    if (Globals.sliderObserver != nil) {
-        Globals.sliderObserver!.invalidate()
-        Globals.sliderObserver = nil
     }
 }
 
@@ -389,43 +340,16 @@ func updateCurrentTimeWhilePlaying()
 func updateCurrentTimeExact()
 {
     if (Globals.mpPlayer != nil) {
-        updateCurrentTimeExact(Float(Globals.mpPlayer!.currentPlaybackTime))
+        updateCurrentTimeExact(Globals.mpPlayer!.currentPlaybackTime)
     }
 }
 
-func updateCurrentTimeExact(seekToTime:Float)
+func updateCurrentTimeExact(seekToTime:NSTimeInterval)
 {
     if (seekToTime >= 0) {
         Globals.sermonPlaying?.currentTime = seekToTime.description
     }
 }
-
-//func playNewSermon(sermon:Sermon?)
-//{
-//    // This is independent of any UI.
-//    
-//    Globals.sermonPlaying = sermon
-//    Globals.playerPaused = false
-//
-//    Globals.mpPlayer?.stop()
-//    
-//    setupSeriesAndSermonPlayingUserDefaults()
-//
-//    removeSliderObserver()
-//        
-//    //This guarantees a fresh start.
-//    Globals.mpPlayer = MPMoviePlayerController(contentURL: sermon?.playingURL)
-//    
-//    Globals.mpPlayer?.shouldAutoplay = false
-//    Globals.mpPlayer?.controlStyle = MPMovieControlStyle.None
-//    Globals.mpPlayer?.prepareToPlay()
-//    
-//    // This stops the spinner spinning once the audio starts
-//    Globals.sermonLoaded = false
-//    NSNotificationCenter.defaultCenter().addObserver(self, selector: "mpPlayerLoadStateDidChange:", name: MPMoviePlayerLoadStateDidChangeNotification, object: Globals.mpPlayer)
-//    
-//    setupPlayingInfoCenter()
-//}
 
 func setupPlayer(sermon:Sermon?)
 {
@@ -444,23 +368,23 @@ func setupPlayer(sermon:Sermon?)
     }
 }
 
-func removeTempFiles()
-{
-    // Clean up temp directory for cancelled downloads
-    let fileManager = NSFileManager.defaultManager()
-    let path = NSTemporaryDirectory()
-    do {
-        let array = try fileManager.contentsOfDirectoryAtPath(path)
-        
-        for name in array {
-            if (name.rangeOfString(Constants.TMP_FILE_EXTENSION)?.endIndex == name.endIndex) {
-                print("Deleting: \(name)")
-                try fileManager.removeItemAtPath(path + name)
-            }
-        }
-    } catch _ {
-    }
-}
+//func removeTempFiles()
+//{
+//    // Clean up temp directory for cancelled downloads
+//    let fileManager = NSFileManager.defaultManager()
+//    let path = NSTemporaryDirectory()
+//    do {
+//        let array = try fileManager.contentsOfDirectoryAtPath(path)
+//        
+//        for name in array {
+//            if (name.rangeOfString(Constants.TMP_FILE_EXTENSION)?.endIndex == name.endIndex) {
+//                print("Deleting: \(name)")
+//                try fileManager.removeItemAtPath(path + name)
+//            }
+//        }
+//    } catch _ {
+//    }
+//}
 
 func stringWithoutPrefixes(fromString:String?) -> String?
 {
@@ -479,17 +403,6 @@ func stringWithoutPrefixes(fromString:String?) -> String?
             break
         }
     }
-
-//    if (fromString?.substringToIndex(a.endIndex) == a) {
-//        sortString = fromString!.substringFromIndex(a.endIndex)
-//    } else
-//        if (fromString?.substringToIndex(an.endIndex) == an) {
-//            sortString = fromString!.substringFromIndex(an.endIndex)
-//        } else
-//            if (fromString?.substringToIndex(the.endIndex) == the) {
-//                sortString = fromString!.substringFromIndex(the.endIndex)
-//                //        print("\(titleSort)")
-//    }
     
     return sortString
 }
@@ -499,33 +412,6 @@ func seriesFromSeriesDicts(seriesDicts:[[String:String]]?) -> [Series]?
     return seriesDicts?.map({ (seriesDict:[String:String]) -> Series in
         return Series(seriesDict: seriesDict)
     })
-//
-//    if seriesDicts != nil {
-//        //    print("\(Globals.seriesDicts.count)")
-//        var seriesArray = [Series]()
-//        
-//        for seriesDict in seriesDicts! {
-//            let series = Series()
-//            
-//            //        print("\(seriesDict)")
-//            series.dict = seriesDict
-//            
-//            //        print("\(sermon)")
-//            
-//            var sermons = [Sermon]()
-//            for i in 0..<series.numberOfSermons {
-//                let sermon = Sermon(series: series,id:series.startingIndex+i)
-//                sermons.append(sermon)
-//            }
-//            series.sermons = sermons
-//            
-//            seriesArray.append(series)
-//        }
-//        
-//        return seriesArray.count > 0 ? seriesArray : nil
-//    } else {
-//        return nil
-//    }
 }
 
 func jsonDataFromBundle() -> JSON
