@@ -496,6 +496,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             }
             
             if (!success) {
+                // REVERT TO KNOWN GOOD JSON
+                removeJSONFromFileSystemDirectory() // This will cause JSON to be loaded from the BUNDLE next time.
+                
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     self.setupTitle()
                     self.refreshControl?.endRefreshing()
@@ -579,7 +582,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                         if (Globals.filter == nil) {
                             if (Globals.sorting != Constants.Newest_to_Oldest) && (Globals.sorting != Constants.Oldest_to_Newest) {
                                 if (seriesNewToUser!.count == 1) {
-                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series \"\(seriesNewToUser!.first!.title)\" at the beginning or end of the list."
+                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series \"\(seriesNewToUser!.first!.title!)\" at the beginning or end of the list."
                                 }
                                 if (seriesNewToUser!.count > 1) {
                                     message = "Change sorting to Newest to Oldest or Oldest to Newest to see the \(seriesNewToUser!.count) new sermon series at the beginning or end of the list."
@@ -587,7 +590,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             }
                             if (Globals.sorting == Constants.Newest_to_Oldest) {
                                 if (seriesNewToUser!.count == 1) {
-                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title)\" is at the beginning of the list."
+                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the beginning of the list."
                                 }
                                 if (seriesNewToUser!.count > 1) {
                                     message = "There are \(seriesNewToUser!.count) new sermon series at the beginning of the list."
@@ -595,7 +598,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             }
                             if (Globals.sorting == Constants.Oldest_to_Newest) {
                                 if (seriesNewToUser!.count == 1) {
-                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title)\" is at the end of the list."
+                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the end of the list."
                                 }
                                 if (seriesNewToUser!.count > 1) {
                                     message = "There are \(seriesNewToUser!.count) new sermon series at the end of the list."
@@ -603,7 +606,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                             }
                         } else {
                             if (seriesNewToUser!.count == 1) {
-                                message = "The new sermon series \"\(seriesNewToUser!.first!.title)\" has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
+                                message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
                             }
                             if (seriesNewToUser!.count > 1) {
                                 message = "A total of \(seriesNewToUser!.count) new sermon series have been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
@@ -620,7 +623,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                                     if sermonsAdded > 1 {
                                         message = "\(sermonsAdded) sermons were added "
                                     }
-                                    message = message! + "to the series \(newSeriesIndex[sermonsNewToUser.keys.first!]!.title)."
+                                    message = message! + "to the series \(newSeriesIndex[sermonsNewToUser.keys.first!]!.title!)."
                                 }
                             } else
                             if sermonsNewToUser.keys.count > 1 {
@@ -1004,115 +1007,6 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func about()
     {
         performSegueWithIdentifier(Constants.Show_About, sender: self)
-    }
-    
-    func seekingTimer()
-    {
-        setupPlayingInfoCenter()
-    }
-    
-    override func remoteControlReceivedWithEvent(event: UIEvent?) {
-        print("remoteControlReceivedWithEvent")
-        
-        switch event!.subtype {
-        case UIEventSubtype.MotionShake:
-            print("RemoteControlShake")
-            break
-            
-        case UIEventSubtype.None:
-            print("RemoteControlNone")
-            break
-            
-        case UIEventSubtype.RemoteControlStop:
-            print("RemoteControlStop")
-            Globals.mpPlayer?.stop()
-            Globals.playerPaused = true
-            break
-            
-        case UIEventSubtype.RemoteControlPlay:
-            print("RemoteControlPlay")
-            Globals.mpPlayer?.play()
-            Globals.playerPaused = false
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlPause:
-            print("RemoteControlPause")
-            Globals.mpPlayer?.pause()
-            Globals.playerPaused = true
-            updateCurrentTimeExact()
-            break
-            
-        case UIEventSubtype.RemoteControlTogglePlayPause:
-            print("RemoteControlTogglePlayPause")
-            if (Globals.playerPaused) {
-                Globals.mpPlayer?.play()
-            } else {
-                Globals.mpPlayer?.pause()
-                updateCurrentTimeExact()
-            }
-            Globals.playerPaused = !Globals.playerPaused
-            break
-            
-        case UIEventSubtype.RemoteControlPreviousTrack:
-            print("RemoteControlPreviousTrack")
-            if (Globals.mpPlayer?.currentPlaybackTime == 0) {
-                // Would like it to skip to the prior sermon in the series if there is one.
-            } else {
-                Globals.mpPlayer?.currentPlaybackTime = 0
-            }
-            break
-            
-        case UIEventSubtype.RemoteControlNextTrack:
-            print("RemoteControlNextTrack")
-            Globals.mpPlayer?.currentPlaybackTime = Globals.mpPlayer!.duration
-            break
-            
-            //The lock screen time elapsed/remaining don't track well with seeking
-            //But at least this has them moving in the right direction.
-            
-        case UIEventSubtype.RemoteControlBeginSeekingBackward:
-            print("RemoteControlBeginSeekingBackward")
-            
-            Globals.seekingObserver = NSTimer.scheduledTimerWithTimeInterval(Constants.SEEKING_TIMER_INTERVAL, target: self, selector: #selector(MyCollectionViewController.seekingTimer), userInfo: nil, repeats: true)
-            
-            Globals.mpPlayer?.beginSeekingBackward()
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlEndSeekingBackward:
-            print("RemoteControlEndSeekingBackward")
-            Globals.mpPlayer?.endSeeking()
-            Globals.seekingObserver?.invalidate()
-            Globals.seekingObserver = nil
-            updateCurrentTimeExact()
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlBeginSeekingForward:
-            print("RemoteControlBeginSeekingForward")
-            Globals.mpPlayer?.beginSeekingForward()
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlEndSeekingForward:
-            print("RemoteControlEndSeekingForward")
-            Globals.mpPlayer?.endSeeking()
-            updateCurrentTimeExact()
-            setupPlayingInfoCenter()
-            break
-        }
-
-        if (splitViewController != nil) {
-            if (!splitViewController!.collapsed) {
-                if let nvc = splitViewController?.viewControllers[1] as? UINavigationController {
-                    if let myvc = nvc.topViewController as? MyViewController {
-                        myvc.setupPlayPauseButton()
-                    }
-                }
-            }
-        }
-        setupPlayingPausedButton()
     }
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {

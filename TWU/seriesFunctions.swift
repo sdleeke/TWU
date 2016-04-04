@@ -435,6 +435,17 @@ func jsonDataFromBundle() -> JSON
     return nil
 }
 
+func removeJSONFromFileSystemDirectory()
+{
+    if let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
+        do {
+            try NSFileManager.defaultManager().removeItemAtPath(jsonFileSystemURL.path!)
+        } catch _ {
+            print("failed to copy sermons.json")
+        }
+    }
+}
+
 func jsonToFileSystem()
 {
     let fileManager = NSFileManager.defaultManager()
@@ -562,6 +573,10 @@ func addAccessoryEvents()
         Globals.mpPlayer?.pause()
         Globals.playerPaused = true
         updateCurrentTimeExact()
+        setupPlayingInfoCenter()
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
+        })
         return MPRemoteCommandHandlerStatus.Success
     }
     
@@ -577,6 +592,9 @@ func addAccessoryEvents()
         Globals.mpPlayer?.play()
         Globals.playerPaused = false
         setupPlayingInfoCenter()
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
+        })
         return MPRemoteCommandHandlerStatus.Success
     }
     
@@ -590,22 +608,26 @@ func addAccessoryEvents()
             updateCurrentTimeExact()
         }
         Globals.playerPaused = !Globals.playerPaused
+        setupPlayingInfoCenter()
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
+        })
         return MPRemoteCommandHandlerStatus.Success
     }
     
-    MPRemoteCommandCenter.sharedCommandCenter().seekBackwardCommand.enabled = true
-    MPRemoteCommandCenter.sharedCommandCenter().seekBackwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
-        Globals.mpPlayer?.beginSeekingBackward()
-        return MPRemoteCommandHandlerStatus.Success
-    }
+//    MPRemoteCommandCenter.sharedCommandCenter().seekBackwardCommand.enabled = true
+//    MPRemoteCommandCenter.sharedCommandCenter().seekBackwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
+//        Globals.mpPlayer?.beginSeekingBackward()
+//        return MPRemoteCommandHandlerStatus.Success
+//    }
+//    
+//    MPRemoteCommandCenter.sharedCommandCenter().seekForwardCommand.enabled = true
+//    MPRemoteCommandCenter.sharedCommandCenter().seekForwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
+//        Globals.mpPlayer?.beginSeekingForward()
+//        return MPRemoteCommandHandlerStatus.Success
+//    }
     
-    MPRemoteCommandCenter.sharedCommandCenter().seekForwardCommand.enabled = true
-    MPRemoteCommandCenter.sharedCommandCenter().seekForwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
-        Globals.mpPlayer?.beginSeekingForward()
-        return MPRemoteCommandHandlerStatus.Success
-    }
-    
-    MPRemoteCommandCenter.sharedCommandCenter().skipBackwardCommand.enabled = false
+    MPRemoteCommandCenter.sharedCommandCenter().skipBackwardCommand.enabled = true
     MPRemoteCommandCenter.sharedCommandCenter().skipBackwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
         Globals.mpPlayer?.currentPlaybackTime -= NSTimeInterval(15)
         updateCurrentTimeExact()
@@ -613,13 +635,16 @@ func addAccessoryEvents()
         return MPRemoteCommandHandlerStatus.Success
     }
 
-    MPRemoteCommandCenter.sharedCommandCenter().skipForwardCommand.enabled = false
+    MPRemoteCommandCenter.sharedCommandCenter().skipForwardCommand.enabled = true
     MPRemoteCommandCenter.sharedCommandCenter().skipForwardCommand.addTargetWithHandler { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
         Globals.mpPlayer?.currentPlaybackTime += NSTimeInterval(15)
         updateCurrentTimeExact()
         setupPlayingInfoCenter()
         return MPRemoteCommandHandlerStatus.Success
     }
+    
+    MPRemoteCommandCenter.sharedCommandCenter().seekForwardCommand.enabled = false
+    MPRemoteCommandCenter.sharedCommandCenter().seekBackwardCommand.enabled = false
     
     MPRemoteCommandCenter.sharedCommandCenter().previousTrackCommand.enabled = false
     MPRemoteCommandCenter.sharedCommandCenter().nextTrackCommand.enabled = false

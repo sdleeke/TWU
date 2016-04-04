@@ -378,7 +378,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
                         }
                         
                         if !(playable || playthrough) { // Globals.mpPlayer?.currentPlaybackRate == 0
-                            print("playTimer.Playthrough or Playing NOT OK")
+//                            print("playTimer.Playthrough or Playing NOT OK")
                             if (Globals.mpPlayerStateTime!.timeElapsed > Constants.MIN_PLAY_TIME) {
                                 Globals.sermonLoaded = true
                                 Globals.playerPaused = true
@@ -394,7 +394,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
                         }
                         
                         if (playable || playthrough) {
-                            print("playTimer.Playthrough or Playing OK")
+//                            print("playTimer.Playthrough or Playing OK")
                         }
                     }
                     break
@@ -563,6 +563,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         setupRemoteNotification()
         
         startAudio()
+        
+        addAccessoryEvents()
 
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         

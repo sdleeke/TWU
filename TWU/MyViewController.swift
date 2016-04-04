@@ -754,15 +754,15 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         self.navigationItem.title = seriesSelected?.title
     }
     
-    func setupPlayerAtEnd(sermon:Sermon?)
-    {
-        setupPlayer(sermon)
-        
-        if (Globals.mpPlayer != nil) {
-            Globals.mpPlayer?.currentPlaybackTime = Globals.mpPlayer!.duration
-            Globals.mpPlayer?.pause()
-        }
-    }
+//    func setupPlayerAtEnd(sermon:Sermon?)
+//    {
+//        setupPlayer(sermon)
+//        
+//        if (Globals.mpPlayer != nil) {
+//            Globals.mpPlayer?.currentPlaybackTime = Globals.mpPlayer!.duration
+//            Globals.mpPlayer?.pause()
+//        }
+//    }
     
     func sermonUpdateAvailable()
     {
@@ -784,9 +784,9 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             seriesDescription.hidden = true
         }
         
-        if (sermonSelected != nil) && (Globals.mpPlayer == nil) {
-            setupPlayerAtEnd(sermonSelected)
-        }
+//        if (sermonSelected != nil) && (Globals.mpPlayer == nil) {
+//            setupPlayerAtEnd(sermonSelected)
+//        }
 
         addSliderObserver()
         
@@ -1362,116 +1362,13 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         }
     }
     
-    func seekingTimer()
-    {
-        setupPlayingInfoCenter()
-    }
-    
-    override func remoteControlReceivedWithEvent(event: UIEvent?) {
-        print("remoteControlReceivedWithEvent")
-        
-        switch event!.subtype {
-        case UIEventSubtype.MotionShake:
-            print("RemoteControlShake")
-            break
-            
-        case UIEventSubtype.None:
-            print("RemoteControlNone")
-            break
-            
-        case UIEventSubtype.RemoteControlStop:
-            print("RemoteControlStop")
-            Globals.mpPlayer?.stop()
-            Globals.playerPaused = true
-            break
-            
-        case UIEventSubtype.RemoteControlPlay:
-            print("RemoteControlPlay")
-            Globals.mpPlayer?.play()
-            Globals.playerPaused = false
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlPause:
-            print("RemoteControlPause")
-            Globals.mpPlayer?.pause()
-            Globals.playerPaused = true
-            updateCurrentTimeExact()
-            break
-            
-        case UIEventSubtype.RemoteControlTogglePlayPause:
-            print("RemoteControlTogglePlayPause")
-            if (Globals.playerPaused) {
-                Globals.mpPlayer?.play()
-            } else {
-                Globals.mpPlayer?.pause()
-                updateCurrentTimeExact()
-            }
-            Globals.playerPaused = !Globals.playerPaused
-            break
-            
-        case UIEventSubtype.RemoteControlPreviousTrack:
-            print("RemoteControlPreviousTrack")
-            if (Globals.mpPlayer?.currentPlaybackTime == 0) {
-                // Would like it to skip to the prior sermon in the series if there is one.
-            } else {
-                Globals.mpPlayer?.currentPlaybackTime = 0
-            }
-            break
-            
-        case UIEventSubtype.RemoteControlNextTrack:
-            print("RemoteControlNextTrack")
-            Globals.mpPlayer?.currentPlaybackTime = Globals.mpPlayer!.duration
-            break
-            
-            //The lock screen time elapsed/remaining don't track well with seeking
-            //But at least this has them moving in the right direction.
-            
-        case UIEventSubtype.RemoteControlBeginSeekingBackward:
-            print("RemoteControlBeginSeekingBackward")
-            
-            Globals.seekingObserver = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(MyViewController.seekingTimer), userInfo: nil, repeats: true)
-            
-            Globals.mpPlayer?.beginSeekingBackward()
-            //        updatePlayingInfoCenter()
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlEndSeekingBackward:
-            print("RemoteControlEndSeekingBackward")
-            Globals.mpPlayer?.endSeeking()
-            Globals.seekingObserver?.invalidate()
-            Globals.seekingObserver = nil
-            updateCurrentTimeExact()
-            //        updatePlayingInfoCenter()
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlBeginSeekingForward:
-            print("RemoteControlBeginSeekingForward")
-            Globals.mpPlayer?.beginSeekingForward()
-            //        updatePlayingInfoCenter()
-            setupPlayingInfoCenter()
-            break
-            
-        case UIEventSubtype.RemoteControlEndSeekingForward:
-            print("RemoteControlEndSeekingForward")
-            Globals.mpPlayer?.endSeeking()
-            updateCurrentTimeExact()
-            //        updatePlayingInfoCenter()
-            setupPlayingInfoCenter()
-            break
-        }
-
-        setupPlayPauseButton()
-    }
-
     func removeSliderObserver() {
         if (sliderObserver != nil) {
             sliderObserver!.invalidate()
             sliderObserver = nil
         }
     }
+    
     func addSliderObserver()
     {
         if (Globals.mpPlayer != nil) {
