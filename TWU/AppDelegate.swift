@@ -190,8 +190,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 //            //            println("rvc = UISplitViewController")
 //            if let nvc = svc.viewControllers[0] as? UINavigationController {
 //                //                println("nvc = UINavigationController")
-//                if let cvc = nvc.topViewController as? MyCollectionViewController {
-//                    //                    println("nvc = MyCollectionViewController")
+//                if let cvc = nvc.topViewController as? MediaCollectionViewController {
+//                    //                    println("nvc = MediaCollectionViewController")
 //                    if (selectedSeries != nil) {
 //                        Globals.seriesSelected = selectedSeries
 //                        cvc.performSegueWithIdentifier(Constants.Show_Series, sender: cvc)
@@ -203,14 +203,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 //        //iPhone
 //        if let nvc = self.window?.rootViewController as? UINavigationController {
 //            //     _   println("rvc = UINavigationController")
-//            if let _ = nvc.topViewController as? MyViewController {
-//                //                    println("myvc = MyViewController")
+//            if let _ = nvc.topViewController as? MediaViewController {
+//                //                    println("myvc = MediaViewController")
 //
 //                nvc.popToRootViewControllerAnimated(true)
 //            }
 //
-//            if let cvc = nvc.topViewController as? MyCollectionViewController {
-//                //                println("cvc = MyCollectionViewController")
+//            if let cvc = nvc.topViewController as? MediaCollectionViewController {
+//                //                println("cvc = MediaCollectionViewController")
 //                
 //                if (selectedSeries != nil) {
 //                    Globals.seriesSelected = selectedSeries
@@ -246,7 +246,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         if (playable || playthrough) {
 //            print("mpPlayerLoadStateDidChange.MPMovieLoadState.Playable or Playthrough OK")
             
-            if !Globals.sermonLoaded {
+            if !Globals.playerLoaded {
                 if (Globals.sermonPlaying != nil) && Globals.sermonPlaying!.hasCurrentTime() {
 //                    print(Int(Float(Globals.sermonPlaying!.currentTime!)!))
 //                    print(Int(Float(Globals.mpPlayer!.duration)))
@@ -262,7 +262,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
                 
                 setupPlayingInfoCenter()
                 
-                Globals.sermonLoaded = true
+                Globals.playerLoaded = true
                 
                 if (Globals.playOnLoad) {
                     Globals.playerPaused = false
@@ -380,7 +380,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
                         if !(playable || playthrough) { // Globals.mpPlayer?.currentPlaybackRate == 0
 //                            print("playTimer.Playthrough or Playing NOT OK")
                             if (Globals.mpPlayerStateTime!.timeElapsed > Constants.MIN_PLAY_TIME) {
-                                Globals.sermonLoaded = true
                                 Globals.playerPaused = true
                                 Globals.mpPlayer?.pause()
                                 
@@ -404,9 +403,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             case .paused:
 //                print("paused")
                 
-                if !Globals.sermonLoaded {
+                if !Globals.playerLoaded && !Globals.playerLoadFailed {
                     if (Globals.mpPlayerStateTime!.timeElapsed > Constants.MIN_LOAD_TIME) {
-                        Globals.sermonLoaded = true
+                        Globals.playerLoadFailed = true
                         
                         if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
                             let errorAlert = UIAlertView(title: "Unable to Load Content", message: "Please check your network connection and try to play it again.", delegate: self, cancelButtonTitle: "OK")
@@ -601,7 +600,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
         if (Globals.mpPlayer?.currentPlaybackRate == 0) {
             //It is paused, possibly not by us, but by the system
             //But how do we know it hasn't simply finished playing?
-            if (Globals.sermonLoaded) {
+            if (Globals.playerLoaded) {
                 updateCurrentTimeExact()
             }
             Globals.playerPaused = true

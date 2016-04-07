@@ -1,5 +1,5 @@
 //
-//  MyAboutViewController.swift
+//  AboutViewController.swift
 //  TWU
 //
 //  Created by Steve Leeke on 8/6/15.
@@ -9,7 +9,7 @@
 import UIKit
 import MessageUI
 
-class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
+class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
 
     @IBOutlet weak var versionLabel: UILabel!
     
@@ -198,7 +198,7 @@ class MyAboutViewController: UIViewController, MFMailComposeViewControllerDelega
         super.viewDidLoad()
 
         if (splitViewController == nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyAboutViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(AboutViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
         }
 
         // Do any additional setup after loading the view.

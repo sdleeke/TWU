@@ -1,5 +1,5 @@
 //
-//  MyCollectionViewController.swift
+//  MediaCollectionViewController.swift
 //  TWU
 //
 //  Created by Steve Leeke on 7/28/15.
@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-class MyCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
+class MediaCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
 
 //    var endObserver: AnyObject?
 
@@ -28,7 +28,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                     NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
                 })
             } else {
-                print("MyCollectionViewController:seriesSelected nil")
+                print("MediaCollectionViewController:seriesSelected nil")
             }
         }
     }
@@ -262,9 +262,9 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     
     private func setupSortingAndGroupingOptions()
     {
-        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MyCollectionViewController.sorting(_:)))
-        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MyCollectionViewController.filtering(_:)))
-        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MyCollectionViewController.settings(_:)))
+        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.sorting(_:)))
+        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.filtering(_:)))
+        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.settings(_:)))
         
         let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
         
@@ -872,13 +872,13 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             loadSeries(nil)
         }
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyCollectionViewController.setupPlayingPausedButton), name: Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyCollectionViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaCollectionViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
 
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
         
         refreshControl = UIRefreshControl()
-        refreshControl!.addTarget(self, action: #selector(MyCollectionViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
+        refreshControl!.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
 
         collectionView.addSubview(refreshControl!)
         
@@ -905,7 +905,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             var playingPausedButton = navigationItem.rightBarButtonItem
             
             if (playingPausedButton == nil) {
-                playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MyCollectionViewController.gotoNowPlaying))
+                playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.gotoNowPlaying))
             }
             
             playingPausedButton!.title = title
@@ -1074,7 +1074,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         if let identifier = segue.identifier {
             switch identifier {
             case Constants.Show_Settings:
-                if let svc = destination as? MySettingsViewController {
+                if let svc = destination as? SettingsViewController {
                     svc.modalPresentationStyle = .Popover
                     svc.popoverPresentationController?.delegate = self
                     svc.popoverPresentationController?.barButtonItem = toolbarItems?[5]
@@ -1090,18 +1090,18 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
             case Constants.Show_Series:
 //                println("ShowSeries")
                 if (Globals.gotoNowPlaying) {
-                    //This pushes a NEW MyViewController.
+                    //This pushes a NEW MediaViewController.
                     
                     seriesSelected = Globals.sermonPlaying?.series
                     
-                    if let dvc = destination as? MyViewController {
+                    if let dvc = destination as? MediaViewController {
                         dvc.seriesSelected = Globals.sermonPlaying?.series
                         dvc.sermonSelected = Globals.sermonPlaying
                     }
 
                     Globals.gotoNowPlaying = !Globals.gotoNowPlaying
                 } else {
-                    if let myCell = sender as? MyCollectionViewCell {
+                    if let myCell = sender as? MediaCollectionViewCell {
                         seriesSelected = myCell.series
                     }
 
@@ -1111,7 +1111,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
                         }
                     }
                     
-                    if let dvc = destination as? MyViewController {
+                    if let dvc = destination as? MediaViewController {
                         dvc.seriesSelected = Globals.seriesSelected
                         dvc.sermonSelected = nil
                     }
@@ -1149,8 +1149,8 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
         return Globals.activeSeries != nil ? Globals.activeSeries!.count : 0
     }
 
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> MyCollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.SERIES_CELL_IDENTIFIER, forIndexPath: indexPath) as! MyCollectionViewCell
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> MediaCollectionViewCell {
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.SERIES_CELL_IDENTIFIER, forIndexPath: indexPath) as! MediaCollectionViewCell
     
         // Configure the cell
         cell.series = Globals.activeSeries?[indexPath.row]
@@ -1164,7 +1164,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
 //        println("didSelect")
 
-        if let cell: MyCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MyCollectionViewCell {
+        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
             seriesSelected = cell.series
             collectionView.reloadData()
         } else {
@@ -1175,7 +1175,7 @@ class MyCollectionViewController: UIViewController, UISplitViewControllerDelegat
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
 //        println("didDeselect")
 
-//        if let cell: MyCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MyCollectionViewCell {
+//        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
 //
 //        } else {
 //            

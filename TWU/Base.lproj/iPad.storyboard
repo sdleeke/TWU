@@ -29,7 +29,7 @@
         <!--Series-->
         <scene sceneID="oXZ-O0-0eL">
             <objects>
-                <viewController title="Series" automaticallyAdjustsScrollViewInsets="NO" id="H2E-ZS-FbW" customClass="MyViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Series" automaticallyAdjustsScrollViewInsets="NO" id="H2E-ZS-FbW" customClass="MediaViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="q7U-Fv-YgR"/>
                         <viewControllerLayoutGuide type="bottom" id="hyM-uV-ueX"/>
@@ -42,7 +42,7 @@
                                 <rect key="frame" x="0.0" y="282" width="600" height="254"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationWidth="0.0" reuseIdentifier="SeriesSermon" id="weh-rh-66T" customClass="MyTableViewCell" customModule="TWU" customModuleProvider="target">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationWidth="0.0" reuseIdentifier="SeriesSermon" id="weh-rh-66T" customClass="MediaTableViewCell" customModule="TWU" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="1" width="600" height="90"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="weh-rh-66T" id="OR0-Xl-7Iz">
@@ -208,7 +208,7 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BBU-FH-IlP" userLabel="PlayPause">
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BBU-FH-IlP" userLabel="PlayPause">
                                 <rect key="frame" x="8" y="239" width="48" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="vdr-WW-o8u"/>
@@ -311,7 +311,7 @@
         <!--About-->
         <scene sceneID="D6k-ij-4Sg">
             <objects>
-                <viewController title="About" id="lBu-Wa-0uM" customClass="MyAboutViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="About" id="lBu-Wa-0uM" customClass="AboutViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="WUT-T2-LDF"/>
                         <viewControllerLayoutGuide type="bottom" id="td5-7c-QWi"/>
@@ -595,10 +595,10 @@ Southlake, Texas 76092
             </objects>
             <point key="canvasLocation" x="-185" y="-3264"/>
         </scene>
-        <!--My Settings View Controller-->
+        <!--Settings View Controller-->
         <scene sceneID="vjq-Nv-MGW">
             <objects>
-                <viewController id="BCD-eK-e9R" customClass="MySettingsViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BCD-eK-e9R" customClass="SettingsViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="WGt-ey-g8Q"/>
                         <viewControllerLayoutGuide type="bottom" id="zzh-tG-9K3"/>
@@ -702,7 +702,7 @@ Southlake, Texas 76092
         <!--About 2-->
         <scene sceneID="fTo-DB-pRd">
             <objects>
-                <viewController title="About 2" id="rkm-ee-y4y" customClass="MyAboutViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="About 2" id="rkm-ee-y4y" customClass="AboutViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="e0T-ol-GWX"/>
                         <viewControllerLayoutGuide type="bottom" id="DCZ-Ct-rOv"/>

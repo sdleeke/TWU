@@ -1,5 +1,5 @@
 //
-//  MyCollectionViewCell.swift
+//  MediaCollectionViewCell.swift
 //  TWU
 //
 //  Created by Steve Leeke on 7/28/15.
@@ -8,10 +8,10 @@
 
 import UIKit
 
-class MyCollectionViewCell: UICollectionViewCell {
+class MediaCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var seriesArt: UIImageView!
 
-    var vc:MyCollectionViewController?
+    var vc:MediaCollectionViewController?
     
     var series:Series? {
         didSet {

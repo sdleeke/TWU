@@ -122,7 +122,8 @@ struct Globals {
     }
     
     static var playOnLoad:Bool = false
-    static var sermonLoaded:Bool = false
+    static var playerLoaded:Bool = false
+    static var playerLoadFailed:Bool = false
     
     static var playerObserver: NSTimer?
 

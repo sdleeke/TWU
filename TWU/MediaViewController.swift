@@ -1,5 +1,5 @@
 //
-//  MyViewController.swift
+//  MediaViewController.swift
 //  TWU
 //
 //  Created by Steve Leeke on 7/31/15.
@@ -13,7 +13,7 @@ import MediaPlayer
 import Social
 
 
-class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
+class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
 
     @IBOutlet weak var pageControl: UIPageControl!
     @IBAction func pageControlAction(sender: UIPageControl)
@@ -35,7 +35,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
                     NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
                 })
             } else {
-                print("MyViewController:sermonSelected nil")
+                print("MediaViewController:sermonSelected nil")
             }
         }
     }
@@ -160,7 +160,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     {
         if (sermonSelected != nil) {
             if (sermonSelected == Globals.sermonPlaying) {
-                playPauseButton.enabled = Globals.sermonLoaded
+                playPauseButton.enabled = Globals.playerLoaded
                 
                 if (Globals.playerPaused) {
                     playPauseButton.setTitle(Constants.FA_PLAY, forState: UIControlState.Normal)
@@ -187,14 +187,14 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     
     @IBOutlet weak var seriesArt: UIImageView! {
         didSet {
-            let tap = UITapGestureRecognizer(target: self, action: #selector(MyViewController.flip(_:)))
+            let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesArt.addGestureRecognizer(tap)
             
-            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MyViewController.flipFromLeft(_:)))
+            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
             swipeRight.direction = UISwipeGestureRecognizerDirection.Right
             seriesArt.addGestureRecognizer(swipeRight)
             
-            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MyViewController.flipFromRight(_:)))
+            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
             swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
             seriesArt.addGestureRecognizer(swipeLeft)
         }
@@ -202,14 +202,14 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     
     @IBOutlet weak var seriesDescription: UITextView! {
         didSet {
-            let tap = UITapGestureRecognizer(target: self, action: #selector(MyViewController.flip(_:)))
+            let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesDescription.addGestureRecognizer(tap)
             
-            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MyViewController.flipFromLeft(_:)))
+            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
             swipeRight.direction = UISwipeGestureRecognizerDirection.Right
             seriesDescription.addGestureRecognizer(swipeRight)
             
-            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MyViewController.flipFromRight(_:)))
+            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
             swipeLeft.direction = UISwipeGestureRecognizerDirection.Left
             seriesDescription.addGestureRecognizer(swipeLeft)
             
@@ -654,15 +654,15 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         navigationController?.toolbarHidden = true
 
         if (splitViewController != nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyViewController.updateView), name: Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyViewController.clearView), name: Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.updateView), name: Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.clearView), name: Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
         }
 
         if (splitViewController == nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
         }
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MyViewController.setupPlayPauseButton), name: Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
 
         //Eliminates blank cells at end.
         tableView.tableFooterView = UIView()
@@ -697,7 +697,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     private func setupActionsButton()
     {
         if (seriesSelected != nil) {
-            actionButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Action, target: self, action: #selector(MyViewController.actions))
+            actionButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Action, target: self, action: #selector(MediaViewController.actions))
             self.navigationItem.rightBarButtonItem = actionButton
         } else {
             self.navigationItem.rightBarButtonItem = nil
@@ -712,7 +712,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             spinner.hidden = true
         }
 
-        slider.enabled = Globals.sermonLoaded
+        slider.enabled = Globals.playerLoaded
         
         if (Globals.mpPlayer != nil) && (Globals.sermonPlaying != nil) {
             if (Globals.sermonPlaying == sermonSelected) {
@@ -919,7 +919,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         // Dispose of any resources that can be recreated.
     }
     
-    func flipFromLeft(sender: MyViewController) {
+    func flipFromLeft(sender: MediaViewController) {
         //        println("tap")
         
         // set a transition style
@@ -954,7 +954,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         
     }
     
-    func flipFromRight(sender: MyViewController) {
+    func flipFromRight(sender: MediaViewController) {
         //        println("tap")
         
         // set a transition style
@@ -989,7 +989,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
         
     }
     
-    func flip(sender: MyViewController) {
+    func flip(sender: MediaViewController) {
         //        println("tap")
         
         // set a transition style
@@ -1054,7 +1054,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //            if let identifier = segue.identifier {
 //                switch identifier {
 //                case "Show Sermon":
-//                    if let myCell = sender as? MyTableViewCell {
+//                    if let myCell = sender as? MediaTableViewCell {
 //                        let indexPath = seriesSermons!.indexPathForCell(myCell)
 //
 //                    }
@@ -1085,7 +1085,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     /*
     */
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(Constants.SERMON_CELL_IDENTIFIER, forIndexPath: indexPath) as! MyTableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(Constants.SERMON_CELL_IDENTIFIER, forIndexPath: indexPath) as! MediaTableViewCell
     
         // Configure the cell...
         cell.row = indexPath.row
@@ -1189,10 +1189,10 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
 //                print("sliderTimer.MPMovieLoadState.Playthrough")
             }
             
-            playPauseButton.enabled = Globals.sermonLoaded
-            slider.enabled = Globals.sermonLoaded
+            playPauseButton.enabled = Globals.playerLoaded || Globals.playerLoadFailed
+            slider.enabled = Globals.playerLoaded
             
-            if (!Globals.sermonLoaded) {
+            if (!Globals.playerLoaded) {
                 if (!spinner.isAnimating()) {
                     spinner.hidden = false
                     spinner.startAnimating()
@@ -1240,8 +1240,11 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             case .paused:
 //                print("paused")
                 
-                if Globals.sermonLoaded {
+                if Globals.playerLoaded {
                     setSliderAndTimesToAudio()
+                }
+                
+                if Globals.playerLoaded || Globals.playerLoadFailed {
                     if spinner.isAnimating() {
                         spinner.stopAnimating()
                         spinner.hidden = true
@@ -1377,7 +1380,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
             }
             
             //Slider observer runs every second
-            sliderObserver = NSTimer.scheduledTimerWithTimeInterval(Constants.SLIDER_TIMER_INTERVAL, target: self, selector: #selector(MyViewController.sliderTimer), userInfo: nil, repeats: true)
+            sliderObserver = NSTimer.scheduledTimerWithTimeInterval(Constants.SLIDER_TIMER_INTERVAL, target: self, selector: #selector(MediaViewController.sliderTimer), userInfo: nil, repeats: true)
         } else {
             // Problem
             print("Globals.player == nil in sliderObserver")
@@ -1410,7 +1413,7 @@ class MyViewController: UIViewController, MFMailComposeViewControllerDelegate, M
     }
     
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
-//        if let cell = seriesSermons.cellForRowAtIndexPath(indexPath) as? MyTableViewCell {
+//        if let cell = seriesSermons.cellForRowAtIndexPath(indexPath) as? MediaTableViewCell {
 //
 //        }
     }

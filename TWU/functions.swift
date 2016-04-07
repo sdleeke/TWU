@@ -354,7 +354,8 @@ func updateCurrentTimeExact(seekToTime:NSTimeInterval)
 func setupPlayer(sermon:Sermon?)
 {
     if (sermon != nil) {
-        Globals.sermonLoaded = false
+        Globals.playerLoaded = false
+        Globals.playerLoadFailed = false
         
         Globals.mpPlayer = MPMoviePlayerController(contentURL: sermon?.playingURL)
         

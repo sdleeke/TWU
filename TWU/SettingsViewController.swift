@@ -1,5 +1,5 @@
 //
-//  MySettingsViewController.swift
+//  SettingsViewController.swift
 //  TWU
 //
 //  Created by Steve Leeke on 2/18/16.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MySettingsViewController: UIViewController {
+class SettingsViewController: UIViewController {
 
     @IBOutlet weak var autoAdvanceSwitch: UISwitch!
     
