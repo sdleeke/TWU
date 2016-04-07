@@ -239,23 +239,23 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         subscript(key:String) -> String? {
             get {
                 var value:String?
-                value = Globals.sermonSettings?[self.sermon!.sermonID]?[key]
+                value = globals.sermonSettings?[self.sermon!.sermonID]?[key]
                 return value
             }
             set {
-                if (Globals.sermonSettings?[self.sermon!.sermonID] == nil) {
-                    Globals.sermonSettings?[self.sermon!.sermonID] = [String:String]()
+                if (globals.sermonSettings?[self.sermon!.sermonID] == nil) {
+                    globals.sermonSettings?[self.sermon!.sermonID] = [String:String]()
                 }
                 if (newValue != nil) {
                     if (self.sermon != nil) {
-                        //                        print("\(Globals.sermonSettings!)")
+                        //                        print("\(globals.sermonSettings!)")
                         //                        print("\(sermon!)")
                         //                        print("\(newValue!)")
-                        if (Globals.sermonSettings?[self.sermon!.sermonID]?[key] != newValue) {
-                            Globals.sermonSettings?[self.sermon!.sermonID]?[key] = newValue
+                        if (globals.sermonSettings?[self.sermon!.sermonID]?[key] != newValue) {
+                            globals.sermonSettings?[self.sermon!.sermonID]?[key] = newValue
                             
                             // For a high volume of activity this can be very expensive.
-                            saveSettingsBackground()
+                            globals.saveSettingsBackground()
                         }
                     } else {
                         print("sermon == nil in Settings!")
@@ -271,13 +271,20 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         return Settings(sermon:self)
     }()
     
+    var downloads = [String:Download]()
+    
+    //    lazy var downloads:[String:Download]? = {
+    //        return [String:Download]()
+    //    }()
+    
     lazy var audioDownload:Download! = {
         [unowned self] in
         var download = Download()
         download.sermon = self
-//        download.purpose = Constants.AUDIO
+        download.purpose = Constants.AUDIO
         download.url = self.audioURL
         download.fileSystemURL = self.audioFileSystemURL
+        self.downloads[Constants.AUDIO] = download
         return download
     }()
     
@@ -388,7 +395,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         filename = session.configuration.identifier!.substringFromIndex(Constants.DOWNLOAD_IDENTIFIER.endIndex)
         filename = filename?.substringToIndex(filename!.rangeOfString(Constants.MP3_FILE_EXTENSION)!.startIndex)
         
-        for series in Globals.series! {
+        for series in globals.series! {
             for sermon in series.sermons! {
                 if (sermon.id == Int(filename!)) {
                     sermon.audioDownload.completionHandler?()

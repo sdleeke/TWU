@@ -18,7 +18,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
     var seriesSelected:Series? {
         didSet {
-//            Globals.seriesSelected = seriesSelected
+//            globals.seriesSelected = seriesSelected
             if (seriesSelected != nil) {
                 let defaults = NSUserDefaults.standardUserDefaults()
                 defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
@@ -47,14 +47,14 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
         if (splitViewController == nil) && (motion == .MotionShake) {
-            if (Globals.sermonPlaying != nil) {
-                if (Globals.playerPaused) {
-                    Globals.mpPlayer?.play()
+            if (globals.sermonPlaying != nil) {
+                if (globals.playerPaused) {
+                    globals.mpPlayer?.play()
                 } else {
-                    Globals.mpPlayer?.pause()
-                    updateCurrentTimeExact()
+                    globals.mpPlayer?.pause()
+                    globals.updateCurrentTimeExact()
                 }
-                Globals.playerPaused = !Globals.playerPaused
+                globals.playerPaused = !globals.playerPaused
             } else {
                 
             }
@@ -98,17 +98,17 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 //        for option in Constants.Sorting_Options {
 //            alertTitle = option
 //            action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-//                if (Globals.sorting != option) {
-//                    Globals.sorting = option
+//                if (globals.sorting != option) {
+//                    globals.sorting = option
 //                    
-//                    Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+//                    globals.activeSeries = sortSeries(globals.activeSeries,sorting: globals.sorting)
 //                    self.collectionView.reloadData()
 //                    
 //                    //Moving the list can be very disruptive
 //                    //                selectOrScrollToSermon(selectedSermon, select: true, scroll: false, position: UITableViewScrollPosition.None)
 //                }
 //            })
-//            if (Globals.sorting == option) {
+//            if (globals.sorting == option) {
 //                action.enabled = false
 //            }
 //            alert.addAction(action)
@@ -131,20 +131,20 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         switch purpose {
         case .selectingSorting:
-            Globals.sorting = strings[index]
+            globals.sorting = strings[index]
             collectionView.reloadData()
             break
             
         case .selectingFiltering:
-            if (Globals.filter != strings[index]) {
+            if (globals.filter != strings[index]) {
                 self.searchBar.placeholder = strings[index]
                 
                 if (strings[index] == Constants.All) {
-                    Globals.showing = .all
-                    Globals.filter = nil
+                    globals.showing = .all
+                    globals.filter = nil
                 } else {
-                    Globals.showing = .filtered
-                    Globals.filter = strings[index]
+                    globals.showing = .filtered
+                    globals.filter = strings[index]
                 }
                 
                 self.collectionView.reloadData()
@@ -182,7 +182,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 popover.delegate = self
                 
                 popover.purpose = .selectingFiltering
-                popover.strings = booksFromSeries(Globals.series)
+                popover.strings = booksFromSeries(globals.series)
                 popover.strings?.insert(Constants.All, atIndex: 0)
                 
                 presentViewController(navigationController, animated: true, completion: nil)
@@ -197,23 +197,23 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 //        
 //        var alertTitle:String = Constants.EMPTY_STRING
 //        
-//        if var books = booksFromSeries(Globals.series) {
+//        if var books = booksFromSeries(globals.series) {
 //            books.append(Constants.All)
 //            for book in books {
 //                alertTitle = book
 //                action = UIAlertAction(title: alertTitle, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-//                    if (Globals.filter != book) {
+//                    if (globals.filter != book) {
 //                        self.searchBar.placeholder = book
 //                        
 //                        if (book == Constants.All) {
-//                            Globals.showing = .all
-//                            Globals.filter = nil
+//                            globals.showing = .all
+//                            globals.filter = nil
 //                        } else {
-//                            Globals.showing = .filtered
-//                            Globals.filter = book
+//                            globals.showing = .filtered
+//                            globals.filter = book
 //                        }
 //                        
-//                        Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+//                        globals.activeSeries = sortSeries(globals.activeSeries,sorting: globals.sorting)
 //                        self.collectionView.reloadData()
 //                        
 //                        let indexPath = NSIndexPath(forItem:0,inSection:0)
@@ -221,10 +221,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 //                    }
 //                })
 //                
-//                if (Globals.showing == .filtered) && (Globals.filter == book) {
+//                if (globals.showing == .filtered) && (globals.filter == book) {
 //                    action.enabled = false
 //                }
-//                if (Globals.showing == .all) && (Globals.filter == nil) && (book == Constants.All) {
+//                if (globals.showing == .all) && (globals.filter == nil) && (book == Constants.All) {
 //                    action.enabled = false
 //                }
 //                
@@ -343,27 +343,27 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool
     {
-        return !Globals.loading && !Globals.refreshing && (Globals.series != nil)
+        return !globals.loading && !globals.refreshing && (globals.series != nil)
     }
 
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
 //        println("Text changed: \(searchText)")
         
-        Globals.searchButtonClicked = false
+        globals.searchButtonClicked = false
         
-        Globals.searchText = searchBar.text
+        globals.searchText = searchBar.text
         
         collectionView!.reloadData()
     }
     
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
-        Globals.searchButtonClicked = false
+        globals.searchButtonClicked = false
 
-        if (!Globals.searchActive) {
-            Globals.searchActive = true
+        if (!globals.searchActive) {
+            globals.searchActive = true
             searchBar.showsCancelButton = true
             
-            Globals.searchText = searchBar.text
+            globals.searchText = searchBar.text
         }
     }
     
@@ -373,7 +373,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
 //        println("Search clicked!")
-        Globals.searchButtonClicked = true
+        globals.searchButtonClicked = true
         searchBar.resignFirstResponder()
     }
     
@@ -383,9 +383,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         searchBar.resignFirstResponder()
         searchBar.text = nil
 
-        Globals.searchText = nil
-        Globals.searchSeries = nil
-        Globals.searchActive = false
+        globals.searchText = nil
+        globals.searchSeries = nil
+        globals.searchActive = false
         
         collectionView!.reloadData()
     }
@@ -393,7 +393,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     func searchBarResultsListButtonClicked(searchBar: UISearchBar) {
         //        print("searchBarResultsListButtonClicked")
         
-        if !Globals.loading && !Globals.refreshing && (Globals.series != nil) && (self.storyboard != nil) {
+        if !globals.loading && !globals.refreshing && (globals.series != nil) && (self.storyboard != nil) {
 //            popover = storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? PopoverTableViewController
 //            
 //            popover?.modalPresentationStyle = .Popover
@@ -407,7 +407,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 //            
 //            popover?.delegate = self
 //            popover?.purpose = .selectingTags
-//            popover?.strings = Globals.sermons.all?.sermonTags
+//            popover?.strings = globals.sermons.all?.sermonTags
 //            
 //            popover?.strings?.append(Constants.All)
 //            
@@ -419,19 +419,19 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
     private func setupSearchBar()
     {
-        switch Globals.showing {
+        switch globals.showing {
         case .all:
             searchBar.placeholder = Constants.All
             break
         case .filtered:
-            searchBar.placeholder = Globals.filter
+            searchBar.placeholder = globals.filter
             break
         }
     }
     
     func setupTitle()
     {
-        if (!Globals.loading && !Globals.refreshing) {
+        if (!globals.loading && !globals.refreshing) {
             self.navigationController?.toolbarHidden = false
             self.navigationItem.title = Constants.TWU_LONG
         }
@@ -439,8 +439,8 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func scrollToSeries(series:Series?)
     {
-        if (seriesSelected != nil) && (Globals.activeSeries?.indexOf(series!) != nil) {
-            let indexPath = NSIndexPath(forItem: Globals.activeSeries!.indexOf(series!)!, inSection: 0)
+        if (seriesSelected != nil) && (globals.activeSeries?.indexOf(series!) != nil) {
+            let indexPath = NSIndexPath(forItem: globals.activeSeries!.indexOf(series!)!, inSection: 0)
             
             //Without this background/main dispatching there isn't time to scroll after a reload.
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
@@ -475,7 +475,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     func loadSeries(completion: (() -> Void)?)
     {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
-            Globals.loading = true
+            globals.loading = true
 
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self.navigationItem.title = Constants.Loading_Sermons
@@ -522,10 +522,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             var seriesNewToUser:[Series]?
             var sermonsNewToUser = [Int:Int]()
             
-//            print("\(Globals.series?.count)")
+//            print("\(globals.series?.count)")
 
-            if Globals.series != nil {
-                let old = Set(Globals.series!.map({ (series:Series) -> Int in
+            if globals.series != nil {
+                let old = Set(globals.series!.map({ (series:Series) -> Int in
                     return series.id
                 }))
                 
@@ -540,7 +540,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                         return newSeriesIndex[id]!
                     })
                 } else {
-                    for oldSeries in Globals.series! {
+                    for oldSeries in globals.series! {
                         if (newSeriesIndex[oldSeries.id]!.show - oldSeries.show) != 0 {
                             sermonsNewToUser[oldSeries.id] = newSeriesIndex[oldSeries.id]!.show - oldSeries.show
                         }
@@ -548,25 +548,25 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 }
             }
             
-            Globals.series = newSeries
+            globals.series = newSeries
             
-            self.seriesSelected = Globals.seriesSelected
+            self.seriesSelected = globals.seriesSelected
 
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self.navigationItem.title = Constants.Loading_Defaults
             })
-            loadDefaults()
+            globals.loadDefaults()
 
             //Handled in didSet's when defaults are loaded.
 //            dispatch_async(dispatch_get_main_queue(), { () -> Void in
 //                self.navigationItem.title = Constants.Sorting
 //            })
-//            Globals.activeSeries = sortSeries(Globals.activeSeries,sorting: Globals.sorting)
+//            globals.activeSeries = sortSeries(globals.activeSeries,sorting: globals.sorting)
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self.navigationItem.title = Constants.Setting_up_Player
-                Globals.playOnLoad = false
-                setupPlayer(Globals.sermonPlaying)
+                globals.playOnLoad = false
+                globals.setupPlayer(globals.sermonPlaying)
             })
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -579,8 +579,8 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                     var message:String?
                     
                     if (seriesNewToUser != nil) && (seriesNewToUser!.count > 0) {
-                        if (Globals.filter == nil) {
-                            if (Globals.sorting != Constants.Newest_to_Oldest) && (Globals.sorting != Constants.Oldest_to_Newest) {
+                        if (globals.filter == nil) {
+                            if (globals.sorting != Constants.Newest_to_Oldest) && (globals.sorting != Constants.Oldest_to_Newest) {
                                 if (seriesNewToUser!.count == 1) {
                                     message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series \"\(seriesNewToUser!.first!.title!)\" at the beginning or end of the list."
                                 }
@@ -588,7 +588,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                                     message = "Change sorting to Newest to Oldest or Oldest to Newest to see the \(seriesNewToUser!.count) new sermon series at the beginning or end of the list."
                                 }
                             }
-                            if (Globals.sorting == Constants.Newest_to_Oldest) {
+                            if (globals.sorting == Constants.Newest_to_Oldest) {
                                 if (seriesNewToUser!.count == 1) {
                                     message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the beginning of the list."
                                 }
@@ -596,7 +596,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                                     message = "There are \(seriesNewToUser!.count) new sermon series at the beginning of the list."
                                 }
                             }
-                            if (Globals.sorting == Constants.Oldest_to_Newest) {
+                            if (globals.sorting == Constants.Oldest_to_Newest) {
                                 if (seriesNewToUser!.count == 1) {
                                     message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the end of the list."
                                 }
@@ -651,7 +651,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 })
             }
 
-            Globals.loading = false
+            globals.loading = false
         })
     }
     
@@ -705,20 +705,20 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             
             // URL call back does NOT run on the main queue
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                Globals.playerPaused = true
-                Globals.mpPlayer?.pause()
+                globals.playerPaused = true
+                globals.mpPlayer?.pause()
                 
-                updateCurrentTimeExact()
+                globals.updateCurrentTimeExact()
                 
-                Globals.mpPlayer?.view.hidden = true
-                Globals.mpPlayer?.view.removeFromSuperview()
+                globals.mpPlayer?.view.hidden = true
+                globals.mpPlayer?.view.removeFromSuperview()
                 
                 self.loadSeries() {
                     self.refreshControl?.endRefreshing()
                     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
                     UIApplication.sharedApplication().applicationIconBadgeNumber = 0
                     
-                    Globals.refreshing = false
+                    globals.refreshing = false
                 }
             })
         } else {
@@ -742,7 +742,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 
                 self.collectionView.reloadData()
                 
-                Globals.refreshing = false
+                globals.refreshing = false
 
                 self.setupViews()
             })
@@ -786,7 +786,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         downloadTask?.resume()
         
-        //downloadTask goes out of scope but Globals.session must retain it.  Which means if we didn't retain session they would both be lost
+        //downloadTask goes out of scope but globals.session must retain it.  Which means if we didn't retain session they would both be lost
         // and we would likely lose the download.
         
         UIApplication.sharedApplication().networkActivityIndicatorVisible = true
@@ -794,8 +794,8 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func cancelAllDownloads()
     {
-        if (Globals.series != nil) {
-            for series in Globals.series! {
+        if (globals.series != nil) {
+            for series in globals.series! {
                 for sermon in series.sermons! {
                     if sermon.audioDownload.active {
                         sermon.audioDownload.task?.cancel()
@@ -829,7 +829,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func enableToolBarButtons()
     {
-        if (Globals.series != nil) {
+        if (globals.series != nil) {
             if let barButtons = toolbarItems {
                 for barButton in barButtons {
                     barButton.enabled = true
@@ -840,7 +840,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func enableBarButtons()
     {
-        if (Globals.series != nil) {
+        if (globals.series != nil) {
             navigationItem.leftBarButtonItem?.enabled = true
             navigationItem.rightBarButtonItem?.enabled = true
             enableToolBarButtons()
@@ -848,7 +848,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     }
     
     func handleRefresh(refreshControl: UIRefreshControl) {
-        Globals.refreshing = true
+        globals.refreshing = true
 
         cancelAllDownloads()
         
@@ -868,7 +868,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if Globals.series == nil {
+        if globals.series == nil {
             loadSeries(nil)
         }
 
@@ -893,10 +893,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func setPlayingPausedButton()
     {
-        if (Globals.sermonPlaying != nil) {
+        if (globals.sermonPlaying != nil) {
             var title:String?
             
-            if (Globals.playerPaused) {
+            if (globals.playerPaused) {
                 title = Constants.Paused
             } else {
                 title = Constants.Playing
@@ -918,17 +918,17 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
     func setupPlayingPausedButton()
     {
-        if (Globals.mpPlayer != nil) && (Globals.sermonPlaying != nil) {
-            if (!Globals.showingAbout) {
+        if (globals.mpPlayer != nil) && (globals.sermonPlaying != nil) {
+            if (!globals.showingAbout) {
                 if (splitViewController != nil) {
                     // iPad
                     if (!splitViewController!.collapsed) {
                         // Master and detail view controllers are both present
 //                        print("seriesSelected: \(seriesSelected)")
-//                        print("Globals.sermonPlaying?.series: \(Globals.sermonPlaying?.series)")
-                        if (seriesSelected == Globals.sermonPlaying?.series) {
+//                        print("globals.sermonPlaying?.series: \(globals.sermonPlaying?.series)")
+                        if (seriesSelected == globals.sermonPlaying?.series) {
                             if let sermonSelected = seriesSelected?.sermonSelected {
-                                if (sermonSelected != Globals.sermonPlaying) {
+                                if (sermonSelected != globals.sermonPlaying) {
                                     setPlayingPausedButton()
                                 } else {
                                     if (navigationItem.rightBarButtonItem != nil) {
@@ -968,7 +968,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
         navigationController?.toolbarHidden = false
 
-        if Globals.searchActive && !Globals.searchButtonClicked {
+        if globals.searchActive && !globals.searchButtonClicked {
             searchBar.becomeFirstResponder()
         }
         
@@ -1083,36 +1083,36 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 
             case Constants.Show_About:
                 //The block below only matters on an iPad
-                Globals.showingAbout = true
+                globals.showingAbout = true
                 setupPlayingPausedButton()
                 break
                 
             case Constants.Show_Series:
 //                println("ShowSeries")
-                if (Globals.gotoNowPlaying) {
+                if (globals.gotoNowPlaying) {
                     //This pushes a NEW MediaViewController.
                     
-                    seriesSelected = Globals.sermonPlaying?.series
+                    seriesSelected = globals.sermonPlaying?.series
                     
                     if let dvc = destination as? MediaViewController {
-                        dvc.seriesSelected = Globals.sermonPlaying?.series
-                        dvc.sermonSelected = Globals.sermonPlaying
+                        dvc.seriesSelected = globals.sermonPlaying?.series
+                        dvc.sermonSelected = globals.sermonPlaying
                     }
 
-                    Globals.gotoNowPlaying = !Globals.gotoNowPlaying
+                    globals.gotoNowPlaying = !globals.gotoNowPlaying
                 } else {
                     if let myCell = sender as? MediaCollectionViewCell {
                         seriesSelected = myCell.series
                     }
 
-                    if (Globals.seriesSelected != nil) {
+                    if (globals.seriesSelected != nil) {
                         if (splitViewController != nil) && (!splitViewController!.collapsed) {
                             setupPlayingPausedButton()
                         }
                     }
                     
                     if let dvc = destination as? MediaViewController {
-                        dvc.seriesSelected = Globals.seriesSelected
+                        dvc.seriesSelected = globals.seriesSelected
                         dvc.sermonSelected = nil
                     }
                 }
@@ -1129,7 +1129,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     {
 //        println("gotoNowPlaying")
         
-        Globals.gotoNowPlaying = true
+        globals.gotoNowPlaying = true
         
         performSegueWithIdentifier(Constants.Show_Series, sender: self)
     }
@@ -1146,14 +1146,14 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         //#warning Incomplete method implementation -- Return the number of items in the section
         //return series[section].count
-        return Globals.activeSeries != nil ? Globals.activeSeries!.count : 0
+        return globals.activeSeries != nil ? globals.activeSeries!.count : 0
     }
 
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> MediaCollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.SERIES_CELL_IDENTIFIER, forIndexPath: indexPath) as! MediaCollectionViewCell
     
         // Configure the cell
-        cell.series = Globals.activeSeries?[indexPath.row]
+        cell.series = globals.activeSeries?[indexPath.row]
 
         return cell
     }

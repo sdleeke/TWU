@@ -50,7 +50,11 @@ struct Constants {
     static let SERIES_JSON = "series.json"
     
     static let Show_Settings = "Show Settings"
-    
+
+    static let PLAYING = "playing"
+    static let AUDIO = "audio"
+    static let VIDEO = "video"
+
     static let SERMON_UPDATE_UI_NOTIFICATION = "SERMON UPDATE UI"
     static let SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION = "SERMON UPDATE PLAYING PAUSED"
     static let SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION = "SERMON UPDATE PLAY PAUSE"

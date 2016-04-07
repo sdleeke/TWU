@@ -41,18 +41,8 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
     }
     
     override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
-        if (splitViewController == nil) && (motion == .MotionShake) {
-            if (Globals.sermonPlaying != nil) {
-                if (Globals.playerPaused) {
-                    Globals.mpPlayer?.play()
-                } else {
-                    Globals.mpPlayer?.pause()
-                    updateCurrentTimeExact()
-                }
-                Globals.playerPaused = !Globals.playerPaused
-            } else {
-                
-            }
+        if (splitViewController == nil) {
+            globals.motionEnded(motion, event: event)
         }
     }
     
@@ -178,7 +168,7 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
                 
                 popover.strings = actionMenu
                 
-                popover.showIndex = false //(Globals.grouping == .series)
+                popover.showIndex = false //(globals.grouping == .series)
                 popover.showSectionHeaders = false
                 
                 presentViewController(navigationController, animated: true, completion: nil)
@@ -222,7 +212,7 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
-        Globals.showingAbout = false
+        globals.showingAbout = false
         
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }

@@ -219,22 +219,22 @@ class Series : Equatable, CustomStringConvertible {
         subscript(key:String) -> String? {
             get {
                 var value:String?
-                value = Globals.seriesSettings?[self.series!.seriesID!]?[key]
+                value = globals.seriesSettings?[self.series!.seriesID!]?[key]
                 return value
             }
             set {
-                if (Globals.seriesSettings?[self.series!.seriesID!] == nil) {
-                    Globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
+                if (globals.seriesSettings?[self.series!.seriesID!] == nil) {
+                    globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
                 }
                 if (newValue != nil) {
                     if (self.series != nil) {
-                        //                        print("\(Globals.sermonSettings!)")
+                        //                        print("\(globals.sermonSettings!)")
                         //                        print("\(sermon!)")
                         //                        print("\(newValue!)")
-                        Globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
+                        globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
                         
                         // For a high volume of activity this can be very expensive.
-                        saveSettingsBackground()
+                        globals.saveSettingsBackground()
                     } else {
                         print("sermon == nil in Settings!")
                     }

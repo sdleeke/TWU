@@ -29,7 +29,7 @@ class MediaTableViewCell: UITableViewCell {
     {
 //        print("updateUI: \(sermon!.series!.title) \(sermon!.id)")
         
-//        selected = (Globals.seriesPlaying == sermon!.series) && ((Globals.seriesPlaying!.startingIndex + Globals.sermonPlayingIndex) == sermon!.id)
+//        selected = (globals.seriesPlaying == sermon!.series) && ((globals.seriesPlaying!.startingIndex + globals.sermonPlayingIndex) == sermon!.id)
 //        print("\(selected)")
      
         if (sermon?.series?.numberOfSermons == 1) {
@@ -40,10 +40,10 @@ class MediaTableViewCell: UITableViewCell {
             title!.text = "\(sermon!.series!.title!) (Part\u{00a0}\(row!+1))"
         }
         
-        if (sermon == Globals.sermonPlaying) {
+        if (sermon == globals.sermonPlaying) {
 //            title!.text = title!.text! + " (active)"
 
-//            if (Globals.playerPaused) {
+//            if (globals.playerPaused) {
 //                title!.text = title!.text! + " (paused)"
 //            } else {
 //                title!.text = title!.text! + " (playing)"
