@@ -14,8 +14,18 @@ import CloudKit
 import MediaPlayer
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
-
+class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, UISplitViewControllerDelegate {
+    
+    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController:UIViewController, ontoPrimaryViewController primaryViewController:UIViewController) -> Bool {
+        guard let secondaryAsNavController = secondaryViewController as? UINavigationController else { return false }
+        guard let topAsDetailController = secondaryAsNavController.topViewController as? MediaViewController else { return false }
+        if topAsDetailController.sermonSelected == nil {
+            // Return true to indicate that we have handled the collapse by doing nothing; the secondary controller will be discarded.
+            return true
+        }
+        return false
+    }
+    
     var window: UIWindow?
 
     func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData)
@@ -305,7 +315,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
 
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
-        globals.playerObserver = NSTimer.scheduledTimerWithTimeInterval(Constants.PLAYER_TIMER_INTERVAL, target: self, selector: #selector(AppDelegate.playerTimer), userInfo: nil, repeats: true)
+        globals.player.observer = NSTimer.scheduledTimerWithTimeInterval(Constants.PLAYER_TIMER_INTERVAL, target: self, selector: #selector(AppDelegate.playerTimer), userInfo: nil, repeats: true)
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(AppDelegate.mpPlayerLoadStateDidChange), name: MPMoviePlayerLoadStateDidChangeNotification, object: nil)
         
@@ -335,15 +345,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate {
             sermonUpdateAvailable()
         }
 
-        if (globals.mpPlayer?.currentPlaybackRate == 0) {
+        if (globals.player.mpPlayer?.currentPlaybackRate == 0) {
             //It is paused, possibly not by us, but by the system
-            //But how do we know it hasn't simply finished playing?
-            if (globals.playerLoaded) {
+            if (globals.player.loaded) {
                 globals.updateCurrentTimeExact()
             }
-            globals.playerPaused = true
+            globals.player.paused = true
         } else {
-            globals.playerPaused = false
+            globals.player.paused = false
         }
         
         dispatch_async(dispatch_get_main_queue(), { () -> Void in

@@ -46,18 +46,8 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     }
     
     override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
-        if (splitViewController == nil) && (motion == .MotionShake) {
-            if (globals.sermonPlaying != nil) {
-                if (globals.playerPaused) {
-                    globals.mpPlayer?.play()
-                } else {
-                    globals.mpPlayer?.pause()
-                    globals.updateCurrentTimeExact()
-                }
-                globals.playerPaused = !globals.playerPaused
-            } else {
-                
-            }
+        if (splitViewController == nil) {
+            globals.motionEnded(motion, event: event)
         }
     }
 
@@ -565,8 +555,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self.navigationItem.title = Constants.Setting_up_Player
-                globals.playOnLoad = false
-                globals.setupPlayer(globals.sermonPlaying)
+                if (globals.player.playing != nil) {
+                    globals.player.playOnLoad = false
+                    globals.setupPlayer(globals.player.playing)
+                }
             })
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -705,13 +697,13 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             
             // URL call back does NOT run on the main queue
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                globals.playerPaused = true
-                globals.mpPlayer?.pause()
+                globals.player.paused = true
+                globals.player.mpPlayer?.pause()
                 
                 globals.updateCurrentTimeExact()
                 
-                globals.mpPlayer?.view.hidden = true
-                globals.mpPlayer?.view.removeFromSuperview()
+                globals.player.mpPlayer?.view.hidden = true
+                globals.player.mpPlayer?.view.removeFromSuperview()
                 
                 self.loadSeries() {
                     self.refreshControl?.endRefreshing()
@@ -893,10 +885,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func setPlayingPausedButton()
     {
-        if (globals.sermonPlaying != nil) {
+        if (globals.player.playing != nil) {
             var title:String?
             
-            if (globals.playerPaused) {
+            if (globals.player.paused) {
                 title = Constants.Paused
             } else {
                 title = Constants.Playing
@@ -918,17 +910,17 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
     func setupPlayingPausedButton()
     {
-        if (globals.mpPlayer != nil) && (globals.sermonPlaying != nil) {
+        if (globals.player.mpPlayer != nil) && (globals.player.playing != nil) {
             if (!globals.showingAbout) {
                 if (splitViewController != nil) {
                     // iPad
                     if (!splitViewController!.collapsed) {
                         // Master and detail view controllers are both present
 //                        print("seriesSelected: \(seriesSelected)")
-//                        print("globals.sermonPlaying?.series: \(globals.sermonPlaying?.series)")
-                        if (seriesSelected == globals.sermonPlaying?.series) {
+//                        print("globals.player.playing?.series: \(globals.player.playing?.series)")
+                        if (seriesSelected == globals.player.playing?.series) {
                             if let sermonSelected = seriesSelected?.sermonSelected {
-                                if (sermonSelected != globals.sermonPlaying) {
+                                if (sermonSelected != globals.player.playing) {
                                     setPlayingPausedButton()
                                 } else {
                                     if (navigationItem.rightBarButtonItem != nil) {
@@ -1092,11 +1084,11 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 if (globals.gotoNowPlaying) {
                     //This pushes a NEW MediaViewController.
                     
-                    seriesSelected = globals.sermonPlaying?.series
+                    seriesSelected = globals.player.playing?.series
                     
                     if let dvc = destination as? MediaViewController {
-                        dvc.seriesSelected = globals.sermonPlaying?.series
-                        dvc.sermonSelected = globals.sermonPlaying
+                        dvc.seriesSelected = globals.player.playing?.series
+                        dvc.sermonSelected = globals.player.playing
                     }
 
                     globals.gotoNowPlaying = !globals.gotoNowPlaying
