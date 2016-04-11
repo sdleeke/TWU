@@ -16,11 +16,11 @@ struct Constants {
     static let TWU_Website = "TWU Website"
     
     static let MIN_PLAY_TIME = 15.0
-    static let MIN_LOAD_TIME = 15.0
+    static let MIN_LOAD_TIME = 30.0
     
     static let DOWNLOAD_TIMER_INTERVAL = 0.5
-    static let PLAYER_TIMER_INTERVAL = 0.25
-    static let SLIDER_TIMER_INTERVAL = 0.25
+    static let SLIDER_TIMER_INTERVAL = 0.5
+    static let PLAYER_TIMER_INTERVAL = 0.2
     static let SEEKING_TIMER_INTERVAL = 0.1
     
     static let COLON = ":"
@@ -41,7 +41,7 @@ struct Constants {
     static let AUTO_ADVANCE = "AUTO_ADVANCE"
     
     static let Loading_Sermons = "Loading Sermons"
-    static let Loading_Defaults = "Loading Defaults"
+    static let Loading_Settings = "Loading Settings"
     static let Sorting = "Sorting"
     static let Setting_up_Player = "Setting up Player"
     
@@ -128,6 +128,7 @@ struct Constants {
     static let SHOW = "show"
     
     static let CURRENT_TIME = "currentTime"
+    
     static let SERIES_SETTINGS_KEY = "Series Settings"
     static let SERMON_SETTINGS_KEY = "Sermon Settings"
     

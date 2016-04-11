@@ -223,20 +223,30 @@ class Series : Equatable, CustomStringConvertible {
                 return value
             }
             set {
-                if (globals.seriesSettings?[self.series!.seriesID!] == nil) {
-                    globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
-                }
                 if (newValue != nil) {
-                    if (self.series != nil) {
-                        //                        print("\(globals.sermonSettings!)")
-                        //                        print("\(sermon!)")
-                        //                        print("\(newValue!)")
-                        globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
-                        
-                        // For a high volume of activity this can be very expensive.
-                        globals.saveSettingsBackground()
+                    if (series != nil) {
+                        if (series!.seriesID != nil) {
+                            if (globals.seriesSettings != nil) {
+                                if (globals.seriesSettings?[self.series!.seriesID!] == nil) {
+                                    globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
+                                }
+
+    //                            print("\(globals.sermonSettings!)")
+    //                            print("\(sermon!)")
+    //                            print("\(newValue!)")
+                                
+                                globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
+                                
+                                // For a high volume of activity this can be very expensive.
+                                globals.saveSettingsBackground()
+                            } else {
+                                print("globals.seriesSettings == nil in Settings!")
+                            }
+                        } else {
+                            print("series!.seriesID == nil in Settings!")
+                        }
                     } else {
-                        print("sermon == nil in Settings!")
+                        print("series == nil in Settings!")
                     }
                 } else {
                     print("newValue == nil in Settings!")

@@ -639,17 +639,6 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         
         navigationController?.toolbarHidden = true
 
-        if (splitViewController != nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.updateView), name: Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.clearView), name: Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
-        }
-
-        if (splitViewController == nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
-        }
-
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
-
         //Eliminates blank cells at end.
         tableView.tableFooterView = UIView()
         tableView.allowsSelection = true
@@ -674,7 +663,6 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
             
             }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
                 if let view = self.seriesArtAndDescription.subviews[1] as? UITextView {
-                    //            view.scrollRectToVisible(CGRectMake(0, 0, 50, 50), animated: false)
                     view.scrollRangeToVisible(NSMakeRange(0, 0))
                 }
         }
@@ -824,6 +812,17 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     {
         super.viewWillAppear(animated)
 
+        if (splitViewController != nil) {
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.updateView), name: Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.clearView), name: Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
+        }
+        
+        if (splitViewController == nil) {
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+        }
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
+
         //Unreliable
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground:", name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
@@ -861,9 +860,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //            print("\(seriesSelected!.title)")
             if (seriesSelected == sermon?.series) {
                 if (sermon != nil) {
-                    let indexPath = NSIndexPath(forItem: sermon!.index, inSection: 0)
-                    //                    println("\(globals.player.playingIndex)")
-                    tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Middle)
+                    scrollToSermon(sermon,select:true,position:UITableViewScrollPosition.Middle)
+//                    let indexPath = NSIndexPath(forItem: sermon!.index, inSection: 0)
+//                    //                    println("\(globals.player.playingIndex)")
+//                    tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Middle)
                 }
             } else {
                 
@@ -883,13 +883,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //        print("Series Selected: \(seriesSelected?.title) Playing: \(globals.player.playing?.series?.title)")
 //        print("Sermon Selected: \(sermonSelected?.series?.title)")
         
-        if (sermonSelected != nil) {
-            if (sermonSelected == globals.player.playing) {
-                setupSlider()  // calls addSliderObserver()
-            }
-            
-            scrollToSermon(sermonSelected,select:true,position:UITableViewScrollPosition.Middle)
-        }
+        scrollToSermon(sermonSelected,select:true,position:UITableViewScrollPosition.Middle)
     }
     
     override func viewWillDisappear(animated: Bool) {

@@ -171,67 +171,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         alert.show()
     }
     
-//    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool
-//    {
-////        println("application:openURL")
-//
-//        let host = url.host
-//
-//        //Never used
-////        let scheme = url.scheme
-////        let path = url.path
-////        let query = url.query
-//        
-////        println("Host: \(host) Scheme: \(scheme) Path: \(path) Query: \(query)")
-////        println("BaseURL: \(url.baseURL) PathComponents: \(url.pathComponents)")
-////        println("AbsoluteURL: \(url.absoluteURL) PathExtension: \(url.pathExtension) RelativePath: \(url.relativePath)")
-//        
-//        //Why does this work without having to determine whether the app is sufficiently loaded to
-//        //allow deep linking?
-//        
-//        var selectedSeries:Series?
-//        
-//        selectedSeries = globals.series?.filter({ (series:Series) -> Bool in
-//            return series.name == host
-//        }).first
-//        
-//        //iPad
-//        if let svc = self.window?.rootViewController as? UISplitViewController {
-//            //            println("rvc = UISplitViewController")
-//            if let nvc = svc.viewControllers[0] as? UINavigationController {
-//                //                println("nvc = UINavigationController")
-//                if let cvc = nvc.topViewController as? MediaCollectionViewController {
-//                    //                    println("nvc = MediaCollectionViewController")
-//                    if (selectedSeries != nil) {
-//                        globals.seriesSelected = selectedSeries
-//                        cvc.performSegueWithIdentifier(Constants.Show_Series, sender: cvc)
-//                    }
-//                }
-//            }
-//        }
-//        
-//        //iPhone
-//        if let nvc = self.window?.rootViewController as? UINavigationController {
-//            //     _   println("rvc = UINavigationController")
-//            if let _ = nvc.topViewController as? MediaViewController {
-//                //                    println("myvc = MediaViewController")
-//
-//                nvc.popToRootViewControllerAnimated(true)
-//            }
-//
-//            if let cvc = nvc.topViewController as? MediaCollectionViewController {
-//                //                println("cvc = MediaCollectionViewController")
-//                
-//                if (selectedSeries != nil) {
-//                    globals.seriesSelected = selectedSeries
-//                    cvc.performSegueWithIdentifier(Constants.Show_Series, sender: cvc)
-//                }
-//            }
-//        }
-//
-//        return true
-//    }
-    
     func mpPlayerLoadStateDidChange()
     {
         globals.mpPlayerLoadStateDidChange()

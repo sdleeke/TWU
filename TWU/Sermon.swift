@@ -173,7 +173,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         }
     }
 
-    var sermonID:String! {
+    var sermonID:String? {
         get {
             if (series == nil) {
                 print("sermonID: series nil")
@@ -239,23 +239,33 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         subscript(key:String) -> String? {
             get {
                 var value:String?
-                value = globals.sermonSettings?[self.sermon!.sermonID]?[key]
+                value = globals.sermonSettings?[self.sermon!.sermonID!]?[key]
                 return value
             }
             set {
-                if (globals.sermonSettings?[self.sermon!.sermonID] == nil) {
-                    globals.sermonSettings?[self.sermon!.sermonID] = [String:String]()
-                }
                 if (newValue != nil) {
-                    if (self.sermon != nil) {
-                        //                        print("\(globals.sermonSettings!)")
-                        //                        print("\(sermon!)")
-                        //                        print("\(newValue!)")
-                        if (globals.sermonSettings?[self.sermon!.sermonID]?[key] != newValue) {
-                            globals.sermonSettings?[self.sermon!.sermonID]?[key] = newValue
-                            
-                            // For a high volume of activity this can be very expensive.
-                            globals.saveSettingsBackground()
+                    if (sermon != nil) {
+                        if (sermon!.sermonID != nil) {
+                            if (globals.sermonSettings != nil) {
+                                if (globals.sermonSettings?[sermon!.sermonID!] == nil) {
+                                    globals.sermonSettings?[sermon!.sermonID!] = [String:String]()
+                                }
+
+    //                            print("\(globals.sermonSettings!)")
+    //                            print("\(sermon!)")
+    //                            print("\(newValue!)")
+                                
+                                if (globals.sermonSettings?[sermon!.sermonID!]?[key] != newValue) {
+                                    globals.sermonSettings?[sermon!.sermonID!]?[key] = newValue
+                                    
+                                    // For a high volume of activity this can be very expensive.
+                                    globals.saveSettingsBackground()
+                                }
+                            } else {
+                                print("globals.sermonSettings == nil in Settings!")
+                            }
+                        } else {
+                            print("sermon!.sermonID == nil in Settings!")
                         }
                     } else {
                         print("sermon == nil in Settings!")
