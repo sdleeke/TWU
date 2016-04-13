@@ -20,7 +20,7 @@ class Download {
     
     var purpose:String?
     
-    var url:NSURL?
+    var downloadURL:NSURL?
     var fileSystemURL:NSURL? {
         didSet {
             state = isDownloaded() ? .downloaded : .none
@@ -65,7 +65,7 @@ class Download {
         if (state == .none) {
             state = .downloading
             
-            let downloadRequest = NSMutableURLRequest(URL: url!)
+            let downloadRequest = NSMutableURLRequest(URL: downloadURL!)
             
             // This allows the downloading to continue even if the app goes into the background or terminates.
             let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(Constants.DOWNLOAD_IDENTIFIER + fileSystemURL!.lastPathComponent!)
@@ -292,7 +292,7 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
         var download = Download()
         download.sermon = self
         download.purpose = Constants.AUDIO
-        download.url = self.audioURL
+        download.downloadURL = self.audioURL
         download.fileSystemURL = self.audioFileSystemURL
         self.downloads[Constants.AUDIO] = download
         return download

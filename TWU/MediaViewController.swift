@@ -618,7 +618,13 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         //        print(sermonSelected)
         
         tableView.reloadData()
-        selectSermon(sermonSelected)
+
+        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.Top)
+            })
+        })
 
         updateUI()
     }
@@ -860,7 +866,12 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //            print("\(seriesSelected!.title)")
             if (seriesSelected == sermon?.series) {
                 if (sermon != nil) {
-                    scrollToSermon(sermon,select:true,position:UITableViewScrollPosition.Middle)
+                    //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.Top)
+                        })
+                    })
 //                    let indexPath = NSIndexPath(forItem: sermon!.index, inSection: 0)
 //                    //                    println("\(globals.player.playingIndex)")
 //                    tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Middle)
@@ -883,7 +894,12 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //        print("Series Selected: \(seriesSelected?.title) Playing: \(globals.player.playing?.series?.title)")
 //        print("Sermon Selected: \(sermonSelected?.series?.title)")
         
-        scrollToSermon(sermonSelected,select:true,position:UITableViewScrollPosition.Middle)
+        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.Top)
+            })
+        })
     }
     
     override func viewWillDisappear(animated: Bool) {

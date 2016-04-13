@@ -48,8 +48,6 @@ struct Constants {
     static let Unable_to_Load_Sermons = "Unable to Load Sermons"
     
     static let SERIES_JSON = "series.json"
-    
-    static let Show_Settings = "Show Settings"
 
     static let PLAYING = "playing"
     static let AUDIO = "audio"
@@ -100,14 +98,10 @@ struct Constants {
     //we would have to implement caching, which is more work that embedding the album art in the app resources, at least for now.
     static var baseImageURL:String = "http://sitedata.thewordunleashed.org/avmedia/series/"
     
-    //Doesn't work for our downloading purposes
-    //    static var baseDownloadURL:String = "http://www.thewordunleashed.org/modules/mod_media_series/download_twu.php?dnldid="
-    
     static let COVER_ART_PREAMBLE = "series_"
     static let COVER_ART_POSTAMBLE = "_512w512h"
     
     static let SERIES_SELECTED = "series selected"
-//    static let SERMON_SELECTED_INDEX = "sermon selected index"
 
     static let SERMON_SELECTED = "sermon selected"
 
@@ -132,8 +126,9 @@ struct Constants {
     static let SERIES_SETTINGS_KEY = "Series Settings"
     static let SERMON_SETTINGS_KEY = "Sermon Settings"
     
-    static let Show_About = "Show About"
-    static let Show_Series = "Show Series"
+    static let SHOW_ABOUT_SEGUE = "Show About"
+    static let SHOW_SERIES_SEGUE = "Show Series"
+    static let SHOW_SETTINGS_SEGUE = "Show Settings"
     
     static let DOWNLOADING_TITLE = "Downloading Sermons"
     

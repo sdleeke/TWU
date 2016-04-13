@@ -155,7 +155,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     func settings(button:UIBarButtonItem?)
     {
         dismissViewControllerAnimated(true, completion: nil)
-        performSegueWithIdentifier(Constants.Show_Settings, sender: nil)
+        performSegueWithIdentifier(Constants.SHOW_SETTINGS_SEGUE, sender: nil)
     }
     
     private func setupSortingAndGroupingOptions()
@@ -906,7 +906,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func about()
     {
-        performSegueWithIdentifier(Constants.Show_About, sender: self)
+        performSegueWithIdentifier(Constants.SHOW_ABOUT_SEGUE, sender: self)
     }
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
@@ -973,7 +973,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
         if let identifier = segue.identifier {
             switch identifier {
-            case Constants.Show_Settings:
+            case Constants.SHOW_SETTINGS_SEGUE:
                 if let svc = destination as? SettingsViewController {
                     svc.modalPresentationStyle = .Popover
                     svc.popoverPresentationController?.delegate = self
@@ -981,13 +981,13 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 }
                 break
                 
-            case Constants.Show_About:
+            case Constants.SHOW_ABOUT_SEGUE:
                 //The block below only matters on an iPad
                 globals.showingAbout = true
                 setupPlayingPausedButton()
                 break
                 
-            case Constants.Show_Series:
+            case Constants.SHOW_SERIES_SEGUE:
 //                println("ShowSeries")
                 if (globals.gotoNowPlaying) {
                     //This pushes a NEW MediaViewController.
@@ -1033,7 +1033,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         globals.gotoNowPlaying = true
         
-        performSegueWithIdentifier(Constants.Show_Series, sender: self)
+        performSegueWithIdentifier(Constants.SHOW_SERIES_SEGUE, sender: self)
     }
     
     // MARK: UICollectionViewDataSource
