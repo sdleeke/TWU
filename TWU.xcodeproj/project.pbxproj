@@ -10,6 +10,7 @@
 		1705173D1B6FDD8D00144ED6 /* iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 170517391B6FDD8D00144ED6 /* iPad.storyboard */; };
 		1705173E1B6FDD8D00144ED6 /* iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1705173B1B6FDD8D00144ED6 /* iPhone.storyboard */; };
 		1712CD6A1C76B2BF005E09D6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */; };
+		17141EFB1CBE660800B31D23 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17141EFA1CBE660800B31D23 /* Images.xcassets */; };
 		171C73521B6C1B3400CF85AE /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171C73511B6C1B3400CF85AE /* MediaViewController.swift */; };
 		17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */; };
 		175EDA2A1BAC8BF200942E6D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175EDA291BAC8BF200942E6D /* Reachability.swift */; };
@@ -18,7 +19,6 @@
 		176DEABA1C8330F6001EBBC4 /* TWUUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176DEAB91C8330F6001EBBC4 /* TWUUITests.swift */; };
 		177FBA931C5CE1B800AFBB50 /* OBSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177FBA921C5CE1B800AFBB50 /* OBSlider.swift */; };
 		179C4FA61B6801D600727DE0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179C4FA51B6801D600727DE0 /* AppDelegate.swift */; };
-		179C4FAD1B6801D600727DE0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 179C4FAC1B6801D600727DE0 /* Images.xcassets */; };
 		179C4FB01B6801D600727DE0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 179C4FAE1B6801D600727DE0 /* LaunchScreen.xib */; };
 		179C4FBC1B6801D600727DE0 /* TWUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179C4FBB1B6801D600727DE0 /* TWUTests.swift */; };
 		179C4FC61B68035B00727DE0 /* MediaCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179C4FC51B68035B00727DE0 /* MediaCollectionViewController.swift */; };
@@ -58,6 +58,7 @@
 		1705173A1B6FDD8D00144ED6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/iPad.storyboard; sourceTree = "<group>"; };
 		1705173C1B6FDD8D00144ED6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/iPhone.storyboard; sourceTree = "<group>"; };
 		1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		17141EFA1CBE660800B31D23 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		171C73511B6C1B3400CF85AE /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MediaViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewController.swift; sourceTree = "<group>"; };
 		175EDA291BAC8BF200942E6D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
@@ -70,7 +71,6 @@
 		179C4FA01B6801D600727DE0 /* Series.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Series.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		179C4FA41B6801D600727DE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		179C4FA51B6801D600727DE0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = AppDelegate.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		179C4FAC1B6801D600727DE0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		179C4FAF1B6801D600727DE0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		179C4FB51B6801D600727DE0 /* TWUTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWUTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		179C4FBA1B6801D600727DE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -178,8 +178,8 @@
 				17FFEFEA1B73673A006D8169 /* AboutViewController.swift */,
 				1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */,
 				176D4C1D1C01FCFA009EC031 /* fontawesome-webfont.ttf */,
-				179C4FAC1B6801D600727DE0 /* Images.xcassets */,
 				179C4FAE1B6801D600727DE0 /* LaunchScreen.xib */,
+				17141EFA1CBE660800B31D23 /* Images.xcassets */,
 				179C4FA31B6801D600727DE0 /* Supporting Files */,
 			);
 			path = TWU;
@@ -336,8 +336,8 @@
 				176D4C1E1C01FD10009EC031 /* fontawesome-webfont.ttf in Resources */,
 				179C4FB01B6801D600727DE0 /* LaunchScreen.xib in Resources */,
 				1705173D1B6FDD8D00144ED6 /* iPad.storyboard in Resources */,
+				17141EFB1CBE660800B31D23 /* Images.xcassets in Resources */,
 				17DD523A1BC2AE5E00FFD95C /* series.json in Resources */,
-				179C4FAD1B6801D600727DE0 /* Images.xcassets in Resources */,
 				1705173E1B6FDD8D00144ED6 /* iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -548,7 +548,7 @@
 		179C4FC01B6801D600727DE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TWU/Series.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -571,7 +571,7 @@
 		179C4FC11B6801D600727DE0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TWU/Series.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
