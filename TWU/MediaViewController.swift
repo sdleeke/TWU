@@ -622,7 +622,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.Top)
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.None)
             })
         })
 
@@ -665,7 +665,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         
         coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
             
-            self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.Middle)
+            self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.None)
             
             }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
                 if let view = self.seriesArtAndDescription.subviews[1] as? UITextView {
@@ -718,12 +718,26 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         if (seriesSelected != nil) {
             seriesArtAndDescription.hidden = false
             
-            seriesArt.hidden = false
-            seriesDescription.hidden = true
-            
+            logo.hidden = true
             pageControl.hidden = false
+            
+            seriesDescription.text = seriesSelected?.text
+
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) { () -> Void in
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.seriesArt.image = self.seriesSelected?.getArt()
+                }
+            }
+
+            seriesArt.hidden = pageControl.currentPage == 1
+            seriesDescription.hidden = pageControl.currentPage == 0
         } else {
             //iPad only
+            logo.hidden = false
+            
+            seriesArt.hidden = true
+            seriesDescription.hidden = true
+
             seriesArtAndDescription.hidden = true
             pageControl.hidden = true
         }
@@ -754,16 +768,6 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     func updateUI()
     {
-        if (seriesSelected != nil) {
-            logo.hidden = true
-            seriesArt.image = seriesSelected?.getArt()
-            seriesDescription.text = seriesSelected?.text
-        } else {
-            logo.hidden = false
-            seriesArt.hidden = true
-            seriesDescription.hidden = true
-        }
-        
 //        if (sermonSelected != nil) && (globals.player.mpPlayer == nil) {
 //            setupPlayerAtEnd(sermonSelected)
 //        }
@@ -803,9 +807,9 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
                 //                var point = CGPointZero //tableView.bounds.origin
                 //                point.y += tableView.rowHeight * CGFloat(indexPath.row)
                 //                tableView.setContentOffset(point, animated: true)
-                tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: position, animated: true)
+                tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: position, animated: false)
             } else {
-                tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: position, animated: true)
+                tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: position, animated: false)
             }
         } else {
             //No sermon to scroll to.
@@ -824,7 +828,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
         
         if (splitViewController == nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+//            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
         }
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: Constants.SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION, object: nil)
@@ -869,12 +873,12 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
                     //Without this background/main dispatching there isn't time to scroll correctly after a reload.
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
                         dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.Top)
+                            self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.None)
                         })
                     })
 //                    let indexPath = NSIndexPath(forItem: sermon!.index, inSection: 0)
 //                    //                    println("\(globals.player.playingIndex)")
-//                    tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.Middle)
+//                    tableView.selectRowAtIndexPath(indexPath, animated: true, scrollPosition: UITableViewScrollPosition.None)
                 }
             } else {
                 
@@ -897,7 +901,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.Top)
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.None)
             })
         })
     }

@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-class MediaCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, NSURLSessionDownloadDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
+class MediaCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate { // , NSURLSessionDownloadDelegate
 
     var refreshControl:UIRefreshControl?
 
@@ -188,56 +188,56 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         setToolbarItems(barButtons, animated: true)
     }
     
-    func sermonUpdateAvailable()
-    {
-        if (navigationController?.visibleViewController == self) {
-            var title:String?
-            
-            switch UIApplication.sharedApplication().applicationIconBadgeNumber {
-            case 0:
-                // Error
-                return
-                
-            case 1:
-                title = Constants.Sermon_Update_Available
-                break
-                
-            default:
-                title = Constants.Sermon_Updates_Available
-                break
-            }
-            
-            let alert = UIAlertController(title:title,
-                message: nil,
-                preferredStyle: UIAlertControllerStyle.ActionSheet)
-            
-            let updateAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_NOW_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                self.handleRefresh(self.refreshControl!)
-            })
-            alert.addAction(updateAction)
-            
-            //        if (!Reachability.isConnectedToNetwork()) {
-            //            updateAction.enabled = false
-            //        }
-            
-            let laterAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_LATER_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-                
-            })
-            alert.addAction(laterAction)
-            
-            let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-                
-            })
-            alert.addAction(cancelAction)
-            
-            alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-            
-            alert.popoverPresentationController?.sourceView = self.searchBar
-            alert.popoverPresentationController?.sourceRect = self.searchBar.frame
-            
-            presentViewController(alert, animated: true, completion: nil)
-        }
-    }
+//    func sermonUpdateAvailable()
+//    {
+//        if (navigationController?.visibleViewController == self) {
+//            var title:String?
+//            
+//            switch UIApplication.sharedApplication().applicationIconBadgeNumber {
+//            case 0:
+//                // Error
+//                return
+//                
+//            case 1:
+//                title = Constants.Sermon_Update_Available
+//                break
+//                
+//            default:
+//                title = Constants.Sermon_Updates_Available
+//                break
+//            }
+//            
+//            let alert = UIAlertController(title:title,
+//                message: nil,
+//                preferredStyle: UIAlertControllerStyle.ActionSheet)
+//            
+//            let updateAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_NOW_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                self.handleRefresh(self.refreshControl!)
+//            })
+//            alert.addAction(updateAction)
+//            
+//            //        if (!Reachability.isConnectedToNetwork()) {
+//            //            updateAction.enabled = false
+//            //        }
+//            
+//            let laterAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_LATER_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+//                
+//            })
+//            alert.addAction(laterAction)
+//            
+//            let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+//                
+//            })
+//            alert.addAction(cancelAction)
+//            
+//            alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+//            
+//            alert.popoverPresentationController?.sourceView = self.searchBar
+//            alert.popoverPresentationController?.sourceRect = self.searchBar.frame
+//            
+//            presentViewController(alert, animated: true, completion: nil)
+//        }
+//    }
     
     func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool
     {
@@ -370,6 +370,120 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
     
+    func seriesFromSeriesDicts(seriesDicts:[[String:String]]?) -> [Series]?
+    {
+        return seriesDicts?.filter({ (seriesDict:[String:String]) -> Bool in
+            let series = Series(seriesDict: seriesDict)
+            return series.show != 0
+        }).map({ (seriesDict:[String:String]) -> Series in
+            return Series(seriesDict: seriesDict)
+        })
+    }
+    
+    func removeJSONFromFileSystemDirectory()
+    {
+        if let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
+            do {
+                try NSFileManager.defaultManager().removeItemAtPath(jsonFileSystemURL.path!)
+            } catch _ {
+                print("failed to copy sermons.json")
+            }
+        }
+    }
+    
+    func jsonToFileSystem()
+    {
+        let fileManager = NSFileManager.defaultManager()
+        
+        //Get documents directory URL
+        let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
+        
+        // Check if file exist
+        if (!fileManager.fileExistsAtPath(jsonFileSystemURL!.path!)){
+//            downloadJSON()
+        }
+    }
+    
+    func jsonFromURL() -> JSON
+    {
+//        if let url = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
+        let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
+        
+            do {
+                let data = try NSData(contentsOfURL: NSURL(string: Constants.JSON_URL)!, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+                
+                let json = JSON(data: data)
+                if json != JSON.null {
+                    try data.writeToURL(jsonFileSystemURL!, options: NSDataWritingOptions.AtomicWrite)
+
+//                    print(json)
+                    return json
+                } else {
+                    print("could not get json from file, make sure that file contains valid json.")
+
+                    let data = try NSData(contentsOfURL: jsonFileSystemURL!, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+                    
+                    let json = JSON(data: data)
+                    if json != JSON.null {
+//                        print(json)
+                        return json
+                    }
+                }
+            } catch let error as NSError {
+                print(error.localizedDescription)
+
+                do {
+                    let data = try NSData(contentsOfURL: jsonFileSystemURL!, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+                    
+                    let json = JSON(data: data)
+                    if json != JSON.null {
+//                        print(json)
+                        return json
+                    }
+                } catch let error as NSError {
+                    print(error.localizedDescription)
+                }
+            }
+//        } else {
+//            print("Invalid filename/path.")
+//        }
+        
+        return nil
+    }
+    
+    func loadSeriesDictsFromJSON() -> [[String:String]]?
+    {
+        jsonToFileSystem()
+        
+        let json = jsonFromURL()
+        
+        if json != nil {
+            //                print("json:\(json)")
+            
+            var seriesDicts = [[String:String]]()
+            
+            let series = json[Constants.JSON_ARRAY_KEY]
+            
+            for i in 0..<series.count {
+                //                    print("sermon: \(series[i])")
+                
+                var dict = [String:String]()
+                
+                for (key,value) in series[i] {
+                    dict["\(key)"] = "\(value)"
+                }
+                
+                seriesDicts.append(dict)
+            }
+            
+            return seriesDicts.count > 0 ? seriesDicts : nil
+        } else {
+            print("could not get json from file, make sure that file contains valid json.")
+        }
+        
+        return nil
+    }
+    
     func loadSeries(completion: (() -> Void)?)
     {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
@@ -379,74 +493,76 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 self.navigationItem.title = Constants.Loading_Sermons
             })
             
-            var success = false
-            var newSeries:[Series]?
-            var newSeriesIndex = [Int:Series]()
+//            var success = false
+//            var newSeries:[Series]?
+//            var newSeriesIndex = [Int:Series]()
             
-            if let seriesDicts = loadSeriesDictsFromJSON() {
-                if let series = seriesFromSeriesDicts(seriesDicts) {
-                    newSeries = series
-                    for newSermonSeries in newSeries! {
-                        newSeriesIndex[newSermonSeries.id] = newSermonSeries
-                    }
-                    success = true
-                }
+//            if let seriesDicts = self.loadSeriesDictsFromJSON() {
+//                if let series = self.seriesFromSeriesDicts(seriesDicts) {
+//                    newSeries = series
+//                    for newSermonSeries in newSeries! {
+//                        newSeriesIndex[newSermonSeries.id] = newSermonSeries
+//                    }
+//                    success = true
+//                }
+//            }
+            
+//            if (!success) {
+//                // REVERT TO KNOWN GOOD JSON
+//                self.removeJSONFromFileSystemDirectory() // This will cause JSON to be loaded from the BUNDLE next time.
+//                
+//                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                    self.setupTitle()
+//                    self.refreshControl?.endRefreshing()
+//                    
+//                    if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+//                        let alert = UIAlertController(title:Constants.Unable_to_Load_Sermons,
+//                            message: "Please try to refresh the list or send an email to support@countrysidebible.org to report the problem.",
+//                            preferredStyle: UIAlertControllerStyle.Alert)
+//                        
+//                        let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+//                            
+//                        })
+//                        alert.addAction(action)
+//                        
+//                        self.presentViewController(alert, animated: true, completion: nil)
+//                    }
+//                })
+//                return
+//            }
+//            
+//            var seriesNewToUser:[Series]?
+//            var sermonsNewToUser = [Int:Int]()
+//            
+////            print("\(globals.series?.count)")
+//
+//            if globals.series != nil {
+//                let old = Set(globals.series!.map({ (series:Series) -> Int in
+//                    return series.id
+//                }))
+//                
+//                let new = Set(newSeries!.map({ (series:Series) -> Int in
+//                    return series.id
+//                }))
+//                
+//                let onlyInNew = new.subtract(old)
+//                
+//                if (onlyInNew.count > 0) {
+//                    seriesNewToUser = onlyInNew.map({ (id:Int) -> Series in
+//                        return newSeriesIndex[id]!
+//                    })
+//                } else {
+//                    for oldSeries in globals.series! {
+//                        if (newSeriesIndex[oldSeries.id]!.show - oldSeries.show) != 0 {
+//                            sermonsNewToUser[oldSeries.id] = newSeriesIndex[oldSeries.id]!.show - oldSeries.show
+//                        }
+//                    }
+//                }
+//            }
+            
+            if let seriesDicts = self.loadSeriesDictsFromJSON() {
+                globals.series = self.seriesFromSeriesDicts(seriesDicts)
             }
-            
-            if (!success) {
-                // REVERT TO KNOWN GOOD JSON
-                removeJSONFromFileSystemDirectory() // This will cause JSON to be loaded from the BUNDLE next time.
-                
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    self.setupTitle()
-                    self.refreshControl?.endRefreshing()
-                    
-                    if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-                        let alert = UIAlertController(title:Constants.Unable_to_Load_Sermons,
-                            message: "Please try to refresh the list or send an email to support@countrysidebible.org to report the problem.",
-                            preferredStyle: UIAlertControllerStyle.Alert)
-                        
-                        let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-                            
-                        })
-                        alert.addAction(action)
-                        
-                        self.presentViewController(alert, animated: true, completion: nil)
-                    }
-                })
-                return
-            }
-            
-            var seriesNewToUser:[Series]?
-            var sermonsNewToUser = [Int:Int]()
-            
-//            print("\(globals.series?.count)")
-
-            if globals.series != nil {
-                let old = Set(globals.series!.map({ (series:Series) -> Int in
-                    return series.id
-                }))
-                
-                let new = Set(newSeries!.map({ (series:Series) -> Int in
-                    return series.id
-                }))
-                
-                let onlyInNew = new.subtract(old)
-                
-                if (onlyInNew.count > 0) {
-                    seriesNewToUser = onlyInNew.map({ (id:Int) -> Series in
-                        return newSeriesIndex[id]!
-                    })
-                } else {
-                    for oldSeries in globals.series! {
-                        if (newSeriesIndex[oldSeries.id]!.show - oldSeries.show) != 0 {
-                            sermonsNewToUser[oldSeries.id] = newSeriesIndex[oldSeries.id]!.show - oldSeries.show
-                        }
-                    }
-                }
-            }
-            
-            globals.series = newSeries
             
             self.seriesSelected = globals.seriesSelected
 
@@ -476,77 +592,78 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             
             if (completion != nil) {
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    var message:String?
                     
-                    if (seriesNewToUser != nil) && (seriesNewToUser!.count > 0) {
-                        if (globals.filter == nil) {
-                            if (globals.sorting != Constants.Newest_to_Oldest) && (globals.sorting != Constants.Oldest_to_Newest) {
-                                if (seriesNewToUser!.count == 1) {
-                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series \"\(seriesNewToUser!.first!.title!)\" at the beginning or end of the list."
-                                }
-                                if (seriesNewToUser!.count > 1) {
-                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the \(seriesNewToUser!.count) new sermon series at the beginning or end of the list."
-                                }
-                            }
-                            if (globals.sorting == Constants.Newest_to_Oldest) {
-                                if (seriesNewToUser!.count == 1) {
-                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the beginning of the list."
-                                }
-                                if (seriesNewToUser!.count > 1) {
-                                    message = "There are \(seriesNewToUser!.count) new sermon series at the beginning of the list."
-                                }
-                            }
-                            if (globals.sorting == Constants.Oldest_to_Newest) {
-                                if (seriesNewToUser!.count == 1) {
-                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the end of the list."
-                                }
-                                if (seriesNewToUser!.count > 1) {
-                                    message = "There are \(seriesNewToUser!.count) new sermon series at the end of the list."
-                                }
-                            }
-                        } else {
-                            if (seriesNewToUser!.count == 1) {
-                                message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
-                            }
-                            if (seriesNewToUser!.count > 1) {
-                                message = "A total of \(seriesNewToUser!.count) new sermon series have been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
-                            }
-                        }
-                    } else {
-//                        print("\(sermonsNewToUser)")
-                        if (sermonsNewToUser.count > 0) {
-                            if sermonsNewToUser.keys.count == 1 {
-                                if let sermonsAdded = sermonsNewToUser[sermonsNewToUser.keys.first!] {
-                                    if sermonsAdded == 1 {
-                                        message = "One sermon was added "
-                                    }
-                                    if sermonsAdded > 1 {
-                                        message = "\(sermonsAdded) sermons were added "
-                                    }
-                                    message = message! + "to the series \(newSeriesIndex[sermonsNewToUser.keys.first!]!.title!)."
-                                }
-                            } else
-                            if sermonsNewToUser.keys.count > 1 {
-                                var seriesCount = 0
-                                var sermonCount = 0
-                                
-                                for (_,value) in sermonsNewToUser {
-                                    seriesCount += 1
-                                    sermonCount += value
-                                }
-                                message = "\(sermonCount) sermons were added across \(seriesCount) different series."
-                            }
-                            else {
-                                message = "An error occured."
-                            }
-                        } else {
-                            message = "No new sermons were added."
-                        }
-                    }
-                    
-                    let alert = UIAlertView(title: "Sermon Update Complete", message: message, delegate: self, cancelButtonTitle: "OK")
-                    alert.show()
-                    
+//                    var message:String?
+//                    
+//                    if (seriesNewToUser != nil) && (seriesNewToUser!.count > 0) {
+//                        if (globals.filter == nil) {
+//                            if (globals.sorting != Constants.Newest_to_Oldest) && (globals.sorting != Constants.Oldest_to_Newest) {
+//                                if (seriesNewToUser!.count == 1) {
+//                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series \"\(seriesNewToUser!.first!.title!)\" at the beginning or end of the list."
+//                                }
+//                                if (seriesNewToUser!.count > 1) {
+//                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the \(seriesNewToUser!.count) new sermon series at the beginning or end of the list."
+//                                }
+//                            }
+//                            if (globals.sorting == Constants.Newest_to_Oldest) {
+//                                if (seriesNewToUser!.count == 1) {
+//                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the beginning of the list."
+//                                }
+//                                if (seriesNewToUser!.count > 1) {
+//                                    message = "There are \(seriesNewToUser!.count) new sermon series at the beginning of the list."
+//                                }
+//                            }
+//                            if (globals.sorting == Constants.Oldest_to_Newest) {
+//                                if (seriesNewToUser!.count == 1) {
+//                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the end of the list."
+//                                }
+//                                if (seriesNewToUser!.count > 1) {
+//                                    message = "There are \(seriesNewToUser!.count) new sermon series at the end of the list."
+//                                }
+//                            }
+//                        } else {
+//                            if (seriesNewToUser!.count == 1) {
+//                                message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
+//                            }
+//                            if (seriesNewToUser!.count > 1) {
+//                                message = "A total of \(seriesNewToUser!.count) new sermon series have been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
+//                            }
+//                        }
+//                    } else {
+////                        print("\(sermonsNewToUser)")
+//                        if (sermonsNewToUser.count > 0) {
+//                            if sermonsNewToUser.keys.count == 1 {
+//                                if let sermonsAdded = sermonsNewToUser[sermonsNewToUser.keys.first!] {
+//                                    if sermonsAdded == 1 {
+//                                        message = "One sermon was added "
+//                                    }
+//                                    if sermonsAdded > 1 {
+//                                        message = "\(sermonsAdded) sermons were added "
+//                                    }
+//                                    message = message! + "to the series \(newSeriesIndex[sermonsNewToUser.keys.first!]!.title!)."
+//                                }
+//                            } else
+//                            if sermonsNewToUser.keys.count > 1 {
+//                                var seriesCount = 0
+//                                var sermonCount = 0
+//                                
+//                                for (_,value) in sermonsNewToUser {
+//                                    seriesCount += 1
+//                                    sermonCount += value
+//                                }
+//                                message = "\(sermonCount) sermons were added across \(seriesCount) different series."
+//                            }
+//                            else {
+//                                message = "An error occured."
+//                            }
+//                        } else {
+//                            message = "No new sermons were added."
+//                        }
+//                    }
+//                    
+//                    let alert = UIAlertView(title: "Sermon Update Complete", message: message, delegate: self, cancelButtonTitle: "OK")
+//                    alert.show()
+                
                     completion?()
                 })
             }
@@ -555,156 +672,159 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         })
     }
     
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        print("URLSession: \(session.description) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
-        
-        let filename = downloadTask.taskDescription!
-        
-        print("filename: \(filename) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
-        
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-    }
+//    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+//        print("URLSession: \(session.description) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
+//        
+//        let filename = downloadTask.taskDescription!
+//        
+//        print("filename: \(filename) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
+//        
+//        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+//    }
+//    
+//    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL)
+//    {
+//        var success = false
+//        
+//        print("URLSession: \(session.description) didFinishDownloadingToURL: \(location)")
+//        
+//        let filename = downloadTask.taskDescription!
+//        
+//        print("filename: \(filename) location: \(location)")
+//        
+//        if (downloadTask.countOfBytesExpectedToReceive > 0) {
+//            let fileManager = NSFileManager.defaultManager()
+//            
+//            //Get documents directory URL
+//            if let destinationURL = cachesURL()?.URLByAppendingPathComponent(filename) {
+//                // Check if file exist
+//                if (fileManager.fileExistsAtPath(destinationURL.path!)){
+//                    do {
+//                        try fileManager.removeItemAtURL(destinationURL)
+//                    } catch _ {
+//                        print("failed to remove old json file")
+//                    }
+//                }
+//                
+//                do {
+//                    try fileManager.copyItemAtURL(location, toURL: destinationURL)
+//                    try fileManager.removeItemAtURL(location)
+//                    success = true
+//                } catch _ {
+//                    print("failed to copy new json file to Documents")
+//                }
+//            }
+//        }
+//        
+//        if success {
+//            // ONLY flush and refresh the data once we know we have successfully downloaded the new JSON
+//            // file and successfully copied it to the Documents directory.
+//            
+//            // URL call back does NOT run on the main queue
+//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                globals.player.paused = true
+//                globals.player.mpPlayer?.pause()
+//                
+//                globals.updateCurrentTimeExact()
+//                
+//                globals.player.mpPlayer?.view.hidden = true
+//                globals.player.mpPlayer?.view.removeFromSuperview()
+//                
+//                self.loadSeries() {
+//                    self.refreshControl?.endRefreshing()
+//                    
+//                    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+//                    UIApplication.sharedApplication().applicationIconBadgeNumber = 0
+//                    
+//                    globals.refreshing = false
+//                }
+//            })
+//        } else {
+//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
+//                    let alert = UIAlertController(title:"Unable to Download Sermons",
+//                        message: "Please try to refresh the list again or send an email to support@countrysidebible.org to report the problem.",
+//                        preferredStyle: UIAlertControllerStyle.Alert)
+//                    
+//                    let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+//                        
+//                    })
+//                    alert.addAction(action)
+//                    
+//                    self.presentViewController(alert, animated: true, completion: nil)
+//                }
+//                
+//                self.refreshControl!.endRefreshing()
+//                
+//                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+//                
+//                self.collectionView.reloadData()
+//                
+//                globals.refreshing = false
+//
+//                self.setupViews()
+//            })
+//        }
+//    }
+//    
+//    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+//        if (error != nil) {
+//            print("Download failed for: \(session.description)")
+//        } else {
+//            print("Download succeeded for: \(session.description)")
+//        }
+//        
+//        //        removeTempFiles()
+//        
+//        let filename = task.taskDescription
+//        print("filename: \(filename!) error: \(error)")
+//        
+//        session.invalidateAndCancel()
+//        
+//        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+//    }
+//    
+//    func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
+//        
+//    }
     
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL)
-    {
-        var success = false
-        
-        print("URLSession: \(session.description) didFinishDownloadingToURL: \(location)")
-        
-        let filename = downloadTask.taskDescription!
-        
-        print("filename: \(filename) location: \(location)")
-        
-        if (downloadTask.countOfBytesExpectedToReceive > 0) {
-            let fileManager = NSFileManager.defaultManager()
-            
-            //Get documents directory URL
-            if let destinationURL = cachesURL()?.URLByAppendingPathComponent(filename) {
-                // Check if file exist
-                if (fileManager.fileExistsAtPath(destinationURL.path!)){
-                    do {
-                        try fileManager.removeItemAtURL(destinationURL)
-                    } catch _ {
-                        print("failed to remove old json file")
-                    }
-                }
-                
-                do {
-                    try fileManager.copyItemAtURL(location, toURL: destinationURL)
-                    try fileManager.removeItemAtURL(location)
-                    success = true
-                } catch _ {
-                    print("failed to copy new json file to Documents")
-                }
-            }
-        }
-        
-        if success {
-            // ONLY flush and refresh the data once we know we have successfully downloaded the new JSON
-            // file and successfully copied it to the Documents directory.
-            
-            // URL call back does NOT run on the main queue
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                globals.player.paused = true
-                globals.player.mpPlayer?.pause()
-                
-                globals.updateCurrentTimeExact()
-                
-                globals.player.mpPlayer?.view.hidden = true
-                globals.player.mpPlayer?.view.removeFromSuperview()
-                
-                self.loadSeries() {
-                    self.refreshControl?.endRefreshing()
-                    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-                    UIApplication.sharedApplication().applicationIconBadgeNumber = 0
-                    
-                    globals.refreshing = false
-                }
-            })
-        } else {
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-                    let alert = UIAlertController(title:"Unable to Download Sermons",
-                        message: "Please try to refresh the list again or send an email to support@countrysidebible.org to report the problem.",
-                        preferredStyle: UIAlertControllerStyle.Alert)
-                    
-                    let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-                        
-                    })
-                    alert.addAction(action)
-                    
-                    self.presentViewController(alert, animated: true, completion: nil)
-                }
-                
-                self.refreshControl!.endRefreshing()
-                
-                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-                
-                self.collectionView.reloadData()
-                
-                globals.refreshing = false
-
-                self.setupViews()
-            })
-        }
-    }
-    
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-        if (error != nil) {
-            print("Download failed for: \(session.description)")
-        } else {
-            print("Download succeeded for: \(session.description)")
-        }
-        
-        //        removeTempFiles()
-        
-        let filename = task.taskDescription
-        print("filename: \(filename!) error: \(error)")
-        
-        session.invalidateAndCancel()
-        
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-    }
-    
-    func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
-        
-    }
-    
-    func downloadJSON()
-    {
-        navigationItem.title = Constants.DOWNLOADING_TITLE
-        
-        let jsonURL = "\(Constants.JSON_URL_PREFIX)\(Constants.TWU_SHORT.lowercaseString).\(Constants.SERIES_JSON)"
-        let downloadRequest = NSMutableURLRequest(URL: NSURL(string: jsonURL)!)
-        
-        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
-        
-        session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-        
-        let downloadTask = session?.downloadTaskWithRequest(downloadRequest)
-        downloadTask?.taskDescription = Constants.SERIES_JSON
-        
-        downloadTask?.resume()
-        
-        //downloadTask goes out of scope but globals.session must retain it.  Which means if we didn't retain session they would both be lost
-        // and we would likely lose the download.
-        
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-    }
+//    func downloadJSON()
+//    {
+//        navigationItem.title = Constants.DOWNLOADING_TITLE
+//        
+////        let jsonURL = "\(Constants.JSON_URL_PREFIX)\(Constants.TWU_SHORT.lowercaseString).\(Constants.SERIES_JSON)"
+//        let downloadRequest = NSMutableURLRequest(URL: NSURL(string: Constants.JSON_URL)!)
+//        
+//        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+//        
+//        session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+//        
+//        let downloadTask = session?.downloadTaskWithRequest(downloadRequest)
+//        downloadTask?.taskDescription = Constants.JSON_URL // SERIES_JSON
+//        
+//        downloadTask?.resume()
+//        
+//        //downloadTask goes out of scope but globals.session must retain it.  Which means if we didn't retain session they would both be lost
+//        // and we would likely lose the download.
+//        
+//        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+//    }
     
     func cancelAllDownloads()
     {
         if (globals.series != nil) {
             for series in globals.series! {
-                for sermon in series.sermons! {
-                    if sermon.audioDownload.active {
-                        sermon.audioDownload.task?.cancel()
-                        sermon.audioDownload.task = nil
-                        
-                        sermon.audioDownload.totalBytesWritten = 0
-                        sermon.audioDownload.totalBytesExpectedToWrite = 0
-                        
-                        sermon.audioDownload.state = .none
+                if series.sermons != nil {
+                    for sermon in series.sermons! {
+                        if sermon.audioDownload.active {
+                            sermon.audioDownload.task?.cancel()
+                            sermon.audioDownload.task = nil
+                            
+                            sermon.audioDownload.totalBytesWritten = 0
+                            sermon.audioDownload.totalBytesExpectedToWrite = 0
+                            
+                            sermon.audioDownload.state = .none
+                        }
                     }
                 }
             }
@@ -747,23 +867,23 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
     
-    func handleRefresh(refreshControl: UIRefreshControl) {
-        globals.refreshing = true
-
-        cancelAllDownloads()
-        
-        self.searchBar.placeholder = nil
-        
-        if splitViewController != nil {
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                NSNotificationCenter.defaultCenter().postNotificationName(Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
-            })
-        }
-        
-        disableBarButtons()
-        
-        downloadJSON()
-    }
+//    func handleRefresh(refreshControl: UIRefreshControl) {
+//        globals.refreshing = true
+//
+//        cancelAllDownloads()
+//        
+//        self.searchBar.placeholder = nil
+//        
+//        if splitViewController != nil {
+//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                NSNotificationCenter.defaultCenter().postNotificationName(Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
+//            })
+//        }
+//        
+//        disableBarButtons()
+//        
+//        downloadJSON()
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -773,14 +893,15 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
 
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaCollectionViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+        
+//        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaCollectionViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
 
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
         
-        refreshControl = UIRefreshControl()
-        refreshControl!.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
+//        refreshControl = UIRefreshControl()
+//        refreshControl!.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
 
-        collectionView.addSubview(refreshControl!)
+//        collectionView.addSubview(refreshControl!)
         
         collectionView.alwaysBounceVertical = true
 
@@ -887,21 +1008,48 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize
     {
-        var size:CGFloat = 0.0
-
-        var index = 1
+        var minSize:CGFloat = 0.0
+        var maxSize:CGFloat = 0.0
         
-        let measure = min(view.bounds.height,view.bounds.width)
+        // We want at least two full icons showing in either direction.
+        
+        var minIndex = 2
+        var maxIndex = 2
+        
+        let minMeasure = min(view.bounds.height,view.bounds.width)
+        let maxMeasure = max(view.bounds.height,view.bounds.width)
         
         repeat {
-            size = (measure - CGFloat(10*(index+1)))/CGFloat(index)
-            index += 1
-        } while (size > measure/1.5)
-
-//        print("Size: \(size)")
-//        print("\(UIDevice.currentDevice().model)")
+            minSize = (minMeasure - CGFloat(10*(minIndex+1)))/CGFloat(minIndex)
+            minIndex += 1
+        } while minSize > minMeasure
         
-        return CGSizeMake(size, size)
+//        print(minSize)
+//        print(minIndex-1)
+        
+        repeat {
+            maxSize = (maxMeasure - CGFloat(10*(maxIndex+1)))/CGFloat(maxIndex)
+            maxIndex += 1
+        } while maxSize > maxMeasure/(maxMeasure / minSize)
+
+        print(maxMeasure / minSize)
+        
+//        print(maxSize)
+//        print(maxIndex-1)
+        
+        var size:CGFloat = 0
+
+        // These get the gap right between the icons.
+        
+        if minMeasure == view.bounds.height {
+            size = min(minSize,maxSize)
+        }
+        
+        if minMeasure == view.bounds.width {
+            size = max(minSize,maxSize)
+        }
+
+        return CGSizeMake(size,size)
     }
     
     func about()
@@ -935,9 +1083,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
-        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) {
-            sermonUpdateAvailable()
-        }
+//        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) {
+//            sermonUpdateAvailable()
+//        }
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -1024,7 +1172,6 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 break
             }
         }
-
     }
     
     func gotoNowPlaying()

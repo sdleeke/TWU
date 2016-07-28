@@ -28,72 +28,72 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
     
     var window: UIWindow?
 
-    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData)
-    {
-        print("application:didRegisterForRemoteNotificationsWithDeviceToken")
-        print("Device token: \(deviceToken.description)")
-//        notification("Device token: \(deviceToken.description)")
-        let deviceTokenString = "\(deviceToken)"
-            .stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString:"<>"))
-            .stringByReplacingOccurrencesOfString(" ", withString: "")
-        print("deviceTokenString: \(deviceTokenString)\n")
-        
-    }
+//    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData)
+//    {
+//        print("application:didRegisterForRemoteNotificationsWithDeviceToken")
+//        print("Device token: \(deviceToken.description)")
+////        notification("Device token: \(deviceToken.description)")
+//        let deviceTokenString = "\(deviceToken)"
+//            .stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString:"<>"))
+//            .stringByReplacingOccurrencesOfString(" ", withString: "")
+//        print("deviceTokenString: \(deviceTokenString)\n")
+//        
+//    }
+//    
+//    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError)
+//    {
+//        print("application:didFailToRegisterForRemoteNotificationsWithError")
+////        showAlert("FailedToRegisterForRemoteNotifications: \(error.description)")
+//    }
     
-    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError)
-    {
-        print("application:didFailToRegisterForRemoteNotificationsWithError")
-//        showAlert("FailedToRegisterForRemoteNotifications: \(error.description)")
-    }
-    
-    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void)
-    {
-        let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject])
-        if ckNotification.notificationType == .Query, let queryNotification = ckNotification as? CKQueryNotification
-        {
-            if #available(iOS 9.0, *) {
-                print("subscriptionID: \(queryNotification.subscriptionID)")
-            } else {
-                // Fallback on earlier versions
-            }
-            print("recordID: \(queryNotification.recordID)")
-            print("recordFields: \(queryNotification.recordFields)")
-            
-            let aps = userInfo["aps"]
-
-            print("application:didReceiveRemoteNotification:fetchCompletionHandler: \(aps)")
-
-            if queryNotification.recordID?.recordName == "Current Sermon Series" {
-//                print("\(aps!["alert"])")
-                
-                if let alert = aps!["alert"] as? String {
-                    switch alert {
-                    case "Update Available":
-                        dispatch_async(dispatch_get_main_queue()) {
-                            UIApplication.sharedApplication().applicationIconBadgeNumber += 1
-                            self.sermonUpdateAvailable()
-                        }
-                        break
-                        
-                    default:
-                        break
-                    }
-                }
-            }
-        }
-        
-        completionHandler(UIBackgroundFetchResult.NoData)
-    }
-    
-    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject])
-    {
-        let alert = userInfo["aps"]!["alert"] as? String
-        let category = userInfo["aps"]!["category"] as? String
-
-        print("application:didReceiveRemoteNotification: \(alert) \(category)")
-
-        showAlert("application:didReceiveRemoteNotification: \(alert) \(category)")
-    }
+//    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void)
+//    {
+//        let ckNotification = CKNotification(fromRemoteNotificationDictionary: userInfo as! [String : NSObject])
+//        if ckNotification.notificationType == .Query, let queryNotification = ckNotification as? CKQueryNotification
+//        {
+//            if #available(iOS 9.0, *) {
+//                print("subscriptionID: \(queryNotification.subscriptionID)")
+//            } else {
+//                // Fallback on earlier versions
+//            }
+//            print("recordID: \(queryNotification.recordID)")
+//            print("recordFields: \(queryNotification.recordFields)")
+//            
+//            let aps = userInfo["aps"]
+//
+//            print("application:didReceiveRemoteNotification:fetchCompletionHandler: \(aps)")
+//
+//            if queryNotification.recordID?.recordName == "Current Sermon Series" {
+////                print("\(aps!["alert"])")
+//                
+//                if let alert = aps!["alert"] as? String {
+//                    switch alert {
+//                    case "Update Available":
+//                        dispatch_async(dispatch_get_main_queue()) {
+//                            UIApplication.sharedApplication().applicationIconBadgeNumber += 1
+//                            self.sermonUpdateAvailable()
+//                        }
+//                        break
+//                        
+//                    default:
+//                        break
+//                    }
+//                }
+//            }
+//        }
+//        
+//        completionHandler(UIBackgroundFetchResult.NoData)
+//    }
+//    
+//    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject])
+//    {
+//        let alert = userInfo["aps"]!["alert"] as? String
+//        let category = userInfo["aps"]!["category"] as? String
+//
+//        print("application:didReceiveRemoteNotification: \(alert) \(category)")
+//
+//        showAlert("application:didReceiveRemoteNotification: \(alert) \(category)")
+//    }
     
 //    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, completionHandler: () -> Void)
 //    {
@@ -125,51 +125,51 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
 //        completionHandler()
 //    }
     
-    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void)
-    {
-        print("application:handleActionWithIdentifier:forRemoteNotification: \(identifier)")
-        
-//        showAlert(identifier)
-
-        switch identifier! {
-        case "LATER":
-            print("User selected 'Later'")
-            application.applicationIconBadgeNumber += 1
-            //The app isn't started in this case.
-            break
-            
-        case "NOW":
-            print("User selected 'Now'")
-            application.applicationIconBadgeNumber += 1
-            // This starts the app and the user is asked to update because the badge numer isn't zero.
-//            application.applicationIconBadgeNumber = 0
-//            handleRefresh()
-            break
-            
-        default:
-            break
-        }
-        
-        completionHandler()
-    }
+//    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void)
+//    {
+//        print("application:handleActionWithIdentifier:forRemoteNotification: \(identifier)")
+//        
+////        showAlert(identifier)
+//
+//        switch identifier! {
+//        case "LATER":
+//            print("User selected 'Later'")
+//            application.applicationIconBadgeNumber += 1
+//            //The app isn't started in this case.
+//            break
+//            
+//        case "NOW":
+//            print("User selected 'Now'")
+//            application.applicationIconBadgeNumber += 1
+//            // This starts the app and the user is asked to update because the badge numer isn't zero.
+////            application.applicationIconBadgeNumber = 0
+////            handleRefresh()
+//            break
+//            
+//        default:
+//            break
+//        }
+//        
+//        completionHandler()
+//    }
+//    
+//    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+//        print("application:didRegisterUserNotificationSettings: \(notificationSettings)")
+//    }
     
-    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
-        print("application:didRegisterUserNotificationSettings: \(notificationSettings)")
-    }
+//    func sermonUpdateAvailable()
+//    {
+//        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//            NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+//        })
+//    }
     
-    func sermonUpdateAvailable()
-    {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
-        })
-    }
-    
-    func showAlert(message:String?)
-    {
-        let application = UIApplication.sharedApplication()
-        let alert = UIAlertView(title: "Remote Notification \(application.applicationIconBadgeNumber)", message: message, delegate: self, cancelButtonTitle: "OK")
-        alert.show()
-    }
+//    func showAlert(message:String?)
+//    {
+//        let application = UIApplication.sharedApplication()
+//        let alert = UIAlertView(title: "Remote Notification \(application.applicationIconBadgeNumber)", message: message, delegate: self, cancelButtonTitle: "OK")
+//        alert.show()
+//    }
     
     func mpPlayerLoadStateDidChange()
     {
@@ -181,63 +181,63 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         globals.playerTimer()
     }
 
-    func setupRemoteNotification()
-    {
-        let database = CKContainer.defaultContainer().publicCloudDatabase
-        database.fetchAllSubscriptionsWithCompletionHandler({ (subscriptions:[CKSubscription]?, error:NSError?) -> Void in
-            //            print("\(subscriptions)")
-            
-            for subscriptionObject in subscriptions! {
-                let subscription = subscriptionObject as CKSubscription
-                //                print("\(subscription)")
-                database.deleteSubscriptionWithID(subscription.subscriptionID, completionHandler: { (string:String?, error:NSError?) -> Void in
-                })
-            }
-            
-            let subscription = CKSubscription(recordType: Constants.SUBSCRIPTION_RECORD_TYPE, predicate: NSPredicate(value: true), subscriptionID: "com.leeke.TWU", options: CKSubscriptionOptions.FiresOnRecordUpdate)
-            
-            let info = CKNotificationInfo()
-            info.shouldSendContentAvailable = true
-            if #available(iOS 9.0, *) {
-                info.category = Constants.REMOTE_NOTIFICATION_CATEGORY
-            }
-            info.alertBody = Constants.REMOTE_NOTIFICATION_ALERT_BODY
-            info.desiredKeys = Constants.REMOTE_NOTIFICATION_DESIRED_KEYS
-            
-            subscription.notificationInfo = info
-            
-            CKContainer.defaultContainer().publicCloudDatabase.saveSubscription(subscription) { (subscription:CKSubscription?, error:NSError?) -> Void in
-                
-            }
-        })
-        
-        if (Constants.SUPPORT_REMOTE_NOTIFICATION) {
-            let nowAction = UIMutableUserNotificationAction()
-            nowAction.identifier = Constants.REMOTE_NOTIFICATION_NOW_ACTION_IDENTIFIER
-            nowAction.title = Constants.REMOTE_NOTIFICATION_NOW_ACTION_TITLE
-            nowAction.activationMode = UIUserNotificationActivationMode.Foreground
-            nowAction.destructive = false
-            nowAction.authenticationRequired = true
-            
-            let laterAction = UIMutableUserNotificationAction()
-            laterAction.identifier = Constants.REMOTE_NOTIFICATION_LATER_ACTION_IDENTIFIER
-            laterAction.title = Constants.REMOTE_NOTIFICATION_LATER_ACTION_TITLE
-            laterAction.activationMode = UIUserNotificationActivationMode.Background
-            laterAction.destructive = false
-            laterAction.authenticationRequired = false
-            
-            let messageCategory = UIMutableUserNotificationCategory()
-            
-            messageCategory.identifier = Constants.REMOTE_NOTIFICATION_CATEGORY
-            
-            messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Minimal)
-            messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Default)
-            
-            let settings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: Set([messageCategory])) //
-            UIApplication.sharedApplication().registerUserNotificationSettings(settings)
-            UIApplication.sharedApplication().registerForRemoteNotifications()
-        }
-    }
+//    func setupRemoteNotification()
+//    {
+//        let database = CKContainer.defaultContainer().publicCloudDatabase
+//        database.fetchAllSubscriptionsWithCompletionHandler({ (subscriptions:[CKSubscription]?, error:NSError?) -> Void in
+//            //            print("\(subscriptions)")
+//            
+//            for subscriptionObject in subscriptions! {
+//                let subscription = subscriptionObject as CKSubscription
+//                //                print("\(subscription)")
+//                database.deleteSubscriptionWithID(subscription.subscriptionID, completionHandler: { (string:String?, error:NSError?) -> Void in
+//                })
+//            }
+//            
+//            let subscription = CKSubscription(recordType: Constants.SUBSCRIPTION_RECORD_TYPE, predicate: NSPredicate(value: true), subscriptionID: Constants.APP_ID, options: CKSubscriptionOptions.FiresOnRecordUpdate)
+//            
+//            let info = CKNotificationInfo()
+//            info.shouldSendContentAvailable = true
+//            if #available(iOS 9.0, *) {
+//                info.category = Constants.REMOTE_NOTIFICATION_CATEGORY
+//            }
+//            info.alertBody = Constants.REMOTE_NOTIFICATION_ALERT_BODY
+//            info.desiredKeys = Constants.REMOTE_NOTIFICATION_DESIRED_KEYS
+//            
+//            subscription.notificationInfo = info
+//            
+//            CKContainer.defaultContainer().publicCloudDatabase.saveSubscription(subscription) { (subscription:CKSubscription?, error:NSError?) -> Void in
+//                
+//            }
+//        })
+//        
+//        if (Constants.SUPPORT_REMOTE_NOTIFICATION) {
+//            let nowAction = UIMutableUserNotificationAction()
+//            nowAction.identifier = Constants.REMOTE_NOTIFICATION_NOW_ACTION_IDENTIFIER
+//            nowAction.title = Constants.REMOTE_NOTIFICATION_NOW_ACTION_TITLE
+//            nowAction.activationMode = UIUserNotificationActivationMode.Foreground
+//            nowAction.destructive = false
+//            nowAction.authenticationRequired = true
+//            
+//            let laterAction = UIMutableUserNotificationAction()
+//            laterAction.identifier = Constants.REMOTE_NOTIFICATION_LATER_ACTION_IDENTIFIER
+//            laterAction.title = Constants.REMOTE_NOTIFICATION_LATER_ACTION_TITLE
+//            laterAction.activationMode = UIUserNotificationActivationMode.Background
+//            laterAction.destructive = false
+//            laterAction.authenticationRequired = false
+//            
+//            let messageCategory = UIMutableUserNotificationCategory()
+//            
+//            messageCategory.identifier = Constants.REMOTE_NOTIFICATION_CATEGORY
+//            
+//            messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Minimal)
+//            messageCategory.setActions([nowAction, laterAction], forContext:UIUserNotificationActionContext.Default)
+//            
+//            let settings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: Set([messageCategory])) //
+//            UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+//            UIApplication.sharedApplication().registerForRemoteNotifications()
+//        }
+//    }
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 //        print("application:didFinishLaunchingWithOptions")
@@ -246,7 +246,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         
         globals = Globals()
         
-        setupRemoteNotification()
+//        setupRemoteNotification()
         
         startAudio()
         
@@ -280,9 +280,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         
         globals.setupPlayingInfoCenter()
         
-        if (application.applicationIconBadgeNumber > 0) {
-            sermonUpdateAvailable()
-        }
+//        if (application.applicationIconBadgeNumber > 0) {
+//            sermonUpdateAvailable()
+//        }
 
         if (globals.player.mpPlayer?.currentPlaybackRate == 0) {
             //It is paused, possibly not by us, but by the system

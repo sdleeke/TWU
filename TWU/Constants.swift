@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 
 struct Constants {
+    static let APP_ID = "com.leeke.TWU"
+    
     static let SUPPORT_REMOTE_NOTIFICATION = true
     
     static let Email_TWU = "E-mail TWU"
@@ -31,7 +33,8 @@ struct Constants {
     static let REACHABILITY_TEST_URL = Constants.TWU_WEBSITE // "https://www.google.com/"
 
     static let JSON_ARRAY_KEY = "series"
-    static let JSON_URL_PREFIX = "https://s3.amazonaws.com/jd2-86d4fd0ec0a8fca71eef54e388261c5b-us/"
+//    static let JSON_URL_PREFIX = "https://s3.amazonaws.com/jd2-86d4fd0ec0a8fca71eef54e388261c5b-us/"
+    static let JSON_URL = "http://www.thewordunleashed.org/medialist.php"
     
     static let TWU_GIVING_URL = "https://countryside.infellowship.com/OnlineGiving/GiveNow/NoAccount/"
     
@@ -56,7 +59,8 @@ struct Constants {
     static let SERMON_UPDATE_UI_NOTIFICATION = "SERMON UPDATE UI"
     static let SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION = "SERMON UPDATE PLAYING PAUSED"
     static let SERMON_UPDATE_PLAY_PAUSE_NOTIFICATION = "SERMON UPDATE PLAY PAUSE"
-    static let SERMON_UPDATE_AVAILABLE_NOTIFICATION = "SERMON UPDATE AVAILABLE"
+    
+//    static let SERMON_UPDATE_AVAILABLE_NOTIFICATION = "SERMON UPDATE AVAILABLE"
     
     static let SUBSCRIPTION_RECORD_TYPE = "Globals"
     static let REMOTE_NOTIFICATION_CATEGORY = "UPDATE"

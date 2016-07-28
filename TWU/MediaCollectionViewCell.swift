@@ -32,7 +32,16 @@ class MediaCollectionViewCell: UICollectionViewCell {
             }
             
 //            print("\(series!.title)")
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) { () -> Void in
+//                if let art = self.series?.getArt() {
+//                    dispatch_async(dispatch_get_main_queue()) {
+//                        self.seriesArt.image = art
+//                    }
+//                }
+//            }
+            
             seriesArt.image = series?.getArt()
+            
             //        println("\(size)")
             //        println("\(UIDevice.currentDevice().model)")
         }

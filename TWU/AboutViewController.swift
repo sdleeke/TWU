@@ -176,19 +176,19 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    func sermonUpdateAvailable()
-    {
-        if (navigationController?.visibleViewController == self) {
-            let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
-            alert.show()
-        }
-    }
+//    func sermonUpdateAvailable()
+//    {
+//        if (navigationController?.visibleViewController == self) {
+//            let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
+//            alert.show()
+//        }
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         if (splitViewController == nil) {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(AboutViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
+//            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(AboutViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
         }
 
         // Do any additional setup after loading the view.
@@ -204,9 +204,9 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         
         scrollView.flashScrollIndicators()
 
-        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
-            sermonUpdateAvailable()
-        }
+//        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
+//            sermonUpdateAvailable()
+//        }
     }
     
     override func viewWillDisappear(animated: Bool) {

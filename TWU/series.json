@@ -1,14 +1,23 @@
 {
 "series": [
            {
+           "name":"the_deadly_dangers_of_materialism",
+           "title":"The Deadly Dangers of Materialism",
+           "scripture":"Matthew 6:19-24",
+           "text":"Wealth and possessions. By themselves, there are no concerns about gathering material goods, working hard, and accumulating wealth. But a misuse of those can lead you to become spiritually blinded and a worshiper of materialism. Do you work toward the heavenly treasure of God’s Kingdom, or earthly and temporal treasure devoted to your own kingdom?\n\nTom Pennington in his series The Deadly Dangers of Materialism will help you avoid materialism and store up your treasure in heaven.",
+           "id":45,
+           "startingIndex":192,
+           "numberOfSermons":3
+           },
+           
+           {
            "name":"this_is_your_life",
            "title":"This Is Your Life",
            "scripture":"Ephesians 2:1-10",
            "text":"Ever been rescued from a situation where your very life depended on the intervening work of another – escaping, in essence, from death itself?\n\nTom Pennington in his series This Is Your Life takes you on the rescue mission that God Himself undertook on your behalf if you’re in Christ. It’s a story of regeneration, entirely the work of God, from beginning to end: dead in sins when God found you, then by an act of sovereign grace made alive in Jesus Christ. Learn the catalysts involved and by what means God effected regeneration in your soul, plus the exact reason behind why He did it the way He did it.",
            "id":44,
            "startingIndex":183,
-           "numberOfSermons":9,
-           "show":5
+           "numberOfSermons":9
            },
            
            {

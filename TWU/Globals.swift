@@ -821,21 +821,24 @@ class Globals {
         if (player.playing != nil) {
             var sermonInfo = [String:AnyObject]()
             
-            sermonInfo.updateValue(player.playing!.series!.title! + " (Part \(player.playing!.index + 1))",    forKey: MPMediaItemPropertyTitle)
-            sermonInfo.updateValue(Constants.Tom_Pennington,                                                            forKey: MPMediaItemPropertyArtist)
+            sermonInfo.updateValue(player.playing!.series!.title! + " (Part \(player.playing!.index + 1))",     forKey: MPMediaItemPropertyTitle)
+            sermonInfo.updateValue(Constants.Tom_Pennington,                                                    forKey: MPMediaItemPropertyArtist)
             
-            sermonInfo.updateValue(player.playing!.series!.title!,                                                forKey: MPMediaItemPropertyAlbumTitle)
-            sermonInfo.updateValue(Constants.Tom_Pennington,                                                            forKey: MPMediaItemPropertyAlbumArtist)
-            sermonInfo.updateValue(MPMediaItemArtwork(image: player.playing!.series!.getArt()!),                        forKey: MPMediaItemPropertyArtwork)
+            sermonInfo.updateValue(player.playing!.series!.title!,                                              forKey: MPMediaItemPropertyAlbumTitle)
+            sermonInfo.updateValue(Constants.Tom_Pennington,                                                    forKey: MPMediaItemPropertyAlbumArtist)
             
-            sermonInfo.updateValue(player.playing!.index + 1,                                                forKey: MPMediaItemPropertyAlbumTrackNumber)
-            sermonInfo.updateValue(player.playing!.series!.numberOfSermons,                                      forKey: MPMediaItemPropertyAlbumTrackCount)
+            if let art = player.playing!.series!.getArt() {
+                sermonInfo.updateValue(MPMediaItemArtwork(image: art),                                          forKey: MPMediaItemPropertyArtwork)
+            }
+            
+            sermonInfo.updateValue(player.playing!.index + 1,                                                   forKey: MPMediaItemPropertyAlbumTrackNumber)
+            sermonInfo.updateValue(player.playing!.series!.numberOfSermons,                                     forKey: MPMediaItemPropertyAlbumTrackCount)
             
             if (player.mpPlayer != nil) {
-                sermonInfo.updateValue(NSNumber(double: player.mpPlayer!.duration),                                forKey: MPMediaItemPropertyPlaybackDuration)
-                sermonInfo.updateValue(NSNumber(double: player.mpPlayer!.currentPlaybackTime),                     forKey: MPNowPlayingInfoPropertyElapsedPlaybackTime)
+                sermonInfo.updateValue(NSNumber(double: player.mpPlayer!.duration),                             forKey: MPMediaItemPropertyPlaybackDuration)
+                sermonInfo.updateValue(NSNumber(double: player.mpPlayer!.currentPlaybackTime),                  forKey: MPNowPlayingInfoPropertyElapsedPlaybackTime)
                 
-                sermonInfo.updateValue(NSNumber(float:player.mpPlayer!.currentPlaybackRate),                       forKey: MPNowPlayingInfoPropertyPlaybackRate)
+                sermonInfo.updateValue(NSNumber(float:player.mpPlayer!.currentPlaybackRate),                    forKey: MPNowPlayingInfoPropertyPlaybackRate)
             }
             
             //    println("\(sermonInfo.count)")

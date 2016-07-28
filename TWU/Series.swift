@@ -180,11 +180,15 @@ class Series : Equatable, CustomStringConvertible {
         // If we don't have it, see if it is in the file system and if not, download it and store it in the file system.
         
         if (image == nil) {
+            print("Image \(imageName) not in bundle")
+            
             // Check to see if it is in the file system.
             let imageURL = cachesURL()?.URLByAppendingPathComponent(imageName + Constants.JPEG_FILE_EXTENSION)
             image = UIImage(contentsOfFile: imageURL!.path!)
             
             if (image == nil) {
+                print("Image \(imageName) not in file system")
+            
                 // Try to get it from the cloud
                 let imageCloudURL = Constants.baseImageURL + imageName + Constants.JPEG_FILE_EXTENSION
                 //                print("\(imageCloudURL)")

@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 
+var debug = false
+
 enum State {
     case downloading
     case downloaded
@@ -74,6 +76,8 @@ class Download {
             //        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
             
             session = NSURLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
+            
+            session?.sessionDescription = self.fileSystemURL!.lastPathComponent!
             
             task = session?.downloadTaskWithRequest(downloadRequest)
             task?.taskDescription = fileSystemURL?.lastPathComponent
@@ -299,10 +303,16 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
     }()
     
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-//        print("URLSession: \(session.description) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
+        if debug {
+            print("URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:")
+            
+            print("session: \(session.sessionDescription)")
+            print("task: \(downloadTask.taskDescription)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
+            print("bytes written: \(totalBytesWritten)")
+            print("bytes expected to write: \(totalBytesExpectedToWrite)")
+        }
         
-//        let filename = downloadTask.taskDescription!
-  
         if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
             print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
         }
@@ -324,14 +334,18 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
             audioDownload.task?.cancel()
             break
         }
-        
-        print("filename: \(downloadTask.taskDescription!) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
     }
     
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
-        print("URLSession:downloadTask:didFinishDownloadingToURL:")
-        
-//        print("filename: \(filename) location: \(location)")
+        if debug {
+            print("URLSession:downloadTask:didFinishDownloadingToURL:")
+            
+            print("taskDescription: \(downloadTask.taskDescription!)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
+            print("bytes written: \(audioDownload.totalBytesWritten)")
+            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+            print("location: \(location)")
+        }
         
         if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
             print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
@@ -364,11 +378,14 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
     }
     
     func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-        print("URLSession:task:didCompleteWithError:")
-        
-        print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
-        print("bytes written: \(audioDownload.totalBytesWritten)")
-        print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        if debug {
+            print("URLSession:task:didCompleteWithError:")
+            
+            print("path: \(audioDownload.fileSystemURL!.path!)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
+            print("bytes written: \(audioDownload.totalBytesWritten)")
+            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        }
         
         if (error != nil) {
             print("with error: \(error!.localizedDescription)")
@@ -385,11 +402,14 @@ class Sermon : NSObject, NSURLSessionDownloadDelegate {
     }
     
     func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
-        print("URLSession:didBecomeInvalidWithError:")
-        
-        print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
-        print("bytes written: \(audioDownload.totalBytesWritten)")
-        print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        if debug {
+            print("URLSession:didBecomeInvalidWithError:")
+            
+            print("path: \(audioDownload.fileSystemURL!.path!)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent!)")
+            print("bytes written: \(audioDownload.totalBytesWritten)")
+            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        }
         
         if (error != nil) {
             print("with error: \(error!.localizedDescription)")
