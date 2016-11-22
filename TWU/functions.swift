@@ -10,6 +10,44 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
+fileprivate func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l >= r
+    default:
+        return !(lhs < rhs)
+    }
+}
+
+fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l <= r
+    default:
+        return !(lhs > rhs)
+    }
+}
+
 func startAudio()
 {
     let audioSession: AVAudioSession  = AVAudioSession.sharedInstance()
@@ -26,24 +64,24 @@ func startAudio()
     }
 }
 
-extension NSDate
+extension Date
 {
-    convenience
+    
     init(dateString:String) {
-        let dateStringFormatter = NSDateFormatter()
+        let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "MM/dd/yyyy"
-        dateStringFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-        let d = dateStringFormatter.dateFromString(dateString)!
-        self.init(timeInterval:0, sinceDate:d)
+        dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
+        let d = dateStringFormatter.date(from: dateString)!
+        self = Date(timeInterval:0, since:d)
     }
     
-    func isNewerThanDate(dateToCompare : NSDate) -> Bool
+    func isNewerThanDate(_ dateToCompare : Date) -> Bool
     {
         //Declare Variables
         var isNewer = false
         
         //Compare Values
-        if self.compare(dateToCompare) == NSComparisonResult.OrderedDescending
+        if self.compare(dateToCompare) == ComparisonResult.orderedDescending
         {
             isNewer = true
         }
@@ -53,13 +91,13 @@ extension NSDate
     }
     
     
-    func isOlderThanDate(dateToCompare : NSDate) -> Bool
+    func isOlderThanDate(_ dateToCompare : Date) -> Bool
     {
         //Declare Variables
         var isOlder = false
         
         //Compare Values
-        if self.compare(dateToCompare) == NSComparisonResult.OrderedAscending
+        if self.compare(dateToCompare) == ComparisonResult.orderedAscending
         {
             isOlder = true
         }
@@ -87,54 +125,54 @@ extension NSDate
     
     
     
-    func addDays(daysToAdd : Int) -> NSDate
+    func addDays(_ daysToAdd : Int) -> Date
     {
-        let secondsInDays : NSTimeInterval = Double(daysToAdd) * 60 * 60 * 24
-        let dateWithDaysAdded : NSDate = self.dateByAddingTimeInterval(secondsInDays)
+        let secondsInDays : TimeInterval = Double(daysToAdd) * 60 * 60 * 24
+        let dateWithDaysAdded : Date = self.addingTimeInterval(secondsInDays)
         
         //Return Result
         return dateWithDaysAdded
     }
     
     
-    func addHours(hoursToAdd : Int) -> NSDate
+    func addHours(_ hoursToAdd : Int) -> Date
     {
-        let secondsInHours : NSTimeInterval = Double(hoursToAdd) * 60 * 60
-        let dateWithHoursAdded : NSDate = self.dateByAddingTimeInterval(secondsInHours)
+        let secondsInHours : TimeInterval = Double(hoursToAdd) * 60 * 60
+        let dateWithHoursAdded : Date = self.addingTimeInterval(secondsInHours)
         
         //Return Result
         return dateWithHoursAdded
     }
 }
 
-func documentsURL() -> NSURL?
+func documentsURL() -> URL?
 {
-    let fileManager = NSFileManager.defaultManager()
-    return fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first
+    let fileManager = FileManager.default
+    return fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
 }
 
-func cachesURL() -> NSURL?
+func cachesURL() -> URL?
 {
-    let fileManager = NSFileManager.defaultManager()
-    return fileManager.URLsForDirectory(.CachesDirectory, inDomains: .UserDomainMask).first
+    let fileManager = FileManager.default
+    return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
 }
 
-func sortSeries(series:[Series]?,sorting:String?) -> [Series]?
+func sortSeries(_ series:[Series]?,sorting:String?) -> [Series]?
 {
     var results:[Series]?
     
     switch sorting! {
-    case Constants.Title_AZ:
-        results = series?.sort() { $0.titleSort < $1.titleSort }
+    case Constants.Sorting.Title_AZ:
+        results = series?.sorted() { $0.titleSort < $1.titleSort }
         break
-    case Constants.Title_ZA:
-        results = series?.sort() { $0.titleSort > $1.titleSort }
+    case Constants.Sorting.Title_ZA:
+        results = series?.sorted() { $0.titleSort > $1.titleSort }
         break
-    case Constants.Newest_to_Oldest:
-        results = series?.sort() { $0.id > $1.id }
+    case Constants.Sorting.Newest_to_Oldest:
+        results = series?.sorted() { $0.id > $1.id }
         break
-    case Constants.Oldest_to_Newest:
-        results = series?.sort() { $0.id < $1.id }
+    case Constants.Sorting.Oldest_to_Newest:
+        results = series?.sorted() { $0.id < $1.id }
         break
     default:
         break
@@ -143,24 +181,24 @@ func sortSeries(series:[Series]?,sorting:String?) -> [Series]?
     return results
 }
 
-func bookNumberInBible(book:String?) -> Int?
+func bookNumberInBible(_ book:String?) -> Int?
 {
     if (book != nil) {
-        if let index = Constants.OLD_TESTAMENT.indexOf(book!) {
+        if let index = Constants.TESTAMENT.OLD.index(of: book!) {
             return index
         }
         
-        if let index = Constants.NEW_TESTAMENT.indexOf(book!) {
-            return Constants.OLD_TESTAMENT.count + index
+        if let index = Constants.TESTAMENT.NEW.index(of: book!) {
+            return Constants.TESTAMENT.OLD.count + index
         }
         
-        return Constants.OLD_TESTAMENT.count + Constants.NEW_TESTAMENT.count+1 // Not in the Bible.  E.g. Selected Scriptures
+        return Constants.TESTAMENT.OLD.count + Constants.TESTAMENT.NEW.count+1 // Not in the Bible.  E.g. Selected Scriptures
     } else {
         return nil
     }
 }
 
-func booksFromSeries(series:[Series]?) -> [String]?
+func booksFromSeries(_ series:[Series]?) -> [String]?
 {
 //    var bookSet = Set<String>()
 //    var bookArray = [String]()
@@ -169,52 +207,52 @@ func booksFromSeries(series:[Series]?) -> [String]?
         return series.book != nil
     }).map { (series:Series) -> String in
         return series.book!
-    })).sort({ bookNumberInBible($0) < bookNumberInBible($1) })
+    })).sorted(by: { bookNumberInBible($0) < bookNumberInBible($1) })
 }
 
-func lastNameFromName(name:String?) -> String?
+func lastNameFromName(_ name:String?) -> String?
 {
     if var lastname = name {
-        while (lastname.rangeOfString(Constants.SINGLE_SPACE_STRING) != nil) {
-            lastname = lastname.substringFromIndex(lastname.rangeOfString(Constants.SINGLE_SPACE_STRING)!.endIndex)
+        while (lastname.range(of: Constants.SINGLE_SPACE_STRING) != nil) {
+            lastname = lastname.substring(from: lastname.range(of: Constants.SINGLE_SPACE_STRING)!.upperBound)
         }
         return lastname
     }
     return nil
 }
 
-func networkUnavailable(message:String?)
+func networkUnavailable(_ message:String?)
 {
-    if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-        UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
+    if (UIApplication.shared.applicationState == UIApplicationState.active) {
+        UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
         
         let alert = UIAlertController(title:Constants.Network_Error,
             message: message,
-            preferredStyle: UIAlertControllerStyle.Alert)
+            preferredStyle: UIAlertControllerStyle.alert)
         
-        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
             
         })
         alert.addAction(action)
         
 //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
         
-        UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+        UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
     }
 }
 
-func filesOfTypeInCache(fileType:String) -> [String]?
+func filesOfTypeInCache(_ fileType:String) -> [String]?
 {
     var files = [String]()
     
-    let fileManager = NSFileManager.defaultManager()
+    let fileManager = FileManager.default
     let path = cachesURL()?.path
     do {
-        let array = try fileManager.contentsOfDirectoryAtPath(path!)
+        let array = try fileManager.contentsOfDirectory(atPath: path!)
         
         for string in array {
-            if string.rangeOfString(fileType) != nil {
-                if fileType == string.substringFromIndex(string.rangeOfString(fileType)!.startIndex) {
+            if string.range(of: fileType) != nil {
+                if fileType == string.substring(from: string.range(of: fileType)!.lowerBound) {
                     files.append(string)
                 }
             }
@@ -244,112 +282,24 @@ func filesOfTypeInCache(fileType:String) -> [String]?
 //    }
 //}
 
-func stringWithoutPrefixes(fromString:String?) -> String?
+func stringWithoutPrefixes(_ fromString:String?) -> String?
 {
     var sortString = fromString
     
     let quote:String = "\""
     let prefixes = ["A ","An ","And ","The "]
     
-    if (fromString?.endIndex >= quote.endIndex) && (fromString?.substringToIndex(quote.endIndex) == quote) {
-        sortString = fromString!.substringFromIndex(quote.endIndex)
+    if (fromString?.endIndex >= quote.endIndex) && (fromString?.substring(to: quote.endIndex) == quote) {
+        sortString = fromString!.substring(from: quote.endIndex)
     }
     
     for prefix in prefixes {
-        if (fromString?.endIndex >= prefix.endIndex) && (fromString?.substringToIndex(prefix.endIndex) == prefix) {
-            sortString = fromString!.substringFromIndex(prefix.endIndex)
+        if (fromString?.endIndex >= prefix.endIndex) && (fromString?.substring(to: prefix.endIndex) == prefix) {
+            sortString = fromString!.substring(from: prefix.endIndex)
             break
         }
     }
     
     return sortString
 }
-
-//func jsonDataFromBundle() -> JSON
-//{
-//    if let path = NSBundle.mainBundle().pathForResource(Constants.JSON_ARRAY_KEY, ofType: "json") {
-//        do {
-//            let data = try NSData(contentsOfURL: NSURL(fileURLWithPath: path), options: NSDataReadingOptions.DataReadingMappedIfSafe)
-//            let json = JSON(data: data)
-//            if json != JSON.null {
-//                return json
-//            } else {
-//                print("could not get json from file, make sure that file contains valid json.")
-//            }
-//        } catch let error as NSError {
-//            print(error.localizedDescription)
-//        }
-//    } else {
-//        print("Invalid filename/path.")
-//    }
-//    
-//    return nil
-//}
-
-//func jsonToFileSystem()
-//{
-//    let fileManager = NSFileManager.defaultManager()
-//    
-//    //Get documents directory URL
-//    let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
-//    
-//    let jsonBundlePath = NSBundle.mainBundle().pathForResource(Constants.JSON_ARRAY_KEY, ofType: "json")
-//    
-//    // Check if file exist
-//    if (!fileManager.fileExistsAtPath(jsonFileSystemURL!.path!)){
-//        if (jsonBundlePath != nil) {
-//            do {
-//                // Copy File From Bundle To Documents Directory
-//                try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonFileSystemURL!.path!)
-//            } catch _ {
-//                print("failed to copy sermons.json")
-//            }
-//        }
-//    } else {
-//        // Which is newer, the bundle file or the file in the Documents folder?
-//        do {
-//            let jsonBundleAttributes = try fileManager.attributesOfItemAtPath(jsonBundlePath!)
-//            
-//            let jsonFileSystemAttributes = try fileManager.attributesOfItemAtPath(jsonFileSystemURL!.path!)
-//            
-//            let jsonBundleModDate = jsonBundleAttributes[NSFileModificationDate] as! NSDate
-//            let jsonFileSystemModDate = jsonFileSystemAttributes[NSFileModificationDate] as! NSDate
-//            
-//            if (jsonBundleModDate.isOlderThanDate(jsonFileSystemModDate)) {
-//                //Do nothing, the json in Documents is newer, i.e. it was downloaded after the install.
-//                print("JSON in Documents is newer than JSON in bundle")
-//            }
-//            
-//            if (jsonBundleModDate.isEqualToDate(jsonFileSystemModDate)) {
-//                let jsonBundleFileSize = jsonBundleAttributes[NSFileSize] as! Int
-//                let jsonFileSystemFileSize = jsonFileSystemAttributes[NSFileSize] as! Int
-//                
-//                if (jsonBundleFileSize != jsonFileSystemFileSize) {
-//                    print("Same dates different file sizes")
-//                    //We have a problem.
-//                } else {
-//                    print("Same dates same file sizes")
-//                    //Do nothing, they are the same.
-//                }
-//            }
-//            
-//            if (jsonBundleModDate.isNewerThanDate(jsonFileSystemModDate)) {
-//                print("JSON in bundle is newer than JSON in Documents")
-//                //copy the bundle into Documents directory
-//                do {
-//                    // Copy File From Bundle To Documents Directory
-//                    try fileManager.removeItemAtPath(jsonFileSystemURL!.path!)
-//                    try fileManager.copyItemAtPath(jsonBundlePath!,toPath: jsonFileSystemURL!.path!)
-//                } catch _ {
-//                    print("failed to copy sermons.json")
-//                }
-//            }
-//        } catch _ {
-//            
-//        }
-//        
-//    }
-//}
-
-
 

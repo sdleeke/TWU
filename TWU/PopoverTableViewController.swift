@@ -19,7 +19,7 @@ enum PopoverPurpose {
 
 protocol PopoverTableViewControllerDelegate
 {
-    func rowClickedAtIndex(index:Int, strings:[String], purpose:PopoverPurpose, sermon:Sermon?)
+    func rowClickedAtIndex(_ index:Int, strings:[String], purpose:PopoverPurpose, sermon:Sermon?)
 }
 
 struct Section {
@@ -74,8 +74,8 @@ class PopoverTableViewController: UITableViewController {
                     var strings = [String]()
                     
                     repeat {
-                        strings.append(newString.substringToIndex(newString.rangeOfString("\n")!.startIndex))
-                        newString = newString.substringFromIndex(newString.rangeOfString("\n")!.endIndex)
+                        strings.append(newString.substring(to: newString.range(of: "\n")!.lowerBound))
+                        newString = newString.substring(from: newString.range(of: "\n")!.upperBound)
                     } while newString.characters.contains("\n")
 
                     strings.append(newString)
@@ -107,18 +107,18 @@ class PopoverTableViewController: UITableViewController {
                 height = 1.5*height
             }
             
-            self.preferredContentSize = CGSizeMake(width, height)
+            self.preferredContentSize = CGSize(width: width, height: height)
 
             if (showIndex) {
                 let a = "A"
                 
                 section.titles = Array(Set(strings!.map({ (string:String) -> String in
                     if indexByLastName {
-                        return lastNameFromName(string)!.substringToIndex(a.endIndex)
+                        return lastNameFromName(string)!.substring(to: a.endIndex)
                     } else {
-                        return stringWithoutPrefixes(string)!.substringToIndex(a.endIndex)
+                        return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
                     }
-                }))).sort() { $0 < $1 }
+                }))).sorted() { $0 < $1 }
                 
                 var indexes = [Int]()
                 var counts = [Int]()
@@ -130,9 +130,9 @@ class PopoverTableViewController: UITableViewController {
                         var string:String?
                         
                         if indexByLastName {
-                            string = lastNameFromName(strings?[index])!.substringToIndex(a.endIndex)
+                            string = lastNameFromName(strings?[index])!.substring(to: a.endIndex)
                         } else {
-                            string = stringWithoutPrefixes(strings?[index])!.substringToIndex(a.endIndex)
+                            string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
                         }
 
                         if (sectionTitle == string) {
@@ -163,49 +163,26 @@ class PopoverTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
     
-    override func viewWillAppear(animated: Bool)
+    override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
     }
 
-    override func viewDidAppear(animated: Bool)
+    override func viewDidAppear(_ animated: Bool)
     {
         super.viewDidAppear(animated)
 
-        // The code below scrolls to the currently selected tag (if there is one), but that makes getting to All at the top of the list harder.
-        // And since the currently selectd tag (if there is one) is shown in the search bar prompt text, I don't think this is needed.
-//        if (purpose == .selectingTags) && (globals.sermonTagsSelected != nil) && (globals.sermonTagsSelected != Constants.All) {
-//            if (strings != nil) && (globals.sermonTagsSelected != nil) {
-//                if (showSectionHeaders) {
-//                    let sectionNumber = section.titles!.indexOf(globals.sermonTagsSelected!.substringToIndex("A".endIndex))
-//                    var row = section.indexes![sectionNumber!]
-//                    for increment in 0..<section.counts![sectionNumber!] {
-//                        if globals.sermonTagsSelected == strings?[row+increment] {
-//                            row = increment
-//                            break
-//                        }
-//                    }
-//                    let indexPath = NSIndexPath(forRow: row, inSection: sectionNumber!)
-//                    tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.None, animated: true)
-//                } else {
-//                    if let row = strings!.indexOf(globals.sermonTagsSelected!) {
-//                        let indexPath = NSIndexPath(forRow: row, inSection: 0)
-//                        tableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.None, animated: true)
-//                    }
-//                }
-//            }
-//        }
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        NSURLCache.sharedURLCache().removeAllCachedResponses()
+        URLCache.shared.removeAllCachedResponses()
     }
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Potentially incomplete method implementation.
         // Return the number of sections.
         if (showIndex) {
@@ -215,7 +192,7 @@ class PopoverTableViewController: UITableViewController {
         }
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
         if (showIndex) {
@@ -225,7 +202,7 @@ class PopoverTableViewController: UITableViewController {
         }
     }
 
-    override func sectionIndexTitlesForTableView(tableView: UITableView) -> [String]? {
+    override func sectionIndexTitles(for tableView: UITableView) -> [String]? {
         if (showIndex) {
             return self.section.titles
         } else {
@@ -237,7 +214,7 @@ class PopoverTableViewController: UITableViewController {
 //        return 48
 //    }
     
-    override func tableView(tableView: UITableView, sectionForSectionIndexTitle title: String, atIndex index: Int) -> Int {
+    override func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
         if (showIndex) {
             return index
         } else {
@@ -245,7 +222,7 @@ class PopoverTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if (showIndex && showSectionHeaders) {
             return self.section.titles != nil ? self.section.titles![section] : nil
         } else {
@@ -253,21 +230,21 @@ class PopoverTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(Constants.POPOVER_CELL_IDENTIFIER, forIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.POPOVER_CELL, for: indexPath)
 
         var index = -1
         
         if (showIndex) {
-            index = section.indexes != nil ? section.indexes![indexPath.section]+indexPath.row : -1
+            index = section.indexes != nil ? section.indexes![(indexPath as NSIndexPath).section]+(indexPath as NSIndexPath).row : -1
         } else {
-            index = indexPath.row
+            index = (indexPath as NSIndexPath).row
         }
         
         // Configure the cell...
         switch purpose! {
         case .selectingAction:
-            cell.accessoryType = UITableViewCellAccessoryType.None
+            cell.accessoryType = UITableViewCellAccessoryType.none
             break
             
         case .selectingFiltering:
@@ -275,31 +252,31 @@ class PopoverTableViewController: UITableViewController {
             switch globals.showing {
             case .all:
                 if strings![index] == Constants.All {
-                    cell.accessoryType = UITableViewCellAccessoryType.Checkmark
+                    cell.accessoryType = UITableViewCellAccessoryType.checkmark
                 } else {
-                    cell.accessoryType = UITableViewCellAccessoryType.None
+                    cell.accessoryType = UITableViewCellAccessoryType.none
                 }
                 break
             
             case .filtered:
                 if strings![index] == globals.filter {
-                    cell.accessoryType = UITableViewCellAccessoryType.Checkmark
+                    cell.accessoryType = UITableViewCellAccessoryType.checkmark
                 } else {
-                    cell.accessoryType = UITableViewCellAccessoryType.None
+                    cell.accessoryType = UITableViewCellAccessoryType.none
                 }
                 break
             }
             
         case .selectingSorting:
-            if (strings?[index].lowercaseString == globals.sorting?.lowercaseString) {
-                cell.accessoryType = UITableViewCellAccessoryType.Checkmark
+            if (strings?[index].lowercased() == globals.sorting?.lowercased()) {
+                cell.accessoryType = UITableViewCellAccessoryType.checkmark
             } else {
-                cell.accessoryType = UITableViewCellAccessoryType.None
+                cell.accessoryType = UITableViewCellAccessoryType.none
             }
             break
             
         case .selectingShow:
-            cell.accessoryType = UITableViewCellAccessoryType.None
+            cell.accessoryType = UITableViewCellAccessoryType.none
             break
         }
 
@@ -308,14 +285,14 @@ class PopoverTableViewController: UITableViewController {
         return cell
     }
 
-    override func tableView(TableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ TableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 //        let cell = tableView.cellForRowAtIndexPath(indexPath)
 
         var index = -1
         if (showIndex) {
-            index = self.section.indexes != nil ? self.section.indexes![indexPath.section]+indexPath.row : -1
+            index = self.section.indexes != nil ? self.section.indexes![(indexPath as NSIndexPath).section]+(indexPath as NSIndexPath).row : -1
         } else {
-            index = indexPath.row
+            index = (indexPath as NSIndexPath).row
         }
 
         delegate?.rowClickedAtIndex(index, strings: self.strings!, purpose: self.purpose!, sermon: self.selectedSermon)

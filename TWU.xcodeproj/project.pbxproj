@@ -30,10 +30,8 @@
 		17A571201BEA370000C0D278 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A5711F1BEA370000C0D278 /* Globals.swift */; };
 		17B75BA71B9463F900672A3B /* functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B75BA61B9463F900672A3B /* functions.swift */; };
 		17B75BA91B946D9E00672A3B /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17B75BA81B946D9E00672A3B /* MediaPlayer.framework */; };
-		17DD523A1BC2AE5E00FFD95C /* series.json in Resources */ = {isa = PBXBuildFile; fileRef = 17DD52391BC2AE5E00FFD95C /* series.json */; };
 		17DD523C1BC2AEA100FFD95C /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD523B1BC2AEA100FFD95C /* SwiftyJSON.swift */; };
 		17FBFBDD1B6C62F70057D027 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */; };
-		17FDE17B1C84701000516C77 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17FDE17A1C84701000516C77 /* CloudKit.framework */; };
 		17FFEFEB1B73673A006D8169 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FFEFEA1B73673A006D8169 /* AboutViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -84,11 +82,9 @@
 		17A5711F1BEA370000C0D278 /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		17B75BA61B9463F900672A3B /* functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = functions.swift; sourceTree = "<group>"; };
 		17B75BA81B946D9E00672A3B /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
-		17DD52391BC2AE5E00FFD95C /* series.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = series.json; sourceTree = "<group>"; };
 		17DD523B1BC2AEA100FFD95C /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		17FDE1791C84700300516C77 /* Series.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Series.entitlements; path = TWU/Series.entitlements; sourceTree = "<group>"; };
-		17FDE17A1C84701000516C77 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		17FFEFEA1B73673A006D8169 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -105,7 +101,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				17B75BA91B946D9E00672A3B /* MediaPlayer.framework in Frameworks */,
-				17FDE17B1C84701000516C77 /* CloudKit.framework in Frameworks */,
 				179E49031B6D4A94008ED99D /* AudioToolbox.framework in Frameworks */,
 				17FBFBDD1B6C62F70057D027 /* AVFoundation.framework in Frameworks */,
 			);
@@ -140,7 +135,6 @@
 				17B75BA81B946D9E00672A3B /* MediaPlayer.framework */,
 				179E49021B6D4A94008ED99D /* AudioToolbox.framework */,
 				17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */,
-				17FDE17A1C84701000516C77 /* CloudKit.framework */,
 				17FDE1791C84700300516C77 /* Series.entitlements */,
 			);
 			sourceTree = "<group>";
@@ -167,7 +161,6 @@
 				17DD523B1BC2AEA100FFD95C /* SwiftyJSON.swift */,
 				177FBA921C5CE1B800AFBB50 /* OBSlider.swift */,
 				17B75BA61B9463F900672A3B /* functions.swift */,
-				17DD52391BC2AE5E00FFD95C /* series.json */,
 				179C4FC71B6803C900727DE0 /* MediaCollectionViewCell.swift */,
 				179C4FC51B68035B00727DE0 /* MediaCollectionViewController.swift */,
 				17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */,
@@ -274,30 +267,34 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Steve Leeke";
 				TargetAttributes = {
 					176DEAB61C8330F6001EBBC4 = {
 						CreatedOnToolsVersion = 7.2.1;
+						LastSwiftMigration = 0800;
 						TestTargetID = 179C4F9F1B6801D600727DE0;
 					};
 					179C4F9F1B6801D600727DE0 = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = 8975UQUKKK;
+						DevelopmentTeam = 35U7HMB59T;
+						LastSwiftMigration = 0800;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
 							com.apple.Push = {
-								enabled = 1;
+								enabled = 0;
 							};
 							com.apple.iCloud = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};
 					179C4FB41B6801D600727DE0 = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = 35U7HMB59T;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -337,7 +334,6 @@
 				179C4FB01B6801D600727DE0 /* LaunchScreen.xib in Resources */,
 				1705173D1B6FDD8D00144ED6 /* iPad.storyboard in Resources */,
 				17141EFB1CBE660800B31D23 /* Images.xcassets in Resources */,
-				17DD523A1BC2AE5E00FFD95C /* series.json in Resources */,
 				1705173E1B6FDD8D00144ED6 /* iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -443,6 +439,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.leeke.TWUUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = TWU;
 				USES_XCTRUNNER = YES;
 			};
@@ -456,6 +453,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.leeke.TWUUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = TWU;
 				USES_XCTRUNNER = YES;
 			};
@@ -474,8 +472,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -498,7 +498,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -520,8 +520,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -537,9 +539,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -549,20 +552,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = TWU/Series.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 35U7HMB59T;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TWU/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.leeke.TWU;
+				PRODUCT_BUNDLE_IDENTIFIER = org.countrysidebible.TWU;
 				PRODUCT_MODULE_NAME = TWU;
 				PRODUCT_NAME = Series;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -572,20 +576,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = TWU/Series.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 35U7HMB59T;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TWU/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.leeke.TWU;
+				PRODUCT_BUNDLE_IDENTIFIER = org.countrysidebible.TWU;
 				PRODUCT_MODULE_NAME = TWU;
 				PRODUCT_NAME = Series;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -594,6 +599,7 @@
 		179C4FC31B6801D600727DE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 35U7HMB59T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -608,12 +614,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
 		179C4FC41B6801D600727DE0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 35U7HMB59T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -624,6 +632,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-class MediaCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDelegate, UISearchBarDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate { // , NSURLSessionDownloadDelegate
+class MediaCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate { // , NSURLSessionDownloadDelegate
 
     var refreshControl:UIRefreshControl?
 
@@ -18,12 +18,12 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         didSet {
 //            globals.seriesSelected = seriesSelected
             if (seriesSelected != nil) {
-                let defaults = NSUserDefaults.standardUserDefaults()
-                defaults.setObject("\(seriesSelected!.id)", forKey: Constants.SERIES_SELECTED)
+                let defaults = UserDefaults.standard
+                defaults.set("\(seriesSelected!.id)", forKey: Constants.SETTINGS.SELECTED.SERIES)
                 defaults.synchronize()
 
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    NSNotificationCenter.defaultCenter().postNotificationName(Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+                DispatchQueue.main.async(execute: { () -> Void in
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAYING_PAUSED), object: nil)
                 })
             } else {
                 print("MediaCollectionViewController:seriesSelected nil")
@@ -31,35 +31,37 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
 
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var collectionView: UICollectionView!
     
 //    var resultSearchController:UISearchController?
 
-    var session:NSURLSession? // Used for JSON
+    var session:URLSession? // Used for JSON
 
-    override func canBecomeFirstResponder() -> Bool {
+    override var canBecomeFirstResponder : Bool {
         return true
     }
     
-    override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
         if (splitViewController == nil) {
             globals.motionEnded(motion, event: event)
         }
     }
 
-    func sorting(button:UIBarButtonItem?)
+    func sorting(_ button:UIBarButtonItem?)
     {
         //In case we have one already showing
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? UINavigationController {
+        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
             if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-                navigationController.modalPresentationStyle = .Popover
+                navigationController.modalPresentationStyle = .popover
                 //            popover?.preferredContentSize = CGSizeMake(300, 500)
                 
-                navigationController.popoverPresentationController?.permittedArrowDirections = .Down
+                navigationController.popoverPresentationController?.permittedArrowDirections = .down
                 navigationController.popoverPresentationController?.delegate = self
                 
                 navigationController.popoverPresentationController?.barButtonItem = button
@@ -69,15 +71,15 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 popover.delegate = self
                 
                 popover.purpose = .selectingSorting
-                popover.strings = Constants.Sorting_Options
+                popover.strings = Constants.Sorting.Options
                 
-                presentViewController(navigationController, animated: true, completion: nil)
+                present(navigationController, animated: true, completion: nil)
             }
         }
     }
     
-    func rowClickedAtIndex(index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
-        dismissViewControllerAnimated(true, completion: nil)
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+        dismiss(animated: true, completion: nil)
         
         switch purpose {
         case .selectingSorting:
@@ -87,7 +89,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             
         case .selectingFiltering:
             if (globals.filter != strings[index]) {
-                self.searchBar.placeholder = strings[index]
+                searchBar.placeholder = strings[index]
                 
                 if (strings[index] == Constants.All) {
                     globals.showing = .all
@@ -100,8 +102,8 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 self.collectionView.reloadData()
                 
                 if globals.activeSeries != nil {
-                    let indexPath = NSIndexPath(forItem:0,inSection:0)
-                    self.collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:UICollectionViewScrollPosition.CenteredVertically, animated: true)
+                    let indexPath = IndexPath(item:0,section:0)
+                    self.collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
                 }
             }
             break
@@ -114,17 +116,17 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
     
-    func filtering(button:UIBarButtonItem?)
+    func filtering(_ button:UIBarButtonItem?)
     {
         //In case we have one already showing
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? UINavigationController {
+        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
             if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-                navigationController.modalPresentationStyle = .Popover
+                navigationController.modalPresentationStyle = .popover
                 //            popover?.preferredContentSize = CGSizeMake(300, 500)
                 
-                navigationController.popoverPresentationController?.permittedArrowDirections = .Down
+                navigationController.popoverPresentationController?.permittedArrowDirections = .down
                 navigationController.popoverPresentationController?.delegate = self
                 
                 navigationController.popoverPresentationController?.barButtonItem = button
@@ -135,36 +137,36 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 
                 popover.purpose = .selectingFiltering
                 popover.strings = booksFromSeries(globals.series)
-                popover.strings?.insert(Constants.All, atIndex: 0)
+                popover.strings?.insert(Constants.All, at: 0)
                 
-                presentViewController(navigationController, animated: true, completion: nil)
+                present(navigationController, animated: true, completion: nil)
             }
         }
     }
     
     // Specifically for Plus size iPhones.
-    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
     {
-        return UIModalPresentationStyle.None
+        return UIModalPresentationStyle.none
     }
     
-    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
-        return UIModalPresentationStyle.None
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
     }
 
-    func settings(button:UIBarButtonItem?)
+    func settings(_ button:UIBarButtonItem?)
     {
-        dismissViewControllerAnimated(true, completion: nil)
-        performSegueWithIdentifier(Constants.SHOW_SETTINGS_SEGUE, sender: nil)
+        dismiss(animated: true, completion: nil)
+        performSegue(withIdentifier: Constants.SEGUE.SHOW_SETTINGS, sender: nil)
     }
     
-    private func setupSortingAndGroupingOptions()
+    fileprivate func setupSortingAndGroupingOptions()
     {
-        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.sorting(_:)))
-        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.filtering(_:)))
-        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.settings(_:)))
+        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.sorting(_:)))
+        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.filtering(_:)))
+        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.settings(_:)))
         
-        let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil)
         
         var barButtons = [UIBarButtonItem]()
         
@@ -182,69 +184,19 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         barButtons.append(spaceButton)
         
-        navigationController?.toolbar.translucent = false
-        navigationController?.toolbarHidden = false // If this isn't here a colleciton view in an iPad master view controller will NOT show the toolbar - even though it will show in the navigation controller on an iPhone if this occurs in viewWillAppear()
+        navigationController?.toolbar.isTranslucent = false
+        navigationController?.isToolbarHidden = false // If this isn't here a colleciton view in an iPad master view controller will NOT show the toolbar - even though it will show in the navigation controller on an iPhone if this occurs in viewWillAppear()
         
         setToolbarItems(barButtons, animated: true)
     }
     
-//    func sermonUpdateAvailable()
-//    {
-//        if (navigationController?.visibleViewController == self) {
-//            var title:String?
-//            
-//            switch UIApplication.sharedApplication().applicationIconBadgeNumber {
-//            case 0:
-//                // Error
-//                return
-//                
-//            case 1:
-//                title = Constants.Sermon_Update_Available
-//                break
-//                
-//            default:
-//                title = Constants.Sermon_Updates_Available
-//                break
-//            }
-//            
-//            let alert = UIAlertController(title:title,
-//                message: nil,
-//                preferredStyle: UIAlertControllerStyle.ActionSheet)
-//            
-//            let updateAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_NOW_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-//                self.handleRefresh(self.refreshControl!)
-//            })
-//            alert.addAction(updateAction)
-//            
-//            //        if (!Reachability.isConnectedToNetwork()) {
-//            //            updateAction.enabled = false
-//            //        }
-//            
-//            let laterAction = UIAlertAction(title: Constants.REMOTE_NOTIFICATION_LATER_ACTION_TITLE, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
-//                
-//            })
-//            alert.addAction(laterAction)
-//            
-//            let cancelAction = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-//                
-//            })
-//            alert.addAction(cancelAction)
-//            
-//            alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-//            
-//            alert.popoverPresentationController?.sourceView = self.searchBar
-//            alert.popoverPresentationController?.sourceRect = self.searchBar.frame
-//            
-//            presentViewController(alert, animated: true, completion: nil)
-//        }
-//    }
-    
-    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool
     {
-        return !globals.loading && !globals.refreshing && (globals.series != nil)
+//        print(globals.loading, globals.isRefreshing, globals.series)
+        return !globals.isLoading && !globals.isRefreshing && (globals.series != nil)
     }
 
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
 //        println("Text changed: \(searchText)")
         
         globals.searchButtonClicked = false
@@ -254,28 +206,28 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         collectionView!.reloadData()
     }
     
-    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         globals.searchButtonClicked = false
+        searchBar.showsCancelButton = true
 
         if (!globals.searchActive) {
             globals.searchActive = true
-            searchBar.showsCancelButton = true
-            
             globals.searchText = searchBar.text
         }
     }
     
-    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
-        
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+
     }
     
-    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
 //        println("Search clicked!")
         globals.searchButtonClicked = true
+        searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
     }
     
-    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
 //        println("Cancel clicked!")
         searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
@@ -288,34 +240,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         collectionView!.reloadData()
     }
     
-    func searchBarResultsListButtonClicked(searchBar: UISearchBar) {
-        //        print("searchBarResultsListButtonClicked")
-        
-        if !globals.loading && !globals.refreshing && (globals.series != nil) && (self.storyboard != nil) {
-//            popover = storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? PopoverTableViewController
-//            
-//            popover?.modalPresentationStyle = .Popover
-//            //            popover?.preferredContentSize = CGSizeMake(300, 500)
-//            
-//            popover?.popoverPresentationController?.permittedArrowDirections = .Up
-//            popover?.popoverPresentationController?.delegate = self
-//            
-//            popover?.popoverPresentationController?.sourceView = searchBar
-//            popover?.popoverPresentationController?.sourceRect = searchBar.bounds
-//            
-//            popover?.delegate = self
-//            popover?.purpose = .selectingTags
-//            popover?.strings = globals.sermons.all?.sermonTags
-//            
-//            popover?.strings?.append(Constants.All)
-//            
-//            if (popover != nil) {
-//                presentViewController(popover!, animated: true, completion: nil)
-//            }
-        }
-    }
-
-    private func setupSearchBar()
+    fileprivate func setupSearchBar()
     {
         switch globals.showing {
         case .all:
@@ -329,21 +254,21 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func setupTitle()
     {
-        if (!globals.loading && !globals.refreshing) {
-            self.navigationController?.toolbarHidden = false
-            self.navigationItem.title = Constants.TWU_LONG
+        if (!globals.isLoading && !globals.isRefreshing) {
+            self.navigationController?.isToolbarHidden = false
+            self.navigationItem.title = Constants.TWU.LONG
         }
     }
     
-    func scrollToSeries(series:Series?)
+    func scrollToSeries(_ series:Series?)
     {
-        if (seriesSelected != nil) && (globals.activeSeries?.indexOf(series!) != nil) {
-            let indexPath = NSIndexPath(forItem: globals.activeSeries!.indexOf(series!)!, inSection: 0)
+        if (seriesSelected != nil) && (globals.activeSeries?.index(of: series!) != nil) {
+            let indexPath = IndexPath(item: globals.activeSeries!.index(of: series!)!, section: 0)
             
             //Without this background/main dispatching there isn't time to scroll after a reload.
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    self.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.Top, animated: true)
+            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+                DispatchQueue.main.async(execute: { () -> Void in
+                    self.collectionView.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition.top, animated: true)
                 })
             })
         }
@@ -361,16 +286,16 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         setupPlayingPausedButton()
         
-        scrollToSeries(seriesSelected)
+//        scrollToSeries(seriesSelected)
         
         if (splitViewController != nil) {
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                NSNotificationCenter.defaultCenter().postNotificationName(Constants.UPDATE_VIEW_NOTIFICATION, object: nil)
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
             })
         }
     }
     
-    func seriesFromSeriesDicts(seriesDicts:[[String:String]]?) -> [Series]?
+    func seriesFromSeriesDicts(_ seriesDicts:[[String:String]]?) -> [Series]?
     {
         return seriesDicts?.filter({ (seriesDict:[String:String]) -> Bool in
             let series = Series(seriesDict: seriesDict)
@@ -382,9 +307,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func removeJSONFromFileSystemDirectory()
     {
-        if let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
+        if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES) {
             do {
-                try NSFileManager.defaultManager().removeItemAtPath(jsonFileSystemURL.path!)
+                try FileManager.default.removeItem(atPath: jsonFileSystemURL.path)
             } catch _ {
                 print("failed to copy sermons.json")
             }
@@ -393,13 +318,13 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func jsonToFileSystem()
     {
-        let fileManager = NSFileManager.defaultManager()
+        let fileManager = FileManager.default
         
         //Get documents directory URL
-        let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
+        let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES)
         
         // Check if file exist
-        if (!fileManager.fileExistsAtPath(jsonFileSystemURL!.path!)){
+        if (!fileManager.fileExists(atPath: jsonFileSystemURL!.path)){
 //            downloadJSON()
         }
     }
@@ -407,43 +332,46 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     func jsonFromURL() -> JSON
     {
 //        if let url = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
-        let jsonFileSystemURL = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON)
+
+        let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES)
         
-            do {
-                let data = try NSData(contentsOfURL: NSURL(string: Constants.JSON_URL)!, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+        do {
+            let data = try Data(contentsOf: URL(string: Constants.JSON.URL)!) // , options: NSData.ReadingOptions.mappedIfSafe
+            
+            let json = JSON(data: data)
+            if json != JSON.null {
+                try data.write(to: jsonFileSystemURL!, options: NSData.WritingOptions.atomicWrite)
+                
+                //                    print(json)
+                return json
+            } else {
+                print("could not get json from file, make sure that file contains valid json.")
+                
+                let data = try Data(contentsOf: jsonFileSystemURL!) // , options: NSData.ReadingOptions.mappedIfSafe
                 
                 let json = JSON(data: data)
                 if json != JSON.null {
-                    try data.writeToURL(jsonFileSystemURL!, options: NSDataWritingOptions.AtomicWrite)
-
-//                    print(json)
+                    //                        print(json)
                     return json
-                } else {
-                    print("could not get json from file, make sure that file contains valid json.")
-
-                    let data = try NSData(contentsOfURL: jsonFileSystemURL!, options: NSDataReadingOptions.DataReadingMappedIfSafe)
-                    
-                    let json = JSON(data: data)
-                    if json != JSON.null {
-//                        print(json)
-                        return json
-                    }
+                }
+            }
+        } catch let error as NSError {
+            print(error.localizedDescription)
+            
+            do {
+                let data = try Data(contentsOf: jsonFileSystemURL!) // , options: NSData.ReadingOptions.mappedIfSafe
+                
+                let json = JSON(data: data)
+                if json != JSON.null {
+                    //                        print(json)
+                    return json
                 }
             } catch let error as NSError {
                 print(error.localizedDescription)
-
-                do {
-                    let data = try NSData(contentsOfURL: jsonFileSystemURL!, options: NSDataReadingOptions.DataReadingMappedIfSafe)
-                    
-                    let json = JSON(data: data)
-                    if json != JSON.null {
-//                        print(json)
-                        return json
-                    }
-                } catch let error as NSError {
-                    print(error.localizedDescription)
-                }
             }
+        }
+
+        
 //        } else {
 //            print("Invalid filename/path.")
 //        }
@@ -451,18 +379,18 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         return nil
     }
     
-    func loadSeriesDictsFromJSON() -> [[String:String]]?
+    func loadSeriesDicts() -> [[String:String]]?
     {
-        jsonToFileSystem()
+//        jsonToFileSystem()
         
         let json = jsonFromURL()
         
         if json != nil {
-            //                print("json:\(json)")
+//            print("json:\(json)")
             
             var seriesDicts = [[String:String]]()
             
-            let series = json[Constants.JSON_ARRAY_KEY]
+            let series = json[Constants.JSON.ARRAY_KEY]
             
             for i in 0..<series.count {
                 //                    print("sermon: \(series[i])")
@@ -484,366 +412,74 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         return nil
     }
     
-    func loadSeries(completion: (() -> Void)?)
+    func loadSeries(_ completion: (() -> Void)?)
     {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), { () -> Void in
-            globals.loading = true
+        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+            globals.isLoading = true
 
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.navigationItem.title = Constants.Loading_Sermons
+            DispatchQueue.main.async(execute: { () -> Void in
+                if !globals.isRefreshing {
+                    self.activityIndicator.startAnimating()
+                }
+                self.navigationItem.title = Constants.Titles.Loading_Series
             })
             
-//            var success = false
-//            var newSeries:[Series]?
-//            var newSeriesIndex = [Int:Series]()
-            
-//            if let seriesDicts = self.loadSeriesDictsFromJSON() {
-//                if let series = self.seriesFromSeriesDicts(seriesDicts) {
-//                    newSeries = series
-//                    for newSermonSeries in newSeries! {
-//                        newSeriesIndex[newSermonSeries.id] = newSermonSeries
-//                    }
-//                    success = true
-//                }
-//            }
-            
-//            if (!success) {
-//                // REVERT TO KNOWN GOOD JSON
-//                self.removeJSONFromFileSystemDirectory() // This will cause JSON to be loaded from the BUNDLE next time.
-//                
-//                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                    self.setupTitle()
-//                    self.refreshControl?.endRefreshing()
-//                    
-//                    if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-//                        let alert = UIAlertController(title:Constants.Unable_to_Load_Sermons,
-//                            message: "Please try to refresh the list or send an email to support@countrysidebible.org to report the problem.",
-//                            preferredStyle: UIAlertControllerStyle.Alert)
-//                        
-//                        let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-//                            
-//                        })
-//                        alert.addAction(action)
-//                        
-//                        self.presentViewController(alert, animated: true, completion: nil)
-//                    }
-//                })
-//                return
-//            }
-//            
-//            var seriesNewToUser:[Series]?
-//            var sermonsNewToUser = [Int:Int]()
-//            
-////            print("\(globals.series?.count)")
-//
-//            if globals.series != nil {
-//                let old = Set(globals.series!.map({ (series:Series) -> Int in
-//                    return series.id
-//                }))
-//                
-//                let new = Set(newSeries!.map({ (series:Series) -> Int in
-//                    return series.id
-//                }))
-//                
-//                let onlyInNew = new.subtract(old)
-//                
-//                if (onlyInNew.count > 0) {
-//                    seriesNewToUser = onlyInNew.map({ (id:Int) -> Series in
-//                        return newSeriesIndex[id]!
-//                    })
-//                } else {
-//                    for oldSeries in globals.series! {
-//                        if (newSeriesIndex[oldSeries.id]!.show - oldSeries.show) != 0 {
-//                            sermonsNewToUser[oldSeries.id] = newSeriesIndex[oldSeries.id]!.show - oldSeries.show
-//                        }
-//                    }
-//                }
-//            }
-            
-            if let seriesDicts = self.loadSeriesDictsFromJSON() {
+            if let seriesDicts = self.loadSeriesDicts() {
                 globals.series = self.seriesFromSeriesDicts(seriesDicts)
             }
             
             self.seriesSelected = globals.seriesSelected
 
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.navigationItem.title = Constants.Loading_Settings
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.navigationItem.title = Constants.Titles.Loading_Settings
             })
             globals.loadSettings()
 
-            //Handled in didSet's when defaults are loaded.
-//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                self.navigationItem.title = Constants.Sorting
-//            })
-//            globals.activeSeries = sortSeries(globals.activeSeries,sorting: globals.sorting)
-            
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.navigationItem.title = Constants.Setting_up_Player
-                if (globals.player.playing != nil) {
-                    globals.player.playOnLoad = false
-                    globals.setupPlayer(globals.player.playing)
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.navigationItem.title = Constants.Titles.Setting_up_Player
+                if (globals.mediaPlayer.playing != nil) {
+                    globals.mediaPlayer.playOnLoad = false
+                    globals.setupPlayer(globals.mediaPlayer.playing)
                 }
             })
             
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.navigationItem.title = Constants.TWU_LONG
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.navigationItem.title = Constants.TWU.LONG
                 self.setupViews()
+
+                if globals.isRefreshing {
+                    DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+                        self.refreshControl?.endRefreshing()
+                        globals.isRefreshing = false
+                    })
+                } else {
+                    self.activityIndicator.stopAnimating()
+                }
             })
             
             if (completion != nil) {
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    
-//                    var message:String?
-//                    
-//                    if (seriesNewToUser != nil) && (seriesNewToUser!.count > 0) {
-//                        if (globals.filter == nil) {
-//                            if (globals.sorting != Constants.Newest_to_Oldest) && (globals.sorting != Constants.Oldest_to_Newest) {
-//                                if (seriesNewToUser!.count == 1) {
-//                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the new sermon series \"\(seriesNewToUser!.first!.title!)\" at the beginning or end of the list."
-//                                }
-//                                if (seriesNewToUser!.count > 1) {
-//                                    message = "Change sorting to Newest to Oldest or Oldest to Newest to see the \(seriesNewToUser!.count) new sermon series at the beginning or end of the list."
-//                                }
-//                            }
-//                            if (globals.sorting == Constants.Newest_to_Oldest) {
-//                                if (seriesNewToUser!.count == 1) {
-//                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the beginning of the list."
-//                                }
-//                                if (seriesNewToUser!.count > 1) {
-//                                    message = "There are \(seriesNewToUser!.count) new sermon series at the beginning of the list."
-//                                }
-//                            }
-//                            if (globals.sorting == Constants.Oldest_to_Newest) {
-//                                if (seriesNewToUser!.count == 1) {
-//                                    message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" is at the end of the list."
-//                                }
-//                                if (seriesNewToUser!.count > 1) {
-//                                    message = "There are \(seriesNewToUser!.count) new sermon series at the end of the list."
-//                                }
-//                            }
-//                        } else {
-//                            if (seriesNewToUser!.count == 1) {
-//                                message = "The new sermon series \"\(seriesNewToUser!.first!.title!)\" has been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
-//                            }
-//                            if (seriesNewToUser!.count > 1) {
-//                                message = "A total of \(seriesNewToUser!.count) new sermon series have been added.  Select All under Filter and Newest to Oldest or Oldest to Newest under Sort to see the new sermon series at the beginning or end of the list."
-//                            }
-//                        }
-//                    } else {
-////                        print("\(sermonsNewToUser)")
-//                        if (sermonsNewToUser.count > 0) {
-//                            if sermonsNewToUser.keys.count == 1 {
-//                                if let sermonsAdded = sermonsNewToUser[sermonsNewToUser.keys.first!] {
-//                                    if sermonsAdded == 1 {
-//                                        message = "One sermon was added "
-//                                    }
-//                                    if sermonsAdded > 1 {
-//                                        message = "\(sermonsAdded) sermons were added "
-//                                    }
-//                                    message = message! + "to the series \(newSeriesIndex[sermonsNewToUser.keys.first!]!.title!)."
-//                                }
-//                            } else
-//                            if sermonsNewToUser.keys.count > 1 {
-//                                var seriesCount = 0
-//                                var sermonCount = 0
-//                                
-//                                for (_,value) in sermonsNewToUser {
-//                                    seriesCount += 1
-//                                    sermonCount += value
-//                                }
-//                                message = "\(sermonCount) sermons were added across \(seriesCount) different series."
-//                            }
-//                            else {
-//                                message = "An error occured."
-//                            }
-//                        } else {
-//                            message = "No new sermons were added."
-//                        }
-//                    }
-//                    
-//                    let alert = UIAlertView(title: "Sermon Update Complete", message: message, delegate: self, cancelButtonTitle: "OK")
-//                    alert.show()
-                
+                DispatchQueue.main.async(execute: { () -> Void in
                     completion?()
                 })
             }
 
-            globals.loading = false
+            globals.isLoading = false
         })
-    }
-    
-//    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-//        print("URLSession: \(session.description) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
-//        
-//        let filename = downloadTask.taskDescription!
-//        
-//        print("filename: \(filename) bytesWritten: \(bytesWritten) totalBytesWritten: \(totalBytesWritten) totalBytesExpectedToWrite: \(totalBytesExpectedToWrite)")
-//        
-//        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-//    }
-//    
-//    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL)
-//    {
-//        var success = false
-//        
-//        print("URLSession: \(session.description) didFinishDownloadingToURL: \(location)")
-//        
-//        let filename = downloadTask.taskDescription!
-//        
-//        print("filename: \(filename) location: \(location)")
-//        
-//        if (downloadTask.countOfBytesExpectedToReceive > 0) {
-//            let fileManager = NSFileManager.defaultManager()
-//            
-//            //Get documents directory URL
-//            if let destinationURL = cachesURL()?.URLByAppendingPathComponent(filename) {
-//                // Check if file exist
-//                if (fileManager.fileExistsAtPath(destinationURL.path!)){
-//                    do {
-//                        try fileManager.removeItemAtURL(destinationURL)
-//                    } catch _ {
-//                        print("failed to remove old json file")
-//                    }
-//                }
-//                
-//                do {
-//                    try fileManager.copyItemAtURL(location, toURL: destinationURL)
-//                    try fileManager.removeItemAtURL(location)
-//                    success = true
-//                } catch _ {
-//                    print("failed to copy new json file to Documents")
-//                }
-//            }
-//        }
-//        
-//        if success {
-//            // ONLY flush and refresh the data once we know we have successfully downloaded the new JSON
-//            // file and successfully copied it to the Documents directory.
-//            
-//            // URL call back does NOT run on the main queue
-//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                globals.player.paused = true
-//                globals.player.mpPlayer?.pause()
-//                
-//                globals.updateCurrentTimeExact()
-//                
-//                globals.player.mpPlayer?.view.hidden = true
-//                globals.player.mpPlayer?.view.removeFromSuperview()
-//                
-//                self.loadSeries() {
-//                    self.refreshControl?.endRefreshing()
-//                    
-//                    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-//                    UIApplication.sharedApplication().applicationIconBadgeNumber = 0
-//                    
-//                    globals.refreshing = false
-//                }
-//            })
-//        } else {
-//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-//                    let alert = UIAlertController(title:"Unable to Download Sermons",
-//                        message: "Please try to refresh the list again or send an email to support@countrysidebible.org to report the problem.",
-//                        preferredStyle: UIAlertControllerStyle.Alert)
-//                    
-//                    let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
-//                        
-//                    })
-//                    alert.addAction(action)
-//                    
-//                    self.presentViewController(alert, animated: true, completion: nil)
-//                }
-//                
-//                self.refreshControl!.endRefreshing()
-//                
-//                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-//                
-//                self.collectionView.reloadData()
-//                
-//                globals.refreshing = false
-//
-//                self.setupViews()
-//            })
-//        }
-//    }
-//    
-//    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-//        if (error != nil) {
-//            print("Download failed for: \(session.description)")
-//        } else {
-//            print("Download succeeded for: \(session.description)")
-//        }
-//        
-//        //        removeTempFiles()
-//        
-//        let filename = task.taskDescription
-//        print("filename: \(filename!) error: \(error)")
-//        
-//        session.invalidateAndCancel()
-//        
-//        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-//    }
-//    
-//    func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
-//        
-//    }
-    
-//    func downloadJSON()
-//    {
-//        navigationItem.title = Constants.DOWNLOADING_TITLE
-//        
-////        let jsonURL = "\(Constants.JSON_URL_PREFIX)\(Constants.TWU_SHORT.lowercaseString).\(Constants.SERIES_JSON)"
-//        let downloadRequest = NSMutableURLRequest(URL: NSURL(string: Constants.JSON_URL)!)
-//        
-//        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
-//        
-//        session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-//        
-//        let downloadTask = session?.downloadTaskWithRequest(downloadRequest)
-//        downloadTask?.taskDescription = Constants.JSON_URL // SERIES_JSON
-//        
-//        downloadTask?.resume()
-//        
-//        //downloadTask goes out of scope but globals.session must retain it.  Which means if we didn't retain session they would both be lost
-//        // and we would likely lose the download.
-//        
-//        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-//    }
-    
-    func cancelAllDownloads()
-    {
-        if (globals.series != nil) {
-            for series in globals.series! {
-                if series.sermons != nil {
-                    for sermon in series.sermons! {
-                        if sermon.audioDownload.active {
-                            sermon.audioDownload.task?.cancel()
-                            sermon.audioDownload.task = nil
-                            
-                            sermon.audioDownload.totalBytesWritten = 0
-                            sermon.audioDownload.totalBytesExpectedToWrite = 0
-                            
-                            sermon.audioDownload.state = .none
-                        }
-                    }
-                }
-            }
-        }
     }
     
     func disableToolBarButtons()
     {
         if let barButtons = toolbarItems {
             for barButton in barButtons {
-                barButton.enabled = false
+                barButton.isEnabled = false
             }
         }
     }
     
     func disableBarButtons()
     {
-        navigationItem.leftBarButtonItem?.enabled = false
-        navigationItem.rightBarButtonItem?.enabled = false
+        navigationItem.leftBarButtonItem?.isEnabled = false
+        navigationItem.rightBarButtonItem?.isEnabled = false
         disableToolBarButtons()
     }
     
@@ -852,7 +488,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         if (globals.series != nil) {
             if let barButtons = toolbarItems {
                 for barButton in barButtons {
-                    barButton.enabled = true
+                    barButton.isEnabled = true
                 }
             }
         }
@@ -861,29 +497,59 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     func enableBarButtons()
     {
         if (globals.series != nil) {
-            navigationItem.leftBarButtonItem?.enabled = true
-            navigationItem.rightBarButtonItem?.enabled = true
+            navigationItem.leftBarButtonItem?.isEnabled = true
+            navigationItem.rightBarButtonItem?.isEnabled = true
             enableToolBarButtons()
         }
     }
     
-//    func handleRefresh(refreshControl: UIRefreshControl) {
-//        globals.refreshing = true
-//
-//        cancelAllDownloads()
-//        
-//        self.searchBar.placeholder = nil
-//        
-//        if splitViewController != nil {
-//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                NSNotificationCenter.defaultCenter().postNotificationName(Constants.CLEAR_VIEW_NOTIFICATION, object: nil)
-//            })
-//        }
-//        
-//        disableBarButtons()
-//        
+    func handleRefresh(_ refreshControl: UIRefreshControl) {
+        globals.isRefreshing = true
+        
+        globals.unobservePlayer()
+        
+        globals.mediaPlayer.pauseIfPlaying()
+
+        globals.cancelAllDownloads()
+        
+        searchBar.placeholder = nil
+        
+        if splitViewController != nil {
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
+            })
+        }
+        
+        disableBarButtons()
+        
+        loadSeries()
+        {
+            if globals.series == nil {
+                let alert = UIAlertController(title: "No media available.",
+                                              message: "Please check your network connection and try again.",
+                                              preferredStyle: UIAlertControllerStyle.alert)
+                
+                let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+                    if globals.isRefreshing {
+                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+                            self.refreshControl?.endRefreshing()
+                            globals.isRefreshing = false
+                        })
+                    }
+                })
+                alert.addAction(action)
+                
+                self.present(alert, animated: true, completion: nil)
+            }
+    }
+
 //        downloadJSON()
-//    }
+    }
+    
+    func updateUI()
+    {
+        collectionView.reloadData()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -892,16 +558,15 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             loadSeries(nil)
         }
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: Constants.SERMON_UPDATE_PLAYING_PAUSED_NOTIFICATION, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAYING_PAUSED), object: nil)
         
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaCollectionViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
-
-        splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
+        splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
         
-//        refreshControl = UIRefreshControl()
-//        refreshControl!.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
+        refreshControl = UIRefreshControl()
+        refreshControl!.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), for: UIControlEvents.valueChanged)
 
-//        collectionView.addSubview(refreshControl!)
+        collectionView.addSubview(refreshControl!)
         
         collectionView.alwaysBounceVertical = true
 
@@ -914,51 +579,59 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func setPlayingPausedButton()
     {
-        if (globals.player.playing != nil) {
+        if (globals.mediaPlayer.playing != nil) {
             var title:String?
             
-            if (globals.player.paused) {
+            switch globals.mediaPlayer.state! {
+            case .paused:
                 title = Constants.Paused
-            } else {
+                break
+                
+            case .playing:
                 title = Constants.Playing
+                break
+                
+            default:
+                title = Constants.None
+                break
             }
             
             var playingPausedButton = navigationItem.rightBarButtonItem
             
             if (playingPausedButton == nil) {
-                playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.Plain, target: self, action: #selector(MediaCollectionViewController.gotoNowPlaying))
+                playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.gotoNowPlaying))
             }
             
             playingPausedButton!.title = title
             
-            navigationItem.setRightBarButtonItem(playingPausedButton, animated: true)
+            navigationItem.setRightBarButton(playingPausedButton, animated: true)
         } else {
-            navigationItem.setRightBarButtonItem(nil, animated: true)
+            navigationItem.setRightBarButton(nil, animated: true)
         }
     }
 
     func setupPlayingPausedButton()
     {
-        if (globals.player.mpPlayer != nil) && (globals.player.playing != nil) {
+        if (globals.mediaPlayer.player != nil) && (globals.mediaPlayer.playing != nil) {
             if (!globals.showingAbout) {
                 if (splitViewController != nil) {
                     // iPad
-                    if (!splitViewController!.collapsed) {
+                    if (!splitViewController!.isCollapsed) {
                         // Master and detail view controllers are both present
 //                        print("seriesSelected: \(seriesSelected)")
-//                        print("globals.player.playing?.series: \(globals.player.playing?.series)")
-                        if (seriesSelected == globals.player.playing?.series) {
+//                        print("globals.mediaPlayer.playing?.series: \(globals.mediaPlayer.playing?.series)")
+                        if (seriesSelected == globals.mediaPlayer.playing?.series) {
                             if let sermonSelected = seriesSelected?.sermonSelected {
-                                if (sermonSelected != globals.player.playing) {
+                                if (sermonSelected != globals.mediaPlayer.playing) {
                                     setPlayingPausedButton()
                                 } else {
                                     if (navigationItem.rightBarButtonItem != nil) {
-                                        navigationItem.setRightBarButtonItem(nil, animated: true)
+                                        navigationItem.setRightBarButton(nil, animated: true)
                                     }
                                 }
                             } else {
                                 if (navigationItem.rightBarButtonItem != nil) {
-                                    navigationItem.setRightBarButtonItem(nil, animated: true)
+                                    navigationItem.setRightBarButton(nil, animated: true)
                                 }
                             }
                         } else {
@@ -979,15 +652,15 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             }
         } else {
             if (navigationItem.rightBarButtonItem != nil) {
-                navigationItem.setRightBarButtonItem(nil, animated: true)
+                navigationItem.setRightBarButton(nil, animated: true)
             }
         }
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        navigationController?.toolbarHidden = false
+        navigationController?.isToolbarHidden = false
 
         if globals.searchActive && !globals.searchButtonClicked {
             searchBar.becomeFirstResponder()
@@ -998,15 +671,17 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 //        
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
         
-        splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible //iPad only
+        splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
 
         setupPlayingPausedButton()
         
         //Solves icon sizing problem in split screen multitasking.
         collectionView.reloadData()
+        
+//        scrollToSeries(seriesSelected)
     }
     
-    func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize
+    func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: IndexPath) -> CGSize
     {
         var minSize:CGFloat = 0.0
         var maxSize:CGFloat = 0.0
@@ -1032,7 +707,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             maxIndex += 1
         } while maxSize > maxMeasure/(maxMeasure / minSize)
 
-        print(maxMeasure / minSize)
+//        print(maxMeasure / minSize)
         
 //        print(maxSize)
 //        print(maxIndex-1)
@@ -1049,54 +724,50 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             size = max(minSize,maxSize)
         }
 
-        return CGSizeMake(size,size)
+        return CGSize(width: size,height: size)
     }
     
     func about()
     {
-        performSegueWithIdentifier(Constants.SHOW_ABOUT_SEGUE, sender: self)
+        performSegue(withIdentifier: Constants.SEGUE.SHOW_ABOUT, sender: self)
     }
     
-    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
         
-        if (self.view.window == nil) {
-            return
-        }
-        
-        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
-            if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) { //  && (self.view.window != nil)
+//        if (self.view.window == nil) {
+//            return
+//        }
+
+        coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
+            if (UIApplication.shared.applicationState == UIApplicationState.active) { //  && (self.view.window != nil)
                 self.collectionView.reloadData()
             }
-            
+
             //Not quite what we want.  What we want is for the list to "look" the same.
-            self.scrollToSeries(self.seriesSelected)
-            
-            }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
+//            self.scrollToSeries(self.seriesSelected)
+        }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
             self.setupTitle()
-            
+
             //Solves icon sizing problem in split screen multitasking.
             self.collectionView.reloadData()
         }
     }
 
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-//        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) {
-//            sermonUpdateAvailable()
-//        }
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         if (splitViewController == nil) {
-            navigationController?.toolbarHidden = true
+            navigationController?.isToolbarHidden = true
         }
     }
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
     }
     
@@ -1110,10 +781,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     */
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using [segue destinationViewController].
         // Pass the selected object to the new view controller.
-        var destination = segue.destinationViewController as UIViewController
+        var destination = segue.destination as UIViewController
         // this next if-statement makes sure the segue prepares properly even
         //   if the MVC we're seguing to is wrapped in a UINavigationController
         if let navCon = destination as? UINavigationController {
@@ -1121,30 +792,30 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
         if let identifier = segue.identifier {
             switch identifier {
-            case Constants.SHOW_SETTINGS_SEGUE:
+            case Constants.SEGUE.SHOW_SETTINGS:
                 if let svc = destination as? SettingsViewController {
-                    svc.modalPresentationStyle = .Popover
+                    svc.modalPresentationStyle = .popover
                     svc.popoverPresentationController?.delegate = self
                     svc.popoverPresentationController?.barButtonItem = toolbarItems?[5]
                 }
                 break
                 
-            case Constants.SHOW_ABOUT_SEGUE:
+            case Constants.SEGUE.SHOW_ABOUT:
                 //The block below only matters on an iPad
                 globals.showingAbout = true
                 setupPlayingPausedButton()
                 break
                 
-            case Constants.SHOW_SERIES_SEGUE:
+            case Constants.SEGUE.SHOW_SERIES:
 //                println("ShowSeries")
                 if (globals.gotoNowPlaying) {
                     //This pushes a NEW MediaViewController.
                     
-                    seriesSelected = globals.player.playing?.series
+                    seriesSelected = globals.mediaPlayer.playing?.series
                     
                     if let dvc = destination as? MediaViewController {
-                        dvc.seriesSelected = globals.player.playing?.series
-                        dvc.sermonSelected = globals.player.playing
+                        dvc.seriesSelected = globals.mediaPlayer.playing?.series
+                        dvc.sermonSelected = globals.mediaPlayer.playing
                     }
 
                     globals.gotoNowPlaying = !globals.gotoNowPlaying
@@ -1156,7 +827,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                     }
 
                     if (seriesSelected != nil) {
-                        if (splitViewController != nil) && (!splitViewController!.collapsed) {
+                        if (splitViewController != nil) && (!splitViewController!.isCollapsed) {
                             setupPlayingPausedButton()
                         }
                     }
@@ -1180,29 +851,28 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         globals.gotoNowPlaying = true
         
-        performSegueWithIdentifier(Constants.SHOW_SERIES_SEGUE, sender: self)
+        performSegue(withIdentifier: Constants.SEGUE.SHOW_SERIES, sender: self)
     }
     
     // MARK: UICollectionViewDataSource
 
-    func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    func numberOfSections(in:UICollectionView) -> Int {
         //#warning Incomplete method implementation -- Return the number of sections
         //return series.count
         return 1
     }
 
-
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         //#warning Incomplete method implementation -- Return the number of items in the section
         //return series[section].count
         return globals.activeSeries != nil ? globals.activeSeries!.count : 0
     }
-
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> MediaCollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.SERIES_CELL_IDENTIFIER, forIndexPath: indexPath) as! MediaCollectionViewCell
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as! MediaCollectionViewCell
     
         // Configure the cell
-        cell.series = globals.activeSeries?[indexPath.row]
+        cell.series = globals.activeSeries?[(indexPath as NSIndexPath).row]
 
         return cell
     }
@@ -1210,10 +880,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     // MARK: UICollectionViewDelegate
     
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 //        println("didSelect")
 
-        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
+        if let cell: MediaCollectionViewCell = collectionView.cellForItem(at: indexPath) as? MediaCollectionViewCell {
             seriesSelected = cell.series
             collectionView.reloadData()
         } else {
@@ -1221,7 +891,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
     
-    func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
 //        println("didDeselect")
 
 //        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
@@ -1234,28 +904,28 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     /*
     // Uncomment this method to specify if the specified item should be highlighted during tracking
     */
-    func collectionView(collectionView: UICollectionView, shouldHighlightItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
 //        println("shouldHighlight")
         return true
     }
     
-    func collectionView(collectionView: UICollectionView, didHighlightItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
 //        println("Highlighted")
     }
     
-    func collectionView(collectionView: UICollectionView, didUnhighlightItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
 //        println("Unhighlighted")
     }
     
     /*
     // Uncomment this method to specify if the specified item should be selected
     */
-    func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
 //        println("shouldSelect")
         return true
     }
     
-    func collectionView(collectionView: UICollectionView, shouldDeselectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
 //        println("shouldDeselect")
         return true
     }

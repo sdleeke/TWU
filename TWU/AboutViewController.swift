@@ -17,16 +17,16 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     var frontView:UIView?
     
-    @IBAction func give(sender: UIButton)
+    @IBAction func give(_ sender: UIButton)
     {
-        openWebSite(Constants.TWU_GIVING_URL)
+        openWebSite(Constants.TWU.GIVING_URL)
     }
     
     @IBOutlet weak var actionsButton: UIBarButtonItem!
     
-    private func setVersion()
+    fileprivate func setVersion()
     {
-        if let dict = NSBundle.mainBundle().infoDictionary {
+        if let dict = Bundle.main.infoDictionary {
             if let appVersion = dict["CFBundleShortVersionString"] as? String {
                 if let buildNumber = dict["CFBundleVersion"] as? String {
                     versionLabel.text = appVersion + "." + buildNumber
@@ -36,54 +36,54 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    override func canBecomeFirstResponder() -> Bool {
+    override var canBecomeFirstResponder : Bool {
         return true
     }
     
-    override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
         if (splitViewController == nil) {
             globals.motionEnded(motion, event: event)
         }
     }
     
-    private func networkUnavailable(message:String?)
+    fileprivate func networkUnavailable(_ message:String?)
     {
-        if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) { //  && (self.view.window != nil)
-            dismissViewControllerAnimated(true, completion: nil)
+        if (UIApplication.shared.applicationState == UIApplicationState.active) { //  && (self.view.window != nil)
+            dismiss(animated: true, completion: nil)
             
             let alert = UIAlertController(title: Constants.Network_Error,
                 message: message,
-                preferredStyle: UIAlertControllerStyle.Alert)
+                preferredStyle: UIAlertControllerStyle.alert)
             
-            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
                 
             })
             alert.addAction(action)
             
-            presentViewController(alert, animated: true, completion: nil)
+            present(alert, animated: true, completion: nil)
         }
     }
     
-    private func openWebSite(urlString:String)
+    fileprivate func openWebSite(_ urlString:String)
     {
-        if (UIApplication.sharedApplication().canOpenURL(NSURL(string:urlString)!)) { // Reachability.isConnectedToNetwork() &&
-            UIApplication.sharedApplication().openURL(NSURL(string:urlString)!)
+        if (UIApplication.shared.canOpenURL(URL(string:urlString)!)) { // Reachability.isConnectedToNetwork() &&
+            UIApplication.shared.openURL(URL(string:urlString)!)
         } else {
             networkUnavailable("Unable to open web site: \(urlString)")
         }
     }
 
-    private func showSendMailErrorAlert() {
+    fileprivate func showSendMailErrorAlert() {
         let sendMailErrorAlert = UIAlertView(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.", delegate: self, cancelButtonTitle: "OK")
         sendMailErrorAlert.show()
     }
     
     // MARK: MFMailComposeViewControllerDelegate Method
-    func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
-        controller.dismissViewControllerAnimated(true, completion: nil)
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
     }
     
-    private func email()
+    fileprivate func email()
     {
         let bodyString = String()
         
@@ -92,30 +92,30 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         let mailComposeViewController = MFMailComposeViewController()
         mailComposeViewController.mailComposeDelegate = self // Extremely important to set the --mailComposeDelegate-- property, NOT the --delegate-- property
         
-        mailComposeViewController.setToRecipients([Constants.TWU_EMAIL])
+        mailComposeViewController.setToRecipients([Constants.TWU.EMAIL])
         mailComposeViewController.setSubject(Constants.The_Word_Unleashed)
         //        mailComposeViewController.setMessageBody(bodyString, isHTML: false)
         mailComposeViewController.setMessageBody(bodyString, isHTML: true)
         
         if MFMailComposeViewController.canSendMail() {
-            self.presentViewController(mailComposeViewController, animated: true, completion: nil)
+            self.present(mailComposeViewController, animated: true, completion: nil)
         } else {
             self.showSendMailErrorAlert()
         }
     }
     
     // Specifically for Plus size iPhones.
-    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
     {
-        return UIModalPresentationStyle.None
+        return UIModalPresentationStyle.none
     }
     
-    func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
-        return UIModalPresentationStyle.None
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
     }
     
-    func rowClickedAtIndex(index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
-        dismissViewControllerAnimated(true, completion: nil)
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+        dismiss(animated: true, completion: nil)
         
         switch purpose {
         case .selectingAction:
@@ -126,7 +126,7 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
                 break
                 
             case Constants.TWU_Website:
-                openWebSite(Constants.TWU_WEBSITE)
+                openWebSite(Constants.TWU.WEBSITE)
                 break
                 
             default:
@@ -139,24 +139,24 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    @IBAction func actions(sender: UIBarButtonItem) {
+    @IBAction func actions(_ sender: UIBarButtonItem) {
         
         //In case we have one already showing
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard!.instantiateViewControllerWithIdentifier(Constants.POPOVER_TABLEVIEW_IDENTIFIER) as? UINavigationController {
+        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
             if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-                navigationController.modalPresentationStyle = .Popover
+                navigationController.modalPresentationStyle = .popover
                 //            popover?.preferredContentSize = CGSizeMake(300, 500)
                 
-                navigationController.popoverPresentationController?.permittedArrowDirections = .Up
+                navigationController.popoverPresentationController?.permittedArrowDirections = .up
                 navigationController.popoverPresentationController?.delegate = self
                 
                 navigationController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
                 
                 //                popover.navigationItem.title = "Actions"
                 
-                popover.navigationController?.navigationBarHidden = true
+                popover.navigationController?.isNavigationBarHidden = true
                 
                 popover.delegate = self
                 popover.purpose = .selectingAction
@@ -171,50 +171,33 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
                 popover.showIndex = false //(globals.grouping == .series)
                 popover.showSectionHeaders = false
                 
-                presentViewController(navigationController, animated: true, completion: nil)
+                present(navigationController, animated: true, completion: nil)
             }
         }
     }
     
-//    func sermonUpdateAvailable()
-//    {
-//        if (navigationController?.visibleViewController == self) {
-//            let alert = UIAlertView(title: "Sermon Update Available", message: "Return to the series view to update.", delegate: self, cancelButtonTitle: "OK")
-//            alert.show()
-//        }
-//    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if (splitViewController == nil) {
-//            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(AboutViewController.sermonUpdateAvailable), name: Constants.SERMON_UPDATE_AVAILABLE_NOTIFICATION, object: nil)
-        }
-
         // Do any additional setup after loading the view.
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setVersion()
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         scrollView.flashScrollIndicators()
-
-//        if (UIApplication.sharedApplication().applicationIconBadgeNumber > 0) && ((splitViewController == nil) || (splitViewController!.viewControllers.count == 1)) {
-//            sermonUpdateAvailable()
-//        }
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         globals.showingAbout = false
         
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func didReceiveMemoryWarning() {
@@ -222,14 +205,14 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         // Dispose of any resources that can be recreated.
     }
     
-    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
         
         if (self.view.window == nil) {
             return
         }
         
-        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
+        coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
 
             }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
 

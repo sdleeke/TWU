@@ -8,20 +8,40 @@
 
 import UIKit
 
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 class MediaTableViewCell: UITableViewCell {
     
     var row:Int?
     
     var sermon:Sermon? {
         didSet {
-            NSNotificationCenter.defaultCenter().removeObserver(self, name: Constants.SERMON_UPDATE_UI_NOTIFICATION, object: oldValue)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MediaTableViewCell.updateUI), name: Constants.SERMON_UPDATE_UI_NOTIFICATION, object: sermon)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: oldValue)
+            NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewCell.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: sermon)
             
             updateUI()
         }
     }
     
-    var downloadObserver:NSTimer?
+    var downloadObserver:Timer?
     
     var vc:UIViewController?
     
@@ -38,16 +58,6 @@ class MediaTableViewCell: UITableViewCell {
         
         if (sermon?.series?.numberOfSermons > 1) {
             title!.text = "\(sermon!.series!.title!) (Part\u{00a0}\(row!+1))"
-        }
-        
-        if (sermon == globals.player.playing) {
-//            title!.text = title!.text! + " (active)"
-
-//            if (globals.player.paused) {
-//                title!.text = title!.text! + " (paused)"
-//            } else {
-//                title!.text = title!.text! + " (playing)"
-//            }
         }
         
         switch sermon!.audioDownload.state {
@@ -72,10 +82,10 @@ class MediaTableViewCell: UITableViewCell {
         }
         downloadLabel.sizeToFit()
 
-        downloadSwitch.on = sermon!.audioDownload.state != .none
+        downloadSwitch.isOn = sermon!.audioDownload.state != .none
 
         if (sermon!.audioDownload.active) && (downloadObserver == nil) {
-            downloadObserver = NSTimer.scheduledTimerWithTimeInterval(Constants.DOWNLOAD_TIMER_INTERVAL, target: self, selector: #selector(MediaTableViewCell.updateUI), userInfo: nil, repeats: true)
+            downloadObserver = Timer.scheduledTimer(timeInterval: Constants.INTERVAL.DOWNLOAD_TIMER, target: self, selector: #selector(MediaTableViewCell.updateUI), userInfo: nil, repeats: true)
         }
 
         if (downloadObserver != nil) &&
@@ -92,9 +102,9 @@ class MediaTableViewCell: UITableViewCell {
     
     @IBOutlet weak var downloadLabel: UILabel!
     @IBOutlet weak var downloadSwitch: UISwitch!
-    @IBAction func downloadSwitchAction(sender: UISwitch)
+    @IBAction func downloadSwitchAction(_ sender: UISwitch)
     {
-        switch sender.on {
+        switch sender.isOn {
         case true:
             //Download the audio file and use it in future playback.
             //The file should not already exist.
@@ -114,32 +124,32 @@ class MediaTableViewCell: UITableViewCell {
         // Initialization code
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
     }
 
     
-    private func networkUnavailable(message:String?)
+    fileprivate func networkUnavailable(_ message:String?)
     {
-        if (UIApplication.sharedApplication().applicationState == UIApplicationState.Active) {
-            vc?.dismissViewControllerAnimated(true, completion: nil)
+        if (UIApplication.shared.applicationState == UIApplicationState.active) {
+            vc?.dismiss(animated: true, completion: nil)
             
             let alert = UIAlertController(title:Constants.Network_Error,
                 message: message,
-                preferredStyle: UIAlertControllerStyle.ActionSheet)
+                preferredStyle: UIAlertControllerStyle.actionSheet)
             
-            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
                 
             })
             alert.addAction(action)
             
-            alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+            alert.modalPresentationStyle = UIModalPresentationStyle.popover
             alert.popoverPresentationController?.sourceView = self
             alert.popoverPresentationController?.sourceRect = downloadSwitch.frame
             
-            vc?.presentViewController(alert, animated: true, completion: nil)
+            vc?.present(alert, animated: true, completion: nil)
         }
     }
 }

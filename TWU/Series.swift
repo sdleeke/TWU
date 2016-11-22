@@ -9,36 +9,6 @@
 import Foundation
 import UIKit
 
-//class ScriptureReference {
-//    var book:String
-//    var chapter:Int
-//    var verse:Int //could also have a qualifier, e.g. a lowercase letter.
-//    
-//    init() {
-//        book = ""
-//        chapter = 0
-//        verse = 0
-//    }
-//}
-//
-//class ScripturePassage {
-//    //could both be the same book for an intrabook passage
-//    var startingScriptureReference : ScriptureReference
-//    var endingScriptureReference : ScriptureReference
-//    
-//    init() {
-//        startingScriptureReference = ScriptureReference()
-//        endingScriptureReference = ScriptureReference()
-//    }
-//}
-
-func removeObject<T:Equatable>(inout arr:Array<T>, object:T) -> T? {
-    if let found = arr.indexOf(object) {
-        return arr.removeAtIndex(found)
-    }
-    return nil
-}
-
 func == (lhs:Series,rhs:Series) -> Bool
 {
     return (lhs.name == rhs.name) && (lhs.id == rhs.id)
@@ -74,49 +44,49 @@ class Series : Equatable, CustomStringConvertible {
     
     var seriesID:String? {
         get {
-            return dict![Constants.ID]        }
+            return dict![Constants.FIELDS.ID]        }
     }
     
-    var url:NSURL? {
+    var url:URL? {
         get {
-            return NSURL(string: Constants.BASE_WEB_URL + "\(id)")
+            return URL(string: Constants.URL.BASE.WEB + "\(id)")
         }
     }
     
     var name:String? {
         get {
-            return dict![Constants.NAME]
+            return dict![Constants.FIELDS.NAME]
         }
     }
     
     var title:String? {
         get {
-            return dict![Constants.TITLE]
+            return dict![Constants.FIELDS.TITLE]
         }
     }
     
     var scripture:String? {
         get {
-            return dict![Constants.SCRIPTURE]
+            return dict![Constants.FIELDS.SCRIPTURE]
         }
     }
     
     var text:String? {
         get {
-            return dict![Constants.TEXT]
+            return dict![Constants.FIELDS.TEXT]
         }
     }
     
     var startingIndex:Int {
         get {
-            return Int(dict![Constants.STARTING_INDEX]!)!
+            return Int(dict![Constants.FIELDS.STARTING_INDEX]!)!
         }
     }
     
     var show:Int {
         get {
-            if (dict![Constants.SHOW] != nil) {
-                return Int(dict![Constants.SHOW]!)!
+            if (dict![Constants.FIELDS.SHOW] != nil) {
+                return Int(dict![Constants.FIELDS.SHOW]!)!
             } else {
                 return numberOfSermons
             }
@@ -125,17 +95,17 @@ class Series : Equatable, CustomStringConvertible {
     
     var numberOfSermons:Int {
         get {
-            return Int(dict![Constants.NUMBER_OF_SERMONS]!)!
+            return Int(dict![Constants.FIELDS.NUMBER_OF_SERMONS]!)!
         }
     }
     
     var titleSort:String? {
         get {
-            if (dict![Constants.TITLE+Constants.SORTING] == nil) {
-                dict![Constants.TITLE+Constants.SORTING] = stringWithoutPrefixes(title)?.lowercaseString
+            if (dict![Constants.FIELDS.TITLE+Constants.SORTING] == nil) {
+                dict![Constants.FIELDS.TITLE+Constants.SORTING] = stringWithoutPrefixes(title)?.lowercased()
             }
             
-            return dict![Constants.TITLE+Constants.SORTING]
+            return dict![Constants.FIELDS.TITLE+Constants.SORTING]
         }
     }
 
@@ -143,24 +113,24 @@ class Series : Equatable, CustomStringConvertible {
     
     var book:String? {
         get {
-            if (dict![Constants.BOOK] == nil) {
+            if (dict![Constants.FIELDS.BOOK] == nil) {
                 if (scripture == Constants.Selected_Scriptures) {
-                    dict![Constants.BOOK] = Constants.Selected_Scriptures
+                    dict![Constants.FIELDS.BOOK] = Constants.Selected_Scriptures
                 } else {
-                    if (dict![Constants.BOOK] == nil) {
-                        for bookTitle in Constants.OLD_TESTAMENT {
+                    if (dict![Constants.FIELDS.BOOK] == nil) {
+                        for bookTitle in Constants.TESTAMENT.OLD {
                             if (scripture!.endIndex >= bookTitle.endIndex) &&
-                                (scripture!.substringToIndex(bookTitle.endIndex) == bookTitle) {
-                                    dict![Constants.BOOK] = bookTitle
+                                (scripture!.substring(to: bookTitle.endIndex) == bookTitle) {
+                                    dict![Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
                         }
                     }
-                    if (dict![Constants.BOOK] == nil) {
-                        for bookTitle in Constants.NEW_TESTAMENT {
+                    if (dict![Constants.FIELDS.BOOK] == nil) {
+                        for bookTitle in Constants.TESTAMENT.NEW {
                             if (scripture!.endIndex >= bookTitle.endIndex) &&
-                                (scripture!.substringToIndex(bookTitle.endIndex) == bookTitle) {
-                                    dict![Constants.BOOK] = bookTitle
+                                (scripture!.substring(to: bookTitle.endIndex) == bookTitle) {
+                                    dict![Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
                         }
@@ -168,7 +138,7 @@ class Series : Equatable, CustomStringConvertible {
                 }
             }
             
-            return dict![Constants.BOOK]
+            return dict![Constants.FIELDS.BOOK]
         }
     }
 
@@ -183,19 +153,19 @@ class Series : Equatable, CustomStringConvertible {
             print("Image \(imageName) not in bundle")
             
             // Check to see if it is in the file system.
-            let imageURL = cachesURL()?.URLByAppendingPathComponent(imageName + Constants.JPEG_FILE_EXTENSION)
-            image = UIImage(contentsOfFile: imageURL!.path!)
+            let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG)
+            image = UIImage(contentsOfFile: imageURL!.path)
             
             if (image == nil) {
                 print("Image \(imageName) not in file system")
             
                 // Try to get it from the cloud
-                let imageCloudURL = Constants.baseImageURL + imageName + Constants.JPEG_FILE_EXTENSION
+                let imageCloudURL = Constants.URL.BASE.IMAGE + imageName + Constants.FILE_EXTENSION.JPEG
                 //                print("\(imageCloudURL)")
-                if let imageData = NSData(contentsOfURL: NSURL(string: imageCloudURL)!) {
+                if let imageData = try? Data(contentsOf: URL(string: imageCloudURL)!) {
                     image = UIImage(data: imageData)
                     if (image != nil) {
-                        UIImageJPEGRepresentation(image!, 1.0)?.writeToURL(imageURL!, atomically: true)
+                        try? UIImageJPEGRepresentation(image!, 1.0)?.write(to: imageURL!, options: [.atomic])
                     } else {
                         // Can't get it from anywhere.
                     }
@@ -265,11 +235,11 @@ class Series : Equatable, CustomStringConvertible {
     
     var sermonSelected:Sermon? {
         get {
-            if let sermonID = settings?[Constants.SERMON_SELECTED] {
+            if let sermonID = settings?[Constants.SETTINGS.SELECTED.SERMON] {
 //                print(sermonID)
-//                print(sermonID.substringFromIndex(sermonID.rangeOfString(":")!.endIndex))
-//                print(Int(sermonID.substringFromIndex(sermonID.rangeOfString(":")!.endIndex))! - startingIndex)
-                return sermons?[Int(sermonID.substringFromIndex(sermonID.rangeOfString(Constants.COLON)!.endIndex))! - startingIndex]
+//                print(sermonID.substring(from: sermonID.range(of: ":")!.upperBound))
+//                print(Int(sermonID.substring(from: sermonID.range(of: ":")!.upperBound))! - startingIndex)
+                return sermons?[Int(sermonID.substring(from: sermonID.range(of: Constants.COLON)!.upperBound))! - startingIndex]
             } else {
                 return nil
             }
@@ -277,7 +247,10 @@ class Series : Equatable, CustomStringConvertible {
         
         set {
             if (newValue != nil) {
-                settings?[Constants.SERMON_SELECTED] = newValue!.sermonID!
+//                print(newValue!.sermonID!)
+                settings?[Constants.SETTINGS.SELECTED.SERMON] = newValue!.sermonID!
+            } else {
+                print("newValue == nil")
             }
         }
     }

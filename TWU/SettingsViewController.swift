@@ -12,18 +12,18 @@ class SettingsViewController: UIViewController {
 
     @IBOutlet weak var autoAdvanceSwitch: UISwitch!
     
-    @IBAction func autoAdvanceAction(sender: UISwitch) {
-        NSUserDefaults.standardUserDefaults().setBool(sender.on, forKey: Constants.AUTO_ADVANCE)
+    @IBAction func autoAdvanceAction(_ sender: UISwitch) {
+        UserDefaults.standard.set(sender.isOn, forKey: Constants.AUTO_ADVANCE)
     }
     
-    @IBAction func doneAction(sender: UIButton) {
-        dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func doneAction(_ sender: UIButton) {
+        dismiss(animated: true, completion: nil)
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        autoAdvanceSwitch.on = NSUserDefaults.standardUserDefaults().boolForKey(Constants.AUTO_ADVANCE)
+        autoAdvanceSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.AUTO_ADVANCE)
     }
     
     override func viewDidLoad() {

@@ -19,7 +19,7 @@ class MediaCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    private func updateUI() {
+    fileprivate func updateUI() {
         if (series != nil) {
             if (series == vc?.seriesSelected) {
 //                seriesArt.layer.opacity = 0.5
