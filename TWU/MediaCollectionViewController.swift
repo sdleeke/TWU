@@ -508,7 +508,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         globals.unobservePlayer()
         
-        globals.mediaPlayer.pauseIfPlaying()
+        globals.mediaPlayer.pause()
 
         globals.cancelAllDownloads()
         
@@ -541,7 +541,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 
                 self.present(alert, animated: true, completion: nil)
             }
-    }
+        }
 
 //        downloadJSON()
     }
@@ -612,43 +612,44 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
     func setupPlayingPausedButton()
     {
-        if (globals.mediaPlayer.player != nil) && (globals.mediaPlayer.playing != nil) {
-            if (!globals.showingAbout) {
-                if (splitViewController != nil) {
-                    // iPad
-                    if (!splitViewController!.isCollapsed) {
-                        // Master and detail view controllers are both present
-//                        print("seriesSelected: \(seriesSelected)")
-//                        print("globals.mediaPlayer.playing?.series: \(globals.mediaPlayer.playing?.series)")
-                        if (seriesSelected == globals.mediaPlayer.playing?.series) {
-                            if let sermonSelected = seriesSelected?.sermonSelected {
-                                if (sermonSelected != globals.mediaPlayer.playing) {
-                                    setPlayingPausedButton()
-                                } else {
-                                    if (navigationItem.rightBarButtonItem != nil) {
-                                        navigationItem.setRightBarButton(nil, animated: true)
-                                    }
-                                }
-                            } else {
-                                if (navigationItem.rightBarButtonItem != nil) {
-                                    navigationItem.setRightBarButton(nil, animated: true)
-                                }
-                            }
-                        } else {
-                            // Different series than the one playing.
-                            setPlayingPausedButton()
-                        }
-                    } else {
-                        // Only master view controller is present, not detail view controller
-                        setPlayingPausedButton()
-                    }
-                } else {
-                    // iPhone
-                    setPlayingPausedButton()
-                }
-            } else {
-                // Showing About
+        guard (globals.mediaPlayer.player != nil) && (globals.mediaPlayer.playing != nil) else {
+            if (navigationItem.rightBarButtonItem != nil) {
+                navigationItem.setRightBarButton(nil, animated: true)
+            }
+            return
+        }
+
+        guard (!globals.showingAbout) else {
+            // Showing About
+            setPlayingPausedButton()
+            return
+        }
+        
+        guard (splitViewController != nil) else {
+            // iPhone
+            setPlayingPausedButton()
+            return
+        }
+        
+        guard (!splitViewController!.isCollapsed) else {
+            // iPhone
+            setPlayingPausedButton()
+            return
+        }
+        
+        guard (seriesSelected == globals.mediaPlayer.playing?.series) else {
+            // iPhone
+            setPlayingPausedButton()
+            return
+        }
+        
+        if let sermonSelected = seriesSelected?.sermonSelected {
+            if (sermonSelected != globals.mediaPlayer.playing) {
                 setPlayingPausedButton()
+            } else {
+                if (navigationItem.rightBarButtonItem != nil) {
+                    navigationItem.setRightBarButton(nil, animated: true)
+                }
             }
         } else {
             if (navigationItem.rightBarButtonItem != nil) {

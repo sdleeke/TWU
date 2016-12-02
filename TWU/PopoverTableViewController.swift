@@ -52,6 +52,10 @@ class PopoverTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        guard (strings != nil) else {
+            return
+        }
+        
         //This makes accurate scrolling to sections impossible but since we don't use scrollToRowAtIndexPath with
         //the popover, this makes multi-line rows possible.
         tableView.estimatedRowHeight = tableView.rowHeight
@@ -60,97 +64,95 @@ class PopoverTableViewController: UITableViewController {
         tableView.allowsSelection = allowsSelection
         tableView.allowsMultipleSelection = allowsMultipleSelection
         
-        if (strings != nil) {
-            var max = 0
-            
-            if (navigationItem.title != nil) {
-                max = navigationItem.title!.characters.count
-            }
-            
-            for string in strings! {
-                if string.characters.contains("\n") {
-                    var newString = string
-                    
-                    var strings = [String]()
-                    
-                    repeat {
-                        strings.append(newString.substring(to: newString.range(of: "\n")!.lowerBound))
-                        newString = newString.substring(from: newString.range(of: "\n")!.upperBound)
-                    } while newString.characters.contains("\n")
-
-                    strings.append(newString)
-
-                    for string in strings {
-                        if string.characters.count > max {
-                            max = string.characters.count
-                        }
-                    }
-                } else {
+        var max = 0
+        
+        if (navigationItem.title != nil) {
+            max = navigationItem.title!.characters.count
+        }
+        
+        for string in strings! {
+            if string.characters.contains("\n") {
+                var newString = string
+                
+                var strings = [String]()
+                
+                repeat {
+                    strings.append(newString.substring(to: newString.range(of: "\n")!.lowerBound))
+                    newString = newString.substring(from: newString.range(of: "\n")!.upperBound)
+                } while newString.characters.contains("\n")
+                
+                strings.append(newString)
+                
+                for string in strings {
                     if string.characters.count > max {
                         max = string.characters.count
                     }
                 }
-            }
-            
-    //        print("count: \(CGFloat(strings!.count)) rowHeight: \(tableView.rowHeight) height: \(height)")
-            
-            var width = CGFloat(max * 12)
-            if width < 200 {
-                width = 200
-            }
-            var height = 50 * CGFloat(strings!.count) //35 tableView.rowHeight was -1 which I don't understand
-            if height < 150 {
-                height = 150
-            }
-            
-            if showSectionHeaders {
-                height = 1.5*height
-            }
-            
-            self.preferredContentSize = CGSize(width: width, height: height)
-
-            if (showIndex) {
-                let a = "A"
-                
-                section.titles = Array(Set(strings!.map({ (string:String) -> String in
-                    if indexByLastName {
-                        return lastNameFromName(string)!.substring(to: a.endIndex)
-                    } else {
-                        return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
-                    }
-                }))).sorted() { $0 < $1 }
-                
-                var indexes = [Int]()
-                var counts = [Int]()
-                
-                for sectionTitle in section.titles! {
-                    var counter = 0
-                    
-                    for index in 0..<strings!.count {
-                        var string:String?
-                        
-                        if indexByLastName {
-                            string = lastNameFromName(strings?[index])!.substring(to: a.endIndex)
-                        } else {
-                            string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
-                        }
-
-                        if (sectionTitle == string) {
-                            if (counter == 0) {
-                                indexes.append(index)
-                            }
-                            counter += 1
-                        }
-                    }
-                    
-                    counts.append(counter)
+            } else {
+                if string.characters.count > max {
+                    max = string.characters.count
                 }
-                
-                section.indexes = indexes.count > 0 ? indexes : nil
-                section.counts = counts.count > 0 ? counts : nil
             }
         }
         
+        //        print("count: \(CGFloat(strings!.count)) rowHeight: \(tableView.rowHeight) height: \(height)")
+        
+        var width = CGFloat(max * 12)
+        if width < 200 {
+            width = 200
+        }
+        var height = 50 * CGFloat(strings!.count) //35 tableView.rowHeight was -1 which I don't understand
+        if height < 150 {
+            height = 150
+        }
+        
+        if showSectionHeaders {
+            height = 1.5*height
+        }
+        
+        self.preferredContentSize = CGSize(width: width, height: height)
+        
+        if (showIndex) {
+            let a = "A"
+            
+            section.titles = Array(Set(strings!.map({ (string:String) -> String in
+                if indexByLastName {
+                    return lastNameFromName(string)!.substring(to: a.endIndex)
+                } else {
+                    return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
+                }
+            }))).sorted() { $0 < $1 }
+            
+            var indexes = [Int]()
+            var counts = [Int]()
+            
+            for sectionTitle in section.titles! {
+                var counter = 0
+                
+                for index in 0..<strings!.count {
+                    var string:String?
+                    
+                    if indexByLastName {
+                        string = lastNameFromName(strings?[index])!.substring(to: a.endIndex)
+                    } else {
+                        string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
+                    }
+                    
+                    if (sectionTitle == string) {
+                        if (counter == 0) {
+                            indexes.append(index)
+                        }
+                        counter += 1
+                    }
+                }
+                
+                counts.append(counter)
+            }
+            
+            section.indexes = indexes.count > 0 ? indexes : nil
+            section.counts = counts.count > 0 ? counts : nil
+        }
+
 //        print("Strings: \(strings)")
 //        print("Sections: \(sections)")
 //        print("Section Indexes: \(sectionIndexes)")

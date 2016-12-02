@@ -211,7 +211,9 @@ class Sermon : NSObject, URLSessionDownloadDelegate {
         }
         
         set {
-            settings?[Constants.CURRENT_TIME] = newValue
+            if (settings?[Constants.CURRENT_TIME] != newValue) {
+                settings?[Constants.CURRENT_TIME] = newValue
+            }
         }
     }
     
@@ -257,35 +259,39 @@ class Sermon : NSObject, URLSessionDownloadDelegate {
                 return value
             }
             set {
-                if (newValue != nil) {
-                    if (sermon != nil) {
-                        if (sermon!.sermonID != nil) {
-                            if (globals.sermonSettings != nil) {
-                                if (globals.sermonSettings?[sermon!.sermonID!] == nil) {
-                                    globals.sermonSettings?[sermon!.sermonID!] = [String:String]()
-                                }
-
-    //                            print("\(globals.sermonSettings!)")
-    //                            print("\(sermon!)")
-    //                            print("\(newValue!)")
-                                
-                                if (globals.sermonSettings?[sermon!.sermonID!]?[key] != newValue) {
-                                    globals.sermonSettings?[sermon!.sermonID!]?[key] = newValue
-                                    
-                                    // For a high volume of activity this can be very expensive.
-                                    globals.saveSettingsBackground()
-                                }
-                            } else {
-                                print("globals.sermonSettings == nil in Settings!")
-                            }
-                        } else {
-                            print("sermon!.sermonID == nil in Settings!")
-                        }
-                    } else {
-                        print("sermon == nil in Settings!")
-                    }
-                } else {
+                guard (newValue != nil) else {
                     print("newValue == nil in Settings!")
+                    return
+                }
+                
+                guard (sermon != nil) else {
+                    print("sermon == nil in Settings!")
+                    return
+                }
+                
+                guard (sermon?.sermonID != nil) else {
+                    print("sermon!.sermonID == nil in Settings!")
+                    return
+                }
+                
+                guard (globals.sermonSettings != nil) else {
+                    print("globals.sermonSettings == nil in Settings!")
+                    return
+                }
+                
+                if (globals.sermonSettings?[sermon!.sermonID!] == nil) {
+                    globals.sermonSettings?[sermon!.sermonID!] = [String:String]()
+                }
+                
+                //                            print("\(globals.sermonSettings!)")
+                //                            print("\(sermon!)")
+                //                            print("\(newValue!)")
+                
+                if (globals.sermonSettings?[sermon!.sermonID!]?[key] != newValue) {
+                    globals.sermonSettings?[sermon!.sermonID!]?[key] = newValue
+                    
+                    // For a high volume of activity this can be very expensive.
+                    globals.saveSettingsBackground()
                 }
             }
         }

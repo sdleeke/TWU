@@ -64,7 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         if (globals.mediaPlayer.rate == 0) {
             //It is paused, possibly not by us, but by the system
             if globals.mediaPlayer.isPlaying {
-                globals.mediaPlayer.pauseIfPlaying()
+                globals.mediaPlayer.pause()
             }
         }
     

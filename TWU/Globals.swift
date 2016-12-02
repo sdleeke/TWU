@@ -75,6 +75,12 @@ class PlayerStateTime {
         dateEntered = Date()
     }
     
+    convenience init(sermon:Sermon?)
+    {
+        self.init()
+        self.sermon = sermon
+    }
+    
     func log()
     {
         var stateName:String?
@@ -145,9 +151,9 @@ class MediaPlayer {
         }
     }
     
-    var stateTime : PlayerStateTime?
+    private var stateTime : PlayerStateTime?
     
-    func unloaded()
+    func unload()
     {
         loaded = false
         loadFailed = false
@@ -189,24 +195,23 @@ class MediaPlayer {
     
     func play()
     {
-        if (playing != stateTime?.sermon) || (stateTime?.sermon == nil) {
-            stateTime = PlayerStateTime()
-            stateTime?.sermon = playing
-        }
-        
-        stateTime?.startTime = playing?.currentTime
-        
-        stateTime?.state = .playing
-        
-        DispatchQueue.main.async(execute: { () -> Void in
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
-        })
-        
         if loaded {
+            if (playing != stateTime?.sermon) || (stateTime?.sermon == nil) {
+                stateTime = PlayerStateTime(sermon: playing)
+            }
+            
+            stateTime?.startTime = playing?.currentTime
+            
+            stateTime?.state = .playing
+            
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
+            })
+            
             player?.play()
+            
+            globals.setupPlayingInfoCenter()
         }
-        
-        globals.setupPlayingInfoCenter()
     }
     
     func pause()
@@ -216,8 +221,7 @@ class MediaPlayer {
         updateCurrentTimeExact()
         
         if (playing != stateTime?.sermon) || (stateTime?.sermon == nil) {
-            stateTime = PlayerStateTime()
-            stateTime?.sermon = playing
+            stateTime = PlayerStateTime(sermon: playing)
         }
         
         stateTime?.state = .paused
@@ -282,6 +286,20 @@ class MediaPlayer {
     var state:PlayerState? {
         get {
             return stateTime?.state
+        }
+        set {
+            if newValue != nil {
+                stateTime?.state = newValue!
+            }
+        }
+    }
+    
+    var startTime:String? {
+        get {
+            return stateTime?.startTime
+        }
+        set {
+            stateTime?.startTime = newValue
         }
     }
     
@@ -895,7 +913,7 @@ class Globals : NSObject {
     func reloadPlayer(url:URL?)
     {
         if (url != nil) {
-            mediaPlayer.unloaded()
+            mediaPlayer.unload()
             
             unobservePlayer()
             
@@ -908,7 +926,7 @@ class Globals : NSObject {
     func setupPlayer(_ sermon:Sermon?)
     {
         if (sermon != nil) {
-            mediaPlayer.unloaded()
+            mediaPlayer.unload()
             
             unobservePlayer()
             

@@ -145,37 +145,36 @@ class Series : Equatable, CustomStringConvertible {
     func getArt() -> UIImage?
     {
         let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name!)\(Constants.COVER_ART_POSTAMBLE)"
-        var image = UIImage(named:imageName)
         
         // If we don't have it, see if it is in the file system and if not, download it and store it in the file system.
         
-        if (image == nil) {
+        if let image = UIImage(named:imageName) {
+            return image
+        } else {
             print("Image \(imageName) not in bundle")
             
             // Check to see if it is in the file system.
-            let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG)
-            image = UIImage(contentsOfFile: imageURL!.path)
-            
-            if (image == nil) {
-                print("Image \(imageName) not in file system")
-            
-                // Try to get it from the cloud
-                let imageCloudURL = Constants.URL.BASE.IMAGE + imageName + Constants.FILE_EXTENSION.JPEG
-                //                print("\(imageCloudURL)")
-                if let imageData = try? Data(contentsOf: URL(string: imageCloudURL)!) {
-                    image = UIImage(data: imageData)
-                    if (image != nil) {
-                        try? UIImageJPEGRepresentation(image!, 1.0)?.write(to: imageURL!, options: [.atomic])
+            if let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG) {
+                if let image = UIImage(contentsOfFile: imageURL.path) {
+                    return image
+                } else {
+                    print("Image \(imageName) not in file system")
+                    
+                    // Try to get it from the cloud
+                    let imageCloudURL = Constants.URL.BASE.IMAGE + imageName + Constants.FILE_EXTENSION.JPEG
+                    //                print("\(imageCloudURL)")
+                    if let imageData = try? Data(contentsOf: URL(string: imageCloudURL)!) {
+                        if let image = UIImage(data: imageData) {
+                            try? UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                        }
                     } else {
                         // Can't get it from anywhere.
                     }
-                } else {
-                    // Can't get it from anywhere.
                 }
             }
         }
         
-        return image
+        return nil
     }
     
     var sermons:[Sermon]?
@@ -197,42 +196,46 @@ class Series : Equatable, CustomStringConvertible {
                 return value
             }
             set {
-                if (newValue != nil) {
-                    if (series != nil) {
-                        if (series!.seriesID != nil) {
-                            if (globals.seriesSettings != nil) {
-                                if (globals.seriesSettings?[self.series!.seriesID!] == nil) {
-                                    globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
-                                }
-
-    //                            print("\(globals.sermonSettings!)")
-    //                            print("\(sermon!)")
-    //                            print("\(newValue!)")
-                                
-                                globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
-                                
-                                // For a high volume of activity this can be very expensive.
-                                globals.saveSettingsBackground()
-                            } else {
-                                print("globals.seriesSettings == nil in Settings!")
-                            }
-                        } else {
-                            print("series!.seriesID == nil in Settings!")
-                        }
-                    } else {
-                        print("series == nil in Settings!")
-                    }
-                } else {
+                guard (newValue != nil) else {
                     print("newValue == nil in Settings!")
+                    return
                 }
+                
+                guard (series != nil) else {
+                    print("series == nil in Settings!")
+                    return
+                }
+                
+                guard (series!.seriesID != nil) else {
+                    print("series!.seriesID == nil in Settings!")
+                    return
+                }
+                
+                guard (globals.seriesSettings != nil) else {
+                    print("globals.seriesSettings == nil in Settings!")
+                    return
+                }
+
+                if (globals.seriesSettings?[self.series!.seriesID!] == nil) {
+                    globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
+                }
+                
+                //                            print("\(globals.sermonSettings!)")
+                //                            print("\(sermon!)")
+                //                            print("\(newValue!)")
+                
+                globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
+                
+                // For a high volume of activity this can be very expensive.
+                globals.saveSettingsBackground()
             }
         }
     }
-    
+
     lazy var settings:Settings? = {
         return Settings(series:self)
     }()
-    
+
     var sermonSelected:Sermon? {
         get {
             if let sermonID = settings?[Constants.SETTINGS.SELECTED.SERMON] {

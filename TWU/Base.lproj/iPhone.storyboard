@@ -70,21 +70,21 @@
                                         <exclude reference="E6M-lp-30y"/>
                                         <exclude reference="dWU-VI-f4n"/>
                                         <exclude reference="p9D-H8-VuY"/>
+                                        <exclude reference="V73-dH-RET"/>
                                         <exclude reference="0QQ-p6-MJM"/>
                                         <exclude reference="lWo-p7-1Uq"/>
-                                        <exclude reference="V73-dH-RET"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=compact">
                                     <mask key="constraints">
                                         <exclude reference="dWU-VI-f4n"/>
                                         <exclude reference="p9D-H8-VuY"/>
-                                        <include reference="1B5-d9-p6X"/>
-                                        <include reference="lWo-p7-1Uq"/>
                                         <include reference="3xh-5k-keW"/>
                                         <include reference="D8O-qm-cBf"/>
                                         <include reference="RjP-sd-U59"/>
                                         <include reference="V73-dH-RET"/>
+                                        <include reference="1B5-d9-p6X"/>
+                                        <include reference="lWo-p7-1Uq"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -96,7 +96,7 @@
                                         <rect key="frame" x="0.0" y="1" width="320" height="90"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="hSc-gC-b1G" id="jrr-a9-dsE">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="89"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="89.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AWG-zI-ezh">
@@ -148,14 +148,14 @@
                                             </constraints>
                                             <variation key="default">
                                                 <mask key="constraints">
-                                                    <exclude reference="DVO-OQ-KRz"/>
-                                                    <exclude reference="Gjs-kA-26v"/>
                                                     <exclude reference="EAZ-Xw-fDd"/>
+                                                    <exclude reference="VBo-Nf-afm"/>
+                                                    <exclude reference="YE2-EQ-wcD"/>
                                                     <exclude reference="YJU-fi-Vc6"/>
                                                     <exclude reference="Ylk-ZH-g0V"/>
                                                     <exclude reference="lbl-A0-o1b"/>
-                                                    <exclude reference="VBo-Nf-afm"/>
-                                                    <exclude reference="YE2-EQ-wcD"/>
+                                                    <exclude reference="DVO-OQ-KRz"/>
+                                                    <exclude reference="Gjs-kA-26v"/>
                                                 </mask>
                                             </variation>
                                         </tableViewCellContentView>
@@ -206,7 +206,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iPn-wE-Y4v" userLabel="PlayPause">
-                                <rect key="frame" x="8" y="246" width="48" height="40"/>
+                                <rect key="frame" x="8" y="243.5" width="48" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="H7F-mM-3Cy"/>
                                 </constraints>
@@ -300,20 +300,20 @@
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="sCo-MJ-00i"/>
                                 <exclude reference="Cfb-zM-zYn"/>
                                 <exclude reference="TvR-zR-YH7"/>
                                 <exclude reference="WDb-8E-QRH"/>
-                                <exclude reference="D2P-aC-r1H"/>
-                                <exclude reference="Xer-Io-EiP"/>
-                                <exclude reference="bif-z0-nfn"/>
+                                <exclude reference="sCo-MJ-00i"/>
+                                <exclude reference="Ir7-2D-22b"/>
                                 <exclude reference="2Zi-o7-zkS"/>
                                 <exclude reference="Kar-Dh-M9e"/>
                                 <exclude reference="aew-zT-NbP"/>
                                 <exclude reference="szT-kd-tYl"/>
                                 <exclude reference="uKN-yk-Jx7"/>
                                 <exclude reference="vJX-cl-EXD"/>
-                                <exclude reference="Ir7-2D-22b"/>
+                                <exclude reference="D2P-aC-r1H"/>
+                                <exclude reference="Xer-Io-EiP"/>
+                                <exclude reference="bif-z0-nfn"/>
                                 <exclude reference="DyH-bo-WhE"/>
                                 <exclude reference="VDQ-50-Sri"/>
                                 <exclude reference="jg1-QJ-P8t"/>
@@ -324,20 +324,13 @@
                                 <include reference="h2e-pb-PKr"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="sCo-MJ-00i"/>
                                 <include reference="Cfb-zM-zYn"/>
                                 <exclude reference="HmJ-CA-8ze"/>
                                 <exclude reference="M0p-au-Z7g"/>
                                 <include reference="TvR-zR-YH7"/>
                                 <include reference="WDb-8E-QRH"/>
                                 <exclude reference="m7i-eG-cMg"/>
-                                <include reference="D2P-aC-r1H"/>
-                                <exclude reference="DJG-aP-DR8"/>
-                                <exclude reference="QoZ-jg-6cU"/>
-                                <include reference="Xer-Io-EiP"/>
-                                <include reference="bif-z0-nfn"/>
-                                <exclude reference="kCx-al-DqB"/>
-                                <exclude reference="xGf-GK-dMf"/>
+                                <exclude reference="sCo-MJ-00i"/>
                                 <exclude reference="2Zi-o7-zkS"/>
                                 <exclude reference="Kar-Dh-M9e"/>
                                 <include reference="aew-zT-NbP"/>
@@ -345,6 +338,13 @@
                                 <exclude reference="szT-kd-tYl"/>
                                 <exclude reference="uKN-yk-Jx7"/>
                                 <exclude reference="vJX-cl-EXD"/>
+                                <include reference="D2P-aC-r1H"/>
+                                <exclude reference="DJG-aP-DR8"/>
+                                <exclude reference="QoZ-jg-6cU"/>
+                                <include reference="Xer-Io-EiP"/>
+                                <include reference="bif-z0-nfn"/>
+                                <exclude reference="kCx-al-DqB"/>
+                                <exclude reference="xGf-GK-dMf"/>
                                 <exclude reference="DyH-bo-WhE"/>
                                 <include reference="VDQ-50-Sri"/>
                                 <exclude reference="Yeh-5m-AZW"/>
@@ -536,11 +536,11 @@ Before Texas, Tom served 16 years in various roles connected to Grace Community 
                                         <variation key="default">
                                             <mask key="constraints">
                                                 <exclude reference="xn8-Ns-EpM"/>
+                                                <exclude reference="eNC-vM-53U"/>
                                                 <exclude reference="1XN-Dn-bx1"/>
                                                 <exclude reference="Tqd-0s-iMJ"/>
                                                 <exclude reference="hfR-Eb-cVN"/>
                                                 <exclude reference="k21-E0-cr1"/>
-                                                <exclude reference="eNC-vM-53U"/>
                                             </mask>
                                         </variation>
                                     </view>
@@ -734,13 +734,13 @@ Southlake, Texas 76092
                                 <exclude reference="fR2-Xl-oQS"/>
                                 <exclude reference="uqu-9y-rTK"/>
                                 <exclude reference="xzY-3o-WnP"/>
-                                <exclude reference="RPV-71-aeL"/>
+                                <exclude reference="F7j-oL-rWH"/>
                                 <exclude reference="BKE-pm-lyA"/>
                                 <exclude reference="Tdi-TR-Nef"/>
                                 <exclude reference="U2g-8M-uRI"/>
                                 <exclude reference="apT-de-OtB"/>
                                 <exclude reference="x3G-lv-iQs"/>
-                                <exclude reference="F7j-oL-rWH"/>
+                                <exclude reference="RPV-71-aeL"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
@@ -754,12 +754,12 @@ Southlake, Texas 76092
                                 <include reference="uqu-9y-rTK"/>
                                 <exclude reference="vG2-tI-Qsc"/>
                                 <exclude reference="xzY-3o-WnP"/>
+                                <exclude reference="F7j-oL-rWH"/>
                                 <include reference="BKE-pm-lyA"/>
                                 <exclude reference="NFs-dH-e01"/>
                                 <exclude reference="Tdi-TR-Nef"/>
                                 <include reference="apT-de-OtB"/>
                                 <exclude reference="x3G-lv-iQs"/>
-                                <exclude reference="F7j-oL-rWH"/>
                             </mask>
                         </variation>
                     </view>
@@ -789,7 +789,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Uz-Ib-bOj" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="fMM-d9-vRt">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="fMM-d9-vRt">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -865,7 +865,7 @@ Before Texas, Tom served 16 years in various roles connected to Grace Community 
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="116" id="Blw-7t-Q8Z"/>
                                         </constraints>
-                                        <mutableString key="text">Our ministry is founded upon one principle: God has given you every spiritual resource you need to grow in Jesus Christ, and you find those resources in His all-sufficient Word (2 Pet. 1:3). That’s why Tom embraces expository preaching — an approach that seeks to understand what the original authors of Scripture meant, rather than an approach that reads our own meaning into it. If that's what you've been looking for, you've come to the right place.
+                                        <string key="text">Our ministry is founded upon one principle: God has given you every spiritual resource you need to grow in Jesus Christ, and you find those resources in His all-sufficient Word (2 Pet. 1:3). That’s why Tom embraces expository preaching — an approach that seeks to understand what the original authors of Scripture meant, rather than an approach that reads our own meaning into it. If that's what you've been looking for, you've come to the right place.
 
 It's our prayer that the transforming power of God’s Word be unleashed in your life.
 
@@ -878,7 +878,7 @@ www.thewordunleashed.org
 P.O. Box 96077			
 Southlake, Texas 76092
 
-(877) 577-WORD (877) 577-9673</mutableString>
+(877) 577-WORD (877) 577-9673</string>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                         <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES"/>
@@ -954,17 +954,17 @@ Southlake, Texas 76092
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="LFC-se-GDK"/>
-                                        <exclude reference="fVq-kf-mjV"/>
-                                        <exclude reference="quP-Vw-cQP"/>
                                         <exclude reference="M0t-UO-oAO"/>
-                                        <exclude reference="CdM-m6-GNl"/>
                                         <exclude reference="66m-j0-wYn"/>
                                         <exclude reference="EUr-Jw-Jz8"/>
                                         <exclude reference="Neh-CU-ZAw"/>
                                         <exclude reference="NhU-gI-rHd"/>
                                         <exclude reference="g8t-45-sAR"/>
                                         <exclude reference="z3g-jt-p6v"/>
+                                        <exclude reference="CdM-m6-GNl"/>
+                                        <exclude reference="quP-Vw-cQP"/>
+                                        <exclude reference="LFC-se-GDK"/>
+                                        <exclude reference="fVq-kf-mjV"/>
                                     </mask>
                                 </variation>
                             </scrollView>
@@ -1116,7 +1116,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController storyboardIdentifier="PopoverTableView" automaticallyAdjustsScrollViewInsets="NO" id="YPv-hw-rTL" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="hYk-zr-46v">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="hYk-zr-46v">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>

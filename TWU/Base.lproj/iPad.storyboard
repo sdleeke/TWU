@@ -43,14 +43,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="90" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="91J-fh-SJo">
-                                <rect key="frame" x="0.0" y="358" width="702.5" height="346"/>
+                                <rect key="frame" x="0.0" y="358" width="703" height="346"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationWidth="0.0" reuseIdentifier="SeriesSermon" id="weh-rh-66T" customClass="MediaTableViewCell" customModule="TWU" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="1" width="702.5" height="90"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="weh-rh-66T" id="OR0-Xl-7Iz">
-                                            <rect key="frame" x="0.0" y="0.0" width="702.5" height="89"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="702.5" height="89.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OSQ-vd-yF8">
@@ -102,14 +102,14 @@
                                             </constraints>
                                             <variation key="default">
                                                 <mask key="constraints">
-                                                    <exclude reference="3cv-7G-th0"/>
-                                                    <exclude reference="iOI-t6-YyM"/>
+                                                    <exclude reference="bP4-eq-ULb"/>
                                                     <exclude reference="Uwy-aK-nN1"/>
                                                     <exclude reference="gmX-qw-ZgD"/>
                                                     <exclude reference="O8S-CB-D4J"/>
                                                     <exclude reference="VcX-fV-QxP"/>
                                                     <exclude reference="Weo-fC-rQV"/>
-                                                    <exclude reference="bP4-eq-ULb"/>
+                                                    <exclude reference="3cv-7G-th0"/>
+                                                    <exclude reference="iOI-t6-YyM"/>
                                                 </mask>
                                             </variation>
                                         </tableViewCellContentView>
@@ -127,17 +127,17 @@
                                 </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sSN-Ac-J4R" userLabel="Series Art And Description">
-                                <rect key="frame" x="0.0" y="0.0" width="702.5" height="288"/>
+                                <rect key="frame" x="-0.5" y="0.0" width="703" height="288"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ufB-oq-a4t">
-                                        <rect key="frame" x="10" y="0.0" width="682.5" height="288"/>
+                                        <rect key="frame" x="10" y="0.0" width="683" height="288"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <imageView multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="x2f-dd-r2d">
-                                        <rect key="frame" x="222" y="14" width="259" height="259"/>
+                                        <rect key="frame" x="222.5" y="14" width="259" height="259"/>
                                         <gestureRecognizers/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="x2f-dd-r2d" secondAttribute="height" multiplier="1:1" id="Cer-hh-zmi"/>
@@ -198,7 +198,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="sE0-gY-Yu6" customClass="OBSlider" customModule="TWU" customModuleProvider="target">
-                                <rect key="frame" x="109" y="320" width="528.5" height="31"/>
+                                <rect key="frame" x="109" y="320" width="529" height="31"/>
                                 <connections>
                                     <action selector="sliderTouchDown:" destination="H2E-ZS-FbW" eventType="touchDown" id="gx9-aV-TP5"/>
                                     <action selector="sliderTouchUpInside:" destination="H2E-ZS-FbW" eventType="touchUpInside" id="fJj-Rq-HbQ"/>
@@ -207,10 +207,10 @@
                                 </connections>
                             </slider>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="01j-65-CbC">
-                                <rect key="frame" x="363.5" y="325.5" width="20" height="20"/>
+                                <rect key="frame" x="364" y="325.5" width="20" height="20"/>
                             </activityIndicatorView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3jv-Gb-bb7" userLabel="Time Remaining">
-                                <rect key="frame" x="643.5" y="327" width="39" height="17"/>
+                                <rect key="frame" x="644" y="327" width="39" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="50" id="Du6-iW-YBf"/>
                                 </constraints>
@@ -232,13 +232,13 @@
                                 </connections>
                             </button>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="twu_logo_circle_r" translatesAutoresizingMaskIntoConstraints="NO" id="PgQ-UT-9Es">
-                                <rect key="frame" x="0.0" y="1" width="702.5" height="702.5"/>
+                                <rect key="frame" x="0.0" y="1.5" width="702" height="702"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="PgQ-UT-9Es" secondAttribute="height" multiplier="1:1" id="uMs-y1-g9c"/>
                                 </constraints>
                             </imageView>
                             <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="vgK-rU-B9W">
-                                <rect key="frame" x="176.5" y="283" width="351" height="45"/>
+                                <rect key="frame" x="176" y="283" width="351.5" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="gQ5-pt-2hg"/>
                                 </constraints>
@@ -285,9 +285,9 @@
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="T4e-JZ-7Yx"/>
                                 <exclude reference="Fwu-Mm-IR0"/>
                                 <exclude reference="jHa-5q-9i4"/>
+                                <exclude reference="T4e-JZ-7Yx"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
@@ -447,8 +447,8 @@ Southlake, Texas 76092
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="NUN-sa-Rnk"/>
                                 <exclude reference="E1I-uR-jVx"/>
+                                <exclude reference="NUN-sa-Rnk"/>
                                 <exclude reference="XUU-iC-5Oj"/>
                             </mask>
                         </variation>
@@ -672,15 +672,15 @@ Southlake, Texas 76092
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="N2w-88-Whv"/>
-                                <exclude reference="nQq-Fe-40s"/>
                                 <exclude reference="0rg-zA-o5M"/>
                                 <exclude reference="Hhm-ll-KXg"/>
                                 <exclude reference="auA-Ya-22K"/>
                                 <exclude reference="cSV-on-bds"/>
                                 <exclude reference="kyc-Dh-U1M"/>
-                                <exclude reference="UgF-Yv-Usx"/>
                                 <exclude reference="KUU-OH-fz5"/>
+                                <exclude reference="N2w-88-Whv"/>
+                                <exclude reference="nQq-Fe-40s"/>
+                                <exclude reference="UgF-Yv-Usx"/>
                             </mask>
                         </variation>
                     </view>
@@ -701,7 +701,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="0dU-6K-xAc" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="57E-Xf-Dzh">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="57E-Xf-Dzh">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -777,7 +777,7 @@ Before Texas, Tom served 16 years in various roles connected to Grace Community 
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="116" id="1RK-qa-SsI"/>
                                         </constraints>
-                                        <mutableString key="text">Our ministry is founded upon one principle: God has given you every spiritual resource you need to grow in Jesus Christ, and you find those resources in His all-sufficient Word (2 Pet. 1:3). That’s why Tom embraces expository preaching - an approach that seeks to understand what the original authors of Scripture meant, rather than an approach that reads our own meaning into it. If that's what you've been looking for, you've come to the right place.
+                                        <string key="text">Our ministry is founded upon one principle: God has given you every spiritual resource you need to grow in Jesus Christ, and you find those resources in His all-sufficient Word (2 Pet. 1:3). That’s why Tom embraces expository preaching - an approach that seeks to understand what the original authors of Scripture meant, rather than an approach that reads our own meaning into it. If that's what you've been looking for, you've come to the right place.
 
 It's our prayer that the transforming power of God’s Word be unleashed in your life.
 
@@ -790,7 +790,7 @@ www.thewordunleashed.org
 P.O. Box 96077			
 Southlake, Texas 76092
 
-(877) 577-WORD (877) 577-9673</mutableString>
+(877) 577-WORD (877) 577-9673</string>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                         <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES"/>
@@ -866,17 +866,17 @@ Southlake, Texas 76092
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="w2u-jH-F0u"/>
+                                        <exclude reference="ytv-g6-Rv9"/>
                                         <exclude reference="C80-EX-6Ez"/>
                                         <exclude reference="HFc-HK-D36"/>
                                         <exclude reference="Xde-I1-Pn6"/>
                                         <exclude reference="cfb-7D-yLk"/>
                                         <exclude reference="giN-hC-QpH"/>
                                         <exclude reference="gpG-ea-HNt"/>
+                                        <exclude reference="Tl2-z3-xHg"/>
+                                        <exclude reference="w2u-jH-F0u"/>
                                         <exclude reference="4BB-no-N3S"/>
                                         <exclude reference="fpp-Fi-abs"/>
-                                        <exclude reference="ytv-g6-Rv9"/>
-                                        <exclude reference="Tl2-z3-xHg"/>
                                     </mask>
                                 </variation>
                             </scrollView>
@@ -913,7 +913,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PcO-S8-TOr" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="5ac-ST-PF3">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="5ac-ST-PF3">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
