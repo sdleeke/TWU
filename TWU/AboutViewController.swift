@@ -24,6 +24,26 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     @IBOutlet weak var actionsButton: UIBarButtonItem!
     
+    @IBAction func twitter(_ sender: UIButton) {
+        openWebSite("https://twitter.com/wordunleashed")
+    }
+    
+    @IBAction func facebook(_ sender: UIButton) {
+        openWebSite("https://www.facebook.com/TheWordUnleashed")
+    }
+    
+    @IBAction func podcast(_ sender: UIButton) {
+        openWebSite("https://itunes.apple.com/us/podcast/the-word-unleashed/id610499233?mt=2")
+    }
+
+    @IBAction func rssfeed(_ sender: UIButton) {
+        openWebSite("http://www.thewordunleashed.org/podcast.php")
+    }
+    
+    @IBAction func cbc(_ sender: UIButton) {
+        openWebSite("http://www.countrysidebible.org/")
+    }
+    
     fileprivate func setVersion()
     {
         if let dict = Bundle.main.infoDictionary {

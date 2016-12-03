@@ -96,7 +96,7 @@
                                         <rect key="frame" x="0.0" y="1" width="320" height="90"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="hSc-gC-b1G" id="jrr-a9-dsE">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="89.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="89"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AWG-zI-ezh">
@@ -206,7 +206,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iPn-wE-Y4v" userLabel="PlayPause">
-                                <rect key="frame" x="8" y="243.5" width="48" height="45"/>
+                                <rect key="frame" x="8" y="246" width="48" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="H7F-mM-3Cy"/>
                                 </constraints>
@@ -811,11 +811,11 @@ Southlake, Texas 76092
                         <viewControllerLayoutGuide type="bottom" id="Dz6-ZR-BA5"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ePQ-rI-Dp7">
-                        <rect key="frame" x="0.0" y="64" width="600" height="1136"/>
+                        <rect key="frame" x="0.0" y="64" width="600" height="1336"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="20c-Rp-CGL">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="1136"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="1336"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tom_pennington" translatesAutoresizingMaskIntoConstraints="NO" id="jBg-nB-vxr">
                                         <rect key="frame" x="172" y="20" width="256" height="256"/>
@@ -859,35 +859,6 @@ Before Texas, Tom served 16 years in various roles connected to Grace Community 
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
-                                    <textView clipsSubviews="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="749" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRW-ig-JXk">
-                                        <rect key="frame" x="0.0" y="542" width="600" height="456"/>
-                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="116" id="Blw-7t-Q8Z"/>
-                                        </constraints>
-                                        <string key="text">Our ministry is founded upon one principle: God has given you every spiritual resource you need to grow in Jesus Christ, and you find those resources in His all-sufficient Word (2 Pet. 1:3). That’s why Tom embraces expository preaching — an approach that seeks to understand what the original authors of Scripture meant, rather than an approach that reads our own meaning into it. If that's what you've been looking for, you've come to the right place.
-
-It's our prayer that the transforming power of God’s Word be unleashed in your life.
-
-Contact us at: 
-
-listeners@thewordunleashed.org
-
-www.thewordunleashed.org
-
-P.O. Box 96077			
-Southlake, Texas 76092
-
-(877) 577-WORD (877) 577-9673</string>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                        <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES"/>
-                                        <variation key="default">
-                                            <mask key="constraints">
-                                                <exclude reference="Blw-7t-Q8Z"/>
-                                            </mask>
-                                        </variation>
-                                    </textView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BeJ-Ls-LE3">
                                         <rect key="frame" x="549" y="509" width="31" height="30"/>
                                         <state key="normal" title="Give"/>
@@ -895,16 +866,6 @@ Southlake, Texas 76092
                                             <action selector="give:" destination="bnn-4K-1Sn" eventType="touchUpInside" id="FMd-6c-8vJ"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DTd-bi-Q4w" userLabel="Version">
-                                        <rect key="frame" x="550" y="969" width="42" height="21"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="42" id="3ZN-1b-iZw"/>
-                                            <constraint firstAttribute="height" constant="21" id="gnD-KH-XIX"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The Word Unleashed" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eO6-Gd-VvC">
                                         <rect key="frame" x="6" y="513" width="167" height="21"/>
                                         <constraints>
@@ -919,17 +880,96 @@ Southlake, Texas 76092
                                             </mask>
                                         </variation>
                                     </label>
+                                    <textView clipsSubviews="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="749" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRW-ig-JXk">
+                                        <rect key="frame" x="0.0" y="542" width="600" height="456"/>
+                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="116" id="Blw-7t-Q8Z"/>
+                                        </constraints>
+                                        <mutableString key="text">Our ministry is founded upon one principle: God has given you every spiritual resource you need to grow in Jesus Christ, and you find those resources in His all-sufficient Word (2 Pet. 1:3). That’s why Tom embraces expository preaching — an approach that seeks to understand what the original authors of Scripture meant, rather than an approach that reads our own meaning into it. If that's what you've been looking for, you've come to the right place.
+
+It's our prayer that the transforming power of God’s Word be unleashed in your life.
+
+Connect: 
+
+listeners@thewordunleashed.org
+
+www.thewordunleashed.org
+
+P.O. Box 96077			
+Southlake, Texas 76092
+
+(877) 577-WORD (877) 577-9673</mutableString>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES"/>
+                                        <variation key="default">
+                                            <mask key="constraints">
+                                                <exclude reference="Blw-7t-Q8Z"/>
+                                            </mask>
+                                        </variation>
+                                    </textView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ImC-3k-pU8">
+                                        <rect key="frame" x="6" y="1006" width="48" height="30"/>
+                                        <state key="normal" title="Twitter"/>
+                                        <connections>
+                                            <action selector="twitter:" destination="bnn-4K-1Sn" eventType="touchUpInside" id="MqO-QY-ClR"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cGd-vy-vkb">
+                                        <rect key="frame" x="6" y="1044" width="67" height="30"/>
+                                        <state key="normal" title="Facebook"/>
+                                        <connections>
+                                            <action selector="facebook:" destination="bnn-4K-1Sn" eventType="touchUpInside" id="rzH-hR-c72"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Edh-8V-N5r">
+                                        <rect key="frame" x="6" y="1082" width="56" height="30"/>
+                                        <state key="normal" title="Podcast"/>
+                                        <connections>
+                                            <action selector="podcast:" destination="bnn-4K-1Sn" eventType="touchUpInside" id="2hj-18-JMf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TGC-bD-6XL">
+                                        <rect key="frame" x="6" y="1120" width="67" height="30"/>
+                                        <state key="normal" title="RSS Feed"/>
+                                        <connections>
+                                            <action selector="rssfeed:" destination="bnn-4K-1Sn" eventType="touchUpInside" id="LMt-bd-18X"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eDT-Vw-2pa">
+                                        <rect key="frame" x="6" y="1158" width="175" height="30"/>
+                                        <state key="normal" title="Countryside Bible Church"/>
+                                        <connections>
+                                            <action selector="cbc:" destination="bnn-4K-1Sn" eventType="touchUpInside" id="GiS-Ll-v3S"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DTd-bi-Q4w" userLabel="Version">
+                                        <rect key="frame" x="550" y="969" width="42" height="21"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="42" id="3ZN-1b-iZw"/>
+                                            <constraint firstAttribute="height" constant="21" id="gnD-KH-XIX"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="eO6-Gd-VvC" firstAttribute="top" secondItem="s8y-yS-AxR" secondAttribute="bottom" constant="8" symbolic="YES" id="21R-Yf-sJM"/>
+                                    <constraint firstItem="cGd-vy-vkb" firstAttribute="top" secondItem="ImC-3k-pU8" secondAttribute="bottom" constant="8" symbolic="YES" id="3Lt-ms-0lQ"/>
                                     <constraint firstItem="FRW-ig-JXk" firstAttribute="top" secondItem="eO6-Gd-VvC" secondAttribute="bottom" constant="8" symbolic="YES" id="43d-Cz-FP6"/>
                                     <constraint firstItem="uwX-Cs-vF8" firstAttribute="leading" secondItem="20c-Rp-CGL" secondAttribute="leading" constant="6" id="5Ep-gS-CSa"/>
                                     <constraint firstItem="uwX-Cs-vF8" firstAttribute="centerX" secondItem="s8y-yS-AxR" secondAttribute="centerX" id="66m-j0-wYn"/>
+                                    <constraint firstItem="Edh-8V-N5r" firstAttribute="top" secondItem="cGd-vy-vkb" secondAttribute="bottom" constant="8" symbolic="YES" id="6ei-fz-RKF"/>
+                                    <constraint firstAttribute="bottom" secondItem="eDT-Vw-2pa" secondAttribute="bottom" constant="20" symbolic="YES" id="8Ry-Gm-m0w"/>
                                     <constraint firstItem="FRW-ig-JXk" firstAttribute="centerX" secondItem="20c-Rp-CGL" secondAttribute="centerX" id="BFr-kJ-VST"/>
                                     <constraint firstItem="DTd-bi-Q4w" firstAttribute="trailing" secondItem="20c-Rp-CGL" secondAttribute="trailingMargin" id="CIU-oD-2sd"/>
                                     <constraint firstItem="s8y-yS-AxR" firstAttribute="top" secondItem="uwX-Cs-vF8" secondAttribute="bottom" constant="2" id="CdM-m6-GNl"/>
+                                    <constraint firstItem="TGC-bD-6XL" firstAttribute="leading" secondItem="Edh-8V-N5r" secondAttribute="leading" id="DKS-Do-ORr"/>
                                     <constraint firstItem="jBg-nB-vxr" firstAttribute="top" secondItem="20c-Rp-CGL" secondAttribute="top" constant="20" symbolic="YES" id="Dms-bS-G15"/>
                                     <constraint firstAttribute="bottom" secondItem="uwX-Cs-vF8" secondAttribute="bottom" constant="251" id="EUr-Jw-Jz8"/>
+                                    <constraint firstItem="eDT-Vw-2pa" firstAttribute="top" secondItem="TGC-bD-6XL" secondAttribute="bottom" constant="8" symbolic="YES" id="HFR-qc-ZY5"/>
                                     <constraint firstItem="BeJ-Ls-LE3" firstAttribute="baseline" secondItem="eO6-Gd-VvC" secondAttribute="baseline" id="Jef-dq-dyQ"/>
                                     <constraint firstItem="s8y-yS-AxR" firstAttribute="top" secondItem="uwX-Cs-vF8" secondAttribute="bottom" constant="8" symbolic="YES" id="KyT-Tf-xJ2"/>
                                     <constraint firstItem="DTd-bi-Q4w" firstAttribute="top" secondItem="20c-Rp-CGL" secondAttribute="top" constant="507" id="LFC-se-GDK"/>
@@ -939,17 +979,22 @@ Southlake, Texas 76092
                                     <constraint firstAttribute="trailing" secondItem="FRW-ig-JXk" secondAttribute="trailing" id="PN8-Km-U1e"/>
                                     <constraint firstItem="DTd-bi-Q4w" firstAttribute="bottom" secondItem="20c-Rp-CGL" secondAttribute="bottomMargin" id="R0p-5V-jv6"/>
                                     <constraint firstItem="s8y-yS-AxR" firstAttribute="centerX" secondItem="20c-Rp-CGL" secondAttribute="centerX" id="VtX-30-IQ4"/>
+                                    <constraint firstItem="eDT-Vw-2pa" firstAttribute="leading" secondItem="TGC-bD-6XL" secondAttribute="leading" id="WiJ-O0-Jdt"/>
                                     <constraint firstItem="s8y-yS-AxR" firstAttribute="leading" secondItem="20c-Rp-CGL" secondAttribute="leading" id="aC3-o2-Rk6"/>
                                     <constraint firstItem="eO6-Gd-VvC" firstAttribute="leading" secondItem="20c-Rp-CGL" secondAttribute="leading" constant="6" id="aJ0-RI-63k"/>
+                                    <constraint firstItem="TGC-bD-6XL" firstAttribute="top" secondItem="Edh-8V-N5r" secondAttribute="bottom" constant="8" symbolic="YES" id="ahI-A5-oXg"/>
                                     <constraint firstItem="DTd-bi-Q4w" firstAttribute="leading" secondItem="20c-Rp-CGL" secondAttribute="leading" constant="550" id="fVq-kf-mjV"/>
                                     <constraint firstAttribute="trailing" secondItem="uwX-Cs-vF8" secondAttribute="trailing" constant="238" id="g8t-45-sAR"/>
                                     <constraint firstAttribute="trailing" secondItem="BeJ-Ls-LE3" secondAttribute="trailing" constant="20" symbolic="YES" id="i22-Nm-nGi"/>
-                                    <constraint firstAttribute="bottom" secondItem="FRW-ig-JXk" secondAttribute="bottom" id="nRj-P6-5XI"/>
+                                    <constraint firstItem="ImC-3k-pU8" firstAttribute="leading" secondItem="20c-Rp-CGL" secondAttribute="leading" constant="6" id="kJU-Rm-Pzd"/>
+                                    <constraint firstItem="ImC-3k-pU8" firstAttribute="top" secondItem="FRW-ig-JXk" secondAttribute="bottom" constant="8" symbolic="YES" id="mTb-zQ-rWu"/>
                                     <constraint firstAttribute="trailing" secondItem="s8y-yS-AxR" secondAttribute="trailing" id="q26-UH-WU4"/>
                                     <constraint firstItem="eO6-Gd-VvC" firstAttribute="centerX" secondItem="20c-Rp-CGL" secondAttribute="centerX" id="quP-Vw-cQP"/>
                                     <constraint firstItem="jBg-nB-vxr" firstAttribute="centerX" secondItem="20c-Rp-CGL" secondAttribute="centerX" id="szf-eZ-JEj"/>
+                                    <constraint firstItem="Edh-8V-N5r" firstAttribute="leading" secondItem="cGd-vy-vkb" secondAttribute="leading" id="tgE-oE-OgU"/>
                                     <constraint firstItem="uwX-Cs-vF8" firstAttribute="top" secondItem="jBg-nB-vxr" secondAttribute="bottom" constant="8" symbolic="YES" id="vac-6p-TYY"/>
                                     <constraint firstItem="FRW-ig-JXk" firstAttribute="leading" secondItem="20c-Rp-CGL" secondAttribute="leading" id="wlh-d7-f8C"/>
+                                    <constraint firstItem="cGd-vy-vkb" firstAttribute="leading" secondItem="ImC-3k-pU8" secondAttribute="leading" id="x1U-WI-mCj"/>
                                     <constraint firstItem="uwX-Cs-vF8" firstAttribute="centerX" secondItem="20c-Rp-CGL" secondAttribute="centerX" id="z3g-jt-p6v"/>
                                 </constraints>
                                 <variation key="default">
@@ -985,7 +1030,7 @@ Southlake, Texas 76092
                         </barButtonItem>
                     </navigationItem>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-                    <size key="freeformSize" width="600" height="1200"/>
+                    <size key="freeformSize" width="600" height="1400"/>
                     <connections>
                         <outlet property="actionsButton" destination="qyr-qa-men" id="YdO-eO-Kfb"/>
                         <outlet property="scrollView" destination="20c-Rp-CGL" id="VLv-b5-hFv"/>

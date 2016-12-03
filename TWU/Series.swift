@@ -163,17 +163,31 @@ class Series : Equatable, CustomStringConvertible {
                     // Try to get it from the cloud
                     let imageCloudURL = Constants.URL.BASE.IMAGE + imageName + Constants.FILE_EXTENSION.JPEG
                     //                print("\(imageCloudURL)")
-                    if let imageData = try? Data(contentsOf: URL(string: imageCloudURL)!) {
+                    do {
+                        let imageData = try Data(contentsOf: URL(string: imageCloudURL)!)
+                        print("Image \(imageName) read from cloud")
+
                         if let image = UIImage(data: imageData) {
-                            try? UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                            print("Image \(imageName) read from cloud and converted to image")
+                            do {
+                                try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                                print("Image \(imageName) saved to file system")
+                            } catch let error as NSError {
+                                print("Image \(imageName) not saved to file system")
+                                NSLog(error.localizedDescription)
+                            }
+                        } else {
+                            print("Image \(imageName) read from cloud but not converted to image")
                         }
-                    } else {
-                        // Can't get it from anywhere.
+                    } catch let error as NSError {
+                        print("Image \(imageName) not read from cloud")
+                        NSLog(error.localizedDescription)
                     }
                 }
             }
         }
         
+        print("Image \(imageName) not available")
         return nil
     }
     
