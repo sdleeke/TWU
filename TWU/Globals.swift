@@ -10,26 +10,6 @@ import Foundation
 import MediaPlayer
 import CloudKit
 
-fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-    switch (lhs, rhs) {
-    case let (l?, r?):
-        return l < r
-    case (nil, _?):
-        return true
-    default:
-        return false
-    }
-}
-
-fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-    switch (lhs, rhs) {
-    case let (l?, r?):
-        return l > r
-    default:
-        return rhs < lhs
-    }
-}
-
 enum Showing {
     case all
     case filtered
@@ -233,11 +213,6 @@ class MediaPlayer {
         
         globals.setupPlayingInfoCenter()
     }
-    
-//    func seek(to: CMTime)
-//    {
-//        player?.seek(to: to)
-//    }
     
     func seek(to: Double?)
     {
@@ -685,14 +660,6 @@ class Globals : NSObject {
                 }
             }
         }
-        
-        if (seriesSettings == nil) {
-            seriesSettings = [String:[String:String]]()
-        }
-        
-        if (sermonSettings == nil) {
-            sermonSettings = [String:[String:String]]()
-        }
 
         //    print("\(sermonSettings)")
     }
@@ -829,34 +796,26 @@ class Globals : NSObject {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
         })
         
-        if let duration = mediaPlayer.duration?.seconds {
-            if let currentTime = mediaPlayer.currentTime?.seconds {
-                mediaPlayer.playing?.atEnd = currentTime >= (duration - 1)
-                if (mediaPlayer.playing != nil) && !mediaPlayer.playing!.atEnd {
-                    reloadPlayer(globals.mediaPlayer.playing)
-                }
-            } else {
-                mediaPlayer.playing?.atEnd = true
+        if let duration = mediaPlayer.duration?.seconds, let currentTime = mediaPlayer.currentTime?.seconds {
+            mediaPlayer.playing?.atEnd = currentTime >= (duration - 1)
+            if (mediaPlayer.playing != nil) && !mediaPlayer.playing!.atEnd {
+                reloadPlayer(globals.mediaPlayer.playing)
             }
         } else {
             mediaPlayer.playing?.atEnd = true
         }
         
-        if autoAdvance && (mediaPlayer.playing != nil) && mediaPlayer.playing!.atEnd && (mediaPlayer.playing?.series?.sermons != nil) {
-            let mediaItems = mediaPlayer.playing?.series?.sermons
-            if let index = mediaItems?.index(of: mediaPlayer.playing!) {
-                if index < (mediaItems!.count - 1) {
-                    if let nextMediaItem = mediaItems?[index + 1] {
-                        nextMediaItem.currentTime = Constants.ZERO
-                        mediaPlayer.playing = nextMediaItem
-                        mediaPlayer.playOnLoad = true
-                        setupPlayer(nextMediaItem)
-                        DispatchQueue.main.async(execute: { () -> Void in
-                            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
-                        })
-                    }
-                }
-            }
+        if autoAdvance, mediaPlayer.playing != nil, mediaPlayer.playing!.atEnd,
+            let mediaItems = mediaPlayer.playing?.series?.sermons,
+            let index = mediaItems.index(of: mediaPlayer.playing!), index < (mediaItems.count - 1) {
+            let nextMediaItem = mediaItems[index + 1]
+            nextMediaItem.currentTime = Constants.ZERO
+            mediaPlayer.playing = nextMediaItem
+            mediaPlayer.playOnLoad = true
+            setupPlayer(nextMediaItem)
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
+            })
         }
     }
     
@@ -905,8 +864,8 @@ class Globals : NSObject {
     
     func reloadPlayer(_ sermon:Sermon?)
     {
-        if (sermon != nil) {
-            reloadPlayer(url: sermon!.playingURL)
+        if let url = sermon!.playingURL {
+            reloadPlayer(url: url)
         }
     }
     
@@ -995,14 +954,14 @@ class Globals : NSObject {
 
     func setupPlayingInfoCenter()
     {
-        if (mediaPlayer.playing != nil) {
+        if let title = mediaPlayer.playing?.series?.title, let index = mediaPlayer.playing?.index {
             var sermonInfo = [String:AnyObject]()
             
-            sermonInfo[MPMediaItemPropertyTitle] = "\(mediaPlayer.playing!.series!.title!) (Part \(mediaPlayer.playing!.index + 1))" as AnyObject
+            sermonInfo[MPMediaItemPropertyTitle] = "\(title) (Part \(index + 1))" as AnyObject
             
             sermonInfo[MPMediaItemPropertyArtist] = Constants.Tom_Pennington as AnyObject
             
-            sermonInfo[MPMediaItemPropertyAlbumTitle] = mediaPlayer.playing!.series!.title! as AnyObject
+            sermonInfo[MPMediaItemPropertyAlbumTitle] = title as AnyObject
             
             sermonInfo[MPMediaItemPropertyAlbumArtist] = Constants.Tom_Pennington as AnyObject
             
@@ -1010,16 +969,22 @@ class Globals : NSObject {
                 sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: art)
             }
 
-            sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = mediaPlayer.playing!.index + 1 as AnyObject
+            sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = index + 1 as AnyObject
             
-            sermonInfo[MPMediaItemPropertyAlbumTrackCount] = mediaPlayer.playing!.series!.numberOfSermons as AnyObject
+            if let numberOfSermons = mediaPlayer.playing?.series?.numberOfSermons {
+                sermonInfo[MPMediaItemPropertyAlbumTrackCount] = numberOfSermons as AnyObject
+            }
             
-            if (mediaPlayer.player != nil) {
-                sermonInfo[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: mediaPlayer.duration!.seconds)
-                
-                sermonInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: mediaPlayer.currentTime!.seconds)
-                
-                sermonInfo[MPNowPlayingInfoPropertyPlaybackRate] = NSNumber(value: mediaPlayer.rate!)
+            if let duration = mediaPlayer.duration?.seconds {
+                sermonInfo[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
+            }
+
+            if let currentTime = mediaPlayer.currentTime?.seconds {
+                sermonInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: currentTime)
+            }
+            
+            if let rate = mediaPlayer.rate {
+                sermonInfo[MPNowPlayingInfoPropertyPlaybackRate] = NSNumber(value: rate)
             }
             
             //    println("\(sermonInfo.count)")

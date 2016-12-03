@@ -12,27 +12,6 @@ import MessageUI
 import MediaPlayer
 import Social
 
-fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
-}
-
-fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l > r
-  default:
-    return rhs < lhs
-  }
-}
-
-
 class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
     var observerActive = false
 
@@ -700,72 +679,71 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         
         // Put up an action sheet
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
-            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-                navigationController.modalPresentationStyle = .popover
-                //            popover?.preferredContentSize = CGSizeMake(300, 500)
-                
-                navigationController.popoverPresentationController?.permittedArrowDirections = .up
-                navigationController.popoverPresentationController?.delegate = self
-                
-                navigationController.popoverPresentationController?.barButtonItem = actionButton
-                
-                //                popover.navigationItem.title = "Show"
-                
-                popover.navigationController?.isNavigationBarHidden = true
-                
-                popover.delegate = self
-                popover.purpose = .selectingAction
-                
-                var actionMenu = [String]()
-                
-                if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
-                    actionMenu.append(Constants.Open_Scripture)
-                }
-
-                actionMenu.append(Constants.Open_Series)
-                
-                if (seriesSelected?.sermons != nil) {
-                    var sermonsToDownload = 0
-                    var sermonsDownloading = 0
-                    var sermonsDownloaded = 0
-                    
-                    for sermon in seriesSelected!.sermons! {
-                        switch sermon.audioDownload!.state {
-                        case .none:
-                            sermonsToDownload += 1
-                            break
-                        case .downloading:
-                            sermonsDownloading += 1
-                            break
-                        case .downloaded:
-                            sermonsDownloaded += 1
-                            break
-                        }
-                    }
-                    
-                    if (sermonsToDownload > 0) {
-                        actionMenu.append(Constants.Download_All)
-                    }
-                    
-                    if (sermonsDownloading > 0) {
-                        actionMenu.append(Constants.Cancel_All_Downloads)
-                    }
-                    
-                    if (sermonsDownloaded > 0) {
-                        actionMenu.append(Constants.Delete_All_Downloads)
-                    }
-                }
-                
-                actionMenu.append(Constants.Email_Series)
-                
-                popover.strings = actionMenu
-                
-                popover.showIndex = false //(globals.grouping == .series)
-                popover.showSectionHeaders = false
-                
-                present(navigationController, animated: true, completion: nil)
+    if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
+        let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
+            navigationController.modalPresentationStyle = .popover
+            //            popover?.preferredContentSize = CGSizeMake(300, 500)
+            
+            navigationController.popoverPresentationController?.permittedArrowDirections = .up
+            navigationController.popoverPresentationController?.delegate = self
+            
+            navigationController.popoverPresentationController?.barButtonItem = actionButton
+            
+            //                popover.navigationItem.title = "Show"
+            
+            popover.navigationController?.isNavigationBarHidden = true
+            
+            popover.delegate = self
+            popover.purpose = .selectingAction
+            
+            var actionMenu = [String]()
+            
+            if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
+                actionMenu.append(Constants.Open_Scripture)
             }
+
+            actionMenu.append(Constants.Open_Series)
+            
+            if (seriesSelected?.sermons != nil) {
+                var sermonsToDownload = 0
+                var sermonsDownloading = 0
+                var sermonsDownloaded = 0
+                
+                for sermon in seriesSelected!.sermons! {
+                    switch sermon.audioDownload!.state {
+                    case .none:
+                        sermonsToDownload += 1
+                        break
+                    case .downloading:
+                        sermonsDownloading += 1
+                        break
+                    case .downloaded:
+                        sermonsDownloaded += 1
+                        break
+                    }
+                }
+                
+                if (sermonsToDownload > 0) {
+                    actionMenu.append(Constants.Download_All)
+                }
+                
+                if (sermonsDownloading > 0) {
+                    actionMenu.append(Constants.Cancel_All_Downloads)
+                }
+                
+                if (sermonsDownloaded > 0) {
+                    actionMenu.append(Constants.Delete_All_Downloads)
+                }
+            }
+            
+            actionMenu.append(Constants.Email_Series)
+            
+            popover.strings = actionMenu
+            
+            popover.showIndex = false //(globals.grouping == .series)
+            popover.showSectionHeaders = false
+            
+            present(navigationController, animated: true, completion: nil)
         }
     }
 
@@ -1026,25 +1004,28 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     func selectSermon(_ sermon:Sermon?)
     {
+        guard (sermon != nil) else {
+            return
+        }
+        
         guard (seriesSelected != nil) else {
             return
         }
-
+        
+        guard (seriesSelected == sermon?.series) else {
+            return
+        }
+        
         setupPlayPauseButton()
         
         //            print("\(seriesSelected!.title)")
-        if (seriesSelected == sermon?.series) {
-            if (sermon != nil) {
-                //Without this background/main dispatching there isn't time to scroll correctly after a reload.
-                DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                    DispatchQueue.main.async(execute: { () -> Void in
-                        self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.none)
-                    })
-                })
-            }
-        } else {
-            
-        }
+
+        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.none)
+            })
+        })
     }
     
     override func viewDidAppear(_ animated: Bool) {

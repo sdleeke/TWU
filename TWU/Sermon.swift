@@ -97,7 +97,8 @@ class Download {
             if (FileManager.default.fileExists(atPath: fileSystemURL!.path)){
                 do {
                     try FileManager.default.removeItem(at: fileSystemURL!)
-                } catch _ {
+                } catch let error as NSError {
+                    NSLog(error.localizedDescription)
                 }
             }
             
@@ -274,9 +275,8 @@ class Sermon : NSObject, URLSessionDownloadDelegate {
                     return
                 }
                 
-                guard (globals.sermonSettings != nil) else {
-                    print("globals.sermonSettings == nil in Settings!")
-                    return
+                if (globals.sermonSettings == nil) {
+                    globals.sermonSettings = [String:[String:String]]()
                 }
                 
                 if (globals.sermonSettings?[sermon!.sermonID!] == nil) {

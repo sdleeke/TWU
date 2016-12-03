@@ -211,18 +211,13 @@ class Series : Equatable, CustomStringConvertible {
                     return
                 }
                 
-                guard (globals.seriesSettings != nil) else {
-                    print("globals.seriesSettings == nil in Settings!")
-                    return
+                if (globals.seriesSettings == nil) {
+                    globals.seriesSettings = [String:[String:String]]()
                 }
-
+                
                 if (globals.seriesSettings?[self.series!.seriesID!] == nil) {
                     globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
                 }
-                
-                //                            print("\(globals.sermonSettings!)")
-                //                            print("\(sermon!)")
-                //                            print("\(newValue!)")
                 
                 globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
                 

@@ -84,12 +84,16 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         switch purpose {
         case .selectingSorting:
             globals.sorting = strings[index]
-            collectionView.reloadData()
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.collectionView.reloadData()
+            })
             break
             
         case .selectingFiltering:
             if (globals.filter != strings[index]) {
-                searchBar.placeholder = strings[index]
+                DispatchQueue.main.async(execute: { () -> Void in
+                    self.searchBar.placeholder = strings[index]
+                })
                 
                 if (strings[index] == Constants.All) {
                     globals.showing = .all
@@ -103,7 +107,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 
                 if globals.activeSeries != nil {
                     let indexPath = IndexPath(item:0,section:0)
-                    self.collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
+                    DispatchQueue.main.async(execute: { () -> Void in
+                        self.collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
+                    })
                 }
             }
             break
@@ -121,26 +127,25 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
-            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-                navigationController.modalPresentationStyle = .popover
-                //            popover?.preferredContentSize = CGSizeMake(300, 500)
-                
-                navigationController.popoverPresentationController?.permittedArrowDirections = .down
-                navigationController.popoverPresentationController?.delegate = self
-                
-                navigationController.popoverPresentationController?.barButtonItem = button
-                
-                popover.navigationItem.title = Constants.Filtering_Options_Title
-                
-                popover.delegate = self
-                
-                popover.purpose = .selectingFiltering
-                popover.strings = booksFromSeries(globals.series)
-                popover.strings?.insert(Constants.All, at: 0)
-                
-                present(navigationController, animated: true, completion: nil)
-            }
+        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
+            let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
+            navigationController.modalPresentationStyle = .popover
+            //            popover?.preferredContentSize = CGSizeMake(300, 500)
+            
+            navigationController.popoverPresentationController?.permittedArrowDirections = .down
+            navigationController.popoverPresentationController?.delegate = self
+            
+            navigationController.popoverPresentationController?.barButtonItem = button
+            
+            popover.navigationItem.title = Constants.Filtering_Options_Title
+            
+            popover.delegate = self
+            
+            popover.purpose = .selectingFiltering
+            popover.strings = booksFromSeries(globals.series)
+            popover.strings?.insert(Constants.All, at: 0)
+            
+            present(navigationController, animated: true, completion: nil)
         }
     }
     
@@ -163,7 +168,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     fileprivate func setupSortingAndGroupingOptions()
     {
         let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.sorting(_:)))
+        
         let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.filtering(_:)))
+        
         let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.settings(_:)))
         
         let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil)
@@ -197,7 +204,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        println("Text changed: \(searchText)")
+//        print("Text changed: \(searchText)")
         
         globals.searchButtonClicked = false
         
@@ -221,14 +228,14 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        println("Search clicked!")
+//        print("Search clicked!")
         globals.searchButtonClicked = true
         searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//        println("Cancel clicked!")
+//        print("Cancel clicked!")
         searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
         searchBar.text = nil
@@ -441,9 +448,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                     globals.mediaPlayer.playOnLoad = false
                     globals.setupPlayer(globals.mediaPlayer.playing)
                 }
-            })
-            
-            DispatchQueue.main.async(execute: { () -> Void in
+
                 self.navigationItem.title = Constants.TWU.LONG
                 self.setupViews()
 
@@ -455,13 +460,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 } else {
                     self.activityIndicator.stopAnimating()
                 }
+
+                completion?()
             })
-            
-            if (completion != nil) {
-                DispatchQueue.main.async(execute: { () -> Void in
-                    completion?()
-                })
-            }
 
             globals.isLoading = false
         })
@@ -579,35 +580,36 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func setPlayingPausedButton()
     {
-        if (globals.mediaPlayer.playing != nil) {
-            var title:String?
-            
-            switch globals.mediaPlayer.state! {
-            case .paused:
-                title = Constants.Paused
-                break
-                
-            case .playing:
-                title = Constants.Playing
-                break
-                
-            default:
-                title = Constants.None
-                break
-            }
-            
-            var playingPausedButton = navigationItem.rightBarButtonItem
-            
-            if (playingPausedButton == nil) {
-                playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.gotoNowPlaying))
-            }
-            
-            playingPausedButton!.title = title
-            
-            navigationItem.setRightBarButton(playingPausedButton, animated: true)
-        } else {
+        guard globals.mediaPlayer.playing != nil else {
             navigationItem.setRightBarButton(nil, animated: true)
+            return
         }
+        
+        var title:String?
+        
+        switch globals.mediaPlayer.state! {
+        case .paused:
+            title = Constants.Paused
+            break
+            
+        case .playing:
+            title = Constants.Playing
+            break
+            
+        default:
+            title = Constants.None
+            break
+        }
+        
+        var playingPausedButton = navigationItem.rightBarButtonItem
+        
+        if (playingPausedButton == nil) {
+            playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.gotoNowPlaying))
+        }
+        
+        playingPausedButton!.title = title
+        
+        navigationItem.setRightBarButton(playingPausedButton, animated: true)
     }
 
     func setupPlayingPausedButton()
@@ -808,7 +810,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 break
                 
             case Constants.SEGUE.SHOW_SERIES:
-//                println("ShowSeries")
+//                print("ShowSeries")
                 if (globals.gotoNowPlaying) {
                     //This pushes a NEW MediaViewController.
                     
@@ -848,7 +850,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func gotoNowPlaying()
     {
-//        println("gotoNowPlaying")
+//        print("gotoNowPlaying")
         
         globals.gotoNowPlaying = true
         
@@ -882,7 +884,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        println("didSelect")
+//        print("didSelect")
 
         if let cell: MediaCollectionViewCell = collectionView.cellForItem(at: indexPath) as? MediaCollectionViewCell {
             seriesSelected = cell.series
@@ -893,7 +895,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-//        println("didDeselect")
+//        print("didDeselect")
 
 //        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
 //
@@ -906,28 +908,28 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     // Uncomment this method to specify if the specified item should be highlighted during tracking
     */
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-//        println("shouldHighlight")
+//        print("shouldHighlight")
         return true
     }
     
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-//        println("Highlighted")
+//        print("Highlighted")
     }
     
     func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-//        println("Unhighlighted")
+//        print("Unhighlighted")
     }
     
     /*
     // Uncomment this method to specify if the specified item should be selected
     */
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-//        println("shouldSelect")
+//        print("shouldSelect")
         return true
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-//        println("shouldDeselect")
+//        print("shouldDeselect")
         return true
     }
     
