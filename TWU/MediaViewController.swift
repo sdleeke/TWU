@@ -913,56 +913,63 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     func scrollToSermon(_ sermon:Sermon?,select:Bool,position:UITableViewScrollPosition)
     {
-        if (sermon != nil) {
-            var indexPath = IndexPath(row: 0, section: 0)
-            
-            if (seriesSelected?.show > 1) {
-                if let sermonIndex = seriesSelected?.sermons?.index(of: sermon!) {
-//                    print("\(sermonIndex)")
-                    indexPath = IndexPath(row: sermonIndex, section: 0)
-                }
-            }
-            
-            //            print("\(tableView.bounds)")
-            
-            if (select) {
-//                print(indexPath)
-                tableView.selectRow(at: indexPath, animated: true, scrollPosition: position)
-            }
-            
-            //            print("Row: \(indexPath.row) Section: \(indexPath.section)")
-            
-            if (position == UITableViewScrollPosition.top) {
-                //                var point = CGPointZero //tableView.bounds.origin
-                //                point.y += tableView.rowHeight * CGFloat(indexPath.row)
-                //                tableView.setContentOffset(point, animated: true)
-                tableView.scrollToRow(at: indexPath, at: position, animated: false)
-            } else {
-                tableView.scrollToRow(at: indexPath, at: position, animated: false)
-            }
-        } else {
-            //No sermon to scroll to.
-            
+        guard (sermon != nil) else {
+            return
         }
+        
+        var indexPath = IndexPath(row: 0, section: 0)
+        
+        if (seriesSelected?.show > 1) {
+            if let sermonIndex = seriesSelected?.sermons?.index(of: sermon!) {
+//                    print("\(sermonIndex)")
+                indexPath = IndexPath(row: sermonIndex, section: 0)
+            }
+        }
+        
+        //            print("\(tableView.bounds)")
+        
+        if (select) {
+//                print(indexPath)
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: position)
+        }
+        
+        //            print("Row: \(indexPath.row) Section: \(indexPath.section)")
+
+        tableView.scrollToRow(at: indexPath, at: position, animated: false)
+
+//        if (position == UITableViewScrollPosition.top) {
+//            //                var point = CGPointZero //tableView.bounds.origin
+//            //                point.y += tableView.rowHeight * CGFloat(indexPath.row)
+//            //                tableView.setContentOffset(point, animated: true)
+//            tableView.scrollToRow(at: indexPath, at: position, animated: false)
+//        } else {
+//            tableView.scrollToRow(at: indexPath, at: position, animated: false)
+//        }
     }
 
     func showPlaying()
     {
-        if (globals.mediaPlayer.playing != nil) && (sermonSelected?.series?.sermons?.index(of: globals.mediaPlayer.playing!) != nil) {
-            sermonSelected = globals.mediaPlayer.playing
-            
-            tableView.reloadData()
-            
-            //Without this background/main dispatching there isn't time to scroll correctly after a reload.
-            
-            DispatchQueue.global(qos: .background).async {
-                DispatchQueue.main.async(execute: { () -> Void in
-                    self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
-                })
-            }
-            
-            updateUI()
+        guard (globals.mediaPlayer.playing != nil) else {
+            return
         }
+        
+        guard (sermonSelected?.series?.sermons?.index(of: globals.mediaPlayer.playing!) != nil) else {
+            return
+        }
+        
+        sermonSelected = globals.mediaPlayer.playing
+        
+        tableView.reloadData()
+        
+        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        
+        DispatchQueue.global(qos: .background).async {
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
+            })
+        }
+        
+        updateUI()
     }
     
     override func viewWillAppear(_ animated: Bool)

@@ -300,7 +300,7 @@ class MediaPlayer {
     var loaded:Bool = false
     var loadFailed:Bool = false
     
-    var observer: Timer?
+//    var observer: Timer?
     
     var playing:Sermon? {
         didSet {

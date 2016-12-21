@@ -21,7 +21,7 @@ class MediaTableViewCell: UITableViewCell {
         }
     }
     
-    var downloadObserver:Timer?
+//    var downloadObserver:Timer?
     
     var vc:UIViewController?
     
@@ -64,18 +64,18 @@ class MediaTableViewCell: UITableViewCell {
 
         downloadSwitch.isOn = sermon!.audioDownload.state != .none
 
-        if (sermon!.audioDownload.active) && (downloadObserver == nil) {
-            downloadObserver = Timer.scheduledTimer(timeInterval: Constants.INTERVAL.DOWNLOAD_TIMER, target: self, selector: #selector(MediaTableViewCell.updateUI), userInfo: nil, repeats: true)
-        }
-
-        if (downloadObserver != nil) &&
-            (sermon!.audioDownload.totalBytesExpectedToWrite > 0) && (sermon!.audioDownload.totalBytesExpectedToWrite > 0) &&
-            (sermon!.audioDownload.totalBytesWritten == sermon!.audioDownload.totalBytesExpectedToWrite) {
-            downloadLabel.text = Constants.Downloaded
-            downloadLabel.sizeToFit()
-            downloadObserver?.invalidate()
-            downloadObserver = nil
-        }
+//        if (sermon!.audioDownload.active) && (downloadObserver == nil) {
+//            downloadObserver = Timer.scheduledTimer(timeInterval: Constants.INTERVAL.DOWNLOAD_TIMER, target: self, selector: #selector(MediaTableViewCell.updateUI), userInfo: nil, repeats: true)
+//        }
+//
+//        if (downloadObserver != nil) &&
+//            (sermon!.audioDownload.totalBytesExpectedToWrite > 0) && (sermon!.audioDownload.totalBytesExpectedToWrite > 0) &&
+//            (sermon!.audioDownload.totalBytesWritten == sermon!.audioDownload.totalBytesExpectedToWrite) {
+//            downloadLabel.text = Constants.Downloaded
+//            downloadLabel.sizeToFit()
+//            downloadObserver?.invalidate()
+//            downloadObserver = nil
+//        }
     }
     
     @IBOutlet weak var title: UILabel!

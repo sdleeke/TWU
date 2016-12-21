@@ -23,7 +23,7 @@ struct Constants {
     static let MIN_LOAD_TIME = 30.0
     
     struct INTERVAL {
-        static let DOWNLOAD_TIMER   = 0.5
+//        static let DOWNLOAD_TIMER   = 0.5
         static let SLIDER_TIMER     = 0.5
         static let PLAYER_TIMER     = 0.2
         static let SEEKING_TIMER    = 0.1
@@ -248,8 +248,8 @@ struct Constants {
     static let Selected_Scriptures = "Selected Scriptures"
     static let Open_Scripture = "Open Scripture"
     
-    static let Open_Series = "Open Series on TWU Web Site"
-    static let Email_Series = "E-Mail Series"
+    static let Open_Series = "Open on TWU Web Site" // Series 
+    static let Email_Series = "E-Mail" // Series
     
     static let Share_on_Facebook = "Share on Facebook"
     static let Share_on_Twitter = "Share on Twitter"

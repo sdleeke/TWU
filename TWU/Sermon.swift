@@ -342,8 +342,10 @@ class Sermon : NSObject, URLSessionDownloadDelegate {
             audioDownload.totalBytesExpectedToWrite = totalBytesExpectedToWrite
             
             DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
                 UIApplication.shared.isNetworkActivityIndicatorVisible = true
             })
+
             break
             
         case .none:

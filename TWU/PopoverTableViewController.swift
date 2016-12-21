@@ -49,6 +49,60 @@ class PopoverTableViewController: UITableViewController {
         return section
     }()
     
+    func setPreferredContentSize()
+    {
+        guard (strings != nil) else {
+            return
+        }
+        
+        self.tableView.sizeToFit()
+        
+        var height:CGFloat = 0.0
+        var width:CGFloat = 0.0
+        
+        //        print(strings)
+        
+        for string in strings! {
+            let widthSize: CGSize = CGSize(width: .greatestFiniteMagnitude, height: 44.0)
+            let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], context: nil)
+            
+            let heightSize: CGSize = CGSize(width: view.bounds.width - 30, height: .greatestFiniteMagnitude)
+            let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], context: nil)
+            
+            //            print(string)
+            //            print(maxSize)
+            
+            if maxWidth.width > width {
+                //                print(string)
+                width = maxWidth.width
+            }
+            
+            height += 44
+            
+            //            print(maxHeight.height, (Int(maxHeight.height) / 16) - 1)
+            height += CGFloat(((Int(maxHeight.height) / 16) - 1) * 16)
+        }
+        
+        width += 2*20
+        
+        switch purpose! {
+        case .selectingFiltering:
+            fallthrough
+        case .selectingSorting:
+            width += 44
+            break
+            
+        default:
+            break
+        }
+        
+        if showIndex {
+            width += 24
+        }
+        
+        self.preferredContentSize = CGSize(width: width, height: height)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -64,54 +118,68 @@ class PopoverTableViewController: UITableViewController {
         tableView.allowsSelection = allowsSelection
         tableView.allowsMultipleSelection = allowsMultipleSelection
         
-        var max = 0
+//        var max = 0
+//        
+//        if (navigationItem.title != nil) {
+//            max = navigationItem.title!.characters.count
+//        }
+//        
+//        for string in strings! {
+//            if string.characters.contains("\n") {
+//                var newString = string
+//                
+//                var strings = [String]()
+//                
+//                repeat {
+//                    strings.append(newString.substring(to: newString.range(of: "\n")!.lowerBound))
+//                    newString = newString.substring(from: newString.range(of: "\n")!.upperBound)
+//                } while newString.characters.contains("\n")
+//                
+//                strings.append(newString)
+//                
+//                for string in strings {
+//                    if string.characters.count > max {
+//                        max = string.characters.count
+//                    }
+//                }
+//            } else {
+//                if string.characters.count > max {
+//                    max = string.characters.count
+//                }
+//            }
+//        }
+//        
+//        //        print("count: \(CGFloat(strings!.count)) rowHeight: \(tableView.rowHeight) height: \(height)")
+//        
+//        var width = CGFloat(max * 12)
+//        if width < 200 {
+//            width = 200
+//        }
+//        var height = 50 * CGFloat(strings!.count) //35 tableView.rowHeight was -1 which I don't understand
+//        if height < 150 {
+//            height = 150
+//        }
+//        
+//        if showSectionHeaders {
+//            height = 1.5*height
+//        }
+//
+//        self.preferredContentSize = CGSize(width: width, height: height)
         
-        if (navigationItem.title != nil) {
-            max = navigationItem.title!.characters.count
-        }
-        
-        for string in strings! {
-            if string.characters.contains("\n") {
-                var newString = string
-                
-                var strings = [String]()
-                
-                repeat {
-                    strings.append(newString.substring(to: newString.range(of: "\n")!.lowerBound))
-                    newString = newString.substring(from: newString.range(of: "\n")!.upperBound)
-                } while newString.characters.contains("\n")
-                
-                strings.append(newString)
-                
-                for string in strings {
-                    if string.characters.count > max {
-                        max = string.characters.count
-                    }
-                }
-            } else {
-                if string.characters.count > max {
-                    max = string.characters.count
-                }
-            }
-        }
-        
-        //        print("count: \(CGFloat(strings!.count)) rowHeight: \(tableView.rowHeight) height: \(height)")
-        
-        var width = CGFloat(max * 12)
-        if width < 200 {
-            width = 200
-        }
-        var height = 50 * CGFloat(strings!.count) //35 tableView.rowHeight was -1 which I don't understand
-        if height < 150 {
-            height = 150
-        }
-        
-        if showSectionHeaders {
-            height = 1.5*height
-        }
-        
-        self.preferredContentSize = CGSize(width: width, height: height)
-        
+//        print("Strings: \(strings)")
+//        print("Sections: \(sections)")
+//        print("Section Indexes: \(sectionIndexes)")
+//        print("Section Counts: \(sectionCounts)")
+
+        // Uncomment the following line to preserve selection between presentations
+        // self.clearsSelectionOnViewWillAppear = false
+
+        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+    }
+    
+    func setupIndex()
+    {
         if (showIndex) {
             let a = "A"
             
@@ -152,22 +220,17 @@ class PopoverTableViewController: UITableViewController {
             section.indexes = indexes.count > 0 ? indexes : nil
             section.counts = counts.count > 0 ? counts : nil
         }
-
-//        print("Strings: \(strings)")
-//        print("Sections: \(sections)")
-//        print("Section Indexes: \(sectionIndexes)")
-//        print("Section Counts: \(sectionCounts)")
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
     
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+        
+        setupIndex()
+        
+        tableView.reloadData()
+        
+        setPreferredContentSize()
     }
 
     override func viewDidAppear(_ animated: Bool)
