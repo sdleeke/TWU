@@ -149,6 +149,10 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
                 openWebSite(Constants.TWU.WEBSITE)
                 break
                 
+            case Constants.Share_This_App:
+                shareHTML(viewController: self,htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
+                break
+                
             default:
                 break
             }
@@ -185,6 +189,8 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
                 
                 actionMenu.append(Constants.Email_TWU)
                 actionMenu.append(Constants.TWU_Website)
+                
+                actionMenu.append(Constants.Share_This_App)
                 
                 popover.strings = actionMenu
                 

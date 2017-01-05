@@ -64,6 +64,31 @@ func startAudio()
     }
 }
 
+func shareHTML(viewController:UIViewController,htmlString:String?)
+{
+    guard htmlString != nil else {
+        return
+    }
+    
+    //    let formatter = UIMarkupTextPrintFormatter(markupText: htmlString!)
+    //    formatter.perPageContentInsets = UIEdgeInsets(top: 54, left: 54, bottom: 54, right: 54) // 72=1" margins
+    
+    let activityItems = [htmlString] // as [Any]
+    
+    let activityViewController = UIActivityViewController(activityItems:activityItems, applicationActivities: nil)
+    
+    // exclude some activity types from the list (optional)
+    
+    activityViewController.excludedActivityTypes = [ .addToReadingList ] // UIActivityType.addToReadingList doesn't work for third party apps - iOS bug.
+    
+    activityViewController.popoverPresentationController?.barButtonItem = viewController.navigationItem.rightBarButtonItem
+    
+    // present the view controller
+    DispatchQueue.main.async(execute: { () -> Void in
+        viewController.present(activityViewController, animated: false, completion: nil)
+    })
+}
+
 extension Date
 {
     
@@ -213,8 +238,8 @@ func booksFromSeries(_ series:[Series]?) -> [String]?
 func lastNameFromName(_ name:String?) -> String?
 {
     if var lastname = name {
-        while (lastname.range(of: Constants.SINGLE_SPACE_STRING) != nil) {
-            lastname = lastname.substring(from: lastname.range(of: Constants.SINGLE_SPACE_STRING)!.upperBound)
+        while (lastname.range(of: Constants.SINGLE_SPACE) != nil) {
+            lastname = lastname.substring(from: lastname.range(of: Constants.SINGLE_SPACE)!.upperBound)
         }
         return lastname
     }

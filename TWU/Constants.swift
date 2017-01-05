@@ -19,6 +19,8 @@ struct Constants {
     static let Email_TWU = "E-mail TWU"
     static let TWU_Website = "TWU Website"
     
+    static let Share_This_App = "Share This App"
+    
     static let MIN_PLAY_TIME = 15.0
     static let MIN_LOAD_TIME = 30.0
     
@@ -75,6 +77,9 @@ struct Constants {
     struct TWU {
         static let SHORT = "TWU"
         static let LONG = "The Word Unleashed"
+        
+        static let APP = LONG + SINGLE_SPACE + "App"
+        static let APP_URL = "https://itunes.apple.com/us/app/the-word-unleashed/id1145083780?ls=1&mt=8"
         
         static let EMAIL = "listeners@thewordunleashed.org"
         static let WEBSITE = "http://www.thewordunleashed.org"
@@ -196,7 +201,8 @@ struct Constants {
     static let FILENAME_FORMAT = "%04d" + Constants.FILE_EXTENSION.MP3
     
     static let EMPTY_STRING = ""
-    static let SINGLE_SPACE_STRING = " "
+    static let SINGLE_SPACE = " "
+    static let NEWLINE = "\n"
     static let FORWARD_SLASH = "/"
     
     static let Network_Error = "Network Error"
@@ -249,7 +255,8 @@ struct Constants {
     static let Open_Scripture = "Open Scripture"
     
     static let Open_Series = "Open on TWU Web Site" // Series 
-    static let Email_Series = "E-Mail" // Series
+//    static let Email_Series = "E-Mail" // Series
+    static let Share = "Share" // Series
     
     static let Share_on_Facebook = "Share on Facebook"
     static let Share_on_Twitter = "Share on Twitter"

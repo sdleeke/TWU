@@ -174,7 +174,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
                 
                 if (sermonSelected != globals.mediaPlayer.playing) {
                     removeSliderObserver()
-                    playerURL(url: sermonSelected!.audioURL!)
+                    playerURL(url: sermonSelected!.playingURL!)
                 } else {
                     removePlayerObserver()
 //                    addSliderObserver() // Crashes because it uses UI and this is done before viewWillAppear when the sermonSelected is set in prepareForSegue, but it only happens on an iPhone because the MVC isn't setup already.
@@ -659,8 +659,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
                 }
                 break
                 
-            case Constants.Email_Series:
-                emailSeries(seriesSelected)
+            case Constants.Share:
+                shareHTML(viewController: self, htmlString: "\(seriesSelected!.title!) by Tom Pennington from The Word Unleashed\n\n\(seriesSelected!.url!.absoluteString)")
                 break
                 
             default:
@@ -736,7 +736,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
                 }
             }
             
-            actionMenu.append(Constants.Email_Series)
+            actionMenu.append(Constants.Share)
             
             popover.strings = actionMenu
             
