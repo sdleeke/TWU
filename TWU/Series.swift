@@ -142,13 +142,56 @@ class Series : Equatable, CustomStringConvertible {
         }
     }
 
-    func getArt() -> UIImage?
+    func fetchArt() -> UIImage?
     {
         let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name!)\(Constants.COVER_ART_POSTAMBLE)"
         
-        // If we don't have it, see if it is in the file system and if not, download it and store it in the file system.
+        // See if it is in the cloud, download it and store it in the file system.
+        
+        // Try to get it from the cloud
+        let imageCloudURL = Constants.URL.BASE.IMAGE + imageName + Constants.FILE_EXTENSION.JPEG
+        //                print("\(imageCloudURL)")
+        do {
+            let imageData = try Data(contentsOf: URL(string: imageCloudURL)!)
+            print("Image \(imageName) read from cloud")
+            
+            if let image = UIImage(data: imageData) {
+                print("Image \(imageName) read from cloud and converted to image")
+                
+                DispatchQueue.global(qos: .background).async { () -> Void in
+                    do {
+                        if let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG) {
+                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                            print("Image \(imageName) saved to file system")
+                        }
+                    } catch let error as NSError {
+                        print("Image \(imageName) not saved to file system")
+                        NSLog(error.localizedDescription)
+                    }
+                }
+                
+                return image
+            } else {
+                print("Image \(imageName) read from cloud but not converted to image")
+            }
+        } catch let error as NSError {
+            print("Image \(imageName) not read from cloud")
+            NSLog(error.localizedDescription)
+        }
+        
+        print("Image \(imageName) not available")
+        
+        return nil
+    }
+    
+    func loadArt() -> UIImage?
+    {
+        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name!)\(Constants.COVER_ART_POSTAMBLE)"
+        
+        // If it isn't in the bundle, see if it is in the file system.
         
         if let image = UIImage(named:imageName) {
+            print("Image \(imageName) in bundle")
             return image
         } else {
             print("Image \(imageName) not in bundle")
@@ -156,38 +199,16 @@ class Series : Equatable, CustomStringConvertible {
             // Check to see if it is in the file system.
             if let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG) {
                 if let image = UIImage(contentsOfFile: imageURL.path) {
+                    print("Image \(imageName) in file system")
                     return image
                 } else {
                     print("Image \(imageName) not in file system")
-                    
-                    // Try to get it from the cloud
-                    let imageCloudURL = Constants.URL.BASE.IMAGE + imageName + Constants.FILE_EXTENSION.JPEG
-                    //                print("\(imageCloudURL)")
-                    do {
-                        let imageData = try Data(contentsOf: URL(string: imageCloudURL)!)
-                        print("Image \(imageName) read from cloud")
-
-                        if let image = UIImage(data: imageData) {
-                            print("Image \(imageName) read from cloud and converted to image")
-                            do {
-                                try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-                                print("Image \(imageName) saved to file system")
-                            } catch let error as NSError {
-                                print("Image \(imageName) not saved to file system")
-                                NSLog(error.localizedDescription)
-                            }
-                        } else {
-                            print("Image \(imageName) read from cloud but not converted to image")
-                        }
-                    } catch let error as NSError {
-                        print("Image \(imageName) not read from cloud")
-                        NSLog(error.localizedDescription)
-                    }
                 }
             }
         }
         
         print("Image \(imageName) not available")
+ 
         return nil
     }
     

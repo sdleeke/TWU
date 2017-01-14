@@ -15,12 +15,28 @@ class MediaCollectionViewCell: UICollectionViewCell {
     
     var series:Series? {
         didSet {
-            updateUI()
+            if series != oldValue {
+                updateUI()
+            }
         }
     }
     
     fileprivate func updateUI()
     {
-        seriesArt.image = series?.getArt()
+        if let series = self.series {
+            if let image = series.loadArt() {
+                seriesArt.image = image
+            } else {
+                DispatchQueue.global(qos: .background).async { () -> Void in
+                    if let image = series.fetchArt() {
+                        if self.series == series {
+                            DispatchQueue.main.async {
+                                self.seriesArt.image = image
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

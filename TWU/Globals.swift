@@ -965,7 +965,7 @@ class Globals : NSObject {
             
             sermonInfo[MPMediaItemPropertyAlbumArtist] = Constants.Tom_Pennington as AnyObject
             
-            if let art = mediaPlayer.playing!.series!.getArt() {
+            if let art = mediaPlayer.playing!.series!.loadArt() {
                 sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: art)
             }
 

@@ -837,9 +837,19 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
             
             seriesDescription.text = seriesSelected?.text
 
-            DispatchQueue.global(qos: .background).async { () -> Void in
-                DispatchQueue.main.async {
-                    self.seriesArt.image = self.seriesSelected?.getArt()
+            if let series = self.seriesSelected {
+                if let image = series.loadArt() {
+                    seriesArt.image = image
+                } else {
+                    DispatchQueue.global(qos: .background).async { () -> Void in
+                        if let image = series.fetchArt() {
+                            if self.seriesSelected == series {
+                                DispatchQueue.main.async {
+                                    self.seriesArt.image = image
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -910,7 +920,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         setupSpinner()
         setupSlider()
     }
-    
+
     func scrollToSermon(_ sermon:Sermon?,select:Bool,position:UITableViewScrollPosition)
     {
         guard (sermon != nil) else {
