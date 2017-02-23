@@ -9,8 +9,68 @@
 import UIKit
 import MessageUI
 
-class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
+extension AboutViewController : UIAdaptivePresentationControllerDelegate
+{
+    // MARK: UIAdaptivePresentationControllerDelegate
+    
+    // Specifically for Plus size iPhones.
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    {
+        return UIModalPresentationStyle.none
+    }
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
+    }
+}
 
+extension AboutViewController : MFMailComposeViewControllerDelegate
+{
+    // MARK: MFMailComposeViewControllerDelegate Method
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension AboutViewController : UIPopoverPresentationControllerDelegate
+{
+    
+}
+
+extension AboutViewController : PopoverTableViewControllerDelegate
+{
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+        dismiss(animated: true, completion: nil)
+        
+        switch purpose {
+        case .selectingAction:
+            switch strings[index] {
+                
+            case Constants.Email_TWU:
+                email()
+                break
+                
+            case Constants.TWU_Website:
+                openWebSite(Constants.TWU.WEBSITE)
+                break
+                
+            case Constants.Share_This_App:
+                shareHTML(viewController: self,htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
+                break
+                
+            default:
+                break
+            }
+            break
+            
+        default:
+            break
+        }
+    }
+}
+
+class AboutViewController : UIViewController
+{
     @IBOutlet weak var versionLabel: UILabel!
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -24,23 +84,28 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     @IBOutlet weak var actionsButton: UIBarButtonItem!
     
-    @IBAction func twitter(_ sender: UIButton) {
+    @IBAction func twitter(_ sender: UIButton)
+    {
         openWebSite("https://twitter.com/wordunleashed")
     }
     
-    @IBAction func facebook(_ sender: UIButton) {
+    @IBAction func facebook(_ sender: UIButton)
+    {
         openWebSite("https://www.facebook.com/TheWordUnleashed")
     }
     
-    @IBAction func podcast(_ sender: UIButton) {
+    @IBAction func podcast(_ sender: UIButton)
+    {
         openWebSite("https://itunes.apple.com/us/podcast/the-word-unleashed/id610499233?mt=2")
     }
 
-    @IBAction func rssfeed(_ sender: UIButton) {
+    @IBAction func rssfeed(_ sender: UIButton)
+    {
         openWebSite("http://www.thewordunleashed.org/podcast.php")
     }
     
-    @IBAction func cbc(_ sender: UIButton) {
+    @IBAction func cbc(_ sender: UIButton)
+    {
         openWebSite("http://www.countrysidebible.org/")
     }
     
@@ -56,11 +121,13 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    override var canBecomeFirstResponder : Bool {
+    override var canBecomeFirstResponder : Bool
+    {
         return true
     }
     
-    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
+    {
         if (splitViewController == nil) {
             globals.motionEnded(motion, event: event)
         }
@@ -93,14 +160,10 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
 
-    fileprivate func showSendMailErrorAlert() {
+    fileprivate func showSendMailErrorAlert()
+    {
         let sendMailErrorAlert = UIAlertView(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.", delegate: self, cancelButtonTitle: "OK")
         sendMailErrorAlert.show()
-    }
-    
-    // MARK: MFMailComposeViewControllerDelegate Method
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true, completion: nil)
     }
     
     fileprivate func email()
@@ -124,47 +187,8 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    // Specifically for Plus size iPhones.
-    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    @IBAction func actions(_ sender: UIBarButtonItem)
     {
-        return UIModalPresentationStyle.none
-    }
-    
-    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        return UIModalPresentationStyle.none
-    }
-    
-    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
-        dismiss(animated: true, completion: nil)
-        
-        switch purpose {
-        case .selectingAction:
-            switch strings[index] {
-                
-            case Constants.Email_TWU:
-                email()
-                break
-                
-            case Constants.TWU_Website:
-                openWebSite(Constants.TWU.WEBSITE)
-                break
-                
-            case Constants.Share_This_App:
-                shareHTML(viewController: self,htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
-                break
-                
-            default:
-                break
-            }
-            break
-            
-        default:
-            break
-        }
-    }
-    
-    @IBAction func actions(_ sender: UIBarButtonItem) {
-        
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
@@ -202,23 +226,27 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool)
+    {
         super.viewWillAppear(animated)
         setVersion()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool)
+    {
         super.viewDidAppear(animated)
         
         scrollView.flashScrollIndicators()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool)
+    {
         super.viewWillDisappear(animated)
         
         globals.showingAbout = false
@@ -226,12 +254,14 @@ class AboutViewController: UIViewController, MFMailComposeViewControllerDelegate
         NotificationCenter.default.removeObserver(self)
     }
     
-    override func didReceiveMemoryWarning() {
+    override func didReceiveMemoryWarning()
+    {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
+    {
         super.viewWillTransition(to: size, with: coordinator)
         
         if (self.view.window == nil) {

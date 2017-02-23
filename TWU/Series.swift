@@ -165,8 +165,8 @@ class Series : Equatable, CustomStringConvertible {
                             print("Image \(imageName) saved to file system")
                         }
                     } catch let error as NSError {
-                        print("Image \(imageName) not saved to file system")
                         NSLog(error.localizedDescription)
+                        print("Image \(imageName) not saved to file system")
                     }
                 }
                 
@@ -175,8 +175,8 @@ class Series : Equatable, CustomStringConvertible {
                 print("Image \(imageName) read from cloud but not converted to image")
             }
         } catch let error as NSError {
-            print("Image \(imageName) not read from cloud")
             NSLog(error.localizedDescription)
+            print("Image \(imageName) not read from cloud")
         }
         
         print("Image \(imageName) not available")
@@ -191,23 +191,23 @@ class Series : Equatable, CustomStringConvertible {
         // If it isn't in the bundle, see if it is in the file system.
         
         if let image = UIImage(named:imageName) {
-            print("Image \(imageName) in bundle")
+//            print("Image \(imageName) in bundle")
             return image
         } else {
-            print("Image \(imageName) not in bundle")
+//            print("Image \(imageName) not in bundle")
             
             // Check to see if it is in the file system.
             if let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG) {
                 if let image = UIImage(contentsOfFile: imageURL.path) {
-                    print("Image \(imageName) in file system")
+//                    print("Image \(imageName) in file system")
                     return image
                 } else {
-                    print("Image \(imageName) not in file system")
+//                    print("Image \(imageName) not in file system")
                 }
             }
         }
         
-        print("Image \(imageName) not available")
+//        print("Image \(imageName) not available")
  
         return nil
     }

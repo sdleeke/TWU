@@ -392,6 +392,7 @@ class Globals : NSObject {
     var gotoNowPlaying:Bool = false
     
     var searchButtonClicked = false
+
     var searchActive:Bool = false {
         didSet {
             if !searchActive {
@@ -400,14 +401,23 @@ class Globals : NSObject {
             }
         }
     }
-
-    var searchText:String? {
-        didSet {
-            if searchText != oldValue {
-                updateSearchResults()
-            }
+    
+    var searchValid:Bool {
+        get {
+            return searchActive && (searchText != nil) && (searchText != Constants.EMPTY_STRING)
         }
     }
+    
+    var searchSeries:[Series]?
+    
+    var searchText:String?
+//    {
+//        didSet {
+//            if searchText != oldValue {
+//                updateSearchResults()
+//            }
+//        }
+//    }
 
     var showingAbout:Bool = false
     
@@ -427,8 +437,6 @@ class Globals : NSObject {
         }
     }
     
-    var searchSeries:[Series]?
-
     var filteredSeries:[Series]?
     
     var series:[Series]? {
@@ -568,23 +576,27 @@ class Globals : NSObject {
 
     func updateSearchResults()
     {
-        if searchActive && (searchText != nil) && (searchText != Constants.EMPTY_STRING) {
+        if searchActive { //  && (searchText != nil) && (searchText != Constants.EMPTY_STRING)
             searchSeries = seriesToSearch?.filter({ (series:Series) -> Bool in
+                guard let searchText = searchText else {
+                    return false
+                }
+                
                 var seriesResult = false
                 
-                if series.title != nil {
-                    seriesResult = seriesResult ||
-                        ((series.title!.range(of: searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
+                if let string = series.title  {
+                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
                 }
-                if series.scripture != nil {
-                    seriesResult = seriesResult ||
-                        ((series.scripture!.range(of: searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
+                
+                if let string = series.scripture {
+                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
                 }
                 
                 return seriesResult
             })
             
             // Filter will return an empty array and we don't want that.
+            
             if searchSeries?.count == 0 {
                 searchSeries = nil
             }
@@ -903,6 +915,12 @@ class Globals : NSObject {
             
             mediaPlayer.player = AVPlayer(url: sermon!.playingURL!)
 
+            if #available(iOS 10.0, *) {
+                mediaPlayer.player?.automaticallyWaitsToMinimizeStalling = false
+            } else {
+                // Fallback on earlier versions
+            }
+            
             mediaPlayer.player?.actionAtItemEnd = .pause
 
             observePlayer()

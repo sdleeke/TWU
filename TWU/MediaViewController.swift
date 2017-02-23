@@ -12,7 +12,104 @@ import MessageUI
 import MediaPlayer
 import Social
 
-class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate {
+extension MediaViewController : UIAdaptivePresentationControllerDelegate
+{
+    // MARK: UIAdaptivePresentationControllerDelegate
+    
+    // Specifically for Plus size iPhones.
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    {
+        return UIModalPresentationStyle.none
+    }
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
+    }
+}
+
+extension MediaViewController : MFMailComposeViewControllerDelegate
+{
+    // MARK: MFMailComposeViewControllerDelegate
+
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension MediaViewController : MFMessageComposeViewControllerDelegate
+{
+    // MARK: MFMessageComposeViewControllerDelegate
+
+    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension MediaViewController : UIPopoverPresentationControllerDelegate
+{
+    // MARK: UIPopoverPresentationControllerDelegate
+    
+}
+
+extension MediaViewController : PopoverTableViewControllerDelegate
+{
+    // MARK: PopoverTableViewControllerDelegate
+    
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+        dismiss(animated: true, completion: nil)
+        
+        switch purpose {
+            
+        case .selectingAction:
+            switch strings[index] {
+            case Constants.Open_Scripture:
+                openScripture(seriesSelected)
+                break
+                
+            case Constants.Open_Series:
+                openSeriesOnWeb(seriesSelected)
+                break
+                
+            case Constants.Download_All:
+                if (seriesSelected?.sermons != nil) {
+                    for sermon in seriesSelected!.sermons! {
+                        sermon.audioDownload?.download()
+                    }
+                }
+                break
+                
+            case Constants.Cancel_All_Downloads:
+                if (seriesSelected?.sermons != nil) {
+                    for sermon in seriesSelected!.sermons! {
+                        sermon.audioDownload?.cancelDownload()
+                    }
+                }
+                break
+                
+            case Constants.Delete_All_Downloads:
+                if (seriesSelected?.sermons != nil) {
+                    for sermon in seriesSelected!.sermons! {
+                        sermon.audioDownload?.deleteDownload()
+                    }
+                }
+                break
+                
+            case Constants.Share:
+                shareHTML(viewController: self, htmlString: "\(seriesSelected!.title!) by Tom Pennington from The Word Unleashed\n\n\(seriesSelected!.url!.absoluteString)")
+                break
+                
+            default:
+                break
+            }
+            break
+            
+        default:
+            break
+        }
+    }
+}
+
+class MediaViewController : UIViewController  {
     var observerActive = false
 
     var sliding = false
@@ -400,11 +497,6 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         sendMessageErrorAlert.show()
     }
     
-    // MARK: MFMessageComposeViewControllerDelegate Method
-    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
-        controller.dismiss(animated: true, completion: nil)
-    }
-    
     fileprivate func message()
     {
         
@@ -425,11 +517,6 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     fileprivate func showSendMailErrorAlert() {
         let sendMailErrorAlert = UIAlertView(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.", delegate: self, cancelButtonTitle: "OK")
         sendMailErrorAlert.show()
-    }
-    
-    // MARK: MFMailComposeViewControllerDelegate Method
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true, completion: nil)
     }
     
     fileprivate func setupBody() -> String {
@@ -609,70 +696,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //            networkUnavailable("Unable to connect to the internet to post to Facebook.")
 //        }
     }
-    
-    // Specifically for Plus size iPhones.
-    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
-    {
-        return UIModalPresentationStyle.none
-    }
-    
-    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        return UIModalPresentationStyle.none
-    }
-    
-    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
-        dismiss(animated: true, completion: nil)
-        
-        switch purpose {
-            
-        case .selectingAction:
-            switch strings[index] {
-            case Constants.Open_Scripture:
-                openScripture(seriesSelected)
-                break
-                
-            case Constants.Open_Series:
-                openSeriesOnWeb(seriesSelected)
-                break
-                
-            case Constants.Download_All:
-                if (seriesSelected?.sermons != nil) {
-                    for sermon in seriesSelected!.sermons! {
-                        sermon.audioDownload?.download()
-                    }
-                }
-                break
-                
-            case Constants.Cancel_All_Downloads:
-                if (seriesSelected?.sermons != nil) {
-                    for sermon in seriesSelected!.sermons! {
-                        sermon.audioDownload?.cancelDownload()
-                    }
-                }
-                break
-                
-            case Constants.Delete_All_Downloads:
-                if (seriesSelected?.sermons != nil) {
-                    for sermon in seriesSelected!.sermons! {
-                        sermon.audioDownload?.deleteDownload()
-                    }
-                }
-                break
-                
-            case Constants.Share:
-                shareHTML(viewController: self, htmlString: "\(seriesSelected!.title!) by Tom Pennington from The Word Unleashed\n\n\(seriesSelected!.url!.absoluteString)")
-                break
-                
-            default:
-                break
-            }
-            break
-            
-        default:
-            break
-        }
-    }
-    
+
     func actions()
     {
         //        println("action!")
@@ -749,6 +773,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 
     func updateView()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         seriesSelected = globals.seriesSelected
 //        print(seriesSelected?.sermonSelected)
         sermonSelected = seriesSelected?.sermonSelected
@@ -772,6 +800,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     func clearView()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         seriesSelected = nil
         sermonSelected = nil
         
@@ -797,7 +829,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //        tableView.rowHeight = UITableViewAutomaticDimension
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
+    {
         super.viewWillTransition(to: size, with: coordinator)
         
 //        if (self.view.window == nil) {
@@ -805,9 +838,7 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //        }
         
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
-            
             self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
-            
         }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
             if let view = self.seriesArtAndDescription.subviews[1] as? UITextView {
                 view.scrollRangeToVisible(NSMakeRange(0, 0))
@@ -819,7 +850,11 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     fileprivate func setupActionsButton()
     {
         if (seriesSelected != nil) {
-            actionButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.action, target: self, action: #selector(MediaViewController.actions))
+            actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaViewController.actions))
+            actionButton?.setTitleTextAttributes([NSFontAttributeName:UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE)!], for: UIControlState())
+            
+//            actionButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.action, target: self, action: #selector(MediaViewController.actions))
+            
             self.navigationItem.rightBarButtonItem = actionButton
         } else {
             self.navigationItem.rightBarButtonItem = nil
@@ -829,13 +864,29 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     fileprivate func setupArtAndDescription()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         if (seriesSelected != nil) {
             seriesArtAndDescription.isHidden = false
             
             logo.isHidden = true
             pageControl.isHidden = false
             
-            seriesDescription.text = seriesSelected?.text
+//            print(seriesSelected?.text)
+            
+            if let text = seriesSelected?.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+                if let attributedString = try? NSMutableAttributedString(data: text.data(using: String.Encoding.utf8, allowLossyConversion: false)!,
+                                                                         options: [NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType],
+                                                                         documentAttributes: nil) {
+                
+                    attributedString.addAttributes([NSFontAttributeName:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
+                                                   range: NSMakeRange(0, attributedString.length))
+
+                    seriesDescription.attributedText = attributedString
+                }
+            }
 
             if let series = self.seriesSelected {
                 if let image = series.loadArt() {
@@ -869,11 +920,19 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     fileprivate func setupTitle()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         self.navigationItem.title = seriesSelected?.title
     }
     
     func setupSpinner()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard (sermonSelected != nil) && (sermonSelected == globals.mediaPlayer.playing) else {
             if spinner.isAnimating {
                 spinner.stopAnimating()
@@ -923,6 +982,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 
     func scrollToSermon(_ sermon:Sermon?,select:Bool,position:UITableViewScrollPosition)
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard (sermon != nil) else {
             return
         }
@@ -959,6 +1022,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 
     func showPlaying()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard (globals.mediaPlayer.playing != nil) else {
             return
         }
@@ -1045,7 +1112,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         })
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool)
+    {
         super.viewDidAppear(animated)
 
 //        print("Series Selected: \(seriesSelected?.title) Playing: \(globals.mediaPlayer.playing?.series?.title)")
@@ -1059,7 +1127,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         })
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool)
+    {
         super.viewWillDisappear(animated)
         
         removeSliderObserver()
@@ -1079,7 +1148,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         // Dispose of any resources that can be recreated.
     }
     
-    func flipFromLeft(_ sender: MediaViewController) {
+    func flipFromLeft(_ sender: MediaViewController)
+    {
         //        println("tap")
         
         // set a transition style
@@ -1114,7 +1184,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         
     }
     
-    func flipFromRight(_ sender: MediaViewController) {
+    func flipFromRight(_ sender: MediaViewController)
+    {
         //        println("tap")
         
         // set a transition style
@@ -1149,7 +1220,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         
     }
     
-    func flip(_ sender: MediaViewController) {
+    func flip(_ sender: MediaViewController)
+    {
         //        println("tap")
         
         // set a transition style
@@ -1201,7 +1273,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         // Pass the selected object to the new view controller.
     }
     */
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
         // Get the new view controller using [segue destinationViewController].
         // Pass the selected object to the new view controller.
         var destination = segue.destination as UIViewController
@@ -1226,13 +1299,15 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
 //        }
     }
 
-    func numberOfSectionsInTableView(_ tableView: UITableView) -> Int {
+    func numberOfSectionsInTableView(_ tableView: UITableView) -> Int
+    {
         // #warning Potentially incomplete method implementation.
         // Return the number of sections.
         return 1
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
         if (seriesSelected != nil) {
@@ -1244,7 +1319,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     /*
     */
-    func tableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell
+    {
         let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.SERMON_CELL, for: indexPath) as! MediaTableViewCell
     
         // Configure the cell...
@@ -1304,6 +1380,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     fileprivate func setSliderAndTimesToAudio()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard let length = globals.mediaPlayer.duration?.seconds else {
             return
         }
@@ -1413,7 +1493,8 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    fileprivate func setTimeToSlider() {
+    fileprivate func setTimeToSlider()
+    {
         guard (globals.mediaPlayer.duration != nil) else {
             return
         }
@@ -1427,6 +1508,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     fileprivate func setupSlider()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard (sermonSelected != nil) else {
             elapsed.isHidden = true
             remaining.isHidden = true
@@ -1475,6 +1560,10 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     func sliderTimer()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard (sermonSelected != nil) else {
             return
         }
@@ -1571,23 +1660,23 @@ class MediaViewController: UIViewController, MFMailComposeViewControllerDelegate
         }
     }
     
-    fileprivate func networkUnavailable(_ message:String?)
-    {
-        if (UIApplication.shared.applicationState == UIApplicationState.active) { // && (self.view.window != nil)
-            dismiss(animated: true, completion: nil)
-            
-            let alert = UIAlertController(title: Constants.Network_Error,
-                message: message,
-                preferredStyle: UIAlertControllerStyle.alert)
-            
-            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                
-            })
-            alert.addAction(action)
-            
-            present(alert, animated: true, completion: nil)
-        }
-    }
+//    fileprivate func networkUnavailable(_ message:String?)
+//    {
+//        if (UIApplication.shared.applicationState == UIApplicationState.active) { // && (self.view.window != nil)
+//            dismiss(animated: true, completion: nil)
+//            
+//            let alert = UIAlertController(title: Constants.Network_Error,
+//                message: message,
+//                preferredStyle: UIAlertControllerStyle.alert)
+//            
+//            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+//                
+//            })
+//            alert.addAction(action)
+//            
+//            present(alert, animated: true, completion: nil)
+//        }
+//    }
     
     func removeSliderObserver() {
         if globals.mediaPlayer.sliderTimerReturn != nil {

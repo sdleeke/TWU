@@ -54,13 +54,15 @@ func startAudio()
     
     do {
         try audioSession.setCategory(AVAudioSessionCategoryPlayback)
-    } catch _ {
+    } catch let error as NSError {
+        NSLog(error.localizedDescription)
     }
     
     do {
         //        audioSession.setCategory(AVAudioSessionCategoryPlayback, withOptions: AVAudioSessionCategoryOptions.MixWithOthers, error:nil)
         try audioSession.setActive(true)
-    } catch _ {
+    } catch let error as NSError {
+        NSLog(error.localizedDescription)
     }
 }
 
@@ -246,23 +248,27 @@ func lastNameFromName(_ name:String?) -> String?
     return nil
 }
 
+var alert:UIAlertController!
+
 func networkUnavailable(_ message:String?)
 {
-    if (UIApplication.shared.applicationState == UIApplicationState.active) {
+    if (alert == nil) && (UIApplication.shared.applicationState == UIApplicationState.active) {
         UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
         
-        let alert = UIAlertController(title:Constants.Network_Error,
+        alert = UIAlertController(title:Constants.Network_Error,
             message: message,
             preferredStyle: UIAlertControllerStyle.alert)
         
         let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-            
+            alert = nil
         })
         alert.addAction(action)
         
 //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
         
-        UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async(execute: { () -> Void in
+            UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+        })
     }
 }
 
@@ -282,7 +288,8 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
                 }
             }
         }
-    } catch _ {
+    } catch let error as NSError {
+        NSLog(error.localizedDescription)
         print("failed to get files in caches directory")
     }
     

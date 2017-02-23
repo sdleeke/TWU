@@ -68,10 +68,12 @@ class Download {
             state = .downloading
             
             let downloadRequest = URLRequest(url: downloadURL!)
+
+            let configuration = URLSessionConfiguration.ephemeral
             
             // This allows the downloading to continue even if the app goes into the background or terminates.
-            let configuration = URLSessionConfiguration.background(withIdentifier: Constants.IDENTIFIER.DOWNLOAD + fileSystemURL!.lastPathComponent)
-            configuration.sessionSendsLaunchEvents = true
+//            let configuration = URLSessionConfiguration.background(withIdentifier: Constants.IDENTIFIER.DOWNLOAD + fileSystemURL!.lastPathComponent)
+//            configuration.sessionSendsLaunchEvents = true
             
             //        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
             
@@ -141,7 +143,208 @@ class Download {
     }
 }
 
-class Sermon : NSObject, URLSessionDownloadDelegate {
+extension Sermon : URLSessionDownloadDelegate {
+    // NEED TO HANDLED >400 ERRORS
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64)
+    {
+        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400 else {
+            print("DOWNLOAD ERROR")
+            
+            audioDownload.task?.cancel()
+            audioDownload.state = .none
+
+            networkUnavailable("Download failed.")
+
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            })
+            return
+        }
+        
+        if debug {
+            print("URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:")
+            
+            print("session: \(session.sessionDescription)")
+            print("task: \(downloadTask.taskDescription)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            print("bytes written: \(totalBytesWritten)")
+            print("bytes expected to write: \(totalBytesExpectedToWrite)")
+        }
+        
+        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
+            print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
+        }
+        
+        switch audioDownload.state {
+        case .downloaded:
+            break
+            
+        case .downloading:
+            audioDownload.totalBytesWritten = totalBytesWritten
+            audioDownload.totalBytesExpectedToWrite = totalBytesExpectedToWrite
+            
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
+                UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            })
+            
+            break
+            
+        case .none:
+            audioDownload.task?.cancel()
+            break
+        }
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL)
+    {
+        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400 else {
+            print("DOWNLOAD ERROR")
+            
+            audioDownload.task?.cancel()
+            audioDownload.state = .none
+
+            networkUnavailable("Download failed.")
+
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            })
+            return
+        }
+
+        if debug {
+            print("URLSession:downloadTask:didFinishDownloadingToURL:")
+            
+            print("taskDescription: \(downloadTask.taskDescription!)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            print("bytes written: \(audioDownload.totalBytesWritten)")
+            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+            print("location: \(location)")
+        }
+        
+        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
+            print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
+        }
+        
+        let fileManager = FileManager.default
+        
+        // Check if file exist
+        if (fileManager.fileExists(atPath: audioDownload.fileSystemURL!.path)){
+            do {
+                try fileManager.removeItem(at: audioDownload.fileSystemURL!)
+            } catch let error as NSError {
+                NSLog(error.localizedDescription)
+            }
+        }
+        
+        do {
+            if (audioDownload.state == .downloading) {
+                try fileManager.copyItem(at: location, to: audioDownload.fileSystemURL!)
+                try fileManager.removeItem(at: location)
+                audioDownload.state = .downloaded
+            }
+        } catch let error as NSError {
+            NSLog(error.localizedDescription)
+            print("failed to copy temp audio download file")
+            networkUnavailable(error.localizedDescription)
+            audioDownload.state = .none
+        }
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        })
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
+    {
+        guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode, statusCode < 400 else {
+            print("DOWNLOAD ERROR")
+            
+            audioDownload.task?.cancel()
+            audioDownload.state = .none
+
+            if let error = error {
+                networkUnavailable(error.localizedDescription)
+            } else {
+                networkUnavailable("Download failed.")
+            }
+
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            })
+            return
+        }
+        
+        if debug {
+            print("URLSession:task:didCompleteWithError:")
+            
+            print("path: \(audioDownload.fileSystemURL!.path)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            print("bytes written: \(audioDownload.totalBytesWritten)")
+            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        }
+        
+        if (error != nil) {
+            NSLog("with error: \(error!.localizedDescription)")
+            networkUnavailable(error!.localizedDescription)
+            audioDownload.state = .none
+        }
+        
+        //        removeTempFiles()
+        
+        audioDownload.session?.invalidateAndCancel()
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        })
+    }
+    
+    func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?)
+    {
+        if debug {
+            print("URLSession:didBecomeInvalidWithError:")
+            
+            print("path: \(audioDownload.fileSystemURL!.path)")
+            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            print("bytes written: \(audioDownload.totalBytesWritten)")
+            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
+        }
+        
+        if (error != nil) {
+            print("with error: \(error!.localizedDescription)")
+            networkUnavailable(error!.localizedDescription)
+            audioDownload.state = .none
+        }
+        
+        audioDownload.session = nil
+    }
+    
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession)
+    {
+        print("URLSessionDidFinishEventsForBackgroundURLSession")
+        var filename:String?
+        
+        filename = session.configuration.identifier!.substring(from: Constants.IDENTIFIER.DOWNLOAD.endIndex)
+        filename = filename?.substring(to: filename!.range(of: Constants.FILE_EXTENSION.MP3)!.lowerBound)
+        
+        for series in globals.series! {
+            for sermon in series.sermons! {
+                if (sermon.id == Int(filename!)) {
+                    sermon.audioDownload.completionHandler?()
+                }
+            }
+        }
+    }
+}
+
+class Sermon : NSObject {
     var series:Series?
     
     var id:Int
@@ -317,138 +520,4 @@ class Sermon : NSObject, URLSessionDownloadDelegate {
         self.downloads[Constants.AUDIO] = download
         return download
     }()
-    
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        if debug {
-            print("URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:")
-            
-            print("session: \(session.sessionDescription)")
-            print("task: \(downloadTask.taskDescription)")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
-            print("bytes written: \(totalBytesWritten)")
-            print("bytes expected to write: \(totalBytesExpectedToWrite)")
-        }
-        
-        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
-            print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
-        }
-        
-        switch audioDownload.state {
-        case .downloaded:
-            break
-            
-        case .downloading:
-            audioDownload.totalBytesWritten = totalBytesWritten
-            audioDownload.totalBytesExpectedToWrite = totalBytesExpectedToWrite
-            
-            DispatchQueue.main.async(execute: { () -> Void in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
-                UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            })
-
-            break
-            
-        case .none:
-            audioDownload.task?.cancel()
-            break
-        }
-    }
-    
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        if debug {
-            print("URLSession:downloadTask:didFinishDownloadingToURL:")
-            
-            print("taskDescription: \(downloadTask.taskDescription!)")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
-            print("bytes written: \(audioDownload.totalBytesWritten)")
-            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
-            print("location: \(location)")
-        }
-        
-        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
-            print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
-        }
-        
-        let fileManager = FileManager.default
-        
-        // Check if file exist
-        if (fileManager.fileExists(atPath: audioDownload.fileSystemURL!.path)){
-            do {
-                try fileManager.removeItem(at: audioDownload.fileSystemURL!)
-            } catch _ {
-            }
-        }
-        
-        do {
-            if (audioDownload.state == .downloading) {
-                try fileManager.copyItem(at: location, to: audioDownload.fileSystemURL!)
-                try fileManager.removeItem(at: location)
-                audioDownload.state = .downloaded
-            }
-        } catch _ {
-            print("failed to copy temp audio download file")
-            audioDownload.state = .none
-        }
-        
-        DispatchQueue.main.async(execute: { () -> Void in
-            UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        })
-    }
-    
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        if debug {
-            print("URLSession:task:didCompleteWithError:")
-            
-            print("path: \(audioDownload.fileSystemURL!.path)")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
-            print("bytes written: \(audioDownload.totalBytesWritten)")
-            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
-        }
-        
-        if (error != nil) {
-            print("with error: \(error!.localizedDescription)")
-            audioDownload.state = .none
-        }
-        
-//        removeTempFiles()
-        
-        audioDownload.session?.invalidateAndCancel()
-        
-        DispatchQueue.main.async(execute: { () -> Void in
-            UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        })
-    }
-    
-    func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
-        if debug {
-            print("URLSession:didBecomeInvalidWithError:")
-            
-            print("path: \(audioDownload.fileSystemURL!.path)")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
-            print("bytes written: \(audioDownload.totalBytesWritten)")
-            print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
-        }
-        
-        if (error != nil) {
-            print("with error: \(error!.localizedDescription)")
-        }
-        
-        audioDownload.session = nil
-    }
-    
-    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        print("URLSessionDidFinishEventsForBackgroundURLSession")
-        var filename:String?
-        
-        filename = session.configuration.identifier!.substring(from: Constants.IDENTIFIER.DOWNLOAD.endIndex)
-        filename = filename?.substring(to: filename!.range(of: Constants.FILE_EXTENSION.MP3)!.lowerBound)
-        
-        for series in globals.series! {
-            for sermon in series.sermons! {
-                if (sermon.id == Int(filename!)) {
-                    sermon.audioDownload.completionHandler?()
-                }
-            }
-        }
-    }
 }

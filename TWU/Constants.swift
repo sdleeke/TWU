@@ -63,6 +63,8 @@ struct Constants {
 
         static let SERIES_UPDATE_UI     = "SERIES UPDATE UI"
         
+        static let MEDIA_DOWNLOAD_FAILED    = "MEDIA DOWNLOAD FAILED"
+
         static let SERMON_UPDATE_UI             = "SERMON UPDATE UI"
         static let SERMON_UPDATE_PLAYING_PAUSED = "SERMON UPDATE PLAYING PAUSED"
         static let SERMON_UPDATE_PLAY_PAUSE     = "SERMON UPDATE PLAY PAUSE"
@@ -109,9 +111,11 @@ struct Constants {
     }
     
     struct FA {
-        static let PLAY_PLAUSE_FONT_SIZE = CGFloat(24.0)
+        static let name = "FontAwesome"
+        static let FONT_SIZE = CGFloat(24.0)
         static let PLAY = "\u{f04b}"
         static let PAUSE = "\u{f04c}"
+        static let ACTION = "\u{f150}"
     }
     
     struct FILE_EXTENSION {

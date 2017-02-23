@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Xai-Yi-pif">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Xai-Yi-pif">
     <device id="ipad9_7" orientation="landscape">
         <adaptation id="fullscreen"/>
     </device>
@@ -43,14 +43,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="90" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="91J-fh-SJo">
-                                <rect key="frame" x="0.0" y="358" width="703" height="346"/>
+                                <rect key="frame" x="0.0" y="358" width="702.5" height="346"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationWidth="0.0" reuseIdentifier="SeriesSermon" id="weh-rh-66T" customClass="MediaTableViewCell" customModule="TWU" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="1" width="703" height="90"/>
+                                        <rect key="frame" x="0.0" y="1" width="702.5" height="90"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="weh-rh-66T" id="OR0-Xl-7Iz">
-                                            <rect key="frame" x="0.0" y="0.0" width="703" height="89"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="702" height="90"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OSQ-vd-yF8">
@@ -127,10 +127,10 @@
                                 </connections>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sSN-Ac-J4R" userLabel="Series Art And Description">
-                                <rect key="frame" x="-0.5" y="0.0" width="703" height="288"/>
+                                <rect key="frame" x="-0.5" y="0.0" width="702.5" height="288"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ufB-oq-a4t">
-                                        <rect key="frame" x="10" y="0.0" width="683" height="288"/>
+                                        <rect key="frame" x="10" y="0.0" width="682.5" height="288"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
@@ -198,7 +198,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="sE0-gY-Yu6" customClass="OBSlider" customModule="TWU" customModuleProvider="target">
-                                <rect key="frame" x="109" y="320" width="528.5" height="31"/>
+                                <rect key="frame" x="109" y="320" width="529" height="31"/>
                                 <connections>
                                     <action selector="sliderTouchDown:" destination="H2E-ZS-FbW" eventType="touchDown" id="gx9-aV-TP5"/>
                                     <action selector="sliderTouchUpInside:" destination="H2E-ZS-FbW" eventType="touchUpInside" id="fJj-Rq-HbQ"/>
@@ -207,10 +207,10 @@
                                 </connections>
                             </slider>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="01j-65-CbC">
-                                <rect key="frame" x="364" y="325.5" width="20" height="20"/>
+                                <rect key="frame" x="364.5" y="325.5" width="20" height="20"/>
                             </activityIndicatorView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3jv-Gb-bb7" userLabel="Time Remaining">
-                                <rect key="frame" x="643.5" y="327" width="39" height="17"/>
+                                <rect key="frame" x="644" y="327" width="39" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="50" id="Du6-iW-YBf"/>
                                 </constraints>
@@ -219,7 +219,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BBU-FH-IlP" userLabel="PlayPause">
-                                <rect key="frame" x="8" y="315.5" width="48" height="40"/>
+                                <rect key="frame" x="8" y="313" width="48" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="vdr-WW-o8u"/>
                                 </constraints>
@@ -238,7 +238,7 @@
                                 </constraints>
                             </imageView>
                             <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="vgK-rU-B9W">
-                                <rect key="frame" x="176" y="283" width="351.5" height="45"/>
+                                <rect key="frame" x="176" y="283" width="351" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="gQ5-pt-2hg"/>
                                 </constraints>
@@ -701,7 +701,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="0dU-6K-xAc" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="57E-Xf-Dzh">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="57E-Xf-Dzh">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -962,7 +962,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PcO-S8-TOr" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="5ac-ST-PF3">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="5ac-ST-PF3">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>

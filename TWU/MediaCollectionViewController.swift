@@ -10,8 +10,245 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-class MediaCollectionViewController: UIViewController, UISplitViewControllerDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate, UIPopoverPresentationControllerDelegate, PopoverTableViewControllerDelegate { // , NSURLSessionDownloadDelegate
+extension MediaCollectionViewController : UIAdaptivePresentationControllerDelegate
+{
+    // MARK: UIAdaptivePresentationControllerDelegate
+    
+    // Specifically for Plus size iPhones.
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
+    {
+        return UIModalPresentationStyle.none
+    }
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
+    }
+}
 
+//extension MediaCollectionViewController : UISplitViewControllerDelegate
+//{
+//    // MARK: UISplitViewControllerDelegate
+//    
+//}
+
+extension MediaCollectionViewController : UICollectionViewDataSource
+{
+    // MARK: UICollectionViewDataSource
+    
+    func numberOfSections(in:UICollectionView) -> Int {
+        //#warning Incomplete method implementation -- Return the number of sections
+        //return series.count
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        //#warning Incomplete method implementation -- Return the number of items in the section
+        //return series[section].count
+        return globals.activeSeries != nil ? globals.activeSeries!.count : 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as! MediaCollectionViewCell
+        
+        // Configure the cell
+        cell.series = globals.activeSeries?[(indexPath as NSIndexPath).row]
+        
+        return cell
+    }
+}
+
+extension MediaCollectionViewController : UICollectionViewDelegate
+{
+    // MARK: UICollectionViewDelegate
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //        print("didSelect")
+        
+        if let cell: MediaCollectionViewCell = collectionView.cellForItem(at: indexPath) as? MediaCollectionViewCell {
+            seriesSelected = cell.series
+            collectionView.reloadData()
+        } else {
+            
+        }
+    }
+    
+//    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+//        //        print("didDeselect")
+//        
+//        //        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
+//        //
+//        //        } else {
+//        //
+//        //        }
+//    }
+    
+    /*
+     // Uncomment this method to specify if the specified item should be highlighted during tracking
+     */
+//    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
+//        //        print("shouldHighlight")
+//        return true
+//    }
+//    
+//    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
+//        //        print("Highlighted")
+//    }
+//    
+//    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+//        //        print("Unhighlighted")
+//    }
+    
+    /*
+     // Uncomment this method to specify if the specified item should be selected
+     */
+//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+//        //        print("shouldSelect")
+//        return true
+//    }
+//    
+//    func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
+//        //        print("shouldDeselect")
+//        return true
+//    }
+    
+    /*
+     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
+     override func collectionView(collectionView: UICollectionView, shouldShowMenuForItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+     return false
+     }
+     
+     override func collectionView(collectionView: UICollectionView, canPerformAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) -> Bool {
+     return false
+     }
+     
+     override func collectionView(collectionView: UICollectionView, performAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) {
+     
+     }
+     */
+}
+
+extension MediaCollectionViewController : UISearchBarDelegate
+{
+    // MARK: UISearchBarDelegate
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool
+    {
+        //        print(globals.loading, globals.isRefreshing, globals.series)
+        return !globals.isLoading && !globals.isRefreshing && (globals.series != nil)
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar)
+    {
+        searchBar.showsCancelButton = true
+        
+        globals.searchButtonClicked = false
+        
+        globals.searchActive = true
+
+        globals.updateSearchResults()
+        
+        collectionView!.reloadData()
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
+    {
+        globals.searchButtonClicked = true
+//        searchBar.showsCancelButton = false
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
+    {
+//        print("Search clicked!")
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
+    {
+//        print("Text changed: \(searchText)")
+        
+        globals.searchButtonClicked = false
+        globals.searchText = searchBar.text
+        globals.updateSearchResults()
+        
+        collectionView!.reloadData()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
+    {
+//        print("Cancel clicked!")
+        searchBar.text = nil
+        searchBar.showsCancelButton = false
+        searchBar.resignFirstResponder()
+        
+        globals.searchText = nil
+        globals.searchSeries = nil
+        globals.searchActive = false
+        
+        collectionView!.reloadData()
+    }
+}
+
+extension MediaCollectionViewController : UIPopoverPresentationControllerDelegate
+{
+    // MARK: UIPopoverPresentationControllerDelegate
+    
+}
+
+extension MediaCollectionViewController : PopoverTableViewControllerDelegate
+{
+    // MARK: PopoverTableViewControllerDelegate
+
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?)
+    {
+        guard Thread.isMainThread else {
+            return
+        }
+        
+        dismiss(animated: true, completion: nil)
+        
+        switch purpose {
+        case .selectingSorting:
+            globals.sorting = strings[index]
+            collectionView.reloadData()
+//            DispatchQueue.main.async(execute: { () -> Void in
+//            })
+            break
+            
+        case .selectingFiltering:
+            if (globals.filter != strings[index]) {
+                searchBar.placeholder = strings[index]
+//                DispatchQueue.main.async(execute: { () -> Void in
+//                })
+                
+                if (strings[index] == Constants.All) {
+                    globals.showing = .all
+                    globals.filter = nil
+                } else {
+                    globals.showing = .filtered
+                    globals.filter = strings[index]
+                }
+                
+                self.collectionView.reloadData()
+                
+                if globals.activeSeries != nil {
+                    let indexPath = IndexPath(item:0,section:0)
+                    collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
+//                    DispatchQueue.main.async(execute: { () -> Void in
+//                    })
+                }
+            }
+            break
+            
+        case .selectingShow:
+            break
+            
+        default:
+            break
+        }
+    }
+}
+
+class MediaCollectionViewController: UIViewController
+{
     var refreshControl:UIRefreshControl?
 
     var seriesSelected:Series? {
@@ -78,50 +315,6 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
     
-    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
-        dismiss(animated: true, completion: nil)
-        
-        switch purpose {
-        case .selectingSorting:
-            globals.sorting = strings[index]
-            DispatchQueue.main.async(execute: { () -> Void in
-                self.collectionView.reloadData()
-            })
-            break
-            
-        case .selectingFiltering:
-            if (globals.filter != strings[index]) {
-                DispatchQueue.main.async(execute: { () -> Void in
-                    self.searchBar.placeholder = strings[index]
-                })
-                
-                if (strings[index] == Constants.All) {
-                    globals.showing = .all
-                    globals.filter = nil
-                } else {
-                    globals.showing = .filtered
-                    globals.filter = strings[index]
-                }
-                
-                self.collectionView.reloadData()
-                
-                if globals.activeSeries != nil {
-                    let indexPath = IndexPath(item:0,section:0)
-                    DispatchQueue.main.async(execute: { () -> Void in
-                        self.collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
-                    })
-                }
-            }
-            break
-            
-        case .selectingShow:
-            break
-            
-        default:
-            break
-        }
-    }
-    
     func filtering(_ button:UIBarButtonItem?)
     {
         //In case we have one already showing
@@ -149,16 +342,6 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
     
-    // Specifically for Plus size iPhones.
-    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle
-    {
-        return UIModalPresentationStyle.none
-    }
-    
-    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        return UIModalPresentationStyle.none
-    }
-
     func settings(_ button:UIBarButtonItem?)
     {
         dismiss(animated: true, completion: nil)
@@ -197,56 +380,6 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         setToolbarItems(barButtons, animated: true)
     }
     
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool
-    {
-//        print(globals.loading, globals.isRefreshing, globals.series)
-        return !globals.isLoading && !globals.isRefreshing && (globals.series != nil)
-    }
-
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        print("Text changed: \(searchText)")
-        
-        globals.searchButtonClicked = false
-        
-        globals.searchText = searchBar.text
-        
-        collectionView!.reloadData()
-    }
-    
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        globals.searchButtonClicked = false
-        searchBar.showsCancelButton = true
-
-        if (!globals.searchActive) {
-            globals.searchActive = true
-            globals.searchText = searchBar.text
-        }
-    }
-    
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        print("Search clicked!")
-        globals.searchButtonClicked = true
-        searchBar.showsCancelButton = false
-        searchBar.resignFirstResponder()
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//        print("Cancel clicked!")
-        searchBar.showsCancelButton = false
-        searchBar.resignFirstResponder()
-        searchBar.text = nil
-
-        globals.searchText = nil
-        globals.searchSeries = nil
-        globals.searchActive = false
-        
-        collectionView!.reloadData()
-    }
-    
     fileprivate func setupSearchBar()
     {
         switch globals.showing {
@@ -261,6 +394,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
     
     func setupTitle()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         if (!globals.isLoading && !globals.isRefreshing) {
             self.navigationController?.isToolbarHidden = false
             self.navigationItem.title = Constants.TWU.LONG
@@ -317,7 +454,8 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES) {
             do {
                 try FileManager.default.removeItem(atPath: jsonFileSystemURL.path)
-            } catch _ {
+            } catch let error as NSError {
+                NSLog(error.localizedDescription)
                 print("failed to copy sermons.json")
             }
         }
@@ -346,10 +484,12 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
             let data = try Data(contentsOf: URL(string: Constants.JSON.URL)!) // , options: NSData.ReadingOptions.mappedIfSafe
             
             let json = JSON(data: data)
+            
             if json != JSON.null {
                 try data.write(to: jsonFileSystemURL!, options: NSData.WritingOptions.atomicWrite)
                 
-                //                    print(json)
+//                print(json)
+                
                 return json
             } else {
                 print("could not get json from file, make sure that file contains valid json.")
@@ -358,23 +498,23 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 
                 let json = JSON(data: data)
                 if json != JSON.null {
-                    //                        print(json)
+//                    print(json)
                     return json
                 }
             }
         } catch let error as NSError {
-            print(error.localizedDescription)
+            NSLog(error.localizedDescription)
             
             do {
                 let data = try Data(contentsOf: jsonFileSystemURL!) // , options: NSData.ReadingOptions.mappedIfSafe
                 
                 let json = JSON(data: data)
                 if json != JSON.null {
-                    //                        print(json)
+//                    print(json)
                     return json
                 }
             } catch let error as NSError {
-                print(error.localizedDescription)
+                NSLog(error.localizedDescription)
             }
         }
 
@@ -426,6 +566,7 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 
             DispatchQueue.main.async(execute: { () -> Void in
                 if !globals.isRefreshing {
+                    self.activityIndicator.isHidden = false
                     self.activityIndicator.startAnimating()
                 }
                 self.navigationItem.title = Constants.Titles.Loading_Series
@@ -453,12 +594,13 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 self.setupViews()
 
                 if globals.isRefreshing {
-                    DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                        self.refreshControl?.endRefreshing()
-                        globals.isRefreshing = false
-                    })
+                    self.refreshControl?.endRefreshing()
+                    globals.isRefreshing = false
+//                    DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                    })
                 } else {
                     self.activityIndicator.stopAnimating()
+                    self.activityIndicator.isHidden = true
                 }
 
                 completion?()
@@ -504,7 +646,12 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         }
     }
     
-    func handleRefresh(_ refreshControl: UIRefreshControl) {
+    func handleRefresh(_ refreshControl: UIRefreshControl)
+    {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         globals.isRefreshing = true
         
         globals.unobservePlayer()
@@ -516,9 +663,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         searchBar.placeholder = nil
         
         if splitViewController != nil {
-            DispatchQueue.main.async(execute: { () -> Void in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
-            })
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
+//            DispatchQueue.main.async(execute: { () -> Void in
+//            })
         }
         
         disableBarButtons()
@@ -532,10 +679,10 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
                 
                 let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
                     if globals.isRefreshing {
-                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                            self.refreshControl?.endRefreshing()
-                            globals.isRefreshing = false
-                        })
+                        self.refreshControl?.endRefreshing()
+                        globals.isRefreshing = false
+//                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                        })
                     }
                 })
                 alert.addAction(action)
@@ -575,6 +722,12 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         collectionView?.allowsSelection = true
 
+        if #available(iOS 10.0, *) {
+            collectionView?.isPrefetchingEnabled = false
+        } else {
+            // Fallback on earlier versions
+        }
+        
         setupSortingAndGroupingOptions()
     }
     
@@ -743,9 +896,9 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
 //        }
 
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
-            if (UIApplication.shared.applicationState == UIApplicationState.active) { //  && (self.view.window != nil)
-                self.collectionView.reloadData()
-            }
+            self.collectionView.reloadData()
+//            if (UIApplication.shared.applicationState == UIApplicationState.active) { //  && (self.view.window != nil)
+//            }
 
             //Not quite what we want.  What we want is for the list to "look" the same.
 //            self.scrollToSeries(self.seriesSelected)
@@ -855,95 +1008,4 @@ class MediaCollectionViewController: UIViewController, UISplitViewControllerDele
         
         performSegue(withIdentifier: Constants.SEGUE.SHOW_SERIES, sender: self)
     }
-    
-    // MARK: UICollectionViewDataSource
-
-    func numberOfSections(in:UICollectionView) -> Int {
-        //#warning Incomplete method implementation -- Return the number of sections
-        //return series.count
-        return 1
-    }
-
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //#warning Incomplete method implementation -- Return the number of items in the section
-        //return series[section].count
-        return globals.activeSeries != nil ? globals.activeSeries!.count : 0
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as! MediaCollectionViewCell
-    
-        // Configure the cell
-        cell.series = globals.activeSeries?[(indexPath as NSIndexPath).row]
-
-        return cell
-    }
-
-    // MARK: UICollectionViewDelegate
-    
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        print("didSelect")
-
-        if let cell: MediaCollectionViewCell = collectionView.cellForItem(at: indexPath) as? MediaCollectionViewCell {
-            seriesSelected = cell.series
-            collectionView.reloadData()
-        } else {
-            
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-//        print("didDeselect")
-
-//        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
-//
-//        } else {
-//            
-//        }
-    }
-    
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    */
-    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-//        print("shouldHighlight")
-        return true
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-//        print("Highlighted")
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-//        print("Unhighlighted")
-    }
-    
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    */
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-//        print("shouldSelect")
-        return true
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-//        print("shouldDeselect")
-        return true
-    }
-    
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(collectionView: UICollectionView, shouldShowMenuForItemAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(collectionView: UICollectionView, canPerformAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) -> Bool {
-        return false
-    }
-
-    override func collectionView(collectionView: UICollectionView, performAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) {
-    
-    }
-    */
 }
