@@ -75,7 +75,7 @@ func shareHTML(viewController:UIViewController,htmlString:String?)
     //    let formatter = UIMarkupTextPrintFormatter(markupText: htmlString!)
     //    formatter.perPageContentInsets = UIEdgeInsets(top: 54, left: 54, bottom: 54, right: 54) // 72=1" margins
     
-    let activityItems = [htmlString] // as [Any]
+    let activityItems = [htmlString as Any]
     
     let activityViewController = UIActivityViewController(activityItems:activityItems, applicationActivities: nil)
     
@@ -252,7 +252,7 @@ var alert:UIAlertController!
 
 func networkUnavailable(_ message:String?)
 {
-    if (alert == nil) && (UIApplication.shared.applicationState == UIApplicationState.active) {
+    if (alert == nil) { // && (UIApplication.shared.applicationState == UIApplicationState.active)
         UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
         
         alert = UIAlertController(title:Constants.Network_Error,

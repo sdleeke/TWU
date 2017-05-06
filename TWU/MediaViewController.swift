@@ -393,13 +393,13 @@ class MediaViewController : UIViewController  {
             let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesArt.addGestureRecognizer(tap)
             
-            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
-            swipeRight.direction = UISwipeGestureRecognizerDirection.right
-            seriesArt.addGestureRecognizer(swipeRight)
-            
-            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
-            swipeLeft.direction = UISwipeGestureRecognizerDirection.left
-            seriesArt.addGestureRecognizer(swipeLeft)
+//            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
+//            swipeRight.direction = UISwipeGestureRecognizerDirection.right
+//            seriesArt.addGestureRecognizer(swipeRight)
+//            
+//            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
+//            swipeLeft.direction = UISwipeGestureRecognizerDirection.left
+//            seriesArt.addGestureRecognizer(swipeLeft)
         }
     }
     
@@ -408,13 +408,13 @@ class MediaViewController : UIViewController  {
             let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesDescription.addGestureRecognizer(tap)
             
-            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
-            swipeRight.direction = UISwipeGestureRecognizerDirection.right
-            seriesDescription.addGestureRecognizer(swipeRight)
-            
-            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
-            swipeLeft.direction = UISwipeGestureRecognizerDirection.left
-            seriesDescription.addGestureRecognizer(swipeLeft)
+//            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
+//            swipeRight.direction = UISwipeGestureRecognizerDirection.right
+//            seriesDescription.addGestureRecognizer(swipeRight)
+//            
+//            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
+//            swipeLeft.direction = UISwipeGestureRecognizerDirection.left
+//            seriesDescription.addGestureRecognizer(swipeLeft)
             
             seriesDescription.text = seriesSelected?.text
             seriesDescription.alwaysBounceVertical = true
@@ -626,7 +626,7 @@ class MediaViewController : UIViewController  {
         if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeTwitter){
             var bodyString = String()
             
-            bodyString = "Great sermon series: \"\(seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
+            bodyString = "Great sermon series: \"\(seriesSelected!.title ?? "TITLE")\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
             
             let twitterSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
             twitterSheet.setInitialText(bodyString)
@@ -660,7 +660,7 @@ class MediaViewController : UIViewController  {
         if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeFacebook){
             var bodyString = String()
             
-            bodyString = "Great sermon series: \"\(seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
+            bodyString = "Great sermon series: \"\(seriesSelected!.title ?? "TITLE")\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
             
             //So the user can paste the initialText into the post dialog/view
             //This is because of the known bug that when the latest FB app is installed it prevents prefilling the post.
@@ -1148,120 +1148,131 @@ class MediaViewController : UIViewController  {
         // Dispose of any resources that can be recreated.
     }
     
-    func flipFromLeft(_ sender: MediaViewController)
-    {
-        //        println("tap")
-        
-        // set a transition style
-        let transitionOptions = UIViewAnimationOptions.transitionFlipFromLeft
-        
-        if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
-            view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
-            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
-        }
-        
-        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-            //            println("\(self.seriesArtAndDescription.subviews.count)")
-            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-            let frontView = self.seriesArtAndDescription.subviews[0]
-            let backView = self.seriesArtAndDescription.subviews[1]
-            
-            frontView.isHidden = false
-            self.seriesArtAndDescription.bringSubview(toFront: frontView)
-            backView.isHidden = true
-            
-            if frontView == self.seriesArt {
-                self.pageControl.currentPage = 0
-            }
-            
-            if frontView == self.seriesDescription {
-                self.pageControl.currentPage = 1
-            }
-            
-            }, completion: { finished in
-                
-        })
-        
-    }
+//    func flipFromLeft(_ sender: MediaViewController)
+//    {
+//        //        println("tap")
+//        
+//        // set a transition style
+//        let transitionOptions = UIViewAnimationOptions.transitionFlipFromLeft
+//        
+//        if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
+//            view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
+//            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
+//        }
+//        
+//        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
+//            //            println("\(self.seriesArtAndDescription.subviews.count)")
+//            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
+//            let frontView = self.seriesArtAndDescription.subviews[0]
+//            let backView = self.seriesArtAndDescription.subviews[1]
+//            
+//            frontView.isHidden = false
+//            self.seriesArtAndDescription.bringSubview(toFront: frontView)
+//            backView.isHidden = true
+//            
+//            if frontView == self.seriesArt {
+//                self.pageControl.currentPage = 0
+//            }
+//            
+//            if frontView == self.seriesDescription {
+//                self.pageControl.currentPage = 1
+//            }
+//            
+//            }, completion: { finished in
+//                
+//        })
+//        
+//    }
     
-    func flipFromRight(_ sender: MediaViewController)
-    {
-        //        println("tap")
-        
-        // set a transition style
-        let transitionOptions = UIViewAnimationOptions.transitionFlipFromRight
-        
-        if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
-            view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
-            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
-        }
-        
-        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-            //            println("\(self.seriesArtAndDescription.subviews.count)")
-            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-            let frontView = self.seriesArtAndDescription.subviews[0]
-            let backView = self.seriesArtAndDescription.subviews[1]
-            
-            frontView.isHidden = false
-            self.seriesArtAndDescription.bringSubview(toFront: frontView)
-            backView.isHidden = true
-            
-            if frontView == self.seriesArt {
-                self.pageControl.currentPage = 0
-            }
-            
-            if frontView == self.seriesDescription {
-                self.pageControl.currentPage = 1
-            }
-            
-            }, completion: { finished in
-                
-        })
-        
-    }
+//    func flipFromRight(_ sender: MediaViewController)
+//    {
+//        //        println("tap")
+//        
+//        // set a transition style
+//        let transitionOptions = UIViewAnimationOptions.transitionFlipFromRight
+//        
+//        if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
+//            view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
+//            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
+//        }
+//        
+//        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
+//            //            println("\(self.seriesArtAndDescription.subviews.count)")
+//            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
+//            let frontView = self.seriesArtAndDescription.subviews[0]
+//            let backView = self.seriesArtAndDescription.subviews[1]
+//            
+//            frontView.isHidden = false
+//            self.seriesArtAndDescription.bringSubview(toFront: frontView)
+//            backView.isHidden = true
+//            
+//            if frontView == self.seriesArt {
+//                self.pageControl.currentPage = 0
+//            }
+//            
+//            if frontView == self.seriesDescription {
+//                self.pageControl.currentPage = 1
+//            }
+//            
+//            }, completion: { finished in
+//                
+//        })
+//        
+//    }
     
     func flip(_ sender: MediaViewController)
     {
         //        println("tap")
         
         // set a transition style
-        var transitionOptions:UIViewAnimationOptions!
+//        var transitionOptions:UIViewAnimationOptions!
         
         let frontView = self.seriesArtAndDescription.subviews[0]
         let backView = self.seriesArtAndDescription.subviews[1]
         
-        if frontView == self.seriesArt {
-            transitionOptions = UIViewAnimationOptions.transitionFlipFromRight
-        }
-        
-        if frontView == self.seriesDescription {
-            transitionOptions = UIViewAnimationOptions.transitionFlipFromLeft
-        }
+//        if frontView == self.seriesArt {
+//            transitionOptions = UIViewAnimationOptions.transitionFlipFromRight
+//        }
+//        
+//        if frontView == self.seriesDescription {
+//            transitionOptions = UIViewAnimationOptions.transitionFlipFromLeft
+//        }
 
         if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
             view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
             //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
         }
+
+        frontView.isHidden = false
+        self.seriesArtAndDescription.bringSubview(toFront: frontView)
+        backView.isHidden = true
+
+        if frontView == self.seriesArt {
+            self.pageControl.currentPage = 0
+        }
         
-        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-            //            println("\(self.seriesArtAndDescription.subviews.count)")
-            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-            frontView.isHidden = false
-            self.seriesArtAndDescription.bringSubview(toFront: frontView)
-            backView.isHidden = true
-            
-            if frontView == self.seriesArt {
-                self.pageControl.currentPage = 0
-            }
-            
-            if frontView == self.seriesDescription {
-                self.pageControl.currentPage = 1
-            }
-            
-            }, completion: { finished in
-                
-        })
-        
+        if frontView == self.seriesDescription {
+            self.pageControl.currentPage = 1
+        }
+
+//        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
+//            //            println("\(self.seriesArtAndDescription.subviews.count)")
+//            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
+//            frontView.isHidden = false
+//            self.seriesArtAndDescription.bringSubview(toFront: frontView)
+//            backView.isHidden = true
+//            
+//            if frontView == self.seriesArt {
+//                self.pageControl.currentPage = 0
+//            }
+//            
+//            if frontView == self.seriesDescription {
+//                self.pageControl.currentPage = 1
+//            }
+//
+//            }, completion: { finished in
+//                
+//        })
     }
     
     /*

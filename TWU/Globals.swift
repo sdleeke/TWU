@@ -776,7 +776,7 @@ class Globals : NSObject {
             case .unknown:
                 // Player item is not yet ready.
                 if #available(iOS 10.0, *) {
-                    print(mediaPlayer.player?.reasonForWaitingToPlay!)
+                    print(mediaPlayer.player?.reasonForWaitingToPlay! as Any)
                 } else {
                     // Fallback on earlier versions
                 }

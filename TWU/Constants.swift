@@ -32,7 +32,7 @@ struct Constants {
         
         static let PLAY_OBSERVER_TIME = 10.0 // seconds
         
-        static let VIEW_TRANSITION_TIME = 1.0 // seconds
+        static let VIEW_TRANSITION_TIME = 0.50 // seconds
         static let SKIP_TIME = 15
     }
     
@@ -72,7 +72,7 @@ struct Constants {
     
     struct JSON {
         static let ARRAY_KEY = "series"
-        static let URL = "http://www.thewordunleashed.org/medialist.php"
+        static let URL = "https://www.thewordunleashed.org/medialist.php"
         static let SERIES = "series.json"
     }
     
@@ -84,7 +84,7 @@ struct Constants {
         static let APP_URL = "https://itunes.apple.com/us/app/the-word-unleashed/id1145083780?ls=1&mt=8"
         
         static let EMAIL = "listeners@thewordunleashed.org"
-        static let WEBSITE = "http://www.thewordunleashed.org"
+        static let WEBSITE = "https://www.thewordunleashed.org"
 
         static let GIVING_URL = "https://countryside.infellowship.com/OnlineGiving/GiveNow/NoAccount/"
     }

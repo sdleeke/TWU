@@ -327,15 +327,15 @@ class Series : Equatable, CustomStringConvertible {
         var seriesString = "Series: "
         
         if (title != "") {
-            seriesString = "\(seriesString) \(title)"
+            seriesString = "\(seriesString ) \(title ?? "TITLE")"
         }
         
         if (scripture != "") {
-            seriesString = "\(seriesString) \(scripture)"
+            seriesString = "\(seriesString ) \(scripture ?? "SCRIPTURE")"
         }
         
         if (name != "") {
-            seriesString = "\(seriesString)\n\(name)"
+            seriesString = "\(seriesString)\n\(name ?? "NAME")"
         }
         
         seriesString = "\(seriesString)\n\(id)"
@@ -344,7 +344,7 @@ class Series : Equatable, CustomStringConvertible {
         
         seriesString = "\(seriesString) \(numberOfSermons)"
         
-        seriesString = "\(seriesString)\n\(text)"
+        seriesString = "\(seriesString)\n\(text ?? "TEXT")"
         
         return seriesString
     }

@@ -488,7 +488,7 @@ class MediaCollectionViewController: UIViewController
             if json != JSON.null {
                 try data.write(to: jsonFileSystemURL!, options: NSData.WritingOptions.atomicWrite)
                 
-//                print(json)
+                print(json)
                 
                 return json
             } else {
@@ -498,7 +498,7 @@ class MediaCollectionViewController: UIViewController
                 
                 let json = JSON(data: data)
                 if json != JSON.null {
-//                    print(json)
+                    print(json)
                     return json
                 }
             }
@@ -510,7 +510,7 @@ class MediaCollectionViewController: UIViewController
                 
                 let json = JSON(data: data)
                 if json != JSON.null {
-//                    print(json)
+                    print(json)
                     return json
                 }
             } catch let error as NSError {

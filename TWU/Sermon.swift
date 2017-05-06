@@ -167,8 +167,8 @@ extension Sermon : URLSessionDownloadDelegate {
         if debug {
             print("URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:")
             
-            print("session: \(session.sessionDescription)")
-            print("task: \(downloadTask.taskDescription)")
+            print("session: \(session.sessionDescription ?? "Session Description")")
+            print("task: \(downloadTask.taskDescription ?? "Task Description")")
             print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
             print("bytes written: \(totalBytesWritten)")
             print("bytes expected to write: \(totalBytesExpectedToWrite)")
@@ -291,9 +291,12 @@ extension Sermon : URLSessionDownloadDelegate {
             print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
         }
         
-        if (error != nil) {
-            NSLog("with error: \(error!.localizedDescription)")
-            networkUnavailable(error!.localizedDescription)
+        if let error = error {
+            NSLog("with error: \(error.localizedDescription) statusCode:\(statusCode)")
+            // May be user initiated.
+            if error.localizedDescription != "cancelled" {
+                networkUnavailable(error.localizedDescription)
+            }
             audioDownload.state = .none
         }
         
@@ -318,7 +321,7 @@ extension Sermon : URLSessionDownloadDelegate {
         }
         
         if (error != nil) {
-            print("with error: \(error!.localizedDescription)")
+            NSLog("with error: \(error!.localizedDescription)")
             networkUnavailable(error!.localizedDescription)
             audioDownload.state = .none
         }
@@ -438,7 +441,7 @@ class Sermon : NSObject {
         var sermonString = "Sermon:"
         
         if (series != nil) {
-            sermonString = "\(sermonString) \(series!.title)"
+            sermonString = "\(sermonString) \(series!.title ?? "Title")"
         }
         
         sermonString = "\(sermonString) Part:\(index+1)"
