@@ -14,6 +14,9 @@ class MediaCollectionViewCell: UICollectionViewCell {
     var vc:MediaCollectionViewController?
     
     var series:Series? {
+        willSet {
+            
+        }
         didSet {
             if series != oldValue {
                 updateUI()

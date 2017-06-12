@@ -24,6 +24,9 @@ class Download {
     
     var downloadURL:URL?
     var fileSystemURL:URL? {
+        willSet {
+            
+        }
         didSet {
             state = isDownloaded() ? .downloaded : .none
         }
@@ -42,6 +45,9 @@ class Download {
         }
     }
     var state:State = .none {
+        willSet {
+            
+        }
         didSet {
             if state != oldValue {
                 DispatchQueue.main.async(execute: { () -> Void in

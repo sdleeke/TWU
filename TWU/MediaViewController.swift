@@ -262,6 +262,9 @@ class MediaViewController : UIViewController  {
 //    }
     
     var sermonSelected:Sermon? {
+        willSet {
+            
+        }
         didSet {
 //            print(sermonSelected)
             seriesSelected?.sermonSelected = sermonSelected
@@ -340,12 +343,14 @@ class MediaViewController : UIViewController  {
         }
     }
 
-    override var canBecomeFirstResponder : Bool {
+    override var canBecomeFirstResponder : Bool
+    {
         return true
     }
 
-    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
-        if (splitViewController == nil) {
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
+    {
+        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             globals.motionEnded(motion, event: event)
         }
     }
@@ -389,6 +394,9 @@ class MediaViewController : UIViewController  {
     @IBOutlet weak var seriesArtAndDescription: UIView!
     
     @IBOutlet weak var seriesArt: UIImageView! {
+        willSet {
+            
+        }
         didSet {
             let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesArt.addGestureRecognizer(tap)
@@ -404,6 +412,9 @@ class MediaViewController : UIViewController  {
     }
     
     @IBOutlet weak var seriesDescription: UITextView! {
+        willSet {
+            
+        }
         didSet {
             let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesDescription.addGestureRecognizer(tap)
@@ -812,12 +823,11 @@ class MediaViewController : UIViewController  {
         updateUI()
     }
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         // Do any additional setup after loading the view.
         super.viewDidLoad()
         
-        navigationController?.isToolbarHidden = true
-
         //Eliminates blank cells at end.
         tableView.tableFooterView = UIView()
         tableView.allowsSelection = true
@@ -843,7 +853,22 @@ class MediaViewController : UIViewController  {
             if let view = self.seriesArtAndDescription.subviews[1] as? UITextView {
                 view.scrollRangeToVisible(NSMakeRange(0, 0))
             }
-            self.navigationController?.isToolbarHidden = true
+
+            if self.navigationController?.visibleViewController == self {
+                self.navigationController?.isToolbarHidden = true
+                
+                if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
+                    let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
+                    let count = self.splitViewController?.viewControllers.count {
+                    if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
+                        if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
+                            navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+                        } else {
+                            navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -969,6 +994,22 @@ class MediaViewController : UIViewController  {
     func updateUI()
     {
         //These are being added here for the case when this view is opened and the sermon selected is playing already
+        if self.navigationController?.visibleViewController == self {
+            self.navigationController?.isToolbarHidden = true
+            
+            if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
+                let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
+                let count = self.splitViewController?.viewControllers.count {
+                if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
+                    if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
+                        navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+                    } else {
+                        navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
+                    }
+                }
+            }
+        }
+        
         addSliderObserver()
         
         setupActionsButton()
@@ -1049,10 +1090,19 @@ class MediaViewController : UIViewController  {
         updateUI()
     }
     
+    func deviceOrientationDidChange()
+    {
+        if navigationController?.visibleViewController == self {
+            navigationController?.isToolbarHidden = true
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
-
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.showPlaying), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
 
@@ -1060,10 +1110,8 @@ class MediaViewController : UIViewController  {
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
         
-        if (splitViewController != nil) {
-            NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
-        }
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
         
         pageControl.isEnabled = true
         
@@ -1125,6 +1173,12 @@ class MediaViewController : UIViewController  {
                 self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
             })
         })
+        
+        if globals.isLoading && (navigationController?.visibleViewController == self) && (splitViewController?.viewControllers.count == 1) {
+            if let navigationController = splitViewController?.viewControllers[0] as? UINavigationController {
+                navigationController.popToRootViewController(animated: false)
+            }
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool)

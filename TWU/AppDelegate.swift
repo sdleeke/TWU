@@ -14,7 +14,7 @@ import AudioToolbox
 import MediaPlayer
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate { // UISplitViewControllerDelegate
+class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, UISplitViewControllerDelegate {
     
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController:UIViewController, onto primaryViewController:UIViewController) -> Bool {
         guard let secondaryAsNavController = secondaryViewController as? UINavigationController else { return false }
@@ -28,17 +28,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate { 
     
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool
+    {
 //        print("application:didFinishLaunchingWithOptions")
 
+        let splitViewController = window!.rootViewController as! UISplitViewController
+        
+        splitViewController.delegate = self
+        
+        let hClass = splitViewController.traitCollection.horizontalSizeClass
+        let vClass = splitViewController.traitCollection.verticalSizeClass
+        
+        if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
+            let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as! UINavigationController
+            navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
+        }
+        
         // Override point for customization after application launch.
         
         globals = Globals()
         
+        globals.addAccessoryEvents()
+        
         startAudio()
         
-        globals.addAccessoryEvents()
-
         UIApplication.shared.beginReceivingRemoteControlEvents()
         
         return true

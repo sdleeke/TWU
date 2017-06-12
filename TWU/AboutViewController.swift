@@ -128,7 +128,7 @@ class AboutViewController : UIViewController
     
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
     {
-        if (splitViewController == nil) {
+        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             globals.motionEnded(motion, event: event)
         }
     }
@@ -226,15 +226,39 @@ class AboutViewController : UIViewController
         }
     }
     
+    var actionButton:UIBarButtonItem?
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(AboutViewController.actions))
+        actionButton?.setTitleTextAttributes([NSFontAttributeName:UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE)!], for: UIControlState())
+        
+        self.navigationItem.rightBarButtonItem = actionButton
     }
     
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+        
+        if self.navigationController?.visibleViewController == self {
+            self.navigationController?.isToolbarHidden = true
+            
+            if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
+                let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
+                let count = self.splitViewController?.viewControllers.count {
+                if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
+                    if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
+                        navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+                    } else {
+                        navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
+                    }
+                }
+            }
+        }
+        
         setVersion()
     }
     
@@ -271,7 +295,22 @@ class AboutViewController : UIViewController
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
 
             }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
-
+                
+                if self.navigationController?.visibleViewController == self {
+                    self.navigationController?.isToolbarHidden = true
+                    
+                    if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
+                        let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
+                        let count = self.splitViewController?.viewControllers.count {
+                        if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
+                            if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
+                                navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+                            } else {
+                                navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
+                            }
+                        }
+                    }
+                }
         }
     }
 

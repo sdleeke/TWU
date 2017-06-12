@@ -13,6 +13,9 @@ class MediaTableViewCell: UITableViewCell {
     var row:Int?
     
     var sermon:Sermon? {
+        willSet {
+            
+        }
         didSet {
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: oldValue)

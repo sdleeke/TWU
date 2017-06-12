@@ -28,12 +28,18 @@ enum PlayerState {
 
 class PlayerStateTime {
     var sermon:Sermon? {
+        willSet {
+            
+        }
         didSet {
             startTime = sermon?.currentTime
         }
     }
     
     var state:PlayerState = .none {
+        willSet {
+            
+        }
         didSet {
             if (state != oldValue) {
                 dateEntered = Date()
@@ -303,6 +309,9 @@ class MediaPlayer {
 //    var observer: Timer?
     
     var playing:Sermon? {
+        willSet {
+            
+        }
         didSet {
             if playing == nil {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
@@ -338,6 +347,9 @@ class Globals : NSObject {
     var playerTimerReturn:Any?
 
     var sorting:String? = Constants.Sorting.Newest_to_Oldest {
+        willSet {
+            
+        }
         didSet {
             if sorting != oldValue {
                 activeSeries = sortSeries(activeSeries,sorting: sorting)
@@ -354,6 +366,9 @@ class Globals : NSObject {
     }
     
     var filter:String? {
+        willSet {
+            
+        }
         didSet {
             if filter != oldValue {
                 if (filter != nil) {
@@ -394,6 +409,9 @@ class Globals : NSObject {
     var searchButtonClicked = false
 
     var searchActive:Bool = false {
+        willSet {
+            
+        }
         didSet {
             if !searchActive {
                 searchText = nil
@@ -440,6 +458,9 @@ class Globals : NSObject {
     var filteredSeries:[Series]?
     
     var series:[Series]? {
+        willSet {
+            
+        }
         didSet {
             if (series != nil) {
                 index = [Int:Series]()

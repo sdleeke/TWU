@@ -58,12 +58,12 @@ func startAudio()
         NSLog(error.localizedDescription)
     }
     
-    do {
-        //        audioSession.setCategory(AVAudioSessionCategoryPlayback, withOptions: AVAudioSessionCategoryOptions.MixWithOthers, error:nil)
-        try audioSession.setActive(true)
-    } catch let error as NSError {
-        NSLog(error.localizedDescription)
-    }
+//    do {
+//        //        audioSession.setCategory(AVAudioSessionCategoryPlayback, withOptions: AVAudioSessionCategoryOptions.MixWithOthers, error:nil)
+//        try audioSession.setActive(true)
+//    } catch let error as NSError {
+//        NSLog(error.localizedDescription)
+//    }
 }
 
 func shareHTML(viewController:UIViewController,htmlString:String?)

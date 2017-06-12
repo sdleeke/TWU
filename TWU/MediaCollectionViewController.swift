@@ -159,6 +159,8 @@ extension MediaCollectionViewController : UISearchBarDelegate
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
 //        print("Search clicked!")
+        globals.searchButtonClicked = true
+        searchBar.resignFirstResponder()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
@@ -252,6 +254,9 @@ class MediaCollectionViewController: UIViewController
     var refreshControl:UIRefreshControl?
 
     var seriesSelected:Series? {
+        willSet {
+            
+        }
         didSet {
 //            globals.seriesSelected = seriesSelected
             if (seriesSelected != nil) {
@@ -278,12 +283,14 @@ class MediaCollectionViewController: UIViewController
 
     var session:URLSession? // Used for JSON
 
-    override var canBecomeFirstResponder : Bool {
+    override var canBecomeFirstResponder : Bool
+    {
         return true
     }
     
-    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
-        if (splitViewController == nil) {
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
+    {
+        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             globals.motionEnded(motion, event: event)
         }
     }
@@ -375,7 +382,10 @@ class MediaCollectionViewController: UIViewController
         barButtons.append(spaceButton)
         
         navigationController?.toolbar.isTranslucent = false
-        navigationController?.isToolbarHidden = false // If this isn't here a colleciton view in an iPad master view controller will NOT show the toolbar - even though it will show in the navigation controller on an iPhone if this occurs in viewWillAppear()
+        
+        if navigationController?.visibleViewController == self {
+            navigationController?.isToolbarHidden = false // If this isn't here a colleciton view in an iPad master view controller will NOT show the toolbar - even though it will show in the navigation controller on an iPhone if this occurs in viewWillAppear()
+        }
         
         setToolbarItems(barButtons, animated: true)
     }
@@ -399,7 +409,9 @@ class MediaCollectionViewController: UIViewController
         }
         
         if (!globals.isLoading && !globals.isRefreshing) {
-            self.navigationController?.isToolbarHidden = false
+            if navigationController?.visibleViewController == self {
+                self.navigationController?.isToolbarHidden = false
+            }
             self.navigationItem.title = Constants.TWU.LONG
         }
     }
@@ -432,7 +444,7 @@ class MediaCollectionViewController: UIViewController
         
 //        scrollToSeries(seriesSelected)
         
-        if (splitViewController != nil) {
+        if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
             })
@@ -662,10 +674,8 @@ class MediaCollectionViewController: UIViewController
         
         searchBar.placeholder = nil
         
-        if splitViewController != nil {
+        if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
-//            DispatchQueue.main.async(execute: { () -> Void in
-//            })
         }
         
         disableBarButtons()
@@ -681,8 +691,6 @@ class MediaCollectionViewController: UIViewController
                     if globals.isRefreshing {
                         self.refreshControl?.endRefreshing()
                         globals.isRefreshing = false
-//                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-//                        })
                     }
                 })
                 alert.addAction(action)
@@ -780,7 +788,7 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        guard (splitViewController != nil) else {
+        guard let isCollapsed = splitViewController?.isCollapsed, !isCollapsed else {
             // iPhone
             setPlayingPausedButton()
             return
@@ -813,6 +821,11 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
+    func deviceOrientationDidChange()
+    {
+    
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
@@ -822,6 +835,8 @@ class MediaCollectionViewController: UIViewController
             searchBar.becomeFirstResponder()
         }
         
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+
         //Unreliable
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground:", name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
 //        
@@ -910,23 +925,27 @@ class MediaCollectionViewController: UIViewController
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool)
+    {
         super.viewDidAppear(animated)
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool)
+    {
         super.viewWillDisappear(animated)
         
-        if (splitViewController == nil) {
+        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             navigationController?.isToolbarHidden = true
         }
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool)
+    {
         super.viewDidDisappear(animated)
     }
     
-    override func didReceiveMemoryWarning() {
+    override func didReceiveMemoryWarning()
+    {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
@@ -982,7 +1001,7 @@ class MediaCollectionViewController: UIViewController
                     }
 
                     if (seriesSelected != nil) {
-                        if (splitViewController != nil) && (!splitViewController!.isCollapsed) {
+                        if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
                             setupPlayingPausedButton()
                         }
                     }
