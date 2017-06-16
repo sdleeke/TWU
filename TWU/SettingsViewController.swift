@@ -20,8 +20,15 @@ class SettingsViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
+    func didEnterBackground()
+    {
+        dismiss(animated: true, completion: nil)
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(SettingsViewController.didEnterBackground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_ENTER_BACKGROUND), object: nil)
 
         autoAdvanceSwitch.isOn = UserDefaults.standard.bool(forKey: Constants.AUTO_ADVANCE)
     }

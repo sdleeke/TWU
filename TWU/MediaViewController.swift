@@ -55,7 +55,7 @@ extension MediaViewController : PopoverTableViewControllerDelegate
 {
     // MARK: PopoverTableViewControllerDelegate
     
-    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?) {
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose) { // , sermon:Sermon?
         dismiss(animated: true, completion: nil)
         
         switch purpose {
@@ -856,16 +856,16 @@ class MediaViewController : UIViewController  {
 
             if self.navigationController?.visibleViewController == self {
                 self.navigationController?.isToolbarHidden = true
-                
-                if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
-                    let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
-                    let count = self.splitViewController?.viewControllers.count {
-                    if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
-                        if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
-                            navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
-                        } else {
-                            navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
-                        }
+            }
+            
+            if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
+                let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
+                let count = self.splitViewController?.viewControllers.count {
+                if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
+                    if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
+                        navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+                    } else {
+                        navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
                     }
                 }
             }
@@ -996,16 +996,16 @@ class MediaViewController : UIViewController  {
         //These are being added here for the case when this view is opened and the sermon selected is playing already
         if self.navigationController?.visibleViewController == self {
             self.navigationController?.isToolbarHidden = true
-            
-            if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
-                let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
-                let count = self.splitViewController?.viewControllers.count {
-                if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
-                    if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
-                        navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
-                    } else {
-                        navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
-                    }
+        }
+        
+        if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
+            let vClass = self.splitViewController?.traitCollection.verticalSizeClass,
+            let count = self.splitViewController?.viewControllers.count {
+            if let navigationController = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
+                if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
+                    navigationController.topViewController?.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+                } else {
+                    navigationController.topViewController?.navigationItem.leftBarButtonItem = nil
                 }
             }
         }

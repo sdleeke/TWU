@@ -19,7 +19,7 @@ enum PopoverPurpose {
 
 protocol PopoverTableViewControllerDelegate
 {
-    func rowClickedAtIndex(_ index:Int, strings:[String], purpose:PopoverPurpose, sermon:Sermon?)
+    func rowClickedAtIndex(_ index:Int, strings:[String], purpose:PopoverPurpose) // , sermon:Sermon?
 }
 
 struct Section {
@@ -33,13 +33,13 @@ class PopoverTableViewController: UITableViewController {
     var delegate : PopoverTableViewControllerDelegate?
     var purpose : PopoverPurpose?
     
-    var selectedSermon:Sermon?
+//    var selectedSermon:Sermon?
     
     var allowsSelection:Bool = true
     var allowsMultipleSelection:Bool = false
     
     var showIndex:Bool = false
-    var indexByLastName:Bool = false
+//    var indexByLastName:Bool = false
     var showSectionHeaders:Bool = false
     
     var strings:[String]?
@@ -184,11 +184,13 @@ class PopoverTableViewController: UITableViewController {
             let a = "A"
             
             section.titles = Array(Set(strings!.map({ (string:String) -> String in
-                if indexByLastName {
-                    return lastNameFromName(string)!.substring(to: a.endIndex)
-                } else {
-                    return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
-                }
+                return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
+                
+//                if indexByLastName {
+//                    return lastNameFromName(string)!.substring(to: a.endIndex)
+//                } else {
+//                    return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
+//                }
             }))).sorted() { $0 < $1 }
             
             var indexes = [Int]()
@@ -198,13 +200,15 @@ class PopoverTableViewController: UITableViewController {
                 var counter = 0
                 
                 for index in 0..<strings!.count {
-                    var string:String?
-                    
-                    if indexByLastName {
-                        string = lastNameFromName(strings?[index])!.substring(to: a.endIndex)
-                    } else {
-                        string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
-                    }
+//                    var string:String?
+//
+//                    if indexByLastName {
+//                        string = lastNameFromName(strings?[index])!.substring(to: a.endIndex)
+//                    } else {
+//                        string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
+//                    }
+
+                    let string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
                     
                     if (sectionTitle == string) {
                         if (counter == 0) {
@@ -222,9 +226,16 @@ class PopoverTableViewController: UITableViewController {
         }
     }
     
+    func willResignActive()
+    {
+        dismiss(animated: true, completion: nil)
+    }
+    
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(PopoverTableViewController.willResignActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_RESIGN_ACTIVE), object: nil)
         
         setupIndex()
         
@@ -237,6 +248,7 @@ class PopoverTableViewController: UITableViewController {
     {
         super.viewDidAppear(animated)
 
+//        NotificationCenter.default.removeObserver(self)
     }
     
     override func didReceiveMemoryWarning() {
@@ -360,7 +372,7 @@ class PopoverTableViewController: UITableViewController {
             index = (indexPath as NSIndexPath).row
         }
 
-        delegate?.rowClickedAtIndex(index, strings: self.strings!, purpose: self.purpose!, sermon: self.selectedSermon)
+        delegate?.rowClickedAtIndex(index, strings: self.strings!, purpose: self.purpose!) // , sermon: self.selectedSermon
     }
 
     /*

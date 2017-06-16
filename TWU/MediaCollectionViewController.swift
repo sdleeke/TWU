@@ -199,7 +199,7 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
 {
     // MARK: PopoverTableViewControllerDelegate
 
-    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose, sermon:Sermon?)
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose) // , sermon:Sermon?
     {
         guard Thread.isMainThread else {
             return
@@ -666,7 +666,7 @@ class MediaCollectionViewController: UIViewController
         
         globals.isRefreshing = true
         
-        globals.unobservePlayer()
+        globals.mediaPlayer.unobserve()
         
         globals.mediaPlayer.pause()
 
