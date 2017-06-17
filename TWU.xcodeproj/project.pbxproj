@@ -12,6 +12,7 @@
 		1712CD6A1C76B2BF005E09D6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */; };
 		17141EFB1CBE660800B31D23 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17141EFA1CBE660800B31D23 /* Images.xcassets */; };
 		171C73521B6C1B3400CF85AE /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171C73511B6C1B3400CF85AE /* MediaViewController.swift */; };
+		174ACCD51EF48C050056FCBC /* MediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174ACCD41EF48C050056FCBC /* MediaPlayer.swift */; };
 		17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */; };
 		175EDA2A1BAC8BF200942E6D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175EDA291BAC8BF200942E6D /* Reachability.swift */; };
 		176703951B6D076300A8435F /* MediaTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176703941B6D076300A8435F /* MediaTableViewCell.swift */; };
@@ -58,6 +59,7 @@
 		1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		17141EFA1CBE660800B31D23 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		171C73511B6C1B3400CF85AE /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MediaViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		174ACCD41EF48C050056FCBC /* MediaPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaPlayer.swift; sourceTree = "<group>"; };
 		17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewController.swift; sourceTree = "<group>"; };
 		175EDA291BAC8BF200942E6D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		176703941B6D076300A8435F /* MediaTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewCell.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				179C4FA51B6801D600727DE0 /* AppDelegate.swift */,
 				17A571191BEA361000C0D278 /* Constants.swift */,
 				17A5711F1BEA370000C0D278 /* Globals.swift */,
+				174ACCD41EF48C050056FCBC /* MediaPlayer.swift */,
 				17A5711D1BEA365900C0D278 /* Series.swift */,
 				17A5711B1BEA363900C0D278 /* Sermon.swift */,
 				175EDA291BAC8BF200942E6D /* Reachability.swift */,
@@ -362,6 +365,7 @@
 			files = (
 				179C4FA61B6801D600727DE0 /* AppDelegate.swift in Sources */,
 				17A5711A1BEA361000C0D278 /* Constants.swift in Sources */,
+				174ACCD51EF48C050056FCBC /* MediaPlayer.swift in Sources */,
 				17B75BA71B9463F900672A3B /* functions.swift in Sources */,
 				179C4FC81B6803C900727DE0 /* MediaCollectionViewCell.swift in Sources */,
 				17DD523C1BC2AEA100FFD95C /* SwiftyJSON.swift in Sources */,

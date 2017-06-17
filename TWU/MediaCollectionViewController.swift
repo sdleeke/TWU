@@ -211,15 +211,11 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
         case .selectingSorting:
             globals.sorting = strings[index]
             collectionView.reloadData()
-//            DispatchQueue.main.async(execute: { () -> Void in
-//            })
             break
             
         case .selectingFiltering:
             if (globals.filter != strings[index]) {
                 searchBar.placeholder = strings[index]
-//                DispatchQueue.main.async(execute: { () -> Void in
-//                })
                 
                 if (strings[index] == Constants.All) {
                     globals.showing = .all
@@ -234,8 +230,6 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
                 if globals.activeSeries != nil {
                     let indexPath = IndexPath(item:0,section:0)
                     collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
-//                    DispatchQueue.main.async(execute: { () -> Void in
-//                    })
                 }
             }
             break
@@ -384,7 +378,7 @@ class MediaCollectionViewController: UIViewController
         navigationController?.toolbar.isTranslucent = false
         
         if navigationController?.visibleViewController == self {
-            navigationController?.isToolbarHidden = false // If this isn't here a colleciton view in an iPad master view controller will NOT show the toolbar - even though it will show in the navigation controller on an iPhone if this occurs in viewWillAppear()
+            navigationController?.isToolbarHidden = false
         }
         
         setToolbarItems(barButtons, animated: true)
@@ -409,9 +403,6 @@ class MediaCollectionViewController: UIViewController
         }
         
         if (!globals.isLoading && !globals.isRefreshing) {
-            if navigationController?.visibleViewController == self {
-                self.navigationController?.isToolbarHidden = false
-            }
             self.navigationItem.title = Constants.TWU.LONG
         }
     }
@@ -599,7 +590,7 @@ class MediaCollectionViewController: UIViewController
                 self.navigationItem.title = Constants.Titles.Setting_up_Player
                 if (globals.mediaPlayer.playing != nil) {
                     globals.mediaPlayer.playOnLoad = false
-                    globals.setupPlayer(globals.mediaPlayer.playing)
+                    globals.mediaPlayer.setup(globals.mediaPlayer.playing)
                 }
 
                 self.navigationItem.title = Constants.TWU.LONG
@@ -826,7 +817,8 @@ class MediaCollectionViewController: UIViewController
     
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool)
+    {
         super.viewWillAppear(animated)
 
         navigationController?.isToolbarHidden = false
@@ -837,11 +829,6 @@ class MediaCollectionViewController: UIViewController
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
 
-        //Unreliable
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground:", name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
-//        
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
-        
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
 
         setupPlayingPausedButton()

@@ -1067,17 +1067,22 @@ class MediaViewController : UIViewController  {
             return
         }
         
-        guard (globals.mediaPlayer.playing != nil) else {
-            return
+//        guard (globals.mediaPlayer.playing != nil) else {
+//            return
+//        }
+//        
+//        guard (sermonSelected?.series?.sermons?.index(of: globals.mediaPlayer.playing!) != nil) else {
+//            return
+//        }
+        
+        if globals.mediaPlayer.playing != nil {
+            sermonSelected = globals.mediaPlayer.playing
+        } else {
+            removeSliderObserver()
+            playerURL(url: sermonSelected!.playingURL!)
         }
         
-        guard (sermonSelected?.series?.sermons?.index(of: globals.mediaPlayer.playing!) != nil) else {
-            return
-        }
-        
-        sermonSelected = globals.mediaPlayer.playing
-        
-        tableView.reloadData()
+//        tableView.reloadData()
         
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         
@@ -1802,7 +1807,7 @@ class MediaViewController : UIViewController  {
     fileprivate func reloadCurrentSermon(_ sermon:Sermon?) {
         //This guarantees a fresh start.
         globals.mediaPlayer.playOnLoad = true
-        globals.reloadPlayer(sermon)
+        globals.mediaPlayer.reload(sermon)
         addSliderObserver()
         setupPlayPauseButton()
     }
@@ -1826,7 +1831,7 @@ class MediaViewController : UIViewController  {
         
         //This guarantees a fresh start.
         globals.mediaPlayer.playOnLoad = true
-        globals.setupPlayer(sermon)
+        globals.mediaPlayer.setup(sermon)
         
         addSliderObserver()
         
