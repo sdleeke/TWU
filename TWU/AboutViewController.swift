@@ -244,9 +244,7 @@ class AboutViewController : UIViewController
     {
         super.viewWillAppear(animated)
         
-        if self.navigationController?.visibleViewController == self {
-            self.navigationController?.isToolbarHidden = true
-        }
+        self.navigationController?.isToolbarHidden = true
         
         if  let hClass = self.splitViewController?.traitCollection.horizontalSizeClass,
             let vClass = self.splitViewController?.traitCollection.verticalSizeClass,

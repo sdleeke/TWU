@@ -814,7 +814,9 @@ class MediaCollectionViewController: UIViewController
     
     func deviceOrientationDidChange()
     {
-    
+        if navigationController?.visibleViewController == self {
+            navigationController?.isToolbarHidden = false
+        }
     }
     
     override func viewWillAppear(_ animated: Bool)
