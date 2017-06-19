@@ -314,6 +314,31 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
 //    }
 //}
 
+func alert(title:String?,message:String?)
+{
+    guard alert == nil else {
+        return
+    }
+    
+    guard UIApplication.shared.applicationState == UIApplicationState.active else {
+        return
+    }
+    
+    alert = UIAlertController(title:title,
+                              message: message,
+                              preferredStyle: UIAlertControllerStyle.alert)
+    
+    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+        alert = nil
+    })
+    alert.addAction(action)
+    
+    DispatchQueue.main.async(execute: { () -> Void in
+        UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
+        UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+    })
+}
+
 func stringWithoutPrefixes(_ fromString:String?) -> String?
 {
     var sortString = fromString
@@ -334,4 +359,25 @@ func stringWithoutPrefixes(_ fromString:String?) -> String?
     
     return sortString
 }
+
+func userAlert(title:String?,message:String?)
+{
+    if (UIApplication.shared.applicationState == UIApplicationState.active) {
+        let alert = UIAlertController(title: title,
+                                      message: message,
+                                      preferredStyle: UIAlertControllerStyle.alert)
+        
+        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+            
+        })
+        alert.addAction(action)
+        
+        //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+        })
+    }
+}
+
 

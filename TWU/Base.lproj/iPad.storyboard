@@ -86,7 +86,7 @@
                                     <action selector="pageControlAction:" destination="H2E-ZS-FbW" eventType="valueChanged" id="qA3-5U-6Yq"/>
                                 </connections>
                             </pageControl>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VOy-VZ-8Yx" userLabel="ControlView">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VOy-VZ-8Yx" customClass="ControlView" customModule="TWU" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="470" width="375" height="40"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BBU-FH-IlP" userLabel="PlayPause">
@@ -154,17 +154,17 @@
                                         <rect key="frame" x="0.0" y="1" width="375" height="90"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="weh-rh-66T" id="OR0-Xl-7Iz">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="89.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="90"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OSQ-vd-yF8">
-                                                    <rect key="frame" x="20" y="4" width="564" height="81"/>
+                                                    <rect key="frame" x="20" y="4" width="261" height="81"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Download" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EB1-H4-zdg">
-                                                    <rect key="frame" x="588" y="9" width="80" height="16"/>
+                                                    <rect key="frame" x="285" y="9" width="80" height="16"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="80" id="PZm-AM-HhO"/>
                                                     </constraints>
@@ -173,13 +173,13 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="M2y-7u-Z5J">
-                                                    <rect key="frame" x="604" y="29" width="51" height="31"/>
+                                                    <rect key="frame" x="301" y="29" width="51" height="31"/>
                                                     <connections>
                                                         <action selector="downloadSwitchAction:" destination="weh-rh-66T" eventType="valueChanged" id="riJ-0N-ScC"/>
                                                     </connections>
                                                 </switch>
                                                 <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Cc3-Ta-EM4">
-                                                    <rect key="frame" x="604" y="64" width="49" height="2"/>
+                                                    <rect key="frame" x="301" y="64" width="49" height="2"/>
                                                 </progressView>
                                             </subviews>
                                             <constraints>
@@ -300,6 +300,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="Xmf-oM-CgA"/>
                     <connections>
+                        <outlet property="controlView" destination="VOy-VZ-8Yx" id="bNa-Al-ORN"/>
                         <outlet property="elapsed" destination="5fj-n9-FSw" id="yDC-RG-Sbt"/>
                         <outlet property="logo" destination="PgQ-UT-9Es" id="Htt-fO-vYX"/>
                         <outlet property="pageControl" destination="vgK-rU-B9W" id="bGt-CG-Mxf"/>
@@ -425,7 +426,7 @@
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="gqT-2X-T22" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="wkx-Le-0NH">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="wkx-Le-0NH">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -443,7 +444,7 @@
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="hWN-Uw-oa9" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="Vua-hA-Vhd">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="Vua-hA-Vhd">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -790,7 +791,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PcO-S8-TOr" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="5ac-ST-PF3">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="5ac-ST-PF3">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -849,7 +850,7 @@ Southlake, Texas 76092
             <objects>
                 <navigationController storyboardIdentifier="PopoverTableView" automaticallyAdjustsScrollViewInsets="NO" id="9Oa-TX-4K6" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="6zx-EP-Ja7">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" translucent="NO" id="6zx-EP-Ja7">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>

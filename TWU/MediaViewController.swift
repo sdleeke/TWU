@@ -109,13 +109,37 @@ extension MediaViewController : PopoverTableViewControllerDelegate
     }
 }
 
-class MediaViewController : UIViewController  {
-    var observerActive = false
-
+class ControlView : UIView
+{
     var sliding = false
-
-//    private var PlayerContext = 0
     
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        //        print(event)
+        if !sliding {
+            //            print("checking views")
+            for view in subviews {
+                if view.frame.contains(point) && view.isUserInteractionEnabled {
+                    return true
+                }
+            }
+        }
+        
+        //        print("Passing all touches to the next view (if any), in the view stack.")
+        return false
+    }
+}
+
+class MediaViewController : UIViewController
+{
+    var observerActive = false
+    var observedItem:AVPlayerItem?
+
+//    var sliding = false
+
+    private var PlayerContext = 0
+    
+    @IBOutlet weak var controlView: ControlView!
+
     @IBOutlet weak var pageControl: UIPageControl!
     @IBAction func pageControlAction(_ sender: UIPageControl)
     {
@@ -134,55 +158,67 @@ class MediaViewController : UIViewController  {
 //                               context: nil)
 //            return
 //        }
-        
+
         if keyPath == #keyPath(AVPlayerItem.status) {
-            let status: AVPlayerItemStatus
-            
-            // Get the status change from the change dictionary
-            if let statusNumber = change?[.newKey] as? NSNumber {
-//                print(statusNumber.intValue)
-                status = AVPlayerItemStatus(rawValue: statusNumber.intValue)!
-            } else {
-                status = .unknown
+            guard (context == &PlayerContext) else {
+                super.observeValue(forKeyPath: keyPath,
+                                   of: object,
+                                   change: change,
+                                   context: context)
+                return
             }
             
-            // Switch over the status
-            switch status {
-            case .readyToPlay:
-                // Player item is ready to play.
-                //                print(player?.currentItem?.duration.value)
-                //                print(player?.currentItem?.duration.timescale)
-                //                print(player?.currentItem?.duration.seconds)
-                
-                if sermonSelected != nil {
-                    if let length = player?.currentItem?.duration.seconds {
-                        let timeNow = Double(sermonSelected!.currentTime!)!
-                        let progress = timeNow / length
-                        
-                        //                    print("timeNow",timeNow)
-                        //                    print("progress",progress)
-                        //                    print("length",length)
-                        
-                        slider.value = Float(progress)
-                        setTimes(timeNow: timeNow,length: length)
-                        
-                        elapsed.isHidden = false
-                        remaining.isHidden = false
-                        slider.isHidden = false
-                        slider.isEnabled = false
-                    }
-                }
-                break
-                
-            case .failed:
-                // Player item failed. See error.
-                break
-                
-            case .unknown:
-                // Player item is not yet ready.
-                break
-            }
+            setupSliderAndTimes()
         }
+
+//        if keyPath == #keyPath(AVPlayerItem.status) {
+//            let status: AVPlayerItemStatus
+//            
+//            // Get the status change from the change dictionary
+//            if let statusNumber = change?[.newKey] as? NSNumber {
+////                print(statusNumber.intValue)
+//                status = AVPlayerItemStatus(rawValue: statusNumber.intValue)!
+//            } else {
+//                status = .unknown
+//            }
+//            
+//            // Switch over the status
+//            switch status {
+//            case .readyToPlay:
+//                // Player item is ready to play.
+//                //                print(player?.currentItem?.duration.value)
+//                //                print(player?.currentItem?.duration.timescale)
+//                //                print(player?.currentItem?.duration.seconds)
+//                
+//                if sermonSelected != nil {
+//                    if let length = player?.currentItem?.duration.seconds {
+//                        let timeNow = Double(sermonSelected!.currentTime!)!
+//                        let progress = timeNow / length
+//                        
+//                        //                    print("timeNow",timeNow)
+//                        //                    print("progress",progress)
+//                        //                    print("length",length)
+//                        
+//                        slider.value = Float(progress)
+//                        setTimes(timeNow: timeNow,length: length)
+//                        
+//                        elapsed.isHidden = false
+//                        remaining.isHidden = false
+//                        slider.isHidden = false
+//                        slider.isEnabled = false
+//                    }
+//                }
+//                break
+//                
+//            case .failed:
+//                // Player item failed. See error.
+//                break
+//                
+//            case .unknown:
+//                // Player item is not yet ready.
+//                break
+//            }
+//        }
     }
 
 // A messy way to cache AVPlayers by URL and only change the UI for the one related to the currently selectedSermon when its observeValue callback is called.
@@ -211,8 +247,18 @@ class MediaViewController : UIViewController  {
         // observerActive and this function would not be needed if we cache as we would assume EVERY AVPlayer in the cache has an observer => must remove them prior to dealloc.
         
         if observerActive {
-            player?.currentItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: nil) // &PlayerContext
-            observerActive = false
+            if observedItem != player?.currentItem {
+                print("observedItem != player?.currentItem")
+            }
+            if observedItem != nil {
+                print("MVC removeObserver: ",player?.currentItem?.observationInfo as Any)
+                
+                observedItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: &PlayerContext)
+                observedItem = nil
+                observerActive = false
+            } else {
+                print("observedItem == nil!")
+            }
         }
     }
     
@@ -221,8 +267,9 @@ class MediaViewController : UIViewController  {
         player?.currentItem?.addObserver(self,
                                          forKeyPath: #keyPath(AVPlayerItem.status),
                                          options: [.old, .new],
-                                         context: nil) // &PlayerContext
+                                         context: &PlayerContext)
         observerActive = true
+        observedItem = player?.currentItem
     }
     
     func playerURL(url: URL?)
@@ -317,7 +364,7 @@ class MediaViewController : UIViewController  {
             break
             
         case .paused:
-            print("paused")
+//            print("paused")
             if globals.mediaPlayer.loaded && (globals.mediaPlayer.url == sermonSelected?.playingURL) {
                 playCurrentSermon(sermonSelected)
             } else {
@@ -443,8 +490,12 @@ class MediaViewController : UIViewController  {
             return
         }
         
+        guard let length = globals.mediaPlayer.duration?.seconds else {
+            return
+        }
+
         if (slider.value < 1.0) {
-            let length = globals.mediaPlayer.duration!.seconds
+//            let length = globals.mediaPlayer.duration!.seconds
             let seekToTime = Double(slider.value) * length
             
             globals.mediaPlayer.seek(to: seekToTime)
@@ -453,17 +504,18 @@ class MediaViewController : UIViewController  {
         } else {
             globals.mediaPlayer.pause()
             
-            globals.mediaPlayer.seek(to: globals.mediaPlayer.duration!.seconds)
-            globals.mediaPlayer.playing?.currentTime = globals.mediaPlayer.duration!.seconds.description
+            globals.mediaPlayer.seek(to: length)
+            
+            globals.mediaPlayer.playing?.currentTime = length.description
         }
         
         switch globals.mediaPlayer.state! {
         case .playing:
-            sliding = globals.reachability.isReachable
+            controlView.sliding = globals.reachability.isReachable
             break
             
         default:
-            sliding = false
+            controlView.sliding = false
             break
         }
         
@@ -476,24 +528,29 @@ class MediaViewController : UIViewController  {
         addSliderObserver()
     }
     
-    @IBAction func sliderTouchDown(_ sender: UISlider) {
-        //        println("sliderTouchDown")
-        sliding = true
+    @IBAction func sliderTouchDown(_ sender: UISlider)
+    {
+//        print("sliderTouchDown")
+        controlView.sliding = true
         removeSliderObserver()
     }
     
-    @IBAction func sliderTouchUpOutside(_ sender: UISlider) {
-        //        println("sliderTouchUpOutside")
+    @IBAction func sliderTouchUpOutside(_ sender: UISlider)
+    {
+//        print("sliderTouchUpOutside")
         adjustAudioAfterUserMovedSlider()
     }
     
-    @IBAction func sliderTouchUpInside(_ sender: UISlider) {
-        //        println("sliderTouchUpInside")
+    @IBAction func sliderTouchUpInside(_ sender: UISlider)
+    {
+//        print("sliderTouchUpInside")
         adjustAudioAfterUserMovedSlider()
     }
     
-    @IBAction func sliderValueChanging(_ sender: UISlider) {
-        setTimeToSlider()
+    @IBAction func sliderValueChanging(_ sender: UISlider)
+    {
+//        print("sliderValueChanging")
+        setTimesToSlider()
     }
     
     var views : (seriesArt: UIView?, seriesDescription: UIView?)
@@ -503,7 +560,8 @@ class MediaViewController : UIViewController  {
 
     var actionButton:UIBarButtonItem?
     
-    fileprivate func showSendMessageErrorAlert() {
+    fileprivate func showSendMessageErrorAlert()
+    {
         let sendMessageErrorAlert = UIAlertView(title: "Could Not Send a Message", message: "Your device could not send a text message.  Please check your configuration and try again.", delegate: self, cancelButtonTitle: Constants.Okay)
         sendMessageErrorAlert.show()
     }
@@ -958,7 +1016,15 @@ class MediaViewController : UIViewController  {
             return
         }
         
-        guard (sermonSelected != nil) && (sermonSelected == globals.mediaPlayer.playing) else {
+        guard (sermonSelected != nil) else {
+            if spinner.isAnimating {
+                spinner.stopAnimating()
+                spinner.isHidden = true
+            }
+            return
+        }
+        
+        guard (sermonSelected == globals.mediaPlayer.playing) else {
             if spinner.isAnimating {
                 spinner.stopAnimating()
                 spinner.isHidden = true
@@ -972,20 +1038,20 @@ class MediaViewController : UIViewController  {
                 spinner.startAnimating()
             }
         } else {
-            if globals.mediaPlayer.isPaused {
-                if spinner.isAnimating {
-                    spinner.isHidden = true
-                    spinner.stopAnimating()
-                }
-            }
-            
             if globals.mediaPlayer.isPlaying {
-                if (globals.mediaPlayer.currentTime!.seconds > Double(globals.mediaPlayer.playing!.currentTime!)!) {
+                if !controlView.sliding && (globals.mediaPlayer.currentTime!.seconds > Double(globals.mediaPlayer.playing!.currentTime!)!) {
                     spinner.isHidden = true
                     spinner.stopAnimating()
                 } else {
                     spinner.isHidden = false
                     spinner.startAnimating()
+                }
+            }
+
+            if globals.mediaPlayer.isPaused {
+                if spinner.isAnimating {
+                    spinner.isHidden = true
+                    spinner.stopAnimating()
                 }
             }
         }
@@ -1016,9 +1082,9 @@ class MediaViewController : UIViewController  {
         setupArtAndDescription()
         
         setupTitle()
-        setupPlayPauseButton()
         setupSpinner()
-        setupSlider()
+        setupSliderAndTimes()
+        setupPlayPauseButton()
     }
 
     func scrollToSermon(_ sermon:Sermon?,select:Bool,position:UITableViewScrollPosition)
@@ -1067,22 +1133,20 @@ class MediaViewController : UIViewController  {
             return
         }
         
-//        guard (globals.mediaPlayer.playing != nil) else {
-//            return
-//        }
-//        
-//        guard (sermonSelected?.series?.sermons?.index(of: globals.mediaPlayer.playing!) != nil) else {
-//            return
-//        }
-        
-        if globals.mediaPlayer.playing != nil {
-            sermonSelected = globals.mediaPlayer.playing
-        } else {
+        guard (globals.mediaPlayer.playing != nil) else {
             removeSliderObserver()
             playerURL(url: sermonSelected!.playingURL!)
+            updateUI()
+            return
         }
         
-//        tableView.reloadData()
+        guard (sermonSelected?.series?.sermons?.index(of: globals.mediaPlayer.playing!) != nil) else {
+            return
+        }
+        
+        sermonSelected = globals.mediaPlayer.playing
+        
+        //        tableView.reloadData()
         
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         
@@ -1095,10 +1159,76 @@ class MediaViewController : UIViewController  {
         updateUI()
     }
     
+    func readyToPlay()
+    {
+        guard Thread.isMainThread else {
+            return
+        }
+        
+        guard globals.mediaPlayer.loaded else {
+            return
+        }
+        
+        guard (sermonSelected != nil) else {
+            return
+        }
+        
+        guard (sermonSelected == globals.mediaPlayer.playing) else {
+            return
+        }
+        
+        if globals.mediaPlayer.playOnLoad {
+            if globals.mediaPlayer.playing!.atEnd {
+                globals.mediaPlayer.seek(to: 0)
+                globals.mediaPlayer.playing?.atEnd = false
+            }
+            globals.mediaPlayer.playOnLoad = false
+            
+            // Purely for the delay?
+            DispatchQueue.global(qos: .background).async(execute: {
+                DispatchQueue.main.async(execute: { () -> Void in
+                    globals.mediaPlayer.play()
+                })
+            })
+        }
+        
+        setupSpinner()
+        setupSliderAndTimes()
+        setupPlayPauseButton()
+    }
+    
+    func doneSeeking()
+    {
+        controlView.sliding = false
+        print("DONE SEEKING")
+    }
+    
     func deviceOrientationDidChange()
     {
         if navigationController?.visibleViewController == self {
             navigationController?.isToolbarHidden = true
+        }
+    }
+    
+    func failedToLoad()
+    {
+        guard (sermonSelected != nil) else {
+            return
+        }
+        
+        if (sermonSelected == globals.mediaPlayer.playing) {
+            updateUI()
+        }
+    }
+    
+    func failedToPlay()
+    {
+        guard (sermonSelected != nil) else {
+            return
+        }
+        
+        if (sermonSelected == globals.mediaPlayer.playing) {
+            updateUI()
         }
     }
     
@@ -1108,11 +1238,15 @@ class MediaViewController : UIViewController  {
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
+        
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.showPlaying), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToLoad), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.readyToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
@@ -1413,9 +1547,14 @@ class MediaViewController : UIViewController  {
     
     fileprivate func setTimes(timeNow:Double, length:Double)
     {
-        let elapsedHours = Int(timeNow / (60*60))
-        let elapsedMins = Int((timeNow - (Double(elapsedHours) * 60*60)) / 60)
-        let elapsedSec = Int(timeNow.truncatingRemainder(dividingBy: 60))
+        guard Thread.isMainThread else {
+            userAlert(title: "Not Main Thread", message: "MediaViewController:setTimes")
+            return
+        }
+        
+        let elapsedHours = max(Int(timeNow / (60*60)),0)
+        let elapsedMins = max(Int((timeNow - (Double(elapsedHours) * 60*60)) / 60),0)
+        let elapsedSec = max(Int(timeNow.truncatingRemainder(dividingBy: 60)),0)
 
         var elapsed:String
         
@@ -1429,10 +1568,10 @@ class MediaViewController : UIViewController  {
         
         self.elapsed.text = elapsed
         
-        let timeRemaining = length - timeNow
-        let remainingHours = Int(timeRemaining / (60*60))
-        let remainingMins = Int((timeRemaining - (Double(remainingHours) * 60*60)) / 60)
-        let remainingSec = Int(timeRemaining.truncatingRemainder(dividingBy: 60))
+        let timeRemaining = max(length - timeNow,0)
+        let remainingHours = max(Int(timeRemaining / (60*60)),0)
+        let remainingMins = max(Int((timeRemaining - (Double(remainingHours) * 60*60)) / 60),0)
+        let remainingSec = max(Int(timeRemaining.truncatingRemainder(dividingBy: 60)),0)
         
         var remaining:String
         
@@ -1453,6 +1592,10 @@ class MediaViewController : UIViewController  {
         guard Thread.isMainThread else {
             return
         }
+
+        guard let state = globals.mediaPlayer.state else {
+            return
+        }
         
         guard let length = globals.mediaPlayer.duration?.seconds else {
             return
@@ -1461,23 +1604,35 @@ class MediaViewController : UIViewController  {
         guard length > 0 else {
             return
         }
-        
-        guard let currentTime = globals.mediaPlayer.playing?.currentTime else {
+
+        guard let playerCurrentTime = globals.mediaPlayer.currentTime?.seconds, playerCurrentTime >= 0, playerCurrentTime <= length else {
             return
         }
         
-        guard let playingCurrentTime = Double(currentTime) else {
+        guard let currentTime = globals.mediaPlayer.playing?.currentTime, let playingCurrentTime = Double(currentTime), playingCurrentTime >= 0, Int(playingCurrentTime) <= Int(length) else {
             return
         }
-        
-        guard let playerCurrentTime = globals.mediaPlayer.currentTime?.seconds else {
-            return
-        }
-        
-        guard (globals.mediaPlayer.state != nil) else {
-            return
-        }
-        
+
+//        guard let currentTime = globals.mediaPlayer.playing?.currentTime else {
+//            return
+//        }
+//        
+//        guard let playingCurrentTime = Double(currentTime) else {
+//            return
+//        }
+//        
+//        guard let playerCurrentTime = globals.mediaPlayer.currentTime?.seconds else {
+//            return
+//        }
+
+//        guard let playerCurrentTime = globals.mediaPlayer.currentTime?.seconds, playerCurrentTime >= 0, playerCurrentTime <= length else {
+//            return
+//        }
+//        
+//        guard let mediaItemCurrentTime = globals.mediaPlayer.playing?.currentTime, let playingCurrentTime = Double(mediaItemCurrentTime), playingCurrentTime >= 0, Int(playingCurrentTime) <= Int(length) else {
+//            return
+//        }
+
         var progress = -1.0
         
         //            print("currentTime",selectedSermon?.currentTime)
@@ -1485,100 +1640,127 @@ class MediaViewController : UIViewController  {
         //            print("progress",progress)
         //            print("length",length)
         
-        if (length > 0) {
-            switch globals.mediaPlayer.state! {
-            case .playing:
-                if (playingCurrentTime >= 0) && (playerCurrentTime <= globals.mediaPlayer.duration!.seconds) {
-                    progress = playerCurrentTime / length
-                    
+//        if (length > 0) {
+//        }
+
+        switch state {
+        case .playing:
+            //                if (playingCurrentTime >= 0) && (playerCurrentTime <= globals.mediaPlayer.duration!.seconds) {
+            //                }
+            
+            progress = playerCurrentTime / length
+            
+            //                    if sliding && (Int(progress*100) == Int(playingCurrentTime/length*100)) {
+            //                        print("DONE SLIDING")
+            //                        sliding = false
+            //                    }
+            
+            if !controlView.sliding {
+                if globals.mediaPlayer.loaded {
                     //                        print("playing")
                     //                        print("timeNow",timeNow)
                     //                        print("progress",progress)
                     //                        print("length",length)
                     
-                    if sliding && (Int(progress*100) == Int(playingCurrentTime/length*100)) {
-                        print("DONE SLIDING")
-                        sliding = false
+                    if playerCurrentTime == 0 {
+                        progress = playingCurrentTime / length
+                        slider.value = Float(progress)
+                        setTimes(timeNow: playingCurrentTime,length: length)
+                    } else {
+                        slider.value = Float(progress)
+                        setTimes(timeNow: playerCurrentTime,length: length)
                     }
-                    
-                    if !sliding && globals.mediaPlayer.loaded {
-                        if playerCurrentTime == 0 {
-                            progress = playingCurrentTime / length
-                            slider.value = Float(progress)
-                            setTimes(timeNow: playingCurrentTime,length: length)
-                        } else {
-                            slider.value = Float(progress)
-                            setTimes(timeNow: playerCurrentTime,length: length)
-                        }
-                    }
-                    
-                    elapsed.isHidden = false
-                    remaining.isHidden = false
-                    slider.isHidden = false
-                    slider.isEnabled = true
+                } else {
+                    print("not loaded")
                 }
-                break
-                
-            case .paused:
-                //                    if sermonSelected?.currentTime != playerCurrentTime.description {
-                progress = playingCurrentTime / length
-                
-                //                        print("paused")
-                //                        print("timeNow",timeNow)
-                //                        print("progress",progress)
-                //                        print("length",length)
-                
-                slider.value = Float(progress)
-                setTimes(timeNow: playingCurrentTime,length: length)
-                
-                elapsed.isHidden = false
-                remaining.isHidden = false
-                slider.isHidden = false
-                slider.isEnabled = true
-                //                    }
-                break
-                
-            case .stopped:
-                //                    if sermonSelected?.currentTime != playerCurrentTime.description {
-                progress = playingCurrentTime / length
-                
-                //                        print("stopped")
-                //                        print("timeNow",timeNow)
-                //                        print("progress",progress)
-                //                        print("length",length)
-                
-                slider.value = Float(progress)
-                setTimes(timeNow: playingCurrentTime,length: length)
-                
-                elapsed.isHidden = false
-                remaining.isHidden = false
-                slider.isHidden = false
-                slider.isEnabled = true
-                //                    }
-                break
-                
-            default:
-                break
+            } else {
+                print("still sliding 1")
             }
+            
+            elapsed.isHidden = false
+            remaining.isHidden = false
+            slider.isHidden = false
+            slider.isEnabled = true
+            break
+            
+        case .paused:
+            //                    if sermonSelected?.currentTime != playerCurrentTime.description {
+            progress = playingCurrentTime / length
+            
+            //                        print("paused")
+            //                        print("timeNow",timeNow)
+            //                        print("progress",progress)
+            //                        print("length",length)
+            
+//            slider.value = Float(progress)
+
+            if !controlView.sliding {
+                slider.value = Float(progress)
+            } else {
+                print("still sliding 2")
+            }
+
+            setTimes(timeNow: playingCurrentTime,length: length)
+            
+            elapsed.isHidden = false
+            remaining.isHidden = false
+            slider.isHidden = false
+            slider.isEnabled = true
+            //                    }
+            break
+            
+        case .stopped:
+            //                    if sermonSelected?.currentTime != playerCurrentTime.description {
+            progress = playingCurrentTime / length
+            
+            //                        print("stopped")
+            //                        print("timeNow",timeNow)
+            //                        print("progress",progress)
+            //                        print("length",length)
+            
+//            slider.value = Float(progress)
+
+            if !controlView.sliding {
+                slider.value = Float(progress)
+            } else {
+                print("still sliding 3")
+            }
+
+            setTimes(timeNow: playingCurrentTime,length: length)
+            
+            elapsed.isHidden = false
+            remaining.isHidden = false
+            slider.isHidden = false
+            slider.isEnabled = true
+            //                    }
+            break
+            
+        default:
+            elapsed.isHidden = true
+            remaining.isHidden = true
+            slider.isHidden = true
+            slider.isEnabled = false
+            break
         }
     }
     
-    fileprivate func setTimeToSlider()
+    fileprivate func setTimesToSlider()
     {
-        guard (globals.mediaPlayer.duration != nil) else {
+        guard let length = globals.mediaPlayer.duration?.seconds else {
             return
         }
         
-        let length = Float(globals.mediaPlayer.duration!.seconds)
+//        let length = Float(globals.mediaPlayer.duration!.seconds)
         
-        let timeNow = self.slider.value * length
+        let timeNow = self.slider.value * Float(length)
         
         setTimes(timeNow: Double(timeNow),length: Double(length))
     }
     
-    fileprivate func setupSlider()
+    fileprivate func setupSliderAndTimes()
     {
         guard Thread.isMainThread else {
+            userAlert(title: "Not Main Thread", message: "MediaViewController:setupSliderAndTimes")
             return
         }
         
@@ -1589,7 +1771,7 @@ class MediaViewController : UIViewController  {
             return
         }
         
-        if (globals.mediaPlayer.playing != nil) && (globals.mediaPlayer.playing == sermonSelected) {
+        if (globals.mediaPlayer.state != .stopped) && (globals.mediaPlayer.playing == sermonSelected) {
             if !globals.mediaPlayer.loadFailed {
                 setSliderAndTimesToAudio()
             } else {
@@ -1608,7 +1790,11 @@ class MediaViewController : UIViewController  {
                     //                        print("progress",progress)
                     //                        print("length",length)
                     
-                    slider.value = Float(progress)
+                    if !controlView.sliding {
+                        slider.value = Float(progress)
+                    } else {
+                        print("still sliding 4")
+                    }
                     setTimes(timeNow: timeNow,length: length)
                     
                     elapsed.isHidden = false
@@ -1656,76 +1842,92 @@ class MediaViewController : UIViewController  {
         
         slider.isEnabled = globals.mediaPlayer.loaded
         setupPlayPauseButton()
+        setupSpinner()
         
-        if (!globals.mediaPlayer.loaded) {
-            if (!spinner.isAnimating) {
-                spinner.isHidden = false
-                spinner.startAnimating()
-            }
+//        if (!globals.mediaPlayer.loaded) {
+//            if (!spinner.isAnimating) {
+//                spinner.isHidden = false
+//                spinner.startAnimating()
+//            }
+//        }
+        
+        func showState(_ state:String)
+        {
+            //            print(state)
         }
         
         switch globals.mediaPlayer.state! {
         case .none:
-            print("none")
+            showState("none")
             break
             
         case .playing:
-            print("playing")
-            setSliderAndTimesToAudio()
+            showState("playing")
             
-            if (!globals.mediaPlayer.loaded) {
-                if (!spinner.isAnimating) {
-                    spinner.isHidden = false
-                    spinner.startAnimating()
-                }
-            } else {
-                if (globals.mediaPlayer.rate > 0) && (globals.mediaPlayer.currentTime!.seconds > Double((globals.mediaPlayer.startTime!))!) {
-                    if spinner.isAnimating {
-                        spinner.isHidden = true
-                        spinner.stopAnimating()
-                    }
-                } else {
-                    if !spinner.isAnimating {
-                        spinner.isHidden = false
-                        spinner.startAnimating()
-                    }
-                }
+            setupSpinner()
+//            setSliderAndTimesToAudio()
+
+            if globals.mediaPlayer.loaded {
+                setSliderAndTimesToAudio()
+                setupPlayPauseButton()
             }
+
+//            if (!globals.mediaPlayer.loaded) {
+//                if (!spinner.isAnimating) {
+//                    spinner.isHidden = false
+//                    spinner.startAnimating()
+//                }
+//            } else {
+//                if (globals.mediaPlayer.rate > 0) && (globals.mediaPlayer.currentTime!.seconds > Double((globals.mediaPlayer.startTime!))!) {
+//                    if spinner.isAnimating {
+//                        spinner.isHidden = true
+//                        spinner.stopAnimating()
+//                    }
+//                } else {
+//                    if !spinner.isAnimating {
+//                        spinner.isHidden = false
+//                        spinner.startAnimating()
+//                    }
+//                }
+//            }
             break
             
         case .paused:
-            print("paused")
+            showState("paused")
+            
+            setupSpinner()
             
             if globals.mediaPlayer.loaded {
                 setSliderAndTimesToAudio()
+                setupPlayPauseButton()
             }
             
-            if globals.mediaPlayer.loaded || globals.mediaPlayer.loadFailed {
-                if spinner.isAnimating {
-                    spinner.stopAnimating()
-                    spinner.isHidden = true
-                }
-            }
+//            if globals.mediaPlayer.loaded || globals.mediaPlayer.loadFailed {
+//                if spinner.isAnimating {
+//                    spinner.stopAnimating()
+//                    spinner.isHidden = true
+//                }
+//            }
             break
             
         case .stopped:
-            print("stopped")
+            showState("stopped")
             break
             
         case .seekingForward:
-            print("seekingForward")
-            if !spinner.isAnimating {
-                spinner.isHidden = false
-                spinner.startAnimating()
-            }
+            showState("seekingForward")
+//            if !spinner.isAnimating {
+//                spinner.isHidden = false
+//                spinner.startAnimating()
+//            }
             break
             
         case .seekingBackward:
-            print("seekingBackward")
-            if !spinner.isAnimating {
-                spinner.isHidden = false
-                spinner.startAnimating()
-            }
+            showState("seekingBackward")
+//            if !spinner.isAnimating {
+//                spinner.isHidden = false
+//                spinner.startAnimating()
+//            }
             break
         }
     }
@@ -1748,7 +1950,11 @@ class MediaViewController : UIViewController  {
 //        }
 //    }
     
-    func removeSliderObserver() {
+    func removeSliderObserver()
+    {
+        sliderObserver?.invalidate()
+        sliderObserver = nil
+        
         if globals.mediaPlayer.sliderTimerReturn != nil {
             globals.mediaPlayer.player?.removeTimeObserver(globals.mediaPlayer.sliderTimerReturn!)
             globals.mediaPlayer.sliderTimerReturn = nil
@@ -1759,9 +1965,14 @@ class MediaViewController : UIViewController  {
     {
         removeSliderObserver()
         
-        globals.mediaPlayer.sliderTimerReturn = globals.mediaPlayer.player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (CMTime) in
-            self?.sliderTimer()
-            })
+        self.sliderObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.SLIDER, target: self, selector: #selector(MediaViewController.sliderTimer), userInfo: nil, repeats: true)
+
+//        DispatchQueue.main.async(execute: { () -> Void in
+//        })
+        
+//        globals.mediaPlayer.sliderTimerReturn = globals.mediaPlayer.player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (CMTime) in
+//            self?.sliderTimer()
+//            })
     }
     
     func playCurrentSermon(_ sermon:Sermon?)
@@ -1804,7 +2015,8 @@ class MediaViewController : UIViewController  {
         }
     }
     
-    fileprivate func reloadCurrentSermon(_ sermon:Sermon?) {
+    fileprivate func reloadCurrentSermon(_ sermon:Sermon?)
+    {
         //This guarantees a fresh start.
         globals.mediaPlayer.playOnLoad = true
         globals.mediaPlayer.reload(sermon)
@@ -1836,19 +2048,21 @@ class MediaViewController : UIViewController  {
         addSliderObserver()
         
         if (view.window != nil) {
-            setupSlider()
+            setupSliderAndTimes()
             setupPlayPauseButton()
             setupActionsButton()
         }
     }
     
-    func tableView(_ tableView: UITableView, didDeselectRowAtIndexPath indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didDeselectRowAtIndexPath indexPath: IndexPath)
+    {
 //        if let cell = seriesSermons.cellForRowAtIndexPath(indexPath) as? MediaTableViewCell {
 //
 //        }
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAtIndexPath indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAtIndexPath indexPath: IndexPath)
+    {
         sermonSelected = seriesSelected?.sermons?[(indexPath as NSIndexPath).row]
         
         updateUI()
