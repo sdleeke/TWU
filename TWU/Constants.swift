@@ -56,29 +56,30 @@ struct Constants {
     }
     
     struct NOTIFICATION {
-        static let UPDATE_PLAY_PAUSE    = "UPDATE PLAY PAUSE"
+        static let UPDATE_PLAY_PAUSE        = "UPDATE PLAY PAUSE"
+        static let UPDATE_PLAYING_PAUSED    = "UPDATE PLAYING PAUSED"
         
-        static let DONE_SEEKING         = "DONE SEEKING"
+        static let REACHABLE                = "REACHABLE"
+        static let NOT_REACHABLE            = "NOT REACHABLE"
         
-        static let READY_TO_PLAY        = "READY TO PLAY"
+        static let DONE_SEEKING             = "DONE SEEKING"
+        
+        static let READY_TO_PLAY            = "READY TO PLAY"
 
-        static let FAILED_TO_PLAY       = "FAILED TO PLAY"
-        static let FAILED_TO_LOAD       = "FAILED TO LOAD"
+        static let FAILED_TO_PLAY           = "FAILED TO PLAY"
+        static let FAILED_TO_LOAD           = "FAILED TO LOAD"
 
-        static let SHOW_PLAYING         = "SHOW PLAYING"
+        static let SHOW_PLAYING             = "SHOW PLAYING"
 
-        static let UPDATE_VIEW          = "UPDATE VIEW"
-        static let CLEAR_VIEW           = "CLEAR VIEW"
+        static let UPDATE_VIEW              = "UPDATE VIEW"
+        static let CLEAR_VIEW               = "CLEAR VIEW"
 
-        static let PAUSED               = "PAUSED"
+        static let PAUSED                   = "PAUSED"
 
-        static let SERIES_UPDATE_UI     = "SERIES UPDATE UI"
+        static let SERIES_UPDATE_UI         = "SERIES UPDATE UI"
+        static let SERMON_UPDATE_UI         = "SERMON UPDATE UI"
         
         static let MEDIA_DOWNLOAD_FAILED    = "MEDIA DOWNLOAD FAILED"
-
-        static let SERMON_UPDATE_UI             = "SERMON UPDATE UI"
-        static let SERMON_UPDATE_PLAYING_PAUSED = "SERMON UPDATE PLAYING PAUSED"
-        static let SERMON_UPDATE_PLAY_PAUSE     = "SERMON UPDATE PLAY PAUSE"
 
         static let WILL_RESIGN_ACTIVE       = "WILL RESIGN ACTIVE"
         static let DID_BECOME_ACTIVE        = "DID BECOME ACTIVE"

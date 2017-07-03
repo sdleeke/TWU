@@ -11,6 +11,8 @@ import UIKit
 class MediaCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var seriesArt: UIImageView!
 
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     var vc:MediaCollectionViewController?
     
     var series:Series? {
@@ -30,10 +32,12 @@ class MediaCollectionViewCell: UICollectionViewCell {
             if let image = series.loadArt() {
                 seriesArt.image = image
             } else {
+                activityIndicator.startAnimating()
                 DispatchQueue.global(qos: .background).async { () -> Void in
                     if let image = series.fetchArt() {
                         if self.series == series {
                             DispatchQueue.main.async {
+                                self.activityIndicator.stopAnimating()
                                 self.seriesArt.image = image
                             }
                         }

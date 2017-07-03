@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-var debug = false
+var debug = true
 
 enum State {
     case downloading
@@ -98,7 +98,7 @@ class Download {
         }
     }
     
-    func deleteDownload()
+    func delete()
     {
         if (state == .downloaded) {
             // Check if file exists and if so, delete it.
@@ -121,11 +121,11 @@ class Download {
     {
         switch state {
         case .downloading:
-            cancelDownload()
+            cancel()
             break
             
         case .downloaded:
-            deleteDownload()
+            delete()
             break
             
         default:
@@ -133,40 +133,53 @@ class Download {
         }
     }
     
-    func cancelDownload()
+    func cancel()
     {
         if (state == .downloading) {
             //            download.task?.cancelByProducingResumeData({ (data: NSData?) -> Void in
             //            })
+            state = .none
+
             task?.cancel()
             task = nil
             
             totalBytesWritten = 0
             totalBytesExpectedToWrite = 0
-            
-            state = .none
         }
     }
 }
 
-extension Sermon : URLSessionDownloadDelegate {
+extension Sermon : URLSessionDownloadDelegate
+{
     // NEED TO HANDLED >400 ERRORS
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64)
     {
-        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400 else {
-            print("DOWNLOAD ERROR")
+        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400,
+                  totalBytesExpectedToWrite != -1 else {
+            print("DOWNLOAD ERROR: ",(downloadTask.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
             
-            audioDownload.task?.cancel()
-            audioDownload.state = .none
+            if audioDownload.state != .none {
+                if let range = downloadTask.taskDescription?.range(of: "."),
+                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound),
+                    let sermon = globals.sermonFromSermonID(Int(id)!) {
+                    globals.alert(title: "Download Failed", message: sermon.title)
+                } else {
+                    globals.alert(title: "Download Failed", message: nil)
+                }
+            }
 
-            networkUnavailable("Download failed.")
+//            globals.alert(title: "Download Failed", message: "Please check your network connection and try again")
+                    
+            audioDownload.cancel() // task?.
+//            audioDownload.state = .none
 
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
             })
+                    
             return
         }
         
@@ -207,13 +220,25 @@ extension Sermon : URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL)
     {
-        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400 else {
-            print("DOWNLOAD ERROR")
+        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400,
+              audioDownload.totalBytesExpectedToWrite != -1  else {
+            print("DOWNLOAD ERROR: ",(downloadTask.response as? HTTPURLResponse)?.statusCode as Any,audioDownload.totalBytesExpectedToWrite)
+        
+            if audioDownload.state != .none {
+                if let range = downloadTask.taskDescription?.range(of: "."),
+                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound),
+                    let sermon = globals.sermonFromSermonID(Int(id)!) {
+                    globals.alert(title: "Download Failed", message: sermon.title)
+                } else {
+                    globals.alert(title: "Download Failed", message: nil)
+                }
+            }
+//            if audioDownload.state != .none {
+//                globals.alert(title: "Download Failed", message: "Please check your network connection and try again")
+//            }
             
-            audioDownload.task?.cancel()
-            audioDownload.state = .none
-
-            networkUnavailable("Download failed.")
+            audioDownload.cancel() // .task?
+//            audioDownload.state = .none
 
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
@@ -222,7 +247,7 @@ extension Sermon : URLSessionDownloadDelegate {
             })
             return
         }
-
+        
         if debug {
             print("URLSession:downloadTask:didFinishDownloadingToURL:")
             
@@ -257,7 +282,7 @@ extension Sermon : URLSessionDownloadDelegate {
         } catch let error as NSError {
             NSLog(error.localizedDescription)
             print("failed to copy temp audio download file")
-            networkUnavailable(error.localizedDescription)
+            globals.alert(title: "Network Error", message: error.localizedDescription)
             audioDownload.state = .none
         }
         
@@ -268,17 +293,32 @@ extension Sermon : URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
     {
-        guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode, statusCode < 400 else {
-            print("DOWNLOAD ERROR")
-            
-            audioDownload.task?.cancel()
-            audioDownload.state = .none
+        guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode, statusCode < 400,
+            audioDownload.totalBytesExpectedToWrite != -1,
+            error == nil else {
+            print("DOWNLOAD ERROR: ",(task.response as? HTTPURLResponse)?.statusCode as Any,audioDownload.totalBytesExpectedToWrite)
 
-            if let error = error {
-                networkUnavailable(error.localizedDescription)
-            } else {
-                networkUnavailable("Download failed.")
+            if audioDownload.state != .none {
+                if let range = task.taskDescription?.range(of: "."),
+                    let idString = task.taskDescription?.substring(to: range.lowerBound),
+                    let id = Int(idString),
+                    let title = globals.sermonFromSermonID(id)?.title {
+                    if let error = error {
+                        globals.alert(title: "Download Failed", message: title + "\nError: " + error.localizedDescription)
+                    } else {
+                        globals.alert(title: "Download Failed", message: title)
+                    }
+                } else {
+                    if let error = error {
+                        globals.alert(title: "Download Failed", message: "Error: " + error.localizedDescription)
+                    } else {
+                        globals.alert(title: "Download Failed", message: nil)
+                    }
+                }
             }
+            
+            audioDownload.cancel() // .task?
+//            audioDownload.state = .none
 
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
@@ -301,7 +341,7 @@ extension Sermon : URLSessionDownloadDelegate {
             NSLog("with error: \(error.localizedDescription) statusCode:\(statusCode)")
             // May be user initiated.
             if error.localizedDescription != "cancelled" {
-                networkUnavailable(error.localizedDescription)
+                globals.alert(title: "Network Error", message: error.localizedDescription)
             }
             audioDownload.state = .none
         }
@@ -328,7 +368,7 @@ extension Sermon : URLSessionDownloadDelegate {
         
         if (error != nil) {
             NSLog("with error: \(error!.localizedDescription)")
-            networkUnavailable(error!.localizedDescription)
+            globals.alert(title: "Network Error", message: error!.localizedDescription)
             audioDownload.state = .none
         }
         
@@ -357,6 +397,15 @@ class Sermon : NSObject {
     var series:Series?
     
     var id:Int
+    
+    var title:String?
+    {
+        if let title = series?.title {
+            return "\(title) (Part \(index+1))"
+        } else {
+            return nil
+        }
+    }
     
     var atEnd:Bool {
         get {

@@ -247,6 +247,8 @@ class MediaCollectionViewController: UIViewController
 {
     var refreshControl:UIRefreshControl?
 
+    @IBOutlet weak var logo: UIImageView!
+    
     var seriesSelected:Series? {
         willSet {
             
@@ -259,7 +261,7 @@ class MediaCollectionViewController: UIViewController
                 defaults.synchronize()
 
                 DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAYING_PAUSED), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
                 })
             } else {
                 print("MediaCollectionViewController:seriesSelected nil")
@@ -477,56 +479,82 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
-    func jsonFromURL() -> JSON
+    func jsonFromFileSystem() -> JSON
     {
-//        if let url = cachesURL()?.URLByAppendingPathComponent(Constants.SERIES_JSON) {
+        guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES) else {
+            return nil
+        }
 
-        let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES)
-        
         do {
-            let data = try Data(contentsOf: URL(string: Constants.JSON.URL)!) // , options: NSData.ReadingOptions.mappedIfSafe
+            let data = try Data(contentsOf: jsonFileSystemURL) // , options: NSData.ReadingOptions.mappedIfSafe
+            print("able to read last available json")
             
             let json = JSON(data: data)
             
             if json != JSON.null {
-                try data.write(to: jsonFileSystemURL!, options: NSData.WritingOptions.atomicWrite)
-                
+                print("able to load last avaialble json")
                 print(json)
+                return json
+            } else {
+                globals.alert(title: "Network Error", message: "Network connection not available and last available sermon series list could not be loaded.")
+                print("unable to load last avaialble json")
+            }
+        } catch let error as NSError {
+            globals.alert(title: "Network Error", message: "Network connection not available and last available sermon series list could not be read; " + error.localizedDescription)
+            print("unable to read last avaialble json")
+            NSLog(error.localizedDescription)
+        }
+        
+        return nil
+    }
+    
+    func jsonFromURL() -> JSON
+    {
+        guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES) else {
+            return nil
+        }
+        
+        guard globals.reachability.currentReachabilityStatus != .notReachable else {
+//            globals.alert(title: "Network Error", message: "Network connection not available.  Attempting to read last available sermon series list.")
+
+            print("network not avaialble: attempting to read last avaialble json")
+            
+            return jsonFromFileSystem()
+        }
+        
+        do {
+            let data = try Data(contentsOf: URL(string: Constants.JSON.URL)!) // , options: NSData.ReadingOptions.mappedIfSafe
+            print("able to read json")
+            
+            let json = JSON(data: data)
+            
+            if json != JSON.null {
+                print(json)
+
+                do {
+                    try data.write(to: jsonFileSystemURL, options: NSData.WritingOptions.atomicWrite)
+                    print("able to write json to the file system")
+                } catch let error as NSError {
+                    print("unable to write json to the file system.")
+                    NSLog(error.localizedDescription)
+                }
                 
                 return json
             } else {
-                print("could not get json from file, make sure that file contains valid json.")
+//                globals.alert(title: "Network Error", message: "Unable to read series list.  Attempting to read last available copy.")
                 
-                let data = try Data(contentsOf: jsonFileSystemURL!) // , options: NSData.ReadingOptions.mappedIfSafe
-                
-                let json = JSON(data: data)
-                if json != JSON.null {
-                    print(json)
-                    return json
-                }
+                print("unable to load json")
+
+                return jsonFromFileSystem()
             }
         } catch let error as NSError {
+//            globals.alert(title: "Network Error", message: "Unable to read series list.  Attempting to load last available copy: " + error.localizedDescription)
+            
+            print("unable to read json")
             NSLog(error.localizedDescription)
             
-            do {
-                let data = try Data(contentsOf: jsonFileSystemURL!) // , options: NSData.ReadingOptions.mappedIfSafe
-                
-                let json = JSON(data: data)
-                if json != JSON.null {
-                    print(json)
-                    return json
-                }
-            } catch let error as NSError {
-                NSLog(error.localizedDescription)
-            }
+            return jsonFromFileSystem()
         }
-
-        
-//        } else {
-//            print("Invalid filename/path.")
-//        }
-        
-        return nil
     }
     
     func loadSeriesDicts() -> [[String:String]]?
@@ -569,6 +597,7 @@ class MediaCollectionViewController: UIViewController
 
             DispatchQueue.main.async(execute: { () -> Void in
                 if !globals.isRefreshing {
+                    self.view.bringSubview(toFront: self.activityIndicator)
                     self.activityIndicator.isHidden = false
                     self.activityIndicator.startAnimating()
                 }
@@ -702,11 +731,13 @@ class MediaCollectionViewController: UIViewController
         super.viewDidLoad()
         
         if globals.series == nil {
-            loadSeries(nil)
+            loadSeries() {
+                self.logo.isHidden = true
+            }
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAYING_PAUSED), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
         
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
         
@@ -822,6 +853,15 @@ class MediaCollectionViewController: UIViewController
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+
+        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed, globals.isLoading || globals.isRefreshing {
+            logo.isHidden = false
+            view.bringSubview(toFront: logo)
+        }
+        
+        if globals.series == nil {
+            disableBarButtons()
+        }
 
         navigationController?.isToolbarHidden = false
 

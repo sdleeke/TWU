@@ -213,6 +213,19 @@ class Series : Equatable, CustomStringConvertible {
     }
     
     var sermons:[Sermon]?
+    {
+        didSet {
+            if sermons != nil {
+                for sermon in sermons! {
+                    if index == nil {
+                        index = [Int:Sermon]()
+                    }
+                    index?[sermon.id] = sermon
+                }
+            }
+        }
+    }
+    var index:[Int:Sermon]?
     
     struct Settings {
         weak var series:Series?

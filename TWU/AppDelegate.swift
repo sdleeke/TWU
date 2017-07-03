@@ -33,21 +33,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
     {
 //        print("application:didFinishLaunchingWithOptions")
 
-        let splitViewController = window!.rootViewController as! UISplitViewController
+        globals = Globals()
         
-        splitViewController.delegate = self
+        globals.splitViewController = window!.rootViewController as! UISplitViewController
         
-        let hClass = splitViewController.traitCollection.horizontalSizeClass
-        let vClass = splitViewController.traitCollection.verticalSizeClass
+        globals.splitViewController.delegate = self
+        
+        let hClass = globals.splitViewController.traitCollection.horizontalSizeClass
+        let vClass = globals.splitViewController.traitCollection.verticalSizeClass
         
         if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
-            let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as! UINavigationController
-            navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
+            let navigationController = globals.splitViewController.viewControllers[globals.splitViewController.viewControllers.count-1] as! UINavigationController
+            navigationController.topViewController!.navigationItem.leftBarButtonItem = globals.splitViewController.displayModeButtonItem
         }
         
         // Override point for customization after application launch.
-        
-        globals = Globals()
         
         globals.addAccessoryEvents()
         
@@ -99,8 +99,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         DispatchQueue.main.async(execute: { () -> Void in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
 
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAY_PAUSE), object: nil)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAYING_PAUSED), object: nil)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
 
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
         })

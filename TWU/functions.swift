@@ -229,6 +229,9 @@ func booksFromSeries(_ series:[Series]?) -> [String]?
 {
 //    var bookSet = Set<String>()
 //    var bookArray = [String]()
+    guard series != nil else {
+        return nil
+    }
     
     return Array(Set(series!.filter({ (series:Series) -> Bool in
         return series.book != nil
@@ -248,28 +251,27 @@ func lastNameFromName(_ name:String?) -> String?
     return nil
 }
 
-var alert:UIAlertController!
+//var alert:UIAlertController!
 
-func networkUnavailable(_ message:String?)
+func networkUnavailable(viewController:UIViewController,message:String?)
 {
-    if (alert == nil) { // && (UIApplication.shared.applicationState == UIApplicationState.active)
-        UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
+//    if (alert == nil) { // && (UIApplication.shared.applicationState == UIApplicationState.active)
+//        UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
         
-        alert = UIAlertController(title:Constants.Network_Error,
+        let alert = UIAlertController(title:Constants.Network_Error,
             message: message,
             preferredStyle: UIAlertControllerStyle.alert)
         
         let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-            alert = nil
         })
         alert.addAction(action)
         
 //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
         
         DispatchQueue.main.async(execute: { () -> Void in
-            UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+            viewController.present(alert, animated: true, completion: nil)
         })
-    }
+//    }
 }
 
 func filesOfTypeInCache(_ fileType:String) -> [String]?
@@ -314,28 +316,27 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
 //    }
 //}
 
-func alert(title:String?,message:String?)
+func alert(viewController:UIViewController,title:String?,message:String?)
 {
-    guard alert == nil else {
-        return
-    }
+//    guard alert == nil else {
+//        return
+//    }
     
     guard UIApplication.shared.applicationState == UIApplicationState.active else {
         return
     }
     
-    alert = UIAlertController(title:title,
-                              message: message,
-                              preferredStyle: UIAlertControllerStyle.alert)
+    let alert = UIAlertController(title:title,
+                                  message: message,
+                                  preferredStyle: UIAlertControllerStyle.alert)
     
     let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-        alert = nil
     })
     alert.addAction(action)
     
     DispatchQueue.main.async(execute: { () -> Void in
         UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
-        UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+        viewController.present(alert, animated: true, completion: nil)
     })
 }
 

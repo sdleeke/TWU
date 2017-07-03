@@ -81,7 +81,7 @@ extension MediaViewController : PopoverTableViewControllerDelegate
             case Constants.Cancel_All_Downloads:
                 if (seriesSelected?.sermons != nil) {
                     for sermon in seriesSelected!.sermons! {
-                        sermon.audioDownload?.cancelDownload()
+                        sermon.audioDownload?.cancel()
                     }
                 }
                 break
@@ -89,7 +89,7 @@ extension MediaViewController : PopoverTableViewControllerDelegate
             case Constants.Delete_All_Downloads:
                 if (seriesSelected?.sermons != nil) {
                     for sermon in seriesSelected!.sermons! {
-                        sermon.audioDownload?.deleteDownload()
+                        sermon.audioDownload?.delete()
                     }
                 }
                 break
@@ -328,7 +328,7 @@ class MediaViewController : UIViewController
                 }
 
                 DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAYING_PAUSED), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
                 })
             } else {
 //                print("MediaViewController:sermonSelected nil")
@@ -656,7 +656,7 @@ class MediaViewController : UIViewController
             if UIApplication.shared.canOpenURL(url as URL) {
                 UIApplication.shared.openURL(url as URL)
             } else {
-                networkUnavailable("Unable to open url: \(url)")
+                alert(viewController: self,title: "Network Error", message: "Unable to open url: \(url)")
             }
         }
     }
@@ -676,7 +676,7 @@ class MediaViewController : UIViewController
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.openURL(url)
             } else {
-                networkUnavailable("Unable to open url: \(url)")
+                networkUnavailable(viewController: self,message: "Unable to open url: \(url)")
             }
             //            if Reachability.isConnectedToNetwork() {
             //                if UIApplication.sharedApplication().canOpenURL(url) {
@@ -1237,6 +1237,9 @@ class MediaViewController : UIViewController
         super.viewWillAppear(animated)
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
         
@@ -2032,6 +2035,11 @@ class MediaViewController : UIViewController
             return
         }
 
+        guard globals.reachability.currentReachabilityStatus != .notReachable else {
+            alert(viewController: self, title: "Audio Not Available", message: "Please check your network connection and try again.")
+            return
+        }
+        
         if (!spinner.isAnimating) {
             spinner.isHidden = false
             spinner.startAnimating()

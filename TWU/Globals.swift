@@ -17,9 +17,43 @@ enum Showing {
 
 var globals:Globals!
 
-class Globals : NSObject {
-    let reachability = Reachability()!
+struct Alert {
+    var title : String
+    var message : String?
+}
 
+struct MediaRepository {
+    var list : [Series]?
+    {
+        willSet {
+            
+        }
+        didSet {
+            index = nil
+            
+            if (list != nil) {
+                for series in list! {
+                    if index == nil {
+                        index = [Int:Series]()
+                    }
+                    if index![series.id] == nil {
+                        index![series.id] = series
+                    } else {
+                        print("DUPLICATE SERIES ID: \(series)")
+                    }
+                }
+            }
+        }
+    }
+    var index: [Int:Series]?
+}
+
+class Globals : NSObject
+{
+    let reachability = Reachability(hostname: "www.thewordunleashed.org")!
+    
+    var splitViewController:UISplitViewController!
+    
 //    var playerTimerReturn:Any?
 
     var sorting:String? = Constants.Sorting.Newest_to_Oldest {
@@ -131,6 +165,8 @@ class Globals : NSObject {
         }
     }
     
+    var mediaRepository = MediaRepository()
+    
     var filteredSeries:[Series]?
     
     var series:[Series]? {
@@ -159,6 +195,25 @@ class Globals : NSObject {
     }
     
     var index:[Int:Series]?
+    
+    func sermonFromSermonID(_ id:Int) -> Sermon?
+    {
+        guard index != nil else {
+            return nil
+        }
+        
+        for (_,value) in index! {
+            if let sermons = value.sermons {
+                for sermon in sermons {
+                    if sermon.id == id {
+                        return sermon
+                    }
+                }
+            }
+        }
+        
+        return nil
+    }
     
     var showing:Showing = .all
 
@@ -198,6 +253,124 @@ class Globals : NSObject {
         }
     }
     
+    var reachabilityStatus : Reachability.NetworkStatus?
+    
+    func reachabilityTransition()
+    {
+        if self.reachabilityStatus != nil {
+            switch self.reachabilityStatus! {
+            case .notReachable:
+                switch reachability.currentReachabilityStatus {
+                case .notReachable:
+                    print("Not Reachable -> Not Reachable")
+                    break
+                    
+                case .reachableViaWLAN:
+                    print("Not Reachable -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                    break
+                    
+                case .reachableViaWWAN:
+                    print("Not Reachable -> Reachable via WWAN, e.g. Cellular")
+                    break
+                }
+                break
+                
+            case .reachableViaWLAN:
+                switch reachability.currentReachabilityStatus {
+                case .notReachable:
+                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Not Reachable")
+                    break
+                    
+                case .reachableViaWLAN:
+                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                    break
+                    
+                case .reachableViaWWAN:
+                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WWAN, e.g. Cellular")
+                    break
+                }
+                break
+                
+            case .reachableViaWWAN:
+                switch reachability.currentReachabilityStatus {
+                case .notReachable:
+                    print("Reachable via WWAN, e.g. Cellular -> Not Reachable")
+                    break
+                    
+                case .reachableViaWLAN:
+                    print("Reachable via WWAN, e.g. Cellular -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                    break
+                    
+                case .reachableViaWWAN:
+                    print("Reachable via WWAN, e.g. Cellular -> Reachable via WWAN, e.g. Cellular")
+                    break
+                }
+                break
+            }
+        } else {
+            switch reachability.currentReachabilityStatus {
+            case .notReachable:
+                print("Not Reachable")
+                break
+                
+            case .reachableViaWLAN:
+                print("Reachable via WLAN, e.g. WiFi or Bluetooth")
+                break
+                
+            case .reachableViaWWAN:
+                print("Reachable via WWAN, e.g. Cellular")
+                break
+            }
+        }
+        
+        if (reachabilityStatus == .notReachable) && (reachability.currentReachabilityStatus != .notReachable) {
+            globals.alert(title: "Network Connection Restored",message: "")
+        }
+        
+        if (reachabilityStatus != .notReachable) && (reachability.currentReachabilityStatus == .notReachable) {
+            globals.alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
+        }
+        
+        reachabilityStatus = reachability.currentReachabilityStatus
+    }
+    
+    override init()
+    {
+        super.init()
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            globals.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: globals, selector: #selector(Globals.alertViewer), userInfo: nil, repeats: true)
+        })
+        
+        reachability.whenReachable = { reachability in
+            // this is called on a background thread, but UI updates must
+            // be on the main thread, like this:
+            self.reachabilityTransition()
+            
+            DispatchQueue.main.async() {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
+            }
+        }
+        
+        reachability.whenUnreachable = { reachability in
+            // this is called on a background thread, but UI updates must
+            // be on the main thread, like this:
+            self.reachabilityTransition()
+            
+            DispatchQueue.main.async() {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
+            }
+        }
+        
+        //        NotificationCenter.default.addObserver(self, selector: #selector(self.reachabilityChanged),name: ReachabilityChangedNotification,object: reachability)
+        
+        do {
+            try reachability.startNotifier()
+        } catch {
+            print("Unable to start notifier")
+        }
+    }
+
     func cancelAllDownloads()
     {
         if (series != nil) {
@@ -321,6 +494,43 @@ class Globals : NSObject {
         //    print("\(sermonSettings)")
     }
     
+    func alertViewer()
+    {
+        for alert in alerts {
+            print(alert)
+        }
+        
+        guard UIApplication.shared.applicationState == UIApplicationState.active else {
+            return
+        }
+        
+        if let alert = alerts.first {
+            let alertVC = UIAlertController(title:alert.title,
+                                            message:alert.message,
+                                            preferredStyle: UIAlertControllerStyle.alert)
+            
+            let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+                
+            })
+            alertVC.addAction(action)
+            
+            DispatchQueue.main.async(execute: { () -> Void in
+                globals.splitViewController.present(alertVC, animated: true, completion: {
+                    self.alerts.remove(at: 0)
+                })
+            })
+        }
+    }
+    
+    var alerts = [Alert]()
+    
+    var alertTimer : Timer?
+    
+    func alert(title:String,message:String?)
+    {
+        alerts.append(Alert(title: title, message: message))
+    }
+    
     var autoAdvance:Bool {
         get {
             return UserDefaults.standard.bool(forKey: Constants.AUTO_ADVANCE)
@@ -345,8 +555,8 @@ class Globals : NSObject {
                 }
                 
                 DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAY_PAUSE), object: nil)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_PLAYING_PAUSED), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
                 })
             }
         }

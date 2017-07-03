@@ -55,12 +55,12 @@ public class Reachability {
     
     public enum NetworkStatus: CustomStringConvertible {
         
-        case notReachable, reachableViaWiFi, reachableViaWWAN
+        case notReachable, reachableViaWLAN, reachableViaWWAN
         
         public var description: String {
             switch self {
             case .reachableViaWWAN: return "Cellular"
-            case .reachableViaWiFi: return "WiFi"
+            case .reachableViaWLAN: return "WiFi or Bluetooth"
             case .notReachable: return "No Connection"
             }
         }
@@ -80,8 +80,8 @@ public class Reachability {
     public var currentReachabilityStatus: NetworkStatus {
         guard isReachable else { return .notReachable }
         
-        if isReachableViaWiFi {
-            return .reachableViaWiFi
+        if isReachableViaWLAN {
+            return .reachableViaWLAN
         }
         if isRunningOnDevice {
             return .reachableViaWWAN
@@ -198,7 +198,7 @@ public extension Reachability {
         return isRunningOnDevice && isReachableFlagSet && isOnWWANFlagSet
     }
     
-    var isReachableViaWiFi: Bool {
+    var isReachableViaWLAN: Bool {
         
         // Check we're reachable
         guard isReachableFlagSet else { return false }
