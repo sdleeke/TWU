@@ -249,6 +249,8 @@ class MediaCollectionViewController: UIViewController
 
     @IBOutlet weak var logo: UIImageView!
     
+    @IBOutlet weak var aboutButton: UIBarButtonItem!
+    
     var seriesSelected:Series? {
         willSet {
             
@@ -850,6 +852,11 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
+    func showingAboutDidChange()
+    {
+        aboutButton.isEnabled = !globals.showingAbout
+    }
+    
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
@@ -870,7 +877,9 @@ class MediaCollectionViewController: UIViewController
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.showingAboutDidChange), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
+        
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
 
         setupPlayingPausedButton()
@@ -929,6 +938,10 @@ class MediaCollectionViewController: UIViewController
     
     func about()
     {
+        guard globals.showingAbout else {
+            return
+        }
+        
         performSegue(withIdentifier: Constants.SEGUE.SHOW_ABOUT, sender: self)
     }
     

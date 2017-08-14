@@ -148,6 +148,13 @@ class Globals : NSObject
 //    }
 
     var showingAbout:Bool = false
+    {
+        didSet {
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
+            })
+        }
+    }
     
     var seriesSelected:Series? {
         get {

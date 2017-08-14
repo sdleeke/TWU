@@ -699,12 +699,12 @@ class MediaPlayer : NSObject {
         playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { (time:CMTime) in // [weak globals]
             self.playerTimer()
         })
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.stop), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
+
         NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.didPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+
+//        NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.stop), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
+
         NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
-//        DispatchQueue.main.async {
-//        }
         
         pause()
     }

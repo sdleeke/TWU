@@ -80,7 +80,9 @@ struct Constants {
         static let SERMON_UPDATE_UI         = "SERMON UPDATE UI"
         
         static let MEDIA_DOWNLOAD_FAILED    = "MEDIA DOWNLOAD FAILED"
-
+        
+        static let SHOWING_ABOUT_CHANGED    = "SHOWING ABOUT CHANGED"
+        
         static let WILL_RESIGN_ACTIVE       = "WILL RESIGN ACTIVE"
         static let DID_BECOME_ACTIVE        = "DID BECOME ACTIVE"
         static let WILL_TERMINATE           = "WILL TERMINATE"
@@ -104,7 +106,7 @@ struct Constants {
         static let EMAIL = "listeners@thewordunleashed.org"
         static let WEBSITE = "https://www.thewordunleashed.org"
 
-        static let GIVING_URL = "https://countryside.infellowship.com/OnlineGiving/GiveNow/NoAccount/"
+        static let GIVING_URL = "https://countrysidebible.ccbchurch.com/goto/giving" // "https://countryside.infellowship.com/OnlineGiving/GiveNow/NoAccount/"
     }
     
     struct REMOTE_NOTIFICATION {
