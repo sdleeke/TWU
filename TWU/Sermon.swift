@@ -394,14 +394,14 @@ extension Sermon : URLSessionDownloadDelegate
 }
 
 class Sermon : NSObject {
-    var series:Series?
+    weak var series:Series?
     
     var id:Int
     
     var title:String?
     {
         if let title = series?.title {
-            return "\(title) (Part \(index+1))"
+            return "\(title) (Part \(index+1) of \(series!.numberOfSermons))"
         } else {
             return nil
         }

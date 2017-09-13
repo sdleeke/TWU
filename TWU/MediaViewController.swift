@@ -1531,9 +1531,9 @@ class MediaViewController : UIViewController
         let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.SERMON_CELL, for: indexPath) as! MediaTableViewCell
     
         // Configure the cell...
-        cell.row = (indexPath as NSIndexPath).row
+//        cell.vc = self
+//        cell.row = (indexPath as NSIndexPath).row
         cell.sermon = seriesSelected?.sermons?[(indexPath as NSIndexPath).row]
-        cell.vc = self
         
         return cell
     }

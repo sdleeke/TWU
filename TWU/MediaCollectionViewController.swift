@@ -819,30 +819,43 @@ class MediaCollectionViewController: UIViewController
         collectionView.reloadData()
     }
     
+    func addNotifications()
+    {
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.showingAboutDidChange), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if globals.series == nil {
-            loadSeries() {
-                if globals.series == nil {
-                    let alert = UIAlertController(title: "No media available.",
-                                                  message: "Please check your network connection and try again.",
-                                                  preferredStyle: UIAlertControllerStyle.alert)
-                    
-                    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                        
-                    })
-                    alert.addAction(action)
-                    
-                    self.present(alert, animated: true, completion: nil)
-                } else {
-                    self.logo.isHidden = true
-                }
-            }
-        }
+        // Happens in didBecomeActive.
+//        if globals.series == nil {
+//            loadSeries() {
+//                if globals.series == nil {
+//                    let alert = UIAlertController(title: "No media available.",
+//                                                  message: "Please check your network connection and try again.",
+//                                                  preferredStyle: UIAlertControllerStyle.alert)
+//
+//                    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+//
+//                    })
+//                    alert.addAction(action)
+//
+//                    self.present(alert, animated: true, completion: nil)
+//                } else {
+//                    self.logo.isHidden = true
+//                }
+//            }
+//        }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
+        addNotifications()
         
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
         
@@ -972,22 +985,22 @@ class MediaCollectionViewController: UIViewController
         }
         
         loadSeries()
-            {
-                if globals.series == nil {
-                    let alert = UIAlertController(title: "No media available.",
-                                                  message: "Please check your network connection and try again.",
-                                                  preferredStyle: UIAlertControllerStyle.alert)
+        {
+            if globals.series == nil {
+                let alert = UIAlertController(title: "No media available.",
+                                              message: "Please check your network connection and try again.",
+                                              preferredStyle: UIAlertControllerStyle.alert)
+                
+                let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
                     
-                    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                        
-                    })
-                    alert.addAction(action)
-                    
-                    self.present(alert, animated: true, completion: nil)
-                } else {
-                    self.collectionView.reloadData()
-                    self.scrollToSeries(self.seriesSelected)
-                }
+                })
+                alert.addAction(action)
+                
+                self.present(alert, animated: true, completion: nil)
+            } else {
+                self.collectionView.reloadData()
+                self.scrollToSeries(self.seriesSelected)
+            }
         }
     }
     
@@ -1012,13 +1025,8 @@ class MediaCollectionViewController: UIViewController
             searchBar.becomeFirstResponder()
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        addNotifications()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.showingAboutDidChange), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
-
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
 
         setupPlayingPausedButton()

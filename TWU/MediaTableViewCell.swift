@@ -8,9 +8,9 @@
 
 import UIKit
 
-class MediaTableViewCell: UITableViewCell {
-    
-    var row:Int?
+class MediaTableViewCell: UITableViewCell
+{
+//    var row:Int?
     
     var sermon:Sermon? {
         willSet {
@@ -28,7 +28,7 @@ class MediaTableViewCell: UITableViewCell {
     
 //    var downloadObserver:Timer?
     
-    var vc:UIViewController?
+//    var vc:UIViewController?
     
     func updateUI()
     {
@@ -46,7 +46,13 @@ class MediaTableViewCell: UITableViewCell {
         }
         
         if (sermon?.series?.numberOfSermons > 1) {
-            title!.text = "\(sermon!.series!.title!) (Part\u{00a0}\(row!+1))"
+            if  let range = sermon?.title?.range(of: "(Part "), let endIndex = sermon?.title?.endIndex,
+                let text = sermon?.title?.replacingOccurrences(of: " ", with: "\u{00a0}", options: String.CompareOptions.caseInsensitive,
+                                                               range: Range(uncheckedBounds: (lower: range.lowerBound, upper: endIndex))) {
+                title?.text = text
+            } else {
+                title?.text = sermon?.title
+            }
         }
         
         switch sermon!.audioDownload.state {
@@ -120,25 +126,25 @@ class MediaTableViewCell: UITableViewCell {
     }
 
     
-    fileprivate func networkUnavailable(_ message:String?)
-    {
-        if (UIApplication.shared.applicationState == UIApplicationState.active) {
-            vc?.dismiss(animated: true, completion: nil)
-            
-            let alert = UIAlertController(title:Constants.Network_Error,
-                message: message,
-                preferredStyle: UIAlertControllerStyle.actionSheet)
-            
-            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                
-            })
-            alert.addAction(action)
-            
-            alert.modalPresentationStyle = UIModalPresentationStyle.popover
-            alert.popoverPresentationController?.sourceView = self
-            alert.popoverPresentationController?.sourceRect = downloadSwitch.frame
-            
-            vc?.present(alert, animated: true, completion: nil)
-        }
-    }
+//    fileprivate func networkUnavailable(_ message:String?)
+//    {
+//        if (UIApplication.shared.applicationState == UIApplicationState.active) {
+//            vc?.dismiss(animated: true, completion: nil)
+//            
+//            let alert = UIAlertController(title:Constants.Network_Error,
+//                message: message,
+//                preferredStyle: UIAlertControllerStyle.actionSheet)
+//            
+//            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+//                
+//            })
+//            alert.addAction(action)
+//            
+//            alert.modalPresentationStyle = UIModalPresentationStyle.popover
+//            alert.popoverPresentationController?.sourceView = self
+//            alert.popoverPresentationController?.sourceRect = downloadSwitch.frame
+//            
+//            vc?.present(alert, animated: true, completion: nil)
+//        }
+//    }
 }
