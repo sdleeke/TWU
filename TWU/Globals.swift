@@ -330,11 +330,14 @@ class Globals : NSObject
             }
         }
         
-        if (reachabilityStatus == .notReachable) && (reachability.currentReachabilityStatus != .notReachable) && (globals.mediaRepository.list != nil) {
+        // (reachabilityStatus == .notReachable) && (
+        // currentReachabilityStatus != .notReachable
+        
+        if reachability.isReachable && (globals.mediaRepository.list != nil) {
             globals.alert(title: "Network Connection Restored",message: "")
         }
         
-        if (reachabilityStatus != .notReachable) && (reachability.currentReachabilityStatus == .notReachable) && (globals.mediaRepository.list != nil) {
+        if !reachability.isReachable && (globals.mediaRepository.list != nil) {
             globals.alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
         }
         

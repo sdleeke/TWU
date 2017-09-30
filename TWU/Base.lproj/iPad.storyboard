@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Xai-Yi-pif">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Xai-Yi-pif">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
@@ -20,7 +20,8 @@
         <!--Split View Controller-->
         <scene sceneID="ovq-XN-tZE">
             <objects>
-                <splitViewController id="Xai-Yi-pif" sceneMemberID="viewController">
+                <splitViewController automaticallyAdjustsScrollViewInsets="NO" id="Xai-Yi-pif" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <connections>
                         <segue destination="hWN-Uw-oa9" kind="relationship" relationship="masterViewController" id="wo7-ea-T1D"/>
                         <segue destination="gqT-2X-T22" kind="relationship" relationship="detailViewController" id="Chy-eV-NzF"/>
@@ -33,17 +34,17 @@
         <!--Series-->
         <scene sceneID="oXZ-O0-0eL">
             <objects>
-                <viewController title="Series" automaticallyAdjustsScrollViewInsets="NO" id="H2E-ZS-FbW" customClass="MediaViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Series" extendedLayoutIncludesOpaqueBars="YES" automaticallyAdjustsScrollViewInsets="NO" id="H2E-ZS-FbW" customClass="MediaViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="q7U-Fv-YgR"/>
                         <viewControllerLayoutGuide type="bottom" id="hyM-uV-ueX"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ev9-lG-hyo">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sSN-Ac-J4R" userLabel="Series Art And Description">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="222"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="222"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ufB-oq-a4t">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="222"/>
@@ -75,7 +76,7 @@
                                 </constraints>
                             </view>
                             <pageControl contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="vgK-rU-B9W">
-                                <rect key="frame" x="0.0" y="222" width="320" height="20"/>
+                                <rect key="frame" x="0.0" y="286" width="320" height="20"/>
                                 <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="31x-vZ-o9I"/>
@@ -87,10 +88,10 @@
                                 </connections>
                             </pageControl>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VOy-VZ-8Yx" customClass="ControlView" customModule="TWU" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="242" width="320" height="40"/>
+                                <rect key="frame" x="0.0" y="306" width="320" height="40"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BBU-FH-IlP" userLabel="PlayPause">
-                                        <rect key="frame" x="8" y="0.0" width="30" height="40"/>
+                                        <rect key="frame" x="8" y="-2.5" width="30" height="45"/>
                                         <fontDescription key="fontDescription" name="FontAwesome" family="FontAwesome" pointSize="28"/>
                                         <state key="normal">
                                             <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -147,14 +148,14 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="90" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="91J-fh-SJo">
-                                <rect key="frame" x="0.0" y="282" width="320" height="222"/>
+                                <rect key="frame" x="0.0" y="346" width="320" height="222"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationWidth="0.0" reuseIdentifier="SeriesSermon" id="weh-rh-66T" customClass="MediaTableViewCell" customModule="TWU" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="1" width="320" height="90"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="weh-rh-66T" id="OR0-Xl-7Iz">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="90"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="89.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OSQ-vd-yF8">
@@ -231,7 +232,7 @@
                                 </connections>
                             </tableView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="twu_logo_circle_r" translatesAutoresizingMaskIntoConstraints="NO" id="PgQ-UT-9Es">
-                                <rect key="frame" x="20" y="112" width="280" height="280"/>
+                                <rect key="frame" x="20" y="144" width="280" height="280"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="PgQ-UT-9Es" secondAttribute="height" multiplier="1:1" id="uMs-y1-g9c"/>
                                 </constraints>
@@ -298,6 +299,7 @@
                             </mask>
                         </variation>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout" top="YES"/>
                     <navigationItem key="navigationItem" id="Xmf-oM-CgA"/>
                     <connections>
                         <outlet property="controlView" destination="VOy-VZ-8Yx" id="bNa-Al-ORN"/>
@@ -321,17 +323,17 @@
         <!--The Word Unleashed-->
         <scene sceneID="bwb-Xj-3fy">
             <objects>
-                <viewController definesPresentationContext="YES" providesPresentationContextTransitionStyle="YES" id="mTY-ot-Hwc" customClass="MediaCollectionViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="mTY-ot-Hwc" customClass="MediaCollectionViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="pfF-On-msf"/>
                         <viewControllerLayoutGuide type="bottom" id="Fky-Zs-Dj1"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="5uS-tj-ONq">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <searchBar contentMode="scaleToFill" text="" translatesAutoresizingMaskIntoConstraints="NO" id="d2e-nZ-hDc">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="56"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="C0S-Hv-5vf"/>
                                 </constraints>
@@ -346,7 +348,7 @@
                                 </connections>
                             </searchBar>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="qy2-cA-Fzp">
-                                <rect key="frame" x="0.0" y="44" width="320" height="460"/>
+                                <rect key="frame" x="0.0" y="56" width="320" height="448"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="H0c-wA-kNK">
                                     <size key="itemSize" width="150" height="150"/>
@@ -420,6 +422,7 @@
                             <constraint firstItem="cPd-rx-Afc" firstAttribute="centerX" secondItem="5uS-tj-ONq" secondAttribute="centerX" id="wup-bp-TKe"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <navigationItem key="navigationItem" title="The Word Unleashed" id="iCZ-Jk-ply">
                         <barButtonItem key="leftBarButtonItem" title="About" id="oM5-df-6LI">
                             <connections>
@@ -446,9 +449,10 @@
         <scene sceneID="GuL-sQ-VJM">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="gqT-2X-T22" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="wkx-Le-0NH">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -464,9 +468,10 @@
         <scene sceneID="m2r-la-sRM">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="hWN-Uw-oa9" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="Vua-hA-Vhd">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -481,7 +486,7 @@
         <!--Settings View Controller-->
         <scene sceneID="vjq-Nv-MGW">
             <objects>
-                <viewController id="BCD-eK-e9R" customClass="SettingsViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="BCD-eK-e9R" customClass="SettingsViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="WGt-ey-g8Q"/>
                         <viewControllerLayoutGuide type="bottom" id="zzh-tG-9K3"/>
@@ -491,25 +496,25 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Auto Advance" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fr3-fi-frA">
-                                <rect key="frame" x="28" y="66" width="106" height="20.5"/>
+                                <rect key="frame" x="28" y="46" width="106" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="u3w-51-LKt">
-                                <rect key="frame" x="142" y="60.5" width="51" height="31"/>
+                                <rect key="frame" x="142" y="40.5" width="51" height="31"/>
                                 <connections>
                                     <action selector="autoAdvanceAction:" destination="BCD-eK-e9R" eventType="valueChanged" id="OLB-h2-nz7"/>
                                 </connections>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ylB-Pi-ADu">
-                                <rect key="frame" x="81" y="32" width="63.5" height="20.5"/>
+                                <rect key="frame" x="81" y="12" width="63.5" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="60b-6W-vAt">
-                                <rect key="frame" x="20" y="99.5" width="185" height="133.5"/>
+                                <rect key="frame" x="20" y="79.5" width="185" height="153.5"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <string key="text">When a sermon comes to the end, if Auto Advance is on and there is another sermon in the series, it will automatically start playing from the beginning.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -567,20 +572,20 @@
         <!--About 2-->
         <scene sceneID="fTo-DB-pRd">
             <objects>
-                <viewController title="About 2" id="rkm-ee-y4y" customClass="AboutViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="About 2" extendedLayoutIncludesOpaqueBars="YES" id="rkm-ee-y4y" customClass="AboutViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="e0T-ol-GWX"/>
                         <viewControllerLayoutGuide type="bottom" id="DCZ-Ct-rOv"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="lsh-7R-4o2">
-                        <rect key="frame" x="0.0" y="64" width="1024" height="1436"/>
+                        <rect key="frame" x="0.0" y="0.0" width="648.5" height="1500"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hgr-hh-5uU">
-                                <rect key="frame" x="0.0" y="0.0" width="1024" height="1436"/>
+                                <rect key="frame" x="0.0" y="64" width="648.5" height="1436"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tom_pennington" translatesAutoresizingMaskIntoConstraints="NO" id="lIV-yd-c0E">
-                                        <rect key="frame" x="384" y="20" width="256" height="256"/>
+                                        <rect key="frame" x="196.5" y="20" width="256" height="256"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="lIV-yd-c0E" secondAttribute="height" multiplier="1:1" id="2h2-T6-X3j"/>
                                             <constraint firstAttribute="width" constant="276" id="ETK-Bc-yDf"/>
@@ -613,7 +618,7 @@
                                         </variation>
                                     </label>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nxG-97-xAs">
-                                        <rect key="frame" x="0.0" y="313" width="1024" height="148"/>
+                                        <rect key="frame" x="0.0" y="313" width="648.5" height="192"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <string key="text">Tom Pennington is Pastor-Teacher of Countryside Bible Church in Southlake, Texas. His pulpit ministry provides the material for The Word Unleashed.
 
@@ -622,7 +627,7 @@ Before Texas, Tom served 16 years in various roles connected to Grace Community 
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The Word Unleashed" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WpU-BV-Nxf">
-                                        <rect key="frame" x="6" y="469" width="167" height="21"/>
+                                        <rect key="frame" x="6" y="513" width="167" height="21"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="21" id="6Fo-GG-SbC"/>
                                         </constraints>
@@ -636,14 +641,14 @@ Before Texas, Tom served 16 years in various roles connected to Grace Community 
                                         </variation>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="34k-0u-6xQ">
-                                        <rect key="frame" x="931" y="465" width="73" height="30"/>
+                                        <rect key="frame" x="555.5" y="509" width="73" height="30"/>
                                         <state key="normal" title="Contribute"/>
                                         <connections>
                                             <action selector="give:" destination="rkm-ee-y4y" eventType="touchUpInside" id="1E7-5k-ilc"/>
                                         </connections>
                                     </button>
                                     <textView clipsSubviews="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="749" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9FG-Cj-Yxb">
-                                        <rect key="frame" x="0.0" y="498" width="1024" height="148"/>
+                                        <rect key="frame" x="0.0" y="542" width="648.5" height="192"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="116" id="1RK-qa-SsI"/>
@@ -660,7 +665,7 @@ It's our prayer that the transforming power of God’s Word be unleashed in your
                                         </variation>
                                     </textView>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="giz-UW-Q7P">
-                                        <rect key="frame" x="0.0" y="646" width="1024" height="183.5"/>
+                                        <rect key="frame" x="0.0" y="734" width="648.5" height="183.5"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <string key="text">Connect:
 
@@ -677,41 +682,41 @@ Southlake, Texas 76092
                                         <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES"/>
                                     </textView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ct4-iu-yVp" userLabel="Version">
-                                        <rect key="frame" x="985" y="1017" width="31" height="14.5"/>
+                                        <rect key="frame" x="609.5" y="1105" width="31" height="14.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nEL-95-KPb">
-                                        <rect key="frame" x="6" y="837.5" width="48" height="30"/>
+                                        <rect key="frame" x="6" y="925.5" width="48" height="30"/>
                                         <state key="normal" title="Twitter"/>
                                         <connections>
                                             <action selector="twitter:" destination="rkm-ee-y4y" eventType="touchUpInside" id="dJU-V9-xO0"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K7h-jl-v4W">
-                                        <rect key="frame" x="6" y="875.5" width="67" height="30"/>
+                                        <rect key="frame" x="6" y="963.5" width="67" height="30"/>
                                         <state key="normal" title="Facebook"/>
                                         <connections>
                                             <action selector="facebook:" destination="rkm-ee-y4y" eventType="touchUpInside" id="yvf-rJ-u2k"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="08e-ah-LMV">
-                                        <rect key="frame" x="6" y="913.5" width="56" height="30"/>
+                                        <rect key="frame" x="6" y="1001.5" width="56" height="30"/>
                                         <state key="normal" title="Podcast"/>
                                         <connections>
                                             <action selector="podcast:" destination="rkm-ee-y4y" eventType="touchUpInside" id="3Vt-Wb-Cu5"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QWk-3v-kcY">
-                                        <rect key="frame" x="6" y="951.5" width="67" height="30"/>
+                                        <rect key="frame" x="6" y="1039.5" width="67" height="30"/>
                                         <state key="normal" title="RSS Feed"/>
                                         <connections>
                                             <action selector="rssfeed:" destination="rkm-ee-y4y" eventType="touchUpInside" id="ekb-1u-Wo3"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qHa-gA-LgT">
-                                        <rect key="frame" x="6" y="989.5" width="175" height="30"/>
+                                        <rect key="frame" x="6" y="1077.5" width="175" height="30"/>
                                         <state key="normal" title="Countryside Bible Church"/>
                                         <connections>
                                             <action selector="cbc:" destination="rkm-ee-y4y" eventType="touchUpInside" id="asM-H5-X6b"/>
@@ -765,6 +770,7 @@ Southlake, Texas 76092
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
+                                        <exclude reference="ytv-g6-Rv9"/>
                                         <exclude reference="C80-EX-6Ez"/>
                                         <exclude reference="HFc-HK-D36"/>
                                         <exclude reference="Xde-I1-Pn6"/>
@@ -772,7 +778,6 @@ Southlake, Texas 76092
                                         <exclude reference="giN-hC-QpH"/>
                                         <exclude reference="gpG-ea-HNt"/>
                                         <exclude reference="Tl2-z3-xHg"/>
-                                        <exclude reference="ytv-g6-Rv9"/>
                                         <exclude reference="w2u-jH-F0u"/>
                                         <exclude reference="4BB-no-N3S"/>
                                         <exclude reference="fpp-Fi-abs"/>
@@ -788,6 +793,7 @@ Southlake, Texas 76092
                             <constraint firstItem="hgr-hh-5uU" firstAttribute="leading" secondItem="lsh-7R-4o2" secondAttribute="leading" id="ynJ-Hj-41U"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout" top="YES"/>
                     <navigationItem key="navigationItem" title="About" id="NqR-79-H6C">
                         <barButtonItem key="rightBarButtonItem" systemItem="action" id="cME-Hc-CwS">
                             <connections>
@@ -811,9 +817,10 @@ Southlake, Texas 76092
         <scene sceneID="R4x-2Z-d7q">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PcO-S8-TOr" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="5ac-ST-PF3">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -828,9 +835,9 @@ Southlake, Texas 76092
         <!--Popover Table View Controller-->
         <scene sceneID="u1p-jF-C2l">
             <objects>
-                <tableViewController id="Ukh-dg-eb7" customClass="PopoverTableViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController automaticallyAdjustsScrollViewInsets="NO" clearsSelectionOnViewWillAppear="NO" id="Ukh-dg-eb7" customClass="PopoverTableViewController" customModule="TWU" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="35" sectionHeaderHeight="22" sectionFooterHeight="22" id="Rf4-yt-5xf">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="separatorColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -844,7 +851,7 @@ Southlake, Texas 76092
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Sph-0g-Cbg">
-                                            <rect key="frame" x="15" y="0.0" width="266" height="35"/>
+                                            <rect key="frame" x="16" y="0.0" width="265" height="35"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -870,9 +877,10 @@ Southlake, Texas 76092
         <scene sceneID="jFQ-6I-ABo">
             <objects>
                 <navigationController storyboardIdentifier="PopoverTableView" automaticallyAdjustsScrollViewInsets="NO" id="9Oa-TX-4K6" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="6zx-EP-Ja7">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

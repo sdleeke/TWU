@@ -544,7 +544,7 @@ class MediaCollectionViewController: UIViewController
             return nil
         }
         
-        guard globals.reachability.currentReachabilityStatus != .notReachable else {
+        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
             print("json not reachable.")
             
             //            globals.alert(title:"Network Error",message:"Newtork not available, attempting to load last available media list.")
@@ -984,6 +984,11 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
+        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
+            logo.isHidden = false
+            view.bringSubview(toFront: logo)
+        }
+        
         loadSeries()
         {
             if globals.series == nil {
@@ -998,6 +1003,7 @@ class MediaCollectionViewController: UIViewController
                 
                 self.present(alert, animated: true, completion: nil)
             } else {
+                self.logo.isHidden = true
                 self.collectionView.reloadData()
                 self.scrollToSeries(self.seriesSelected)
             }
@@ -1010,11 +1016,6 @@ class MediaCollectionViewController: UIViewController
 
         logo.isHidden = true
 
-        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed, globals.isLoading || globals.isRefreshing {
-            logo.isHidden = false
-            view.bringSubview(toFront: logo)
-        }
-        
         if globals.series == nil {
             disableBarButtons()
         }

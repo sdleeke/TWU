@@ -2035,7 +2035,7 @@ class MediaViewController : UIViewController
             return
         }
 
-        guard globals.reachability.currentReachabilityStatus != .notReachable else {
+        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
             alert(viewController: self, title: "Audio Not Available", message: "Please check your network connection and try again.")
             return
         }

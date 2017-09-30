@@ -57,7 +57,7 @@ class Download {
         }
     }
     
-    var completionHandler: ((Void) -> (Void))?
+    var completionHandler: (() -> (Void))?
     
     func isDownloaded() -> Bool
     {
