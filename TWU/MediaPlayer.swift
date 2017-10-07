@@ -151,8 +151,15 @@ class MediaPlayer : NSObject {
             
             sermonInfo[MPMediaItemPropertyAlbumArtist] = Constants.Tom_Pennington as AnyObject
             
-            if let art = playing!.series!.loadArt() {
-                sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: art)
+            if let art = playing?.series?.loadArt() {
+                if #available(iOS 10.0, *) {
+                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: art.size, requestHandler: { (CGSize) -> UIImage in
+                        return art
+                    })
+                } else {
+                    // Fallback on earlier versions
+                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: art)
+                }
             }
             
             sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = index + 1 as AnyObject
@@ -184,18 +191,28 @@ class MediaPlayer : NSObject {
         //        assert(player?.currentItem != nil,"player?.currentItem should not be nil if we're trying to update the currentTime in userDefaults")
         assert(currentTime != nil,"currentTime should not be nil if we're trying to update the currentTime in userDefaults")
         
-        if loaded && (currentTime != nil) && (duration != nil) {
-            var timeNow = 0
-            
-            if (currentTime!.seconds > 0) && (currentTime!.seconds <= duration!.seconds) {
-                timeNow = Int(currentTime!.seconds)
-            }
-            
-            if ((timeNow > 0) && (timeNow % 10) == 0) {
-                //                println("\(timeNow.description)")
-                if Int(Float(playing!.currentTime!)!) != Int(currentTime!.seconds) {
-                    playing?.currentTime = currentTime!.seconds.description
-                }
+        guard loaded else {
+            return
+        }
+
+        guard let currentTime = currentTime else {
+            return
+        }
+        
+        guard let duration = duration else {
+            return
+        }
+        
+        var timeNow = 0
+        
+        if (currentTime.seconds > 0) && (currentTime.seconds <= duration.seconds) {
+            timeNow = Int(currentTime.seconds)
+        }
+        
+        if ((timeNow > 0) && (timeNow % 10) == 0) {
+            //                println("\(timeNow.description)")
+            if let playingCurrentTime = playing?.currentTime, let time = Float(playingCurrentTime), Int(time) != Int(currentTime.seconds) {
+                playing?.currentTime = currentTime.seconds.description
             }
         }
     }
@@ -305,8 +322,8 @@ class MediaPlayer : NSObject {
             let status: AVPlayerItemStatus
             
             // Get the status change from the change dictionary
-            if let statusNumber = change?[.newKey] as? NSNumber {
-                status = AVPlayerItemStatus(rawValue: statusNumber.intValue)!
+            if let statusNumber = change?[.newKey] as? NSNumber, let playerItemStatus = AVPlayerItemStatus(rawValue: statusNumber.intValue) {
+                status = playerItemStatus
             } else {
                 status = .unknown
             }
@@ -319,25 +336,29 @@ class MediaPlayer : NSObject {
                 //                print(player?.currentItem?.duration.timescale)
                 //                print(player?.currentItem?.duration.seconds)
                 
-                if !loaded && (playing != nil) {
+                if !loaded, let playing = playing {
                     loaded = true
                     
-                    if playing!.hasCurrentTime() {
-                        if playing!.atEnd {
-                            seek(to: duration!.seconds)
+                    if playing.hasCurrentTime {
+                        if playing.atEnd {
+                            if let duration = duration {
+                                seek(to: duration.seconds)
+                            }
                         } else {
-                            seek(to: Double(playing!.currentTime!)!)
+                            if let currentTime = playing.currentTime, let time = Double(currentTime) {
+                                seek(to: time)
+                            }
                         }
                     } else {
-                        playing!.currentTime = Constants.ZERO
+                        playing.currentTime = Constants.ZERO
                         seek(to: 0)
                     }
                     
                     if playOnLoad {
-                        if playing!.atEnd {
-                            playing!.currentTime = Constants.ZERO
+                        if playing.atEnd {
+                            playing.currentTime = Constants.ZERO
                             seek(to: 0)
-                            playing?.atEnd = false
+                            playing.atEnd = false
                         }
                         playOnLoad = false
                         play()
@@ -355,17 +376,18 @@ class MediaPlayer : NSObject {
                 
             case .failed:
                 // Player item failed. See error.
-                globals.alert(title: "Media Failed to Load", message: "Please check your network connection and try again")
-                loadFailed = true
-                DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
-                })
+                failedToLoad()
+//                globals.alert(title: "Media Failed to Load", message: "Please check your network connection and try again")
+//                loadFailed = true
+//                DispatchQueue.main.async(execute: { () -> Void in
+//                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
+//                })
                 break
                 
             case .unknown:
                 // Player item is not yet ready.
                 if #available(iOS 10.0, *) {
-                    print(player?.reasonForWaitingToPlay! as Any)
+                    print(player?.reasonForWaitingToPlay as Any)
                 } else {
                     // Fallback on earlier versions
                 }
@@ -389,21 +411,21 @@ class MediaPlayer : NSObject {
         
         if let duration = duration?.seconds, let currentTime = currentTime?.seconds {
             playing?.atEnd = currentTime >= (duration - 1)
-            if (playing != nil) && !playing!.atEnd {
+            if let atEnd = playing?.atEnd, !atEnd {
                 reload(playing)
             }
         } else {
             playing?.atEnd = true
         }
         
-        if globals.autoAdvance, playing != nil, playing!.atEnd,
-            let mediaItems = playing?.series?.sermons,
-            let index = mediaItems.index(of: playing!), index < (mediaItems.count - 1) {
+        if globals.autoAdvance, let playing = playing, playing.atEnd,
+            let mediaItems = playing.series?.sermons,
+            let index = mediaItems.index(of: playing), index < (mediaItems.count - 1) {
             let nextMediaItem = mediaItems[index + 1]
             
             nextMediaItem.currentTime = Constants.ZERO
             
-            playing = nextMediaItem
+            self.playing = nextMediaItem
             playOnLoad = true
             
             setup(nextMediaItem)
@@ -418,7 +440,7 @@ class MediaPlayer : NSObject {
     
     func reload(_ sermon:Sermon?)
     {
-        if let url = sermon!.playingURL {
+        if let url = sermon?.playingURL {
             reload(url: url)
         }
     }
@@ -438,70 +460,86 @@ class MediaPlayer : NSObject {
     
     func setup(_ sermon:Sermon?)
     {
-        if (sermon != nil) {
-            unload()
-            
-            unobserve()
-            
-            //            if playerTimerReturn != nil {
-            //                player?.removeTimeObserver(playerTimerReturn!)
-            //                playerTimerReturn = nil
-            //            }
-            //
-            //            player?.currentItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: nil) // &GlobalPlayerContext
-            //
-            //            if sliderTimerReturn != nil {
-            //                player?.removeTimeObserver(sliderTimerReturn!)
-            //                sliderTimerReturn = nil
-            //            }
-            
-            player = AVPlayer(url: sermon!.playingURL!)
-            
-            if #available(iOS 10.0, *) {
-                player?.automaticallyWaitsToMinimizeStalling = false
-            } else {
-                // Fallback on earlier versions
-            }
-            
-            player?.actionAtItemEnd = .pause
-            
-            observe()
-            
-            //            player?.currentItem?.addObserver(self,
-            //                                             forKeyPath: #keyPath(AVPlayerItem.status),
-            //                                             options: [.old, .new],
-            //                                             context: nil) // &GlobalPlayerContext
-            
-            //            playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (CMTime) in
-            //                self?.playerTimer()
-            //            })
-            
-            pause()
-            
-            MPRemoteCommandCenter.shared().playCommand.isEnabled = (player != nil)
-            MPRemoteCommandCenter.shared().skipForwardCommand.isEnabled = (player != nil)
-            MPRemoteCommandCenter.shared().skipBackwardCommand.isEnabled = (player != nil)
+        guard let sermon = sermon else {
+            return
         }
+        
+        guard let playingURL = sermon.playingURL else {
+            return
+        }
+        
+        unload()
+        
+        unobserve()
+        
+        //            if playerTimerReturn != nil {
+        //                player?.removeTimeObserver(playerTimerReturn!)
+        //                playerTimerReturn = nil
+        //            }
+        //
+        //            player?.currentItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: nil) // &GlobalPlayerContext
+        //
+        //            if sliderTimerReturn != nil {
+        //                player?.removeTimeObserver(sliderTimerReturn!)
+        //                sliderTimerReturn = nil
+        //            }
+        
+        player = AVPlayer(url: playingURL)
+        
+        if #available(iOS 10.0, *) {
+            player?.automaticallyWaitsToMinimizeStalling = false
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        player?.actionAtItemEnd = .pause
+        
+        observe()
+        
+        //            player?.currentItem?.addObserver(self,
+        //                                             forKeyPath: #keyPath(AVPlayerItem.status),
+        //                                             options: [.old, .new],
+        //                                             context: nil) // &GlobalPlayerContext
+        
+        //            playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (CMTime) in
+        //                self?.playerTimer()
+        //            })
+        
+        pause()
+        
+        MPRemoteCommandCenter.shared().playCommand.isEnabled = (player != nil)
+        MPRemoteCommandCenter.shared().skipForwardCommand.isEnabled = (player != nil)
+        MPRemoteCommandCenter.shared().skipBackwardCommand.isEnabled = (player != nil)
     }
     
     func setupAtEnd(_ sermon:Sermon?)
     {
         setup(sermon)
         
-        if (player != nil) {
-            seek(to: duration!.seconds)
-            pause()
-            sermon?.currentTime = Float(duration!.seconds).description
+        guard (player != nil) else {
+            return
         }
+
+        guard let duration = duration else {
+            return
+        }
+        
+        seek(to: duration.seconds)
+        pause()
+        sermon?.currentTime = Float(duration.seconds).description
     }
     
     func playerTimer()
     {
-        if (state != nil) {
-            if (rate > 0) {
-                updateCurrentTimeForPlaying()
-            }
+        guard (state != nil) else {
+            return
         }
+        
+        guard (rate > 0) else {
+            return
+        }
+        
+        updateCurrentTimeForPlaying()
     }
 
     func failedToLoad()
@@ -511,10 +549,12 @@ class MediaPlayer : NSObject {
         DispatchQueue.main.async(execute: { () -> Void in
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
         })
-        
-        if (UIApplication.shared.applicationState == UIApplicationState.active) {
-            globals.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
-        }
+
+        globals.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
+
+//        if (UIApplication.shared.applicationState == UIApplicationState.active) {
+//            globals.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
+//        }
     }
     
     func failedToPlay()
@@ -581,7 +621,6 @@ class MediaPlayer : NSObject {
 //            }
 //        }
 //    }
-    
     
     @objc func playerObserver()
     {
@@ -761,20 +800,26 @@ class MediaPlayer : NSObject {
     
     func updateCurrentTimeExact()
     {
-        if loaded && (currentTime != nil) {
-            updateCurrentTimeExact(currentTime!.seconds)
-        } else {
-            print("Player NOT loaded or has no currentTime.")
+        guard loaded else {
+            return
         }
+        
+        guard let currentTime = currentTime else {
+            print("Player NOT loaded or has no currentTime.")
+            return
+        }
+        
+        updateCurrentTimeExact(currentTime.seconds)
     }
     
     func updateCurrentTimeExact(_ seekToTime:Double)
     {
-        if (seekToTime >= 0) {
-            playing?.currentTime = seekToTime.description
-        } else {
+        guard (seekToTime >= 0) else {
             print("seekeToTime < 0")
+            return
         }
+        
+        playing?.currentTime = seekToTime.description
     }
     
     func pauseIfPlaying()
@@ -788,30 +833,33 @@ class MediaPlayer : NSObject {
     
     func play()
     {
-        if loaded {
-            //            if (playing != stateTime?.sermon) || (stateTime?.sermon == nil) {
-            //                stateTime = PlayerStateTime(sermon: playing)
-            //            }
-            
-            stateTime = PlayerStateTime(sermon: playing,state:.playing)
-            
-            //            stateTime?.startTime = playing?.currentTime
-            //            stateTime?.state = .playing
-            
-            DispatchQueue.main.async(execute: { () -> Void in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-            })
-            
-            player?.play()
-            
-            setupPlayingInfoCenter()
+        guard loaded else {
+            return
         }
+        
+        //            if (playing != stateTime?.sermon) || (stateTime?.sermon == nil) {
+        //                stateTime = PlayerStateTime(sermon: playing)
+        //            }
+        
+        stateTime = PlayerStateTime(sermon: playing,state:.playing)
+        
+        //            stateTime?.startTime = playing?.currentTime
+        //            stateTime?.state = .playing
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
+        })
+        
+        player?.play()
+        
+        setupPlayingInfoCenter()
     }
     
     func pause()
     {
         updateCurrentTimeExact()
+        
         stateTime = PlayerStateTime(sermon: playing,state:.paused)
         
         player?.pause()
@@ -853,37 +901,47 @@ class MediaPlayer : NSObject {
 
     func seek(to: Double?)
     {
-        if to != nil {
-            if url != nil {
-                if loaded {
-                    var seek = to!
-                    
-                    if seek > currentItem!.duration.seconds {
-                        seek = currentItem!.duration.seconds
-                    }
-                    
-                    if seek < 0 {
-                        seek = 0
-                    }
-                    
-//                    player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution))
-                    
-                    player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution),
-                                 completionHandler: { (finished:Bool) in
-                                    if finished {
-                                        DispatchQueue.main.async(execute: { () -> Void in
-                                            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
-                                        })
-                                    }
-                    })
-                    
-                    playing?.currentTime = seek.description
-                    stateTime?.startTime = seek.description
-                    
-                    setupPlayingInfoCenter()
-                }
-            }
+        guard let to = to else {
+            return
         }
+        
+        guard let duration = currentItem?.duration.seconds else {
+            return
+        }
+        
+//        guard let url = url else {
+//            return
+//        }
+        
+        guard loaded else {
+            return
+        }
+
+        var seek = to
+        
+        if seek > duration {
+            seek = duration
+        }
+        
+        if seek < 0 {
+            seek = 0
+        }
+        
+//                    player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution))
+        
+        player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution),
+                     completionHandler: { (finished:Bool) in
+                        if finished {
+                            DispatchQueue.main.async(execute: { () -> Void in
+                                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
+                            })
+                        }
+        })
+        
+        playing?.currentTime = seek.description
+        stateTime?.startTime = seek.description
+        
+        setupPlayingInfoCenter()
     }
     
     var currentItem:AVPlayerItem? {
@@ -962,9 +1020,11 @@ class MediaPlayer : NSObject {
             }
             
             let defaults = UserDefaults.standard
-            if (playing != nil) {
-                defaults.set("\(playing!.series!.id)", forKey: Constants.SETTINGS.PLAYING.SERIES)
-                defaults.set("\(playing!.index)", forKey: Constants.SETTINGS.PLAYING.SERMON_INDEX)
+            if let playing = playing {
+                if let id = playing.series?.id {
+                    defaults.set("\(id)", forKey: Constants.SETTINGS.PLAYING.SERIES)
+                }
+                defaults.set("\(playing.index)", forKey: Constants.SETTINGS.PLAYING.SERMON_INDEX)
             } else {
                 defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
                 defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERMON_INDEX)

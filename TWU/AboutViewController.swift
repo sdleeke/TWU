@@ -193,7 +193,7 @@ class AboutViewController : UIViewController
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
             if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
                 navigationController.modalPresentationStyle = .popover
                 //            popover?.preferredContentSize = CGSizeMake(300, 500)

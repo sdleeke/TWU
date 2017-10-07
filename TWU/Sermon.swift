@@ -61,60 +61,76 @@ class Download {
     
     func isDownloaded() -> Bool
     {
-        if fileSystemURL != nil {
-            return FileManager.default.fileExists(atPath: fileSystemURL!.path)
-        } else {
+        guard let fileSystemURL = fileSystemURL else {
             return false
         }
+        
+        return FileManager.default.fileExists(atPath: fileSystemURL.path)
     }
     
     func download()
     {
-        if (state == .none) {
-            state = .downloading
-            
-            let downloadRequest = URLRequest(url: downloadURL!)
+        guard (state == .none) else {
+            return
+        }
+        
+        guard let fileSystemURL = fileSystemURL else {
+            return
+        }
+        
+        guard let downloadURL = downloadURL else {
+            return
+        }
+        
+        state = .downloading
+        
+        let downloadRequest = URLRequest(url: downloadURL)
 
-            let configuration = URLSessionConfiguration.ephemeral
-            
-            // This allows the downloading to continue even if the app goes into the background or terminates.
+        let configuration = URLSessionConfiguration.ephemeral
+        
+        // This allows the downloading to continue even if the app goes into the background or terminates.
 //            let configuration = URLSessionConfiguration.background(withIdentifier: Constants.IDENTIFIER.DOWNLOAD + fileSystemURL!.lastPathComponent)
 //            configuration.sessionSendsLaunchEvents = true
-            
-            //        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
-            
-            session = URLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
-            
-            session?.sessionDescription = self.fileSystemURL!.lastPathComponent
-            
-            task = session?.downloadTask(with: downloadRequest)
-            task?.taskDescription = fileSystemURL?.lastPathComponent
-            
-            task?.resume()
-            
-            DispatchQueue.main.async(execute: { () -> Void in
-                UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            })
-        }
+        
+        //        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        
+        session = URLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
+        
+        session?.sessionDescription = fileSystemURL.lastPathComponent
+        
+        task = session?.downloadTask(with: downloadRequest)
+        task?.taskDescription = fileSystemURL.lastPathComponent
+        
+        task?.resume()
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        })
     }
     
     func delete()
     {
-        if (state == .downloaded) {
-            // Check if file exists and if so, delete it.
-            if (FileManager.default.fileExists(atPath: fileSystemURL!.path)){
-                do {
-                    try FileManager.default.removeItem(at: fileSystemURL!)
-                } catch let error as NSError {
-                    NSLog(error.localizedDescription)
-                }
-            }
-            
-            totalBytesWritten = 0
-            totalBytesExpectedToWrite = 0
-            
-            state = .none
+        guard (state == .downloaded) else {
+            return
         }
+        
+        guard let fileSystemURL = fileSystemURL else {
+            return
+        }
+        
+        // Check if file exists and if so, delete it.
+        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
+            do {
+                try FileManager.default.removeItem(at: fileSystemURL)
+            } catch let error as NSError {
+                NSLog(error.localizedDescription)
+            }
+        }
+        
+        totalBytesWritten = 0
+        totalBytesExpectedToWrite = 0
+        
+        state = .none
     }
     
     func cancelOrDeleteDownload()
@@ -135,17 +151,19 @@ class Download {
     
     func cancel()
     {
-        if (state == .downloading) {
-            //            download.task?.cancelByProducingResumeData({ (data: NSData?) -> Void in
-            //            })
-            state = .none
-
-            task?.cancel()
-            task = nil
-            
-            totalBytesWritten = 0
-            totalBytesExpectedToWrite = 0
+        guard (state == .downloading) else {
+            return
         }
+        
+        //            download.task?.cancelByProducingResumeData({ (data: NSData?) -> Void in
+        //            })
+        state = .none
+
+        task?.cancel()
+        task = nil
+        
+        totalBytesWritten = 0
+        totalBytesExpectedToWrite = 0
     }
 }
 
@@ -193,7 +211,7 @@ extension Sermon : URLSessionDownloadDelegate
             print("bytes expected to write: \(totalBytesExpectedToWrite)")
         }
         
-        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
+        if (downloadTask.taskDescription != audioDownload.fileSystemURL?.lastPathComponent) {
             print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
         }
         
@@ -258,24 +276,24 @@ extension Sermon : URLSessionDownloadDelegate
             print("location: \(location)")
         }
         
-        if (downloadTask.taskDescription != audioDownload.fileSystemURL!.lastPathComponent) {
+        if (downloadTask.taskDescription != audioDownload.fileSystemURL?.lastPathComponent) {
             print("downloadTask.taskDescription != fileSystemURL.lastPathComponent")
         }
         
         let fileManager = FileManager.default
         
         // Check if file exist
-        if (fileManager.fileExists(atPath: audioDownload.fileSystemURL!.path)){
+        if let fileSystemURL = audioDownload.fileSystemURL, fileManager.fileExists(atPath: fileSystemURL.path) {
             do {
-                try fileManager.removeItem(at: audioDownload.fileSystemURL!)
+                try fileManager.removeItem(at: fileSystemURL)
             } catch let error as NSError {
                 NSLog(error.localizedDescription)
             }
         }
         
         do {
-            if (audioDownload.state == .downloading) {
-                try fileManager.copyItem(at: location, to: audioDownload.fileSystemURL!)
+            if audioDownload.state == .downloading, let fileSystemURL = audioDownload.fileSystemURL {
+                try fileManager.copyItem(at: location, to: fileSystemURL)
                 try fileManager.removeItem(at: location)
                 audioDownload.state = .downloaded
             }
@@ -368,7 +386,7 @@ extension Sermon : URLSessionDownloadDelegate
         
         if (error != nil) {
             NSLog("with error: \(error!.localizedDescription)")
-            globals.alert(title: "Network Error", message: error!.localizedDescription)
+            globals.alert(title: "Network Error", message: error?.localizedDescription)
             audioDownload.state = .none
         }
         
@@ -380,13 +398,20 @@ extension Sermon : URLSessionDownloadDelegate
         print("URLSessionDidFinishEventsForBackgroundURLSession")
         var filename:String?
         
-        filename = session.configuration.identifier!.substring(from: Constants.IDENTIFIER.DOWNLOAD.endIndex)
-        filename = filename?.substring(to: filename!.range(of: Constants.FILE_EXTENSION.MP3)!.lowerBound)
+        filename = session.configuration.identifier?.substring(from: Constants.IDENTIFIER.DOWNLOAD.endIndex)
         
-        for series in globals.series! {
-            for sermon in series.sermons! {
-                if (sermon.id == Int(filename!)) {
-                    sermon.audioDownload.completionHandler?()
+        if let range = filename?.range(of: Constants.FILE_EXTENSION.MP3) {
+            filename = filename?.substring(to: range.lowerBound)
+        }
+        
+        if let series = globals.series {
+            for series in series {
+                if let sermons = series.sermons {
+                    for sermon in sermons {
+                        if let filename = filename, (sermon.id == Int(filename)) {
+                            sermon.audioDownload.completionHandler?()
+                        }
+                    }
                 }
             }
         }
@@ -400,11 +425,15 @@ class Sermon : NSObject {
     
     var title:String?
     {
-        if let title = series?.title {
-            return "\(title) (Part \(index+1) of \(series!.numberOfSermons))"
-        } else {
+        guard let series = series else {
             return nil
         }
+        
+        guard let title = series.title else {
+            return nil
+        }
+        
+        return "\(title) (Part \(index+1) of \(series.numberOfSermons))"
     }
     
     var atEnd:Bool {
@@ -451,16 +480,24 @@ class Sermon : NSObject {
 
     var sermonID:String? {
         get {
-            if (series == nil) {
+            guard let series = series else {
                 print("sermonID: series nil")
+                return nil
             }
-            return "\(series!.id)\(Constants.COLON)\(id)"
+            
+            return "\(series.id)\(Constants.COLON)\(id)"
         }
     }
 
-    func hasCurrentTime() -> Bool
+    var hasCurrentTime : Bool
     {
-        return (currentTime != nil) && (Float(currentTime!) != nil)
+        get {
+            guard let currentTime = currentTime else {
+                return false
+            }
+            
+            return (Float(currentTime) != nil)
+        }
     }
     
     // this supports settings values that are saved in defaults between sessions
@@ -486,22 +523,30 @@ class Sermon : NSObject {
     
     var index:Int {
         get {
-            return id - series!.startingIndex
+            guard let series = series else {
+                return -1
+            }
+            
+            return id - series.startingIndex
         }
     }
     
     override var description : String {
-        //This requires that date, service, title, and speaker fields all be non-nil
-        
-        var sermonString = "Sermon:"
-        
-        if (series != nil) {
-            sermonString = "\(sermonString) \(series!.title ?? "Title")"
+        get {
+            guard let series = series else {
+                return "ERROR"
+            }
+            
+            //This requires that date, service, title, and speaker fields all be non-nil
+            
+            var sermonString = "Sermon:"
+            
+            sermonString = "\(sermonString) \(series.title ?? "Title")"
+
+            sermonString = "\(sermonString) Part:\(index+1)"
+            
+            return sermonString
         }
-        
-        sermonString = "\(sermonString) Part:\(index+1)"
-        
-        return sermonString
     }
     
     struct Settings {
@@ -517,7 +562,9 @@ class Sermon : NSObject {
         subscript(key:String) -> String? {
             get {
                 var value:String?
-                value = globals.sermonSettings?[self.sermon!.sermonID!]?[key]
+                if let sermonID = self.sermon?.sermonID {
+                    value = globals.sermonSettings?[sermonID]?[key]
+                }
                 return value
             }
             set {
@@ -526,12 +573,12 @@ class Sermon : NSObject {
                     return
                 }
                 
-                guard (sermon != nil) else {
+                guard let sermon = sermon else {
                     print("sermon == nil in Settings!")
                     return
                 }
                 
-                guard (sermon?.sermonID != nil) else {
+                guard let sermonID = sermon.sermonID else {
                     print("sermon!.sermonID == nil in Settings!")
                     return
                 }
@@ -540,16 +587,16 @@ class Sermon : NSObject {
                     globals.sermonSettings = [String:[String:String]]()
                 }
                 
-                if (globals.sermonSettings?[sermon!.sermonID!] == nil) {
-                    globals.sermonSettings?[sermon!.sermonID!] = [String:String]()
+                if (globals.sermonSettings?[sermonID] == nil) {
+                    globals.sermonSettings?[sermonID] = [String:String]()
                 }
                 
                 //                            print("\(globals.sermonSettings!)")
                 //                            print("\(sermon!)")
                 //                            print("\(newValue!)")
                 
-                if (globals.sermonSettings?[sermon!.sermonID!]?[key] != newValue) {
-                    globals.sermonSettings?[sermon!.sermonID!]?[key] = newValue
+                if (globals.sermonSettings?[sermonID]?[key] != newValue) {
+                    globals.sermonSettings?[sermonID]?[key] = newValue
                     
                     // For a high volume of activity this can be very expensive.
                     globals.saveSettingsBackground()

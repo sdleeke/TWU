@@ -348,10 +348,6 @@ class Globals : NSObject
     {
         super.init()
         
-        DispatchQueue.main.async(execute: { () -> Void in
-            globals.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: globals, selector: #selector(Globals.alertViewer), userInfo: nil, repeats: true)
-        })
-        
         reachability.whenReachable = { reachability in
             // this is called on a background thread, but UI updates must
             // be on the main thread, like this:
@@ -488,10 +484,14 @@ class Globals : NSObject
                     
                     if let sermonPlayingIndexStr = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERMON_INDEX) {
                         if let sermonPlayingIndex = Int(sermonPlayingIndexStr) {
-                            if (sermonPlayingIndex > (seriesPlaying!.show - 1)) {
-                                mediaPlayer.playing = nil
+                            if let show = seriesPlaying?.show {
+                                if (sermonPlayingIndex > (show - 1)) {
+                                    mediaPlayer.playing = nil
+                                } else {
+                                    mediaPlayer.playing = seriesPlaying?.sermons?[sermonPlayingIndex]
+                                }
                             } else {
-                                mediaPlayer.playing = seriesPlaying?.sermons?[sermonPlayingIndex]
+                                mediaPlayer.playing = nil
                             }
                         }
                     }
@@ -620,14 +620,22 @@ class Globals : NSObject
         
         MPRemoteCommandCenter.shared().skipBackwardCommand.isEnabled = true
         MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
-            self.mediaPlayer.seek(to: self.mediaPlayer.currentTime!.seconds - 15)
-            return MPRemoteCommandHandlerStatus.success
+            if let seconds = self.mediaPlayer.currentTime?.seconds {
+                self.mediaPlayer.seek(to: seconds - 15)
+                return MPRemoteCommandHandlerStatus.success
+            } else {
+                return MPRemoteCommandHandlerStatus.commandFailed
+            }
         })
         
         MPRemoteCommandCenter.shared().skipForwardCommand.isEnabled = true
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
-            self.mediaPlayer.seek(to: self.mediaPlayer.currentTime!.seconds + 15)
-            return MPRemoteCommandHandlerStatus.success
+            if let seconds = self.mediaPlayer.currentTime?.seconds {
+                self.mediaPlayer.seek(to: seconds + 15)
+                return MPRemoteCommandHandlerStatus.success
+            } else {
+                return MPRemoteCommandHandlerStatus.commandFailed
+            }
         })
         
         if #available(iOS 9.1, *) {

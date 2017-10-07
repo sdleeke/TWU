@@ -13,6 +13,25 @@ import AudioToolbox
 //import CloudKit
 import MediaPlayer
 
+extension UIApplication
+{
+    func isRunningInFullScreen() -> Bool
+    {
+        if let w = self.keyWindow
+        {
+            let maxScreenSize = max(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
+            let minScreenSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
+            
+            let maxAppSize = max(w.bounds.size.width, w.bounds.size.height)
+            let minAppSize = min(w.bounds.size.width, w.bounds.size.height)
+            
+            return maxScreenSize == maxAppSize && minScreenSize == minAppSize
+        }
+        
+        return true
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, UISplitViewControllerDelegate {
     
@@ -33,18 +52,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
     {
 //        print("application:didFinishLaunchingWithOptions")
 
+        guard let svc = window?.rootViewController as? UISplitViewController else {
+            return false
+        }
+        
         globals = Globals()
         
-        globals.splitViewController = window!.rootViewController as! UISplitViewController
+        DispatchQueue.main.async(execute: { () -> Void in
+            globals.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: globals, selector: #selector(Globals.alertViewer), userInfo: nil, repeats: true)
+        })
+        
+        globals.splitViewController = svc
         
         globals.splitViewController.delegate = self
         
+        globals.splitViewController.preferredDisplayMode = .allVisible
+
         let hClass = globals.splitViewController.traitCollection.horizontalSizeClass
         let vClass = globals.splitViewController.traitCollection.verticalSizeClass
         
         if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
             let navigationController = globals.splitViewController.viewControllers[globals.splitViewController.viewControllers.count-1] as! UINavigationController
-            navigationController.topViewController!.navigationItem.leftBarButtonItem = globals.splitViewController.displayModeButtonItem
+            navigationController.topViewController?.navigationItem.leftBarButtonItem = globals.splitViewController.displayModeButtonItem
         }
         
         // Override point for customization after application launch.
@@ -53,12 +82,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         
         startAudio()
         
-        UIApplication.shared.beginReceivingRemoteControlEvents()
-        
         return true
     }
 
-    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.

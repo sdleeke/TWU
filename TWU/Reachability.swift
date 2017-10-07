@@ -183,12 +183,12 @@ public extension Reachability {
             return false
         }
         
-        if isRunningOnDevice {
-            if isOnWWANFlagSet && !reachableOnWWAN {
-                // We don't want to connect when on 3G.
-                return false
-            }
-        }
+//        if isRunningOnDevice {
+//            if isOnWWANFlagSet && !reachableOnWWAN {
+//                // We don't want to connect when on 3G.
+//                return false
+//            }
+//        }
         
         return true
     }

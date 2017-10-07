@@ -146,7 +146,7 @@ extension MediaCollectionViewController : UISearchBarDelegate
 
         globals.updateSearchResults()
         
-        collectionView!.reloadData()
+        collectionView?.reloadData()
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
@@ -171,7 +171,7 @@ extension MediaCollectionViewController : UISearchBarDelegate
         globals.searchText = searchBar.text
         globals.updateSearchResults()
         
-        collectionView!.reloadData()
+        collectionView?.reloadData()
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
@@ -185,7 +185,7 @@ extension MediaCollectionViewController : UISearchBarDelegate
         globals.searchSeries = nil
         globals.searchActive = false
         
-        collectionView!.reloadData()
+        collectionView?.reloadData()
     }
 }
 
@@ -257,17 +257,19 @@ class MediaCollectionViewController: UIViewController
         }
         didSet {
 //            globals.seriesSelected = seriesSelected
-            if (seriesSelected != nil) {
-                let defaults = UserDefaults.standard
-                defaults.set("\(seriesSelected!.id)", forKey: Constants.SETTINGS.SELECTED.SERIES)
-                defaults.synchronize()
-
-                DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-                })
-            } else {
+            
+            guard let seriesSelected = seriesSelected else {
                 print("MediaCollectionViewController:seriesSelected nil")
+                return
             }
+
+            let defaults = UserDefaults.standard
+            defaults.set("\(seriesSelected.id)", forKey: Constants.SETTINGS.SELECTED.SERIES)
+            defaults.synchronize()
+            
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
+            })
         }
     }
 
@@ -298,7 +300,7 @@ class MediaCollectionViewController: UIViewController
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
             if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
                 navigationController.modalPresentationStyle = .popover
                 //            popover?.preferredContentSize = CGSizeMake(300, 500)
@@ -325,7 +327,7 @@ class MediaCollectionViewController: UIViewController
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
             let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .popover
             //            popover?.preferredContentSize = CGSizeMake(300, 500)
@@ -413,8 +415,16 @@ class MediaCollectionViewController: UIViewController
     
     func scrollToSeries(_ series:Series?)
     {
-        if (seriesSelected != nil) && (globals.activeSeries?.index(of: series!) != nil) {
-            let indexPath = IndexPath(item: globals.activeSeries!.index(of: series!)!, section: 0)
+        guard seriesSelected != nil else {
+            return
+        }
+        
+        guard let series = series else {
+            return
+        }
+        
+        if let index = globals.activeSeries?.index(of: series) {
+            let indexPath = IndexPath(item: index, section: 0)
             
             //Without this background/main dispatching there isn't time to scroll after a reload.
             DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
@@ -470,13 +480,15 @@ class MediaCollectionViewController: UIViewController
     
     func jsonToFileSystem()
     {
+        //Get documents directory URL
+        guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES) else {
+            return
+        }
+        
         let fileManager = FileManager.default
         
-        //Get documents directory URL
-        let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES)
-        
         // Check if file exist
-        if (!fileManager.fileExists(atPath: jsonFileSystemURL!.path)){
+        if (!fileManager.fileExists(atPath: jsonFileSystemURL.path)){
 //            downloadJSON()
         }
     }
@@ -684,9 +696,9 @@ class MediaCollectionViewController: UIViewController
     
     func loadSeries(_ completion: (() -> Void)?)
     {
+        globals.isLoading = true
+        
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            globals.isLoading = true
-
             DispatchQueue.main.async(execute: { () -> Void in
                 if !globals.isRefreshing {
                     self.view.bringSubview(toFront: self.activityIndicator)
@@ -860,7 +872,7 @@ class MediaCollectionViewController: UIViewController
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
         
         refreshControl = UIRefreshControl()
-        refreshControl!.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), for: UIControlEvents.valueChanged)
+        refreshControl?.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), for: UIControlEvents.valueChanged)
 
         collectionView.addSubview(refreshControl!)
         
@@ -908,7 +920,7 @@ class MediaCollectionViewController: UIViewController
             playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.gotoNowPlaying))
         }
         
-        playingPausedButton!.title = title
+        playingPausedButton?.title = title
         
         navigationItem.setRightBarButton(playingPausedButton, animated: true)
     }
@@ -934,11 +946,11 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        guard (!splitViewController!.isCollapsed) else {
-            // iPhone
-            setPlayingPausedButton()
-            return
-        }
+//        guard (!splitViewController!.isCollapsed) else {
+//            // iPhone
+//            setPlayingPausedButton()
+//            return
+//        }
         
         guard (seriesSelected == globals.mediaPlayer.playing?.series) else {
             // iPhone
@@ -980,7 +992,7 @@ class MediaCollectionViewController: UIViewController
     
     func didBecomeActive()
     {
-        guard globals.series == nil else {
+        guard !globals.isLoading, globals.series == nil else {
             return
         }
         

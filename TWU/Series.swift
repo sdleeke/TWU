@@ -119,8 +119,8 @@ class Series : Equatable, CustomStringConvertible {
                 } else {
                     if (dict![Constants.FIELDS.BOOK] == nil) {
                         for bookTitle in Constants.TESTAMENT.OLD {
-                            if (scripture!.endIndex >= bookTitle.endIndex) &&
-                                (scripture!.substring(to: bookTitle.endIndex) == bookTitle) {
+                            if (scripture?.endIndex >= bookTitle.endIndex) &&
+                                (scripture?.substring(to: bookTitle.endIndex) == bookTitle) {
                                     dict![Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
@@ -128,8 +128,8 @@ class Series : Equatable, CustomStringConvertible {
                     }
                     if (dict![Constants.FIELDS.BOOK] == nil) {
                         for bookTitle in Constants.TESTAMENT.NEW {
-                            if (scripture!.endIndex >= bookTitle.endIndex) &&
-                                (scripture!.substring(to: bookTitle.endIndex) == bookTitle) {
+                            if (scripture?.endIndex >= bookTitle.endIndex) &&
+                                (scripture?.substring(to: bookTitle.endIndex) == bookTitle) {
                                     dict![Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
@@ -240,7 +240,9 @@ class Series : Equatable, CustomStringConvertible {
         subscript(key:String) -> String? {
             get {
                 var value:String?
-                value = globals.seriesSettings?[self.series!.seriesID!]?[key]
+                if let seriesID = self.series?.seriesID {
+                    value = globals.seriesSettings?[seriesID]?[key]
+                }
                 return value
             }
             set {
@@ -254,7 +256,7 @@ class Series : Equatable, CustomStringConvertible {
                     return
                 }
                 
-                guard (series!.seriesID != nil) else {
+                guard let seriesID = series?.seriesID else {
                     print("series!.seriesID == nil in Settings!")
                     return
                 }
@@ -263,11 +265,11 @@ class Series : Equatable, CustomStringConvertible {
                     globals.seriesSettings = [String:[String:String]]()
                 }
                 
-                if (globals.seriesSettings?[self.series!.seriesID!] == nil) {
-                    globals.seriesSettings?[self.series!.seriesID!] = [String:String]()
+                if (globals.seriesSettings?[seriesID] == nil) {
+                    globals.seriesSettings?[seriesID] = [String:String]()
                 }
                 
-                globals.seriesSettings?[self.series!.seriesID!]?[key] = newValue
+                globals.seriesSettings?[seriesID]?[key] = newValue
                 
                 // For a high volume of activity this can be very expensive.
                 globals.saveSettingsBackground()
@@ -285,19 +287,27 @@ class Series : Equatable, CustomStringConvertible {
 //                print(sermonID)
 //                print(sermonID.substring(from: sermonID.range(of: ":")!.upperBound))
 //                print(Int(sermonID.substring(from: sermonID.range(of: ":")!.upperBound))! - startingIndex)
-                return sermons?[Int(sermonID.substring(from: sermonID.range(of: Constants.COLON)!.upperBound))! - startingIndex]
-            } else {
-                return nil
+                
+                if let range = sermonID.range(of: Constants.COLON), let num = Int(sermonID.substring(from: range.upperBound)) {
+                    return sermons?[num - startingIndex]
+                }
             }
+
+            return nil
         }
         
         set {
-            if (newValue != nil) {
-//                print(newValue!.sermonID!)
-                settings?[Constants.SETTINGS.SELECTED.SERMON] = newValue!.sermonID!
-            } else {
+            guard let newValue = newValue else {
                 print("newValue == nil")
+                return
             }
+            
+            guard let sermonID = newValue.sermonID else {
+                print("sermonID == nil")
+                return
+            }
+            
+            settings?[Constants.SETTINGS.SELECTED.SERMON] = sermonID
         }
     }
     

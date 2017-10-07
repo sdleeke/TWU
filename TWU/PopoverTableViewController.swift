@@ -180,26 +180,33 @@ class PopoverTableViewController: UITableViewController {
     
     func setupIndex()
     {
-        if (showIndex) {
-            let a = "A"
+        guard showIndex else {
+            return
+        }
+        
+        guard let strings = strings else {
+            return
+        }
+
+        let a = "A"
             
-            section.titles = Array(Set(strings!.map({ (string:String) -> String in
-                return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
-                
+        section.titles = Array(Set(strings.map({ (string:String) -> String in
+            return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
+            
 //                if indexByLastName {
 //                    return lastNameFromName(string)!.substring(to: a.endIndex)
 //                } else {
 //                    return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
 //                }
-            }))).sorted() { $0 < $1 }
+        }))).sorted() { $0 < $1 }
+        
+        var indexes = [Int]()
+        var counts = [Int]()
+        
+        for sectionTitle in section.titles! {
+            var counter = 0
             
-            var indexes = [Int]()
-            var counts = [Int]()
-            
-            for sectionTitle in section.titles! {
-                var counter = 0
-                
-                for index in 0..<strings!.count {
+            for index in 0..<strings.count {
 //                    var string:String?
 //
 //                    if indexByLastName {
@@ -208,22 +215,21 @@ class PopoverTableViewController: UITableViewController {
 //                        string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
 //                    }
 
-                    let string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
-                    
-                    if (sectionTitle == string) {
-                        if (counter == 0) {
-                            indexes.append(index)
-                        }
-                        counter += 1
-                    }
-                }
+                let string = stringWithoutPrefixes(strings[index])?.substring(to: a.endIndex)
                 
-                counts.append(counter)
+                if (sectionTitle == string) {
+                    if (counter == 0) {
+                        indexes.append(index)
+                    }
+                    counter += 1
+                }
             }
             
-            section.indexes = indexes.count > 0 ? indexes : nil
-            section.counts = counts.count > 0 ? counts : nil
+            counts.append(counter)
         }
+        
+        section.indexes = indexes.count > 0 ? indexes : nil
+        section.counts = counts.count > 0 ? counts : nil
     }
     
     func willResignActive()

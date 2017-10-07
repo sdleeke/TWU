@@ -41,8 +41,8 @@ class MediaTableViewCell: UITableViewCell
 //        selected = (globals.seriesPlaying == sermon!.series) && ((globals.seriesPlaying!.startingIndex + globals.player.playingIndex) == sermon!.id)
 //        print("\(selected)")
      
-        if (sermon?.series?.numberOfSermons == 1) {
-            title!.text = "\(sermon!.series!.title!)"
+        if sermon?.series?.numberOfSermons == 1, let title = sermon?.series?.title {
+            self.title?.text = title
         }
         
         if (sermon?.series?.numberOfSermons > 1) {
@@ -55,29 +55,34 @@ class MediaTableViewCell: UITableViewCell
             }
         }
         
-        switch sermon!.audioDownload.state {
-        case .none:
-            downloadLabel.text = Constants.Download
-            downloadProgressBar.progress = 0
-            break
-            
-        case .downloaded:
-            downloadLabel.text = Constants.Downloaded
-            downloadProgressBar.progress = 1
-            break
-            
-        case .downloading:
-            downloadLabel.text = Constants.Downloading
-            if (sermon!.audioDownload.totalBytesExpectedToWrite > 0) {
-                downloadProgressBar.progress = Float(sermon!.audioDownload.totalBytesWritten) / Float(sermon!.audioDownload.totalBytesExpectedToWrite)
-            } else {
+        if let state = sermon?.audioDownload.state {
+            switch state {
+            case .none:
+                downloadLabel.text = Constants.Download
                 downloadProgressBar.progress = 0
+                break
+                
+            case .downloaded:
+                downloadLabel.text = Constants.Downloaded
+                downloadProgressBar.progress = 1
+                break
+                
+            case .downloading:
+                downloadLabel.text = Constants.Downloading
+                if (sermon!.audioDownload.totalBytesExpectedToWrite > 0) {
+                    downloadProgressBar.progress = Float(sermon!.audioDownload.totalBytesWritten) / Float(sermon!.audioDownload.totalBytesExpectedToWrite)
+                } else {
+                    downloadProgressBar.progress = 0
+                }
+                break
             }
-            break
-        }
-        downloadLabel.sizeToFit()
+            
+            downloadLabel.sizeToFit()
 
-        downloadSwitch.isOn = sermon!.audioDownload.state != .none
+            downloadSwitch.isOn = state != .none
+        } else {
+            downloadSwitch.isOn = false
+        }
 
 //        if (sermon!.audioDownload.active) && (downloadObserver == nil) {
 //            downloadObserver = Timer.scheduledTimer(timeInterval: Constants.INTERVAL.DOWNLOAD_TIMER, target: self, selector: #selector(MediaTableViewCell.updateUI), userInfo: nil, repeats: true)

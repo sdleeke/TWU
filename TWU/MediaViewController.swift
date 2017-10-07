@@ -71,31 +71,33 @@ extension MediaViewController : PopoverTableViewControllerDelegate
                 break
                 
             case Constants.Download_All:
-                if (seriesSelected?.sermons != nil) {
-                    for sermon in seriesSelected!.sermons! {
+                if let sermons = seriesSelected?.sermons {
+                    for sermon in sermons {
                         sermon.audioDownload?.download()
                     }
                 }
                 break
                 
             case Constants.Cancel_All_Downloads:
-                if (seriesSelected?.sermons != nil) {
-                    for sermon in seriesSelected!.sermons! {
+                if let sermons = seriesSelected?.sermons {
+                    for sermon in sermons {
                         sermon.audioDownload?.cancel()
                     }
                 }
                 break
                 
             case Constants.Delete_All_Downloads:
-                if (seriesSelected?.sermons != nil) {
-                    for sermon in seriesSelected!.sermons! {
+                if let sermons = seriesSelected?.sermons {
+                    for sermon in sermons {
                         sermon.audioDownload?.delete()
                     }
                 }
                 break
                 
             case Constants.Share:
-                shareHTML(viewController: self, htmlString: "\(seriesSelected!.title!) by Tom Pennington from The Word Unleashed\n\n\(seriesSelected!.url!.absoluteString)")
+                if let title = seriesSelected?.title, let url = seriesSelected?.url {
+                    shareHTML(viewController: self, htmlString: "\(title) by Tom Pennington from The Word Unleashed\n\n\(url.absoluteString)")
+                }
                 break
                 
             default:
@@ -316,12 +318,14 @@ class MediaViewController : UIViewController
 //            print(sermonSelected)
             seriesSelected?.sermonSelected = sermonSelected
 
-            if (sermonSelected != nil) && (sermonSelected != oldValue) {
+            if let sermonSelected = sermonSelected, sermonSelected != oldValue {
 //                print("\(sermonSelected)")
                 
                 if (sermonSelected != globals.mediaPlayer.playing) {
                     removeSliderObserver()
-                    playerURL(url: sermonSelected!.playingURL!)
+                    if let playingURL = sermonSelected.playingURL {
+                        playerURL(url: playingURL)
+                    }
                 } else {
                     removePlayerObserver()
 //                    addSliderObserver() // Crashes because it uses UI and this is done before viewWillAppear when the sermonSelected is set in prepareForSegue, but it only happens on an iPhone because the MVC isn't setup already.
@@ -583,34 +587,50 @@ class MediaViewController : UIViewController
         }
     }
     
-    fileprivate func showSendMailErrorAlert() {
+    fileprivate func showSendMailErrorAlert()
+    {
         let sendMailErrorAlert = UIAlertView(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.", delegate: self, cancelButtonTitle: "OK")
         sendMailErrorAlert.show()
     }
     
-    fileprivate func setupBody() -> String {
-        var bodyString = String()
+    fileprivate func setupBody() -> String
+    {
+        guard let title = seriesSelected?.title else {
+            return "ERROR"
+        }
         
-        bodyString = "I've enjoyed the sermon series \""
-        bodyString = bodyString + seriesSelected!.title!
+        var bodyString = "I've enjoyed the sermon series \""
+        
+        bodyString = bodyString + title
+
         bodyString = bodyString + "\" by Tom Pennington and thought you would enjoy it as well."
-        bodyString = bodyString + "\n\nThis series of sermons is available at "
-        bodyString = bodyString + seriesSelected!.url!.absoluteString
+        
+        if let url = seriesSelected?.url {
+            bodyString = bodyString + "\n\nThis series of sermons is available at "
+            bodyString = bodyString + url.absoluteString
+        }
         
         return bodyString
     }
     
-    fileprivate func setupBodyHTML(_ series:Series?) -> String? {
-        var bodyString:String!
-        
-        if (series?.url != nil) && (series?.title != nil) {
-            bodyString = "I've enjoyed the sermon series "
-            bodyString = bodyString + "<a href=\"" + series!.url!.absoluteString + "\">" + series!.title! + "</a>"
-            bodyString = bodyString + " by " + "Tom Pennington"
-            bodyString = bodyString + " from <a href=\"http://www.thewordunleashed.org\">" + "The Word Unleashed" + "</a>"
-            bodyString = bodyString + " and thought you would enjoy it as well."
-            bodyString = bodyString + "</br>"
+    fileprivate func setupBodyHTML(_ series:Series?) -> String?
+    {
+        guard let title = series?.title else {
+            return nil
         }
+        
+        var bodyString = "I've enjoyed the sermon series "
+    
+        if let url = series?.url {
+            bodyString = bodyString + "<a href=\"" + url.absoluteString + "\">" + title + "</a>"
+        } else {
+            bodyString = bodyString + title
+        }
+
+        bodyString = bodyString + " by " + "Tom Pennington"
+        bodyString = bodyString + " from <a href=\"http://www.thewordunleashed.org\">" + "The Word Unleashed" + "</a>"
+        bodyString = bodyString + " and thought you would enjoy it as well."
+        bodyString = bodyString + "</br>"
         
         return bodyString
     }
@@ -663,11 +683,11 @@ class MediaViewController : UIViewController
     
     fileprivate func openScripture(_ series:Series?)
     {
-        guard (series?.scripture != nil) else {
+        guard let scripture = series?.scripture else {
             return
         }
         
-        var urlString = Constants.SCRIPTURE_URL.PREFIX + series!.scripture! + Constants.SCRIPTURE_URL.POSTFIX
+        var urlString = Constants.SCRIPTURE_URL.PREFIX + scripture + Constants.SCRIPTURE_URL.POSTFIX
         
         urlString = urlString.replacingOccurrences(of: " ", with: "+", options: NSString.CompareOptions.literal, range: nil)
         //        println("\(urlString)")
@@ -695,7 +715,11 @@ class MediaViewController : UIViewController
         if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeTwitter){
             var bodyString = String()
             
-            bodyString = "Great sermon series: \"\(seriesSelected!.title ?? "TITLE")\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
+            bodyString = "Great sermon series: \"\(seriesSelected?.title ?? "TITLE")\" by \(Constants.Tom_Pennington).  "
+                
+            if let url = seriesSelected?.url {
+                bodyString = bodyString + url.absoluteString
+            }
             
             let twitterSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
             twitterSheet.setInitialText(bodyString)
@@ -729,7 +753,9 @@ class MediaViewController : UIViewController
         if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeFacebook){
             var bodyString = String()
             
-            bodyString = "Great sermon series: \"\(seriesSelected!.title ?? "TITLE")\" by \(Constants.Tom_Pennington).  " + seriesSelected!.url!.absoluteString
+            if let title = seriesSelected?.title, let url = seriesSelected?.url {
+                bodyString = "Great sermon series: \"\(title)\" by \(Constants.Tom_Pennington).  " + url.absoluteString
+            }
             
             //So the user can paste the initialText into the post dialog/view
             //This is because of the known bug that when the latest FB app is installed it prevents prefilling the post.
@@ -772,7 +798,7 @@ class MediaViewController : UIViewController
         
         // Put up an action sheet
         
-    if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
+    if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
         let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .popover
             //            popover?.preferredContentSize = CGSizeMake(300, 500)
@@ -797,22 +823,24 @@ class MediaViewController : UIViewController
 
             actionMenu.append(Constants.Open_Series)
             
-            if (seriesSelected?.sermons != nil) {
+            if let sermons = seriesSelected?.sermons {
                 var sermonsToDownload = 0
                 var sermonsDownloading = 0
                 var sermonsDownloaded = 0
                 
-                for sermon in seriesSelected!.sermons! {
-                    switch sermon.audioDownload!.state {
-                    case .none:
-                        sermonsToDownload += 1
-                        break
-                    case .downloading:
-                        sermonsDownloading += 1
-                        break
-                    case .downloaded:
-                        sermonsDownloaded += 1
-                        break
+                for sermon in sermons {
+                    if let state = sermon.audioDownload?.state {
+                        switch state {
+                        case .none:
+                            sermonsToDownload += 1
+                            break
+                        case .downloading:
+                            sermonsDownloading += 1
+                            break
+                        case .downloaded:
+                            sermonsDownloaded += 1
+                            break
+                        }
                     }
                 }
                 
@@ -1039,7 +1067,10 @@ class MediaViewController : UIViewController
             }
         } else {
             if globals.mediaPlayer.isPlaying {
-                if !controlView.sliding && (globals.mediaPlayer.currentTime!.seconds > Double(globals.mediaPlayer.playing!.currentTime!)!) {
+                if  !controlView.sliding,
+                    let currentTime = globals.mediaPlayer.currentTime?.seconds,
+                    let playingCurrentTime = globals.mediaPlayer.playing?.currentTime, let playing = Double(playingCurrentTime),
+                    currentTime > playing {
                     spinner.isHidden = true
                     spinner.stopAnimating()
                 } else {
@@ -1135,7 +1166,11 @@ class MediaViewController : UIViewController
         
         guard (globals.mediaPlayer.playing != nil) else {
             removeSliderObserver()
-            playerURL(url: sermonSelected!.playingURL!)
+            
+            if let url = sermonSelected?.playingURL {
+                playerURL(url: url)
+            }
+
             updateUI()
             return
         }
@@ -1178,7 +1213,7 @@ class MediaViewController : UIViewController
         }
         
         if globals.mediaPlayer.playOnLoad {
-            if globals.mediaPlayer.playing!.atEnd {
+            if let atEnd = globals.mediaPlayer.playing?.atEnd, atEnd {
                 globals.mediaPlayer.seek(to: 0)
                 globals.mediaPlayer.playing?.atEnd = false
             }
@@ -1517,8 +1552,8 @@ class MediaViewController : UIViewController
     {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
-        if (seriesSelected != nil) {
-            return seriesSelected!.show
+        if let seriesSelected = seriesSelected {
+            return seriesSelected.show
         } else {
             return 0
         }
@@ -1785,8 +1820,9 @@ class MediaViewController : UIViewController
         } else {
             //            print(player?.currentItem?.status.rawValue)
             if (player?.currentItem?.status == .readyToPlay) {
-                if let length = player?.currentItem?.duration.seconds {
-                    let timeNow = Double(sermonSelected!.currentTime!)!
+                if  let length = player?.currentItem?.duration.seconds,
+                    let currentTime = sermonSelected?.currentTime,
+                    let timeNow = Double(currentTime) {
                     let progress = timeNow / length
                     
                     //                        print("timeNow",timeNow)
@@ -1980,20 +2016,26 @@ class MediaViewController : UIViewController
     
     func playCurrentSermon(_ sermon:Sermon?)
     {
+        guard let sermon = sermon else {
+            return
+        }
+        
         var seekToTime:CMTime?
         
-        if sermonSelected!.hasCurrentTime() {
-            if sermon!.atEnd {
+        if let hasCurrentTime = sermonSelected?.hasCurrentTime, hasCurrentTime {
+            if sermon.atEnd {
                 NSLog("playPause globals.mediaPlayer.currentTime and globals.player.playing!.currentTime reset to 0!")
-                globals.mediaPlayer.playing!.currentTime = Constants.ZERO
+                globals.mediaPlayer.playing?.currentTime = Constants.ZERO
                 seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
-                sermon?.atEnd = false
+                sermon.atEnd = false
             } else {
-                seekToTime = CMTimeMakeWithSeconds(Double(sermon!.currentTime!)!,Constants.CMTime_Resolution)
+                if let currentTime = sermon.currentTime, let seconds = Double(currentTime) {
+                    seekToTime = CMTimeMakeWithSeconds(seconds,Constants.CMTime_Resolution)
+                }
             }
         } else {
             NSLog("playPause selectedMediaItem has NO currentTime!")
-            sermon?.currentTime = Constants.ZERO
+            sermon.currentTime = Constants.ZERO
             seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
         }
         
