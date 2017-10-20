@@ -58,13 +58,6 @@ func startAudio()
         NSLog(error.localizedDescription)
     }
     
-//    do {
-//        //        audioSession.setCategory(AVAudioSessionCategoryPlayback, withOptions: AVAudioSessionCategoryOptions.MixWithOthers, error:nil)
-//        try audioSession.setActive(true)
-//    } catch let error as NSError {
-//        NSLog(error.localizedDescription)
-//    }
-    
     UIApplication.shared.beginReceivingRemoteControlEvents()
 }
 
@@ -85,9 +78,6 @@ func shareHTML(viewController:UIViewController,htmlString:String?)
         return
     }
     
-    //    let formatter = UIMarkupTextPrintFormatter(markupText: htmlString!)
-    //    formatter.perPageContentInsets = UIEdgeInsets(top: 54, left: 54, bottom: 54, right: 54) // 72=1" margins
-    
     let activityItems = [htmlString as Any]
     
     let activityViewController = UIActivityViewController(activityItems:activityItems, applicationActivities: nil)
@@ -106,13 +96,15 @@ func shareHTML(viewController:UIViewController,htmlString:String?)
 
 extension Date
 {
-    
-    init(dateString:String) {
+    init?(dateString:String) {
         let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "MM/dd/yyyy"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
-        let d = dateStringFormatter.date(from: dateString)!
-        self = Date(timeInterval:0, since:d)
+        if let d = dateStringFormatter.date(from: dateString) {
+            self = Date(timeInterval:0, since:d)
+        } else {
+            self = Date()
+        }
     }
     
     func isNewerThanDate(_ dateToCompare : Date) -> Bool
@@ -199,20 +191,28 @@ func cachesURL() -> URL?
 
 func sortSeries(_ series:[Series]?,sorting:String?) -> [Series]?
 {
+    guard let series = series else {
+        return nil
+    }
+    
+    guard let sorting = sorting else {
+        return nil
+    }
+    
     var results:[Series]?
     
-    switch sorting! {
+    switch sorting {
     case Constants.Sorting.Title_AZ:
-        results = series?.sorted() { $0.titleSort < $1.titleSort }
+        results = series.sorted() { $0.titleSort < $1.titleSort }
         break
     case Constants.Sorting.Title_ZA:
-        results = series?.sorted() { $0.titleSort > $1.titleSort }
+        results = series.sorted() { $0.titleSort > $1.titleSort }
         break
     case Constants.Sorting.Newest_to_Oldest:
-        results = series?.sorted() { $0.id > $1.id }
+        results = series.sorted() { $0.id > $1.id }
         break
     case Constants.Sorting.Oldest_to_Newest:
-        results = series?.sorted() { $0.id < $1.id }
+        results = series.sorted() { $0.id < $1.id }
         break
     default:
         break
@@ -223,25 +223,23 @@ func sortSeries(_ series:[Series]?,sorting:String?) -> [Series]?
 
 func bookNumberInBible(_ book:String?) -> Int?
 {
-    if (book != nil) {
-        if let index = Constants.TESTAMENT.OLD.index(of: book!) {
-            return index
-        }
-        
-        if let index = Constants.TESTAMENT.NEW.index(of: book!) {
-            return Constants.TESTAMENT.OLD.count + index
-        }
-        
-        return Constants.TESTAMENT.OLD.count + Constants.TESTAMENT.NEW.count+1 // Not in the Bible.  E.g. Selected Scriptures
-    } else {
+    guard let book = book else {
         return nil
     }
+    
+    if let index = Constants.TESTAMENT.OLD.index(of: book) {
+        return index
+    }
+    
+    if let index = Constants.TESTAMENT.NEW.index(of: book) {
+        return Constants.TESTAMENT.OLD.count + index
+    }
+    
+    return Constants.TESTAMENT.OLD.count + Constants.TESTAMENT.NEW.count+1 // Not in the Bible.  E.g. Selected Scriptures
 }
 
 func booksFromSeries(_ series:[Series]?) -> [String]?
 {
-//    var bookSet = Set<String>()
-//    var bookArray = [String]()
     guard let series = series else {
         return nil
     }
@@ -266,37 +264,33 @@ func lastNameFromName(_ name:String?) -> String?
     return nil
 }
 
-//var alert:UIAlertController!
-
 func networkUnavailable(viewController:UIViewController,message:String?)
 {
-//    if (alert == nil) { // && (UIApplication.shared.applicationState == UIApplicationState.active)
-//        UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
-        
-        let alert = UIAlertController(title:Constants.Network_Error,
-            message: message,
-            preferredStyle: UIAlertControllerStyle.alert)
-        
-        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-        })
-        alert.addAction(action)
-        
-//        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        
-        DispatchQueue.main.async(execute: { () -> Void in
-            viewController.present(alert, animated: true, completion: nil)
-        })
-//    }
+    let alert = UIAlertController(title:Constants.Network_Error,
+        message: message,
+        preferredStyle: UIAlertControllerStyle.alert)
+    
+    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+    })
+    alert.addAction(action)
+
+    DispatchQueue.main.async(execute: { () -> Void in
+        viewController.present(alert, animated: true, completion: nil)
+    })
 }
 
 func filesOfTypeInCache(_ fileType:String) -> [String]?
 {
+    guard let path = cachesURL()?.path else {
+        return nil
+    }
+    
     var files = [String]()
     
     let fileManager = FileManager.default
-    let path = cachesURL()?.path
+    
     do {
-        let array = try fileManager.contentsOfDirectory(atPath: path!)
+        let array = try fileManager.contentsOfDirectory(atPath: path)
         
         for string in array {
             if let range = string.range(of: fileType) {

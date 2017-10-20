@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TWU/MediaCollectionViewController.swift"
-            timestampString = "527916315.621451"
+            timestampString = "530187531.702957"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1019"
-            endingLineNumber = "1019"
-            landmarkName = "viewWillAppear(_:)"
+            startingLineNumber = "806"
+            endingLineNumber = "806"
+            landmarkName = "didBecomeActive()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TWU/PopoverTableViewController.swift"
-            timestampString = "527992949.695891"
+            timestampString = "530187531.703033"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "58"
-            endingLineNumber = "58"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
             landmarkName = "setPreferredContentSize()"
             landmarkType = "7">
          </BreakpointContent>

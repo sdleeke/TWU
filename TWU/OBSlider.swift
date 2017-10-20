@@ -14,23 +14,29 @@ class OBSlider: UISlider
 	
     var scrubbingSpeeds: NSArray = [1.0, 0.5, 0.25, 0.125, 0.00625, 0.0]
 	
-	required init?(coder: NSCoder) {
+	required init?(coder: NSCoder)
+    {
 		super.init(coder: coder)
-		self.scrubbingSpeed = Float(self.scrubbingSpeeds[0] as! NSNumber)
+        
+        if let num = self.scrubbingSpeeds[0] as? NSNumber {
+            self.scrubbingSpeed = Float(num)
+        }
 	}
 	
-	override init(frame: CGRect) {
+	override init(frame: CGRect)
+    {
 		super.init(frame: frame)
-		self.scrubbingSpeed = Float(self.scrubbingSpeeds[0] as! NSNumber)
+        
+        if let num = self.scrubbingSpeeds[0] as? NSNumber {
+            self.scrubbingSpeed = Float(num)
+        }
 	}
     
 	override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool
     {
-        guard superview != nil else {
+        guard let view = superview?.superview else {
             return false
         }
-        
-        let view = superview!.superview
         
 		let beginTracking = super.beginTracking(touch, with: event)
 		
@@ -71,26 +77,13 @@ class OBSlider: UISlider
             self.scrubbingSpeed = Float(num)
         }
         
-//        print("scrubbingSpeed: \(self.scrubbingSpeed)")
-		
 		let trackRect: CGRect = self.trackRect(forBounds: self.bounds)
 		
 		self.realPositionValue = self.realPositionValue + (self.maximumValue - self.minimumValue) * Float(trackingOffset / trackRect.size.width)
 		
 		let valueAdjustment: Float = self.scrubbingSpeed * (self.maximumValue - self.minimumValue) * Float(trackingOffset / trackRect.size.width)
 		
-//        print("valueAdjustment: \(valueAdjustment)")
-		
-//		var thumbAdjustment: Float = 0.0
-//		
-//		if (((self.beganTrackingLocation!.y < currentLocation.y) && (currentLocation.y < previousLocation.y)) || ((self.beganTrackingLocation!.y > currentLocation.y) && (currentLocation.y > previousLocation.y))) {
-//			
-//			thumbAdjustment = (self.realPositionValue - self.value) / Float(1 + fabs(currentLocation.y - self.beganTrackingLocation!.y))
-//		}
-		
         let thumbAdjustment: Float = (self.realPositionValue - self.value) / Float(1 + fabs(currentLocation.y - beganTrackingLocation.y))
-        
-//        print("thumbAdjustment: \(thumbAdjustment)")
 
         self.value += valueAdjustment + thumbAdjustment
 		
@@ -110,11 +103,11 @@ class OBSlider: UISlider
 	
 	func indexOfLowerScrubbingSpeed(_ scrubbingSpeedPositions: NSArray, forOffset verticalOffset: CGFloat) -> NSInteger {
 		for i in 0..<scrubbingSpeedPositions.count {
-			let scrubbingSpeedOffset: NSNumber = scrubbingSpeedPositions[i] as! NSNumber
-//            print("indexOfLowerScrubbingSpeed: \(CGFloat(scrubbingSpeedOffset))")
-			if (verticalOffset < CGFloat(scrubbingSpeedOffset)) {
-				return i
-			}
+            if let scrubbingSpeedOffset = scrubbingSpeedPositions[i] as? NSNumber {
+                if (verticalOffset < CGFloat(scrubbingSpeedOffset)) {
+                    return i
+                }
+            }
 		}
 	
 		return NSNotFound

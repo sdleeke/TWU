@@ -38,13 +38,22 @@ class Series : Equatable, CustomStringConvertible {
     
     var id:Int {
         get {
-            return Int(seriesID!)!
+            guard let seriesID = seriesID else {
+                return -1
+            }
+            
+            if let num = Int(seriesID) {
+                return num
+            } else {
+                return -1
+            }
         }
     }
     
     var seriesID:String? {
         get {
-            return dict![Constants.FIELDS.ID]        }
+            return dict?[Constants.FIELDS.ID]
+        }
     }
     
     var url:URL? {
@@ -55,38 +64,46 @@ class Series : Equatable, CustomStringConvertible {
     
     var name:String? {
         get {
-            return dict![Constants.FIELDS.NAME]
+            return dict?[Constants.FIELDS.NAME]
         }
     }
     
     var title:String? {
         get {
-            return dict![Constants.FIELDS.TITLE]
+            return dict?[Constants.FIELDS.TITLE]
         }
     }
     
     var scripture:String? {
         get {
-            return dict![Constants.FIELDS.SCRIPTURE]
+            return dict?[Constants.FIELDS.SCRIPTURE]
         }
     }
     
     var text:String? {
         get {
-            return dict![Constants.FIELDS.TEXT]
+            return dict?[Constants.FIELDS.TEXT]
         }
     }
     
     var startingIndex:Int {
         get {
-            return Int(dict![Constants.FIELDS.STARTING_INDEX]!)!
+            guard let startingIndex = dict?[Constants.FIELDS.STARTING_INDEX] else {
+                return -1
+            }
+            
+            if let num = Int(startingIndex) {
+                return num
+            } else {
+                return -1
+            }
         }
     }
     
     var show:Int {
         get {
-            if (dict![Constants.FIELDS.SHOW] != nil) {
-                return Int(dict![Constants.FIELDS.SHOW]!)!
+            if let show = dict?[Constants.FIELDS.SHOW], let num = Int(show) {
+                return num
             } else {
                 return numberOfSermons
             }
@@ -95,17 +112,24 @@ class Series : Equatable, CustomStringConvertible {
     
     var numberOfSermons:Int {
         get {
-            return Int(dict![Constants.FIELDS.NUMBER_OF_SERMONS]!)!
+            if let numberOfSermons = dict?[Constants.FIELDS.NUMBER_OF_SERMONS], let num = Int(numberOfSermons) {
+                return num
+            } else {
+                return -1
+            }
         }
     }
     
     var titleSort:String? {
         get {
-            if (dict![Constants.FIELDS.TITLE+Constants.SORTING] == nil) {
-                dict![Constants.FIELDS.TITLE+Constants.SORTING] = stringWithoutPrefixes(title)?.lowercased()
-            }
+//            if (dict?[Constants.FIELDS.TITLE+Constants.SORTING] == nil) {
+//                // Provokes simultaneous access error because title is also in dict
+//                dict?[Constants.FIELDS.TITLE+Constants.SORTING] = stringWithoutPrefixes(title)?.lowercased()
+//            }
+//
+//            return dict?[Constants.FIELDS.TITLE+Constants.SORTING]
             
-            return dict![Constants.FIELDS.TITLE+Constants.SORTING]
+            return stringWithoutPrefixes(title)?.lowercased()
         }
     }
 
@@ -113,24 +137,24 @@ class Series : Equatable, CustomStringConvertible {
     
     var book:String? {
         get {
-            if (dict![Constants.FIELDS.BOOK] == nil) {
+            if (dict?[Constants.FIELDS.BOOK] == nil) {
                 if (scripture == Constants.Selected_Scriptures) {
-                    dict![Constants.FIELDS.BOOK] = Constants.Selected_Scriptures
+                    dict?[Constants.FIELDS.BOOK] = Constants.Selected_Scriptures
                 } else {
-                    if (dict![Constants.FIELDS.BOOK] == nil) {
+                    if (dict?[Constants.FIELDS.BOOK] == nil) {
                         for bookTitle in Constants.TESTAMENT.OLD {
                             if (scripture?.endIndex >= bookTitle.endIndex) &&
                                 (scripture?.substring(to: bookTitle.endIndex) == bookTitle) {
-                                    dict![Constants.FIELDS.BOOK] = bookTitle
+                                    dict?[Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
                         }
                     }
-                    if (dict![Constants.FIELDS.BOOK] == nil) {
+                    if (dict?[Constants.FIELDS.BOOK] == nil) {
                         for bookTitle in Constants.TESTAMENT.NEW {
                             if (scripture?.endIndex >= bookTitle.endIndex) &&
                                 (scripture?.substring(to: bookTitle.endIndex) == bookTitle) {
-                                    dict![Constants.FIELDS.BOOK] = bookTitle
+                                    dict?[Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
                         }
@@ -138,21 +162,30 @@ class Series : Equatable, CustomStringConvertible {
                 }
             }
             
-            return dict![Constants.FIELDS.BOOK]
+            return dict?[Constants.FIELDS.BOOK]
         }
     }
 
     func fetchArt() -> UIImage?
     {
-        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name!)\(Constants.COVER_ART_POSTAMBLE)"
+        guard let name = name else {
+            return nil
+        }
+        
+        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"
         
         // See if it is in the cloud, download it and store it in the file system.
         
         // Try to get it from the cloud
         let imageCloudURL = Constants.URL.BASE.IMAGE + imageName + Constants.FILE_EXTENSION.JPEG
         //                print("\(imageCloudURL)")
+
+        guard let url = URL(string: imageCloudURL) else {
+            return nil
+        }
+        
         do {
-            let imageData = try Data(contentsOf: URL(string: imageCloudURL)!)
+            let imageData = try Data(contentsOf: url)
             print("Image \(imageName) read from cloud")
             
             if let image = UIImage(data: imageData) {
@@ -186,7 +219,11 @@ class Series : Equatable, CustomStringConvertible {
     
     func loadArt() -> UIImage?
     {
-        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name!)\(Constants.COVER_ART_POSTAMBLE)"
+        guard let name = name else {
+            return nil
+        }
+        
+        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"
         
         // If it isn't in the bundle, see if it is in the file system.
         
@@ -215,13 +252,15 @@ class Series : Equatable, CustomStringConvertible {
     var sermons:[Sermon]?
     {
         didSet {
-            if sermons != nil {
-                for sermon in sermons! {
-                    if index == nil {
-                        index = [Int:Sermon]()
-                    }
-                    index?[sermon.id] = sermon
+            guard let sermons = sermons else {
+                return
+            }
+            
+            for sermon in sermons {
+                if index == nil {
+                    index = [Int:Sermon]()
                 }
+                index?[sermon.id] = sermon
             }
         }
     }
@@ -284,10 +323,6 @@ class Series : Equatable, CustomStringConvertible {
     var sermonSelected:Sermon? {
         get {
             if let sermonID = settings?[Constants.SETTINGS.SELECTED.SERMON] {
-//                print(sermonID)
-//                print(sermonID.substring(from: sermonID.range(of: ":")!.upperBound))
-//                print(Int(sermonID.substring(from: sermonID.range(of: ":")!.upperBound))! - startingIndex)
-                
                 if let range = sermonID.range(of: Constants.COLON), let num = Int(sermonID.substring(from: range.upperBound)) {
                     return sermons?[num - startingIndex]
                 }
@@ -314,51 +349,21 @@ class Series : Equatable, CustomStringConvertible {
     init() {
     }
     
-//    func bookFromScripture()
-//    {
-//        let selectedScriptures:String = Constants.Selected_Scriptures
-//        
-//        if (scripture == selectedScriptures) {
-//            book = selectedScriptures
-//        } else {
-//            for bookTitle in Constants.OLD_TESTAMENT {
-//                if (scripture.endIndex >= bookTitle.endIndex) &&
-//                    (scripture.substringToIndex(bookTitle.endIndex) == bookTitle) {
-//                        book = bookTitle
-//                }
-//            }
-//            for bookTitle in Constants.NEW_TESTAMENT {
-//                if (scripture.endIndex >= bookTitle.endIndex) &&
-//                    (scripture.substringToIndex(bookTitle.endIndex) == bookTitle) {
-//                        book = bookTitle
-//                }
-//            }
-//        }
-//        
-//        //        println("\(book)")
-//        
-//        if (scripture != selectedScriptures) && (book == Constants.EMPTY_STRING) {
-//            print("ERROR in bookFromScripture")
-//            print("\(scripture)")
-//            print("\(book)")
-//        }
-//    }
-
     var description : String {
         //This requires that date, service, title, and speaker fields all be non-nil
         
         var seriesString = "Series: "
         
-        if (title != "") {
-            seriesString = "\(seriesString ) \(title ?? "TITLE")"
+        if let title = title, !title.isEmpty {
+            seriesString = "\(seriesString ) \(title)"
         }
         
-        if (scripture != "") {
-            seriesString = "\(seriesString ) \(scripture ?? "SCRIPTURE")"
+        if let scripture = scripture, !scripture.isEmpty {
+            seriesString = "\(seriesString ) \(scripture)"
         }
         
-        if (name != "") {
-            seriesString = "\(seriesString)\n\(name ?? "NAME")"
+        if let name = name, !name.isEmpty {
+            seriesString = "\(seriesString)\n\(name)"
         }
         
         seriesString = "\(seriesString)\n\(id)"
@@ -367,7 +372,9 @@ class Series : Equatable, CustomStringConvertible {
         
         seriesString = "\(seriesString) \(numberOfSermons)"
         
-        seriesString = "\(seriesString)\n\(text ?? "TEXT")"
+        if let text = text, !text.isEmpty {
+            seriesString = "\(seriesString)\n\(text)"
+        }
         
         return seriesString
     }

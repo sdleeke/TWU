@@ -25,35 +25,34 @@ extension MediaCollectionViewController : UIAdaptivePresentationControllerDelega
     }
 }
 
-//extension MediaCollectionViewController : UISplitViewControllerDelegate
-//{
-//    // MARK: UISplitViewControllerDelegate
-//    
-//}
-
 extension MediaCollectionViewController : UICollectionViewDataSource
 {
     // MARK: UICollectionViewDataSource
     
-    func numberOfSections(in:UICollectionView) -> Int {
+    func numberOfSections(in:UICollectionView) -> Int
+    {
         //#warning Incomplete method implementation -- Return the number of sections
         //return series.count
         return 1
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
+    {
         //#warning Incomplete method implementation -- Return the number of items in the section
         //return series[section].count
-        return globals.activeSeries != nil ? globals.activeSeries!.count : 0
+        return globals.activeSeries?.count ?? 0
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as! MediaCollectionViewCell
-        
-        // Configure the cell
-        cell.series = globals.activeSeries?[(indexPath as NSIndexPath).row]
-        
-        return cell
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
+    {
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as? MediaCollectionViewCell {
+            // Configure the cell
+            cell.series = globals.activeSeries?[indexPath.row]
+            
+            return cell
+        } else {
+            return UICollectionViewCell()
+        }
     }
 }
 
@@ -61,9 +60,8 @@ extension MediaCollectionViewController : UICollectionViewDelegate
 {
     // MARK: UICollectionViewDelegate
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //        print("didSelect")
-        
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath)
+    {
         if let cell: MediaCollectionViewCell = collectionView.cellForItem(at: indexPath) as? MediaCollectionViewCell {
             seriesSelected = cell.series
             collectionView.reloadData()
@@ -71,60 +69,6 @@ extension MediaCollectionViewController : UICollectionViewDelegate
             
         }
     }
-    
-//    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-//        //        print("didDeselect")
-//        
-//        //        if let cell: MediaCollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as? MediaCollectionViewCell {
-//        //
-//        //        } else {
-//        //
-//        //        }
-//    }
-    
-    /*
-     // Uncomment this method to specify if the specified item should be highlighted during tracking
-     */
-//    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-//        //        print("shouldHighlight")
-//        return true
-//    }
-//    
-//    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-//        //        print("Highlighted")
-//    }
-//    
-//    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-//        //        print("Unhighlighted")
-//    }
-    
-    /*
-     // Uncomment this method to specify if the specified item should be selected
-     */
-//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-//        //        print("shouldSelect")
-//        return true
-//    }
-//    
-//    func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-//        //        print("shouldDeselect")
-//        return true
-//    }
-    
-    /*
-     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-     override func collectionView(collectionView: UICollectionView, shouldShowMenuForItemAtIndexPath indexPath: NSIndexPath) -> Bool {
-     return false
-     }
-     
-     override func collectionView(collectionView: UICollectionView, canPerformAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) -> Bool {
-     return false
-     }
-     
-     override func collectionView(collectionView: UICollectionView, performAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) {
-     
-     }
-     */
 }
 
 extension MediaCollectionViewController : UISearchBarDelegate
@@ -132,7 +76,6 @@ extension MediaCollectionViewController : UISearchBarDelegate
     // MARK: UISearchBarDelegate
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool
     {
-        //        print(globals.loading, globals.isRefreshing, globals.series)
         return !globals.isLoading && !globals.isRefreshing && (globals.series != nil)
     }
     
@@ -152,21 +95,17 @@ extension MediaCollectionViewController : UISearchBarDelegate
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
     {
         globals.searchButtonClicked = true
-//        searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
-//        print("Search clicked!")
         globals.searchButtonClicked = true
         searchBar.resignFirstResponder()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
     {
-//        print("Text changed: \(searchText)")
-        
         globals.searchButtonClicked = false
         globals.searchText = searchBar.text
         globals.updateSearchResults()
@@ -176,7 +115,6 @@ extension MediaCollectionViewController : UISearchBarDelegate
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
     {
-//        print("Cancel clicked!")
         searchBar.text = nil
         searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
@@ -256,8 +194,6 @@ class MediaCollectionViewController: UIViewController
             
         }
         didSet {
-//            globals.seriesSelected = seriesSelected
-            
             guard let seriesSelected = seriesSelected else {
                 print("MediaCollectionViewController:seriesSelected nil")
                 return
@@ -279,8 +215,6 @@ class MediaCollectionViewController: UIViewController
     
     @IBOutlet weak var collectionView: UICollectionView!
     
-//    var resultSearchController:UISearchController?
-
     var session:URLSession? // Used for JSON
 
     override var canBecomeFirstResponder : Bool
@@ -300,26 +234,29 @@ class MediaCollectionViewController: UIViewController
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
-            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-                navigationController.modalPresentationStyle = .popover
-                //            popover?.preferredContentSize = CGSizeMake(300, 500)
-                
-                navigationController.popoverPresentationController?.permittedArrowDirections = .down
-                navigationController.popoverPresentationController?.delegate = self
-                
-                navigationController.popoverPresentationController?.barButtonItem = button
-                
-                popover.navigationItem.title = Constants.Sorting_Options_Title
-                
-                popover.delegate = self
-                
-                popover.purpose = .selectingSorting
-                popover.strings = Constants.Sorting.Options
-                
-                present(navigationController, animated: true, completion: nil)
-            }
+        guard let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController else {
+            return
         }
+        
+        guard let popover = navigationController.viewControllers[0] as? PopoverTableViewController else {
+            return
+        }
+        
+        navigationController.modalPresentationStyle = .popover
+        
+        navigationController.popoverPresentationController?.permittedArrowDirections = .down
+        navigationController.popoverPresentationController?.delegate = self
+        
+        navigationController.popoverPresentationController?.barButtonItem = button
+        
+        popover.navigationItem.title = Constants.Sorting_Options_Title
+        
+        popover.delegate = self
+        
+        popover.purpose = .selectingSorting
+        popover.strings = Constants.Sorting.Options
+        
+        present(navigationController, animated: true, completion: nil)
     }
     
     func filtering(_ button:UIBarButtonItem?)
@@ -327,26 +264,30 @@ class MediaCollectionViewController: UIViewController
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
-            let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-            navigationController.modalPresentationStyle = .popover
-            //            popover?.preferredContentSize = CGSizeMake(300, 500)
-            
-            navigationController.popoverPresentationController?.permittedArrowDirections = .down
-            navigationController.popoverPresentationController?.delegate = self
-            
-            navigationController.popoverPresentationController?.barButtonItem = button
-            
-            popover.navigationItem.title = Constants.Filtering_Options_Title
-            
-            popover.delegate = self
-            
-            popover.purpose = .selectingFiltering
-            popover.strings = booksFromSeries(globals.series)
-            popover.strings?.insert(Constants.All, at: 0)
-            
-            present(navigationController, animated: true, completion: nil)
+        guard let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController else {
+            return
         }
+        
+        guard let popover = navigationController.viewControllers[0] as? PopoverTableViewController else {
+            return
+        }
+        
+        navigationController.modalPresentationStyle = .popover
+        
+        navigationController.popoverPresentationController?.permittedArrowDirections = .down
+        navigationController.popoverPresentationController?.delegate = self
+        
+        navigationController.popoverPresentationController?.barButtonItem = button
+        
+        popover.navigationItem.title = Constants.Filtering_Options_Title
+        
+        popover.delegate = self
+        
+        popover.purpose = .selectingFiltering
+        popover.strings = booksFromSeries(globals.series)
+        popover.strings?.insert(Constants.All, at: 0)
+        
+        present(navigationController, animated: true, completion: nil)
     }
     
     func settings(_ button:UIBarButtonItem?)
@@ -446,9 +387,7 @@ class MediaCollectionViewController: UIViewController
         setupTitle()
         
         setupPlayingPausedButton()
-        
-//        scrollToSeries(seriesSelected)
-        
+
         if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
@@ -504,7 +443,7 @@ class MediaCollectionViewController: UIViewController
         }
         
         do {
-            let data = try Data(contentsOf: jsonFileSystemURL) // , options: NSData.ReadingOptions.mappedIfSafe
+            let data = try Data(contentsOf: jsonFileSystemURL)
             print("able to read json from the URL.")
             
             do {
@@ -521,58 +460,30 @@ class MediaCollectionViewController: UIViewController
         }
     }
 
-//    func jsonFromFileSystem() -> JSON
-//    {
-//        guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES) else {
-//            return nil
-//        }
-//
-//        do {
-//            let data = try Data(contentsOf: jsonFileSystemURL) // , options: NSData.ReadingOptions.mappedIfSafe
-//            print("able to read last available json")
-//            
-//            let json = JSON(data: data)
-//            
-//            if json != JSON.null {
-//                print("able to load last avaialble json")
-//                print(json)
-//                return json
-//            } else {
-//                globals.alert(title: "Network Error", message: "Network connection not available and last available sermon series list could not be loaded.")
-//                print("unable to load last avaialble json")
-//            }
-//        } catch let error as NSError {
-//            globals.alert(title: "Network Error", message: "Network connection not available and last available sermon series list could not be read; " + error.localizedDescription)
-//            print("unable to read last avaialble json")
-//            NSLog(error.localizedDescription)
-//        }
-//        
-//        return nil
-//    }
-    
-    func jsonFromURL(url:String,filename:String) -> Any?
+    func jsonFromURL(urlString:String,filename:String) -> Any?
     {
+        guard let url = URL(string: urlString) else {
+            return nil
+        }
+        
         guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) else {
             return nil
         }
         
-        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
+        guard let reachability = globals.reachability, reachability.isReachable else {
             print("json not reachable.")
-            
-            //            globals.alert(title:"Network Error",message:"Newtork not available, attempting to load last available media list.")
-            
             return jsonFromFileSystem(filename: filename)
         }
         
         do {
-            let data = try Data(contentsOf: URL(string: url)!) // , options: NSData.ReadingOptions.mappedIfSafe
+            let data = try Data(contentsOf: url)
             print("able to read json from the URL.")
             
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
                 
                 do {
-                    try data.write(to: jsonFileSystemURL)//, options: NSData.WritingOptions.atomic)
+                    try data.write(to: jsonFileSystemURL)
                     
                     print("able to write json to the file system")
                 } catch let error as NSError {
@@ -591,107 +502,29 @@ class MediaCollectionViewController: UIViewController
             return jsonFromFileSystem(filename: filename)
         }
     }
-
-//    func jsonFromURL() -> JSON
-//    {
-//        guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(Constants.JSON.SERIES) else {
-//            return nil
-//        }
-//        
-//        guard globals.reachability.currentReachabilityStatus != .notReachable else {
-////            globals.alert(title: "Network Error", message: "Network connection not available.  Attempting to read last available sermon series list.")
-//
-//            print("network not avaialble: attempting to read last avaialble json")
-//            
-//            return jsonFromFileSystem()
-//        }
-//        
-//        do {
-//            let data = try Data(contentsOf: URL(string: Constants.JSON.URL)!) // , options: NSData.ReadingOptions.mappedIfSafe
-//            print("able to read json")
-//            
-//            let json = JSON(data: data)
-//            
-//            if json != JSON.null {
-//                print(json)
-//
-//                do {
-//                    try data.write(to: jsonFileSystemURL, options: NSData.WritingOptions.atomicWrite)
-//                    print("able to write json to the file system")
-//                } catch let error as NSError {
-//                    print("unable to write json to the file system.")
-//                    NSLog(error.localizedDescription)
-//                }
-//                
-//                return json
-//            } else {
-////                globals.alert(title: "Network Error", message: "Unable to read series list.  Attempting to read last available copy.")
-//                
-//                print("unable to load json")
-//
-//                return jsonFromFileSystem()
-//            }
-//        } catch let error as NSError {
-////            globals.alert(title: "Network Error", message: "Unable to read series list.  Attempting to load last available copy: " + error.localizedDescription)
-//            
-//            print("unable to read json")
-//            NSLog(error.localizedDescription)
-//            
-//            return jsonFromFileSystem()
-//        }
-//    }
     
     func loadSeriesDicts() -> [[String:String]]?
     {
-//        jsonToFileSystem()
-        
-        if let json = jsonFromURL(url: Constants.JSON.URL,filename: Constants.JSON.SERIES) as? [String:Any] {
-            var seriesDicts = [[String:String]]()
-            
-            if let series = json[Constants.JSON.ARRAY_KEY] as? [[String:String]] {
-                for i in 0..<series.count {
-                    //                    print("sermon: \(series[i])")
-                    
-                    var dict = [String:String]()
-                    
-                    for (key,value) in series[i] {
-                        dict["\(key)"] = "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-                    }
-                    
-                    seriesDicts.append(dict)
-                }
-            }
-            
-            return seriesDicts.count > 0 ? seriesDicts : nil
-        } else {
+        guard let json = jsonFromURL(urlString: Constants.JSON.URL,filename: Constants.JSON.SERIES) as? [String:Any] else {
             print("could not get json from file, make sure that file contains valid json.")
+            return nil
         }
         
-//        if json != nil {
-////            print("json:\(json)")
-//            
-//            var seriesDicts = [[String:String]]()
-//            
-//            let series = json[Constants.JSON.ARRAY_KEY]
-//            
-//            for i in 0..<series.count {
-//                //                    print("sermon: \(series[i])")
-//                
-//                var dict = [String:String]()
-//                
-//                for (key,value) in series[i] {
-//                    dict["\(key)"] = "\(value)"
-//                }
-//                
-//                seriesDicts.append(dict)
-//            }
-//            
-//            return seriesDicts.count > 0 ? seriesDicts : nil
-//        } else {
-//            print("could not get json from file, make sure that file contains valid json.")
-//        }
+        var seriesDicts = [[String:String]]()
         
-        return nil
+        if let series = json[Constants.JSON.ARRAY_KEY] as? [[String:String]] {
+            for i in 0..<series.count {
+                var dict = [String:String]()
+                
+                for (key,value) in series[i] {
+                    dict["\(key)"] = "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                }
+                
+                seriesDicts.append(dict)
+            }
+        }
+        
+        return seriesDicts.count > 0 ? seriesDicts : nil
     }
     
     func loadSeries(_ completion: (() -> Void)?)
@@ -732,8 +565,6 @@ class MediaCollectionViewController: UIViewController
                 if globals.isRefreshing {
                     self.refreshControl?.endRefreshing()
                     globals.isRefreshing = false
-//                    DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-//                    })
                 } else {
                     self.activityIndicator.stopAnimating()
                     self.activityIndicator.isHidden = true
@@ -806,24 +637,24 @@ class MediaCollectionViewController: UIViewController
         
         loadSeries()
         {
-            if globals.series == nil {
-                let alert = UIAlertController(title: "No media available.",
-                                              message: "Please check your network connection and try again.",
-                                              preferredStyle: UIAlertControllerStyle.alert)
-                
-                let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                    if globals.isRefreshing {
-                        self.refreshControl?.endRefreshing()
-                        globals.isRefreshing = false
-                    }
-                })
-                alert.addAction(action)
-                
-                self.present(alert, animated: true, completion: nil)
+            guard globals.series == nil else {
+                return
             }
-        }
 
-//        downloadJSON()
+            let alert = UIAlertController(title: "No media available.",
+                                          message: "Please check your network connection and try again.",
+                                          preferredStyle: UIAlertControllerStyle.alert)
+            
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+                if globals.isRefreshing {
+                    self.refreshControl?.endRefreshing()
+                    globals.isRefreshing = false
+                }
+            })
+            alert.addAction(action)
+            
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     func updateUI()
@@ -847,25 +678,7 @@ class MediaCollectionViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Happens in didBecomeActive.
-//        if globals.series == nil {
-//            loadSeries() {
-//                if globals.series == nil {
-//                    let alert = UIAlertController(title: "No media available.",
-//                                                  message: "Please check your network connection and try again.",
-//                                                  preferredStyle: UIAlertControllerStyle.alert)
-//
-//                    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-//
-//                    })
-//                    alert.addAction(action)
-//
-//                    self.present(alert, animated: true, completion: nil)
-//                } else {
-//                    self.logo.isHidden = true
-//                }
-//            }
-//        }
+        // globals.series loaded in didBecomeActive.
 
         addNotifications()
         
@@ -874,7 +687,9 @@ class MediaCollectionViewController: UIViewController
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), for: UIControlEvents.valueChanged)
 
-        collectionView.addSubview(refreshControl!)
+        if let refreshControl = refreshControl {
+            collectionView.addSubview(refreshControl)
+        }
         
         collectionView.alwaysBounceVertical = true
 
@@ -900,18 +715,20 @@ class MediaCollectionViewController: UIViewController
         
         var title:String?
         
-        switch globals.mediaPlayer.state! {
-        case .paused:
-            title = Constants.Paused
-            break
-            
-        case .playing:
-            title = Constants.Playing
-            break
-            
-        default:
-            title = Constants.None
-            break
+        if let state = globals.mediaPlayer.state {
+            switch state {
+            case .paused:
+                title = Constants.Paused
+                break
+                
+            case .playing:
+                title = Constants.Playing
+                break
+                
+            default:
+                title = Constants.None
+                break
+            }
         }
         
         var playingPausedButton = navigationItem.rightBarButtonItem
@@ -945,12 +762,6 @@ class MediaCollectionViewController: UIViewController
             setPlayingPausedButton()
             return
         }
-        
-//        guard (!splitViewController!.isCollapsed) else {
-//            // iPhone
-//            setPlayingPausedButton()
-//            return
-//        }
         
         guard (seriesSelected == globals.mediaPlayer.playing?.series) else {
             // iPhone
@@ -1003,22 +814,23 @@ class MediaCollectionViewController: UIViewController
         
         loadSeries()
         {
-            if globals.series == nil {
-                let alert = UIAlertController(title: "No media available.",
-                                              message: "Please check your network connection and try again.",
-                                              preferredStyle: UIAlertControllerStyle.alert)
-                
-                let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                    
-                })
-                alert.addAction(action)
-                
-                self.present(alert, animated: true, completion: nil)
-            } else {
+            guard globals.series == nil else {
                 self.logo.isHidden = true
                 self.collectionView.reloadData()
                 self.scrollToSeries(self.seriesSelected)
+                return
             }
+            
+            let alert = UIAlertController(title: "No media available.",
+                                          message: "Please check your network connection and try again.",
+                                          preferredStyle: UIAlertControllerStyle.alert)
+            
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+                
+            })
+            alert.addAction(action)
+            
+            self.present(alert, animated: true, completion: nil)
         }
     }
     
@@ -1046,8 +858,6 @@ class MediaCollectionViewController: UIViewController
         
         //Solves icon sizing problem in split screen multitasking.
         collectionView.reloadData()
-        
-//        scrollToSeries(seriesSelected)
     }
     
     func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: IndexPath) -> CGSize
@@ -1068,18 +878,10 @@ class MediaCollectionViewController: UIViewController
             minIndex += 1
         } while minSize > minMeasure
         
-//        print(minSize)
-//        print(minIndex-1)
-        
         repeat {
             maxSize = (maxMeasure - CGFloat(10*(maxIndex+1)))/CGFloat(maxIndex)
             maxIndex += 1
         } while maxSize > maxMeasure/(maxMeasure / minSize)
-
-//        print(maxMeasure / minSize)
-        
-//        print(maxSize)
-//        print(maxIndex-1)
         
         var size:CGFloat = 0
 
@@ -1108,17 +910,8 @@ class MediaCollectionViewController: UIViewController
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
-//        if (self.view.window == nil) {
-//            return
-//        }
-
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
             self.collectionView.reloadData()
-//            if (UIApplication.shared.applicationState == UIApplicationState.active) { //  && (self.view.window != nil)
-//            }
-
-            //Not quite what we want.  What we want is for the list to "look" the same.
-//            self.scrollToSeries(self.seriesSelected)
         }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
             self.setupTitle()
 
@@ -1163,8 +956,8 @@ class MediaCollectionViewController: UIViewController
         var destination = segue.destination as UIViewController
         // this next if-statement makes sure the segue prepares properly even
         //   if the MVC we're seguing to is wrapped in a UINavigationController
-        if let navCon = destination as? UINavigationController {
-            destination = navCon.visibleViewController!
+        if let navCon = destination as? UINavigationController, let visibleViewController = navCon.visibleViewController {
+            destination = visibleViewController
         }
         if let identifier = segue.identifier {
             switch identifier {
@@ -1183,7 +976,6 @@ class MediaCollectionViewController: UIViewController
                 break
                 
             case Constants.SEGUE.SHOW_SERIES:
-//                print("ShowSeries")
                 if (globals.gotoNowPlaying) {
                     //This pushes a NEW MediaViewController.
                     
@@ -1195,8 +987,6 @@ class MediaCollectionViewController: UIViewController
                     }
 
                     globals.gotoNowPlaying = !globals.gotoNowPlaying
-//                    let indexPath = NSIndexPath(forItem: globals.activeSeries!.indexOf(seriesSelected!)!, inSection: 0)
-//                    collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredVertically, animated: true)
                 } else {
                     if let myCell = sender as? MediaCollectionViewCell {
                         seriesSelected = myCell.series
@@ -1223,8 +1013,6 @@ class MediaCollectionViewController: UIViewController
     
     func gotoNowPlaying()
     {
-//        print("gotoNowPlaying")
-        
         globals.gotoNowPlaying = true
         
         performSegue(withIdentifier: Constants.SEGUE.SHOW_SERIES, sender: self)

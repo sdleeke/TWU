@@ -10,8 +10,6 @@ import UIKit
 
 class MediaTableViewCell: UITableViewCell
 {
-//    var row:Int?
-    
     var sermon:Sermon? {
         willSet {
             
@@ -26,21 +24,12 @@ class MediaTableViewCell: UITableViewCell
         }
     }
     
-//    var downloadObserver:Timer?
-    
-//    var vc:UIViewController?
-    
     func updateUI()
     {
         guard Thread.isMainThread else {
             return
         }
         
-//        print("updateUI: \(sermon!.series!.title) \(sermon!.id)")
-        
-//        selected = (globals.seriesPlaying == sermon!.series) && ((globals.seriesPlaying!.startingIndex + globals.player.playingIndex) == sermon!.id)
-//        print("\(selected)")
-     
         if sermon?.series?.numberOfSermons == 1, let title = sermon?.series?.title {
             self.title?.text = title
         }
@@ -69,8 +58,9 @@ class MediaTableViewCell: UITableViewCell
                 
             case .downloading:
                 downloadLabel.text = Constants.Downloading
-                if (sermon!.audioDownload.totalBytesExpectedToWrite > 0) {
-                    downloadProgressBar.progress = Float(sermon!.audioDownload.totalBytesWritten) / Float(sermon!.audioDownload.totalBytesExpectedToWrite)
+                if  let totalBytesExpectedToWrite = sermon?.audioDownload.totalBytesExpectedToWrite, totalBytesExpectedToWrite > 0,
+                    let totalBytesWritten = sermon?.audioDownload.totalBytesWritten {
+                    downloadProgressBar.progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
                 } else {
                     downloadProgressBar.progress = 0
                 }
@@ -83,19 +73,6 @@ class MediaTableViewCell: UITableViewCell
         } else {
             downloadSwitch.isOn = false
         }
-
-//        if (sermon!.audioDownload.active) && (downloadObserver == nil) {
-//            downloadObserver = Timer.scheduledTimer(timeInterval: Constants.INTERVAL.DOWNLOAD_TIMER, target: self, selector: #selector(MediaTableViewCell.updateUI), userInfo: nil, repeats: true)
-//        }
-//
-//        if (downloadObserver != nil) &&
-//            (sermon!.audioDownload.totalBytesExpectedToWrite > 0) && (sermon!.audioDownload.totalBytesExpectedToWrite > 0) &&
-//            (sermon!.audioDownload.totalBytesWritten == sermon!.audioDownload.totalBytesExpectedToWrite) {
-//            downloadLabel.text = Constants.Downloaded
-//            downloadLabel.sizeToFit()
-//            downloadObserver?.invalidate()
-//            downloadObserver = nil
-//        }
     }
     
     @IBOutlet weak var title: UILabel!
@@ -119,37 +96,16 @@ class MediaTableViewCell: UITableViewCell
     
     @IBOutlet weak var downloadProgressBar: UIProgressView!
     
-    override func awakeFromNib() {
+    override func awakeFromNib()
+    {
         super.awakeFromNib()
         // Initialization code
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool)
+    {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
     }
-
-    
-//    fileprivate func networkUnavailable(_ message:String?)
-//    {
-//        if (UIApplication.shared.applicationState == UIApplicationState.active) {
-//            vc?.dismiss(animated: true, completion: nil)
-//            
-//            let alert = UIAlertController(title:Constants.Network_Error,
-//                message: message,
-//                preferredStyle: UIAlertControllerStyle.actionSheet)
-//            
-//            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-//                
-//            })
-//            alert.addAction(action)
-//            
-//            alert.modalPresentationStyle = UIModalPresentationStyle.popover
-//            alert.popoverPresentationController?.sourceView = self
-//            alert.popoverPresentationController?.sourceRect = downloadSwitch.frame
-//            
-//            vc?.present(alert, animated: true, completion: nil)
-//        }
-//    }
 }

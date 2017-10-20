@@ -116,17 +116,14 @@ class ControlView : UIView
     var sliding = false
     
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        //        print(event)
         if !sliding {
-            //            print("checking views")
             for view in subviews {
                 if view.frame.contains(point) && view.isUserInteractionEnabled {
                     return true
                 }
             }
         }
-        
-        //        print("Passing all touches to the next view (if any), in the view stack.")
+
         return false
     }
 }
@@ -135,8 +132,6 @@ class MediaViewController : UIViewController
 {
     var observerActive = false
     var observedItem:AVPlayerItem?
-
-//    var sliding = false
 
     private var PlayerContext = 0
     
@@ -172,77 +167,9 @@ class MediaViewController : UIViewController
             
             setupSliderAndTimes()
         }
-
-//        if keyPath == #keyPath(AVPlayerItem.status) {
-//            let status: AVPlayerItemStatus
-//            
-//            // Get the status change from the change dictionary
-//            if let statusNumber = change?[.newKey] as? NSNumber {
-////                print(statusNumber.intValue)
-//                status = AVPlayerItemStatus(rawValue: statusNumber.intValue)!
-//            } else {
-//                status = .unknown
-//            }
-//            
-//            // Switch over the status
-//            switch status {
-//            case .readyToPlay:
-//                // Player item is ready to play.
-//                //                print(player?.currentItem?.duration.value)
-//                //                print(player?.currentItem?.duration.timescale)
-//                //                print(player?.currentItem?.duration.seconds)
-//                
-//                if sermonSelected != nil {
-//                    if let length = player?.currentItem?.duration.seconds {
-//                        let timeNow = Double(sermonSelected!.currentTime!)!
-//                        let progress = timeNow / length
-//                        
-//                        //                    print("timeNow",timeNow)
-//                        //                    print("progress",progress)
-//                        //                    print("length",length)
-//                        
-//                        slider.value = Float(progress)
-//                        setTimes(timeNow: timeNow,length: length)
-//                        
-//                        elapsed.isHidden = false
-//                        remaining.isHidden = false
-//                        slider.isHidden = false
-//                        slider.isEnabled = false
-//                    }
-//                }
-//                break
-//                
-//            case .failed:
-//                // Player item failed. See error.
-//                break
-//                
-//            case .unknown:
-//                // Player item is not yet ready.
-//                break
-//            }
-//        }
     }
 
-// A messy way to cache AVPlayers by URL and only change the UI for the one related to the currently selectedSermon when its observeValue callback is called.
-// I'm proposing to do it this way because the AVPlayer does carry the URL with it and that will uniquely identify the sermon associated with that AVPlayer.
-    
-//    var players = [String:AVPlayer]() // index is URL
-//    var sermons = [String:Sermon]() // index is URL
-    
     var player:AVPlayer?
-//    {
-//        get {
-//            if sermonSelected != nil {
-//                return players[sermonSelected!.playingURL!.absoluteString]
-//            } else {
-//                return nil
-//            }
-//        }
-//        set {
-//            players[sermonSelected!.playingURL!.absoluteString] = newValue
-//            sermons[sermonSelected!.playingURL!.absoluteString] = sermonSelected
-//        }
-//    }
 
     func removePlayerObserver()
     {
@@ -278,49 +205,29 @@ class MediaViewController : UIViewController
     {
         removePlayerObserver()
         
-        if url != nil {
-            player = AVPlayer(url: url!)
-            addPlayerObserver()
+        guard let url = url else {
+            return
+        }
+        
+        player = AVPlayer(url: url)
+        addPlayerObserver()
+        
 //            if player == nil {
 //            }
-        }
     }
     
     var sliderObserver: Timer?
 
     var seriesSelected:Series?
-//    {
-//        didSet {
-//            if let seriesSermons = seriesSelected?.sermons {
-//                for sermon in seriesSermons {
-//                    if let url = sermon.playingURL {
-//                        if players[url.absoluteString] == nil {
-//                            players[url.absoluteString] = AVPlayer(url: url)
-//                            
-//                            players[url.absoluteString]?.currentItem?.addObserver(self,
-//                                                                                  forKeyPath: #keyPath(AVPlayerItem.status),
-//                                                                                  options: [.old, .new],
-//                                                                                  context: nil) // &PlayerContext
-//                            
-//                            sermons[url.absoluteString] = sermon
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
     
     var sermonSelected:Sermon? {
         willSet {
             
         }
         didSet {
-//            print(sermonSelected)
             seriesSelected?.sermonSelected = sermonSelected
 
             if let sermonSelected = sermonSelected, sermonSelected != oldValue {
-//                print("\(sermonSelected)")
-                
                 if (sermonSelected != globals.mediaPlayer.playing) {
                     removeSliderObserver()
                     if let playingURL = sermonSelected.playingURL {
@@ -328,14 +235,13 @@ class MediaViewController : UIViewController
                     }
                 } else {
                     removePlayerObserver()
-//                    addSliderObserver() // Crashes because it uses UI and this is done before viewWillAppear when the sermonSelected is set in prepareForSegue, but it only happens on an iPhone because the MVC isn't setup already.
                 }
 
                 DispatchQueue.main.async(execute: { () -> Void in
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
                 })
             } else {
-//                print("MediaViewController:sermonSelected nil")
+
             }
         }
     }
@@ -345,12 +251,12 @@ class MediaViewController : UIViewController
     
     @IBOutlet weak var playPauseButton: UIButton!
     @IBAction func playPause(_ sender: UIButton) {
-        guard (globals.mediaPlayer.state != nil) && (globals.mediaPlayer.playing == sermonSelected) && (globals.mediaPlayer.player != nil) else {
+        guard let state = globals.mediaPlayer.state, globals.mediaPlayer.playing == sermonSelected, globals.mediaPlayer.player != nil else {
             playNewSermon(sermonSelected)
             return
         }
 
-        switch globals.mediaPlayer.state! {
+        switch state {
         case .none:
             print("none")
             break
@@ -408,7 +314,7 @@ class MediaViewController : UIViewController
 
     func setupPlayPauseButton()
     {
-        guard (sermonSelected != nil) else {
+        guard let state = globals.mediaPlayer.state, sermonSelected != nil else {
             playPauseButton.isEnabled = false
             playPauseButton.isHidden = true
             return
@@ -417,7 +323,7 @@ class MediaViewController : UIViewController
         if (sermonSelected == globals.mediaPlayer.playing) {
             playPauseButton.isEnabled = globals.mediaPlayer.loaded || globals.mediaPlayer.loadFailed
             
-            switch globals.mediaPlayer.state! {
+            switch state {
             case .playing:
                 //                    print("Pause")
                 playPauseButton.setTitle(Constants.FA.PAUSE, for: UIControlState())
@@ -451,14 +357,6 @@ class MediaViewController : UIViewController
         didSet {
             let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesArt.addGestureRecognizer(tap)
-            
-//            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
-//            swipeRight.direction = UISwipeGestureRecognizerDirection.right
-//            seriesArt.addGestureRecognizer(swipeRight)
-//            
-//            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
-//            swipeLeft.direction = UISwipeGestureRecognizerDirection.left
-//            seriesArt.addGestureRecognizer(swipeLeft)
         }
     }
     
@@ -469,14 +367,6 @@ class MediaViewController : UIViewController
         didSet {
             let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
             seriesDescription.addGestureRecognizer(tap)
-            
-//            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromLeft(_:)))
-//            swipeRight.direction = UISwipeGestureRecognizerDirection.right
-//            seriesDescription.addGestureRecognizer(swipeRight)
-//            
-//            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.flipFromRight(_:)))
-//            swipeLeft.direction = UISwipeGestureRecognizerDirection.left
-//            seriesDescription.addGestureRecognizer(swipeLeft)
             
             seriesDescription.text = seriesSelected?.text
             seriesDescription.alwaysBounceVertical = true
@@ -494,12 +384,15 @@ class MediaViewController : UIViewController
             return
         }
         
+        guard let state = globals.mediaPlayer.state else {
+            return
+        }
+        
         guard let length = globals.mediaPlayer.duration?.seconds else {
             return
         }
 
         if (slider.value < 1.0) {
-//            let length = globals.mediaPlayer.duration!.seconds
             let seekToTime = Double(slider.value) * length
             
             globals.mediaPlayer.seek(to: seekToTime)
@@ -513,9 +406,9 @@ class MediaViewController : UIViewController
             globals.mediaPlayer.playing?.currentTime = length.description
         }
         
-        switch globals.mediaPlayer.state! {
+        switch state {
         case .playing:
-            controlView.sliding = globals.reachability.isReachable
+            controlView.sliding = globals.reachability?.isReachable ?? false
             break
             
         default:
@@ -651,7 +544,9 @@ class MediaViewController : UIViewController
     
     fileprivate func emailSeries(_ series:Series?)
     {
-        let bodyString:String! = setupBodyHTML(series)
+        guard let bodyString = setupBodyHTML(series) else {
+            return
+        }
         
 //        bodyString = bodyString + addressStringHTML()
         
@@ -729,23 +624,6 @@ class MediaViewController : UIViewController
             alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
-//        if Reachability.isConnectedToNetwork() {
-//            if SLComposeViewController.isAvailableForServiceType(SLServiceTypeTwitter){
-//                var bodyString = String()
-//                
-//                bodyString = "Great sermon series: \"\(globals.seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + Constants.BASE_WEB_URL + String(globals.seriesSelected!.id)
-//                
-//                let twitterSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
-//                twitterSheet.setInitialText(bodyString)
-//                self.presentViewController(twitterSheet, animated: true, completion: nil)
-//            } else {
-//                let alert = UIAlertController(title: "Accounts", message: "Please login to a Twitter account to share.", preferredStyle: UIAlertControllerStyle.Alert)
-//                alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Default, handler: nil))
-//                self.presentViewController(alert, animated: true, completion: nil)
-//            }
-//        } else {
-//            networkUnavailable("Unable to connect to the internet to tweet.")
-//        }
     }
     
     func facebook()
@@ -769,103 +647,80 @@ class MediaViewController : UIViewController
             alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
-//        if Reachability.isConnectedToNetwork() {
-//            if SLComposeViewController.isAvailableForServiceType(SLServiceTypeFacebook){
-//                var bodyString = String()
-//                
-//                bodyString = "Great sermon series: \"\(globals.seriesSelected!.title)\" by \(Constants.Tom_Pennington).  " + Constants.BASE_WEB_URL + String(globals.seriesSelected!.id)
-//                
-//                //So the user can paste the initialText into the post dialog/view
-//                //This is because of the known bug that when the latest FB app is installed it prevents prefilling the post.
-//                UIPasteboard.generalPasteboard().string = bodyString
-//
-//                let facebookSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
-//                facebookSheet.setInitialText(bodyString)
-//                self.presentViewController(facebookSheet, animated: true, completion: nil)
-//            } else {
-//                let alert = UIAlertController(title: "Accounts", message: "Please login to a Facebook account to share.", preferredStyle: UIAlertControllerStyle.Alert)
-//                alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.Default, handler: nil))
-//                self.presentViewController(alert, animated: true, completion: nil)
-//            }
-//        } else {
-//            networkUnavailable("Unable to connect to the internet to post to Facebook.")
-//        }
     }
 
     func actions()
     {
-        //        println("action!")
+        guard let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController else {
+            return
+        }
         
-        // Put up an action sheet
+        guard let popover = navigationController.viewControllers[0] as? PopoverTableViewController else {
+            return
+        }
         
-    if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController,
-        let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-            navigationController.modalPresentationStyle = .popover
-            //            popover?.preferredContentSize = CGSizeMake(300, 500)
-            
-            navigationController.popoverPresentationController?.permittedArrowDirections = .up
-            navigationController.popoverPresentationController?.delegate = self
-            
-            navigationController.popoverPresentationController?.barButtonItem = actionButton
-            
-            //                popover.navigationItem.title = "Show"
-            
-            popover.navigationController?.isNavigationBarHidden = true
-            
-            popover.delegate = self
-            popover.purpose = .selectingAction
-            
-            var actionMenu = [String]()
-            
-            if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
-                actionMenu.append(Constants.Open_Scripture)
-            }
+        navigationController.modalPresentationStyle = .popover
 
-            actionMenu.append(Constants.Open_Series)
+    navigationController.popoverPresentationController?.permittedArrowDirections = .up
+        navigationController.popoverPresentationController?.delegate = self
+        
+        navigationController.popoverPresentationController?.barButtonItem = actionButton
+        
+        popover.navigationController?.isNavigationBarHidden = true
+        
+        popover.delegate = self
+        popover.purpose = .selectingAction
+        
+        var actionMenu = [String]()
+        
+        if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
+            actionMenu.append(Constants.Open_Scripture)
+        }
+
+        actionMenu.append(Constants.Open_Series)
+        
+        if let sermons = seriesSelected?.sermons {
+            var sermonsToDownload = 0
+            var sermonsDownloading = 0
+            var sermonsDownloaded = 0
             
-            if let sermons = seriesSelected?.sermons {
-                var sermonsToDownload = 0
-                var sermonsDownloading = 0
-                var sermonsDownloaded = 0
-                
-                for sermon in sermons {
-                    if let state = sermon.audioDownload?.state {
-                        switch state {
-                        case .none:
-                            sermonsToDownload += 1
-                            break
-                        case .downloading:
-                            sermonsDownloading += 1
-                            break
-                        case .downloaded:
-                            sermonsDownloaded += 1
-                            break
-                        }
+            for sermon in sermons {
+                if let state = sermon.audioDownload?.state {
+                    switch state {
+                    case .none:
+                        sermonsToDownload += 1
+                        break
+                    case .downloading:
+                        sermonsDownloading += 1
+                        break
+                    case .downloaded:
+                        sermonsDownloaded += 1
+                        break
                     }
                 }
-                
-                if (sermonsToDownload > 0) {
-                    actionMenu.append(Constants.Download_All)
-                }
-                
-                if (sermonsDownloading > 0) {
-                    actionMenu.append(Constants.Cancel_All_Downloads)
-                }
-                
-                if (sermonsDownloaded > 0) {
-                    actionMenu.append(Constants.Delete_All_Downloads)
-                }
             }
             
-            actionMenu.append(Constants.Share)
+            if (sermonsToDownload > 0) {
+                actionMenu.append(Constants.Download_All)
+            }
             
-            popover.strings = actionMenu
+            if (sermonsDownloading > 0) {
+                actionMenu.append(Constants.Cancel_All_Downloads)
+            }
             
-            popover.showIndex = false //(globals.grouping == .series)
-            popover.showSectionHeaders = false
-            
-            present(navigationController, animated: true, completion: nil)
+            if (sermonsDownloaded > 0) {
+                actionMenu.append(Constants.Delete_All_Downloads)
+            }
         }
+        
+        actionMenu.append(Constants.Share)
+        
+        popover.strings = actionMenu
+        
+        popover.showIndex = false
+        popover.showSectionHeaders = false
+        
+        present(navigationController, animated: true, completion: nil)
     }
 
     func updateView()
@@ -875,13 +730,7 @@ class MediaViewController : UIViewController
         }
         
         seriesSelected = globals.seriesSelected
-//        print(seriesSelected?.sermonSelected)
         sermonSelected = seriesSelected?.sermonSelected
-        
-//        sermonSelected = globals.sermonSelected
-        
-        //        print(seriesSelected)
-        //        print(sermonSelected)
         
         tableView.reloadData()
 
@@ -918,8 +767,6 @@ class MediaViewController : UIViewController
         tableView.tableFooterView = UIView()
         tableView.allowsSelection = true
         
-//        tableView.allowsSelection = true
-
         // Can't do this or selecting a row doesn't work reliably.
 //        tableView.estimatedRowHeight = tableView.rowHeight
 //        tableView.rowHeight = UITableViewAutomaticDimension
@@ -928,10 +775,6 @@ class MediaViewController : UIViewController
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
     {
         super.viewWillTransition(to: size, with: coordinator)
-        
-//        if (self.view.window == nil) {
-//            return
-//        }
         
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
             self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
@@ -960,17 +803,19 @@ class MediaViewController : UIViewController
     
     fileprivate func setupActionsButton()
     {
-        if (seriesSelected != nil) {
-            actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaViewController.actions))
-            actionButton?.setTitleTextAttributes([NSFontAttributeName:UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE)!], for: UIControlState())
-            
-//            actionButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.action, target: self, action: #selector(MediaViewController.actions))
-            
-            self.navigationItem.rightBarButtonItem = actionButton
-        } else {
+        guard (seriesSelected != nil) else {
             self.navigationItem.rightBarButtonItem = nil
             actionButton = nil
+            return
         }
+        
+        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaViewController.actions))
+        
+        if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
+            actionButton?.setTitleTextAttributes([NSFontAttributeName:font], for: UIControlState())
+        }
+
+        self.navigationItem.rightBarButtonItem = actionButton
     }
     
     fileprivate func setupArtAndDescription()
@@ -979,54 +824,54 @@ class MediaViewController : UIViewController
             return
         }
         
-        if (seriesSelected != nil) {
-            seriesArtAndDescription.isHidden = false
-            
-            logo.isHidden = true
-            pageControl.isHidden = false
-            
-//            print(seriesSelected?.text)
-            
-            if let text = seriesSelected?.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
-                if let attributedString = try? NSMutableAttributedString(data: text.data(using: String.Encoding.utf8, allowLossyConversion: false)!,
-                                                                         options: [NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType],
-                                                                         documentAttributes: nil) {
-                
-                    attributedString.addAttributes([NSFontAttributeName:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
-                                                   range: NSMakeRange(0, attributedString.length))
-
-                    seriesDescription.attributedText = attributedString
-                }
-            }
-
-            if let series = self.seriesSelected {
-                if let image = series.loadArt() {
-                    seriesArt.image = image
-                } else {
-                    DispatchQueue.global(qos: .background).async { () -> Void in
-                        if let image = series.fetchArt() {
-                            if self.seriesSelected == series {
-                                DispatchQueue.main.async {
-                                    self.seriesArt.image = image
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            seriesArt.isHidden = pageControl.currentPage == 1
-            seriesDescription.isHidden = pageControl.currentPage == 0
-        } else {
+        guard let seriesSelected = seriesSelected else {
             //iPad only
             logo.isHidden = false
             
             seriesArt.isHidden = true
             seriesDescription.isHidden = true
-
+            
             seriesArtAndDescription.isHidden = true
             pageControl.isHidden = true
+            
+            return
         }
+        
+        seriesArtAndDescription.isHidden = false
+        
+        logo.isHidden = true
+        pageControl.isHidden = false
+        
+        if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+            if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
+                let attributedString = try? NSMutableAttributedString(data: data,
+                                                                      options: [NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType],
+                                                                      documentAttributes: nil) {
+                attributedString.addAttributes([NSFontAttributeName:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
+                                               range: NSMakeRange(0, attributedString.length))
+
+                seriesDescription.attributedText = attributedString
+            }
+        }
+
+        if let series = self.seriesSelected {
+            if let image = series.loadArt() {
+                seriesArt.image = image
+            } else {
+                DispatchQueue.global(qos: .background).async { () -> Void in
+                    if let image = series.fetchArt() {
+                        if self.seriesSelected == series {
+                            DispatchQueue.main.async {
+                                self.seriesArt.image = image
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        seriesArt.isHidden = pageControl.currentPage == 1
+        seriesDescription.isHidden = pageControl.currentPage == 0
     }
     
     fileprivate func setupTitle()
@@ -1124,38 +969,23 @@ class MediaViewController : UIViewController
             return
         }
         
-        guard (sermon != nil) else {
+        guard let sermon = sermon else {
             return
         }
         
         var indexPath = IndexPath(row: 0, section: 0)
         
         if (seriesSelected?.show > 1) {
-            if let sermonIndex = seriesSelected?.sermons?.index(of: sermon!) {
-//                    print("\(sermonIndex)")
+            if let sermonIndex = seriesSelected?.sermons?.index(of: sermon) {
                 indexPath = IndexPath(row: sermonIndex, section: 0)
             }
         }
         
-        //            print("\(tableView.bounds)")
-        
         if (select) {
-//                print(indexPath)
             tableView.selectRow(at: indexPath, animated: true, scrollPosition: position)
         }
         
-        //            print("Row: \(indexPath.row) Section: \(indexPath.section)")
-
         tableView.scrollToRow(at: indexPath, at: position, animated: false)
-
-//        if (position == UITableViewScrollPosition.top) {
-//            //                var point = CGPointZero //tableView.bounds.origin
-//            //                point.y += tableView.rowHeight * CGFloat(indexPath.row)
-//            //                tableView.setContentOffset(point, animated: true)
-//            tableView.scrollToRow(at: indexPath, at: position, animated: false)
-//        } else {
-//            tableView.scrollToRow(at: indexPath, at: position, animated: false)
-//        }
     }
 
     func showPlaying()
@@ -1164,7 +994,7 @@ class MediaViewController : UIViewController
             return
         }
         
-        guard (globals.mediaPlayer.playing != nil) else {
+        guard let playing = globals.mediaPlayer.playing else {
             removeSliderObserver()
             
             if let url = sermonSelected?.playingURL {
@@ -1175,13 +1005,11 @@ class MediaViewController : UIViewController
             return
         }
         
-        guard (sermonSelected?.series?.sermons?.index(of: globals.mediaPlayer.playing!) != nil) else {
+        guard (sermonSelected?.series?.sermons?.index(of: playing) != nil) else {
             return
         }
         
-        sermonSelected = globals.mediaPlayer.playing
-        
-        //        tableView.reloadData()
+        sermonSelected = playing
         
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         
@@ -1294,7 +1122,7 @@ class MediaViewController : UIViewController
         
         views = (seriesArt: self.seriesArt, seriesDescription: self.seriesDescription)
         
-        if (seriesSelected == nil) { //  && (globals.seriesSelected != nil)
+        if (seriesSelected == nil) {
             // Should only happen on an iPad on initial startup, i.e. when this view initially loads, not because of a segue.
             seriesSelected = globals.seriesSelected
         }
@@ -1306,9 +1134,6 @@ class MediaViewController : UIViewController
         }
 
         updateUI()
-        
-//        println("\(globals.mediaPlayer.currentTime)")
-        
     }
     
     func selectSermon(_ sermon:Sermon?)
@@ -1327,8 +1152,6 @@ class MediaViewController : UIViewController
         
         setupPlayPauseButton()
         
-        //            print("\(seriesSelected!.title)")
-
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             DispatchQueue.main.async(execute: { () -> Void in
@@ -1341,9 +1164,6 @@ class MediaViewController : UIViewController
     {
         super.viewDidAppear(animated)
 
-//        print("Series Selected: \(seriesSelected?.title) Playing: \(globals.mediaPlayer.playing?.series?.title)")
-//        print("Sermon Selected: \(sermonSelected?.series?.title)")
-        
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             DispatchQueue.main.async(execute: { () -> Void in
@@ -1365,10 +1185,6 @@ class MediaViewController : UIViewController
         removeSliderObserver()
         removePlayerObserver()
         
-//        for player in players.values {
-//            player.currentItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: nil)
-//        }
-        
         NotificationCenter.default.removeObserver(self)
         
         sliderObserver?.invalidate()
@@ -1379,96 +1195,11 @@ class MediaViewController : UIViewController
         // Dispose of any resources that can be recreated.
     }
     
-//    func flipFromLeft(_ sender: MediaViewController)
-//    {
-//        //        println("tap")
-//        
-//        // set a transition style
-//        let transitionOptions = UIViewAnimationOptions.transitionFlipFromLeft
-//        
-//        if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
-//            view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
-//            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
-//        }
-//        
-//        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-//            //            println("\(self.seriesArtAndDescription.subviews.count)")
-//            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-//            let frontView = self.seriesArtAndDescription.subviews[0]
-//            let backView = self.seriesArtAndDescription.subviews[1]
-//            
-//            frontView.isHidden = false
-//            self.seriesArtAndDescription.bringSubview(toFront: frontView)
-//            backView.isHidden = true
-//            
-//            if frontView == self.seriesArt {
-//                self.pageControl.currentPage = 0
-//            }
-//            
-//            if frontView == self.seriesDescription {
-//                self.pageControl.currentPage = 1
-//            }
-//            
-//            }, completion: { finished in
-//                
-//        })
-//        
-//    }
-    
-//    func flipFromRight(_ sender: MediaViewController)
-//    {
-//        //        println("tap")
-//        
-//        // set a transition style
-//        let transitionOptions = UIViewAnimationOptions.transitionFlipFromRight
-//        
-//        if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
-//            view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
-//            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
-//        }
-//        
-//        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-//            //            println("\(self.seriesArtAndDescription.subviews.count)")
-//            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-//            let frontView = self.seriesArtAndDescription.subviews[0]
-//            let backView = self.seriesArtAndDescription.subviews[1]
-//            
-//            frontView.isHidden = false
-//            self.seriesArtAndDescription.bringSubview(toFront: frontView)
-//            backView.isHidden = true
-//            
-//            if frontView == self.seriesArt {
-//                self.pageControl.currentPage = 0
-//            }
-//            
-//            if frontView == self.seriesDescription {
-//                self.pageControl.currentPage = 1
-//            }
-//            
-//            }, completion: { finished in
-//                
-//        })
-//        
-//    }
-    
     func flip(_ sender: MediaViewController)
     {
-        //        println("tap")
-        
-        // set a transition style
-//        var transitionOptions:UIViewAnimationOptions!
-        
         let frontView = self.seriesArtAndDescription.subviews[0]
         let backView = self.seriesArtAndDescription.subviews[1]
         
-//        if frontView == self.seriesArt {
-//            transitionOptions = UIViewAnimationOptions.transitionFlipFromRight
-//        }
-//        
-//        if frontView == self.seriesDescription {
-//            transitionOptions = UIViewAnimationOptions.transitionFlipFromLeft
-//        }
-
         if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
             view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
             //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
@@ -1485,36 +1216,8 @@ class MediaViewController : UIViewController
         if frontView == self.seriesDescription {
             self.pageControl.currentPage = 1
         }
-
-//        UIView.transition(with: self.seriesArtAndDescription, duration: Constants.INTERVAL.VIEW_TRANSITION_TIME, options: transitionOptions, animations: {
-//            //            println("\(self.seriesArtAndDescription.subviews.count)")
-//            //The following assumes there are only 2 subviews, 0 and 1, and this alternates between them.
-//            frontView.isHidden = false
-//            self.seriesArtAndDescription.bringSubview(toFront: frontView)
-//            backView.isHidden = true
-//            
-//            if frontView == self.seriesArt {
-//                self.pageControl.currentPage = 0
-//            }
-//            
-//            if frontView == self.seriesDescription {
-//                self.pageControl.currentPage = 1
-//            }
-//
-//            }, completion: { finished in
-//                
-//        })
     }
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
     override func prepare(for segue: UIStoryboardSegue, sender: Any?)
     {
         // Get the new view controller using [segue destinationViewController].
@@ -1522,23 +1225,9 @@ class MediaViewController : UIViewController
         var destination = segue.destination as UIViewController
         // this next if-statement makes sure the segue prepares properly even
         //   if the MVC we're seguing to is wrapped in a UINavigationController
-        if let navCon = destination as? UINavigationController {
-            destination = navCon.visibleViewController!
+        if let navCon = destination as? UINavigationController, let visibleViewController = navCon.visibleViewController {
+            destination = visibleViewController
         }
-//        if let avpc = destination as? UIViewController? {
-//            if let identifier = segue.identifier {
-//                switch identifier {
-//                case "Show Sermon":
-//                    if let myCell = sender as? MediaTableViewCell {
-//                        let indexPath = seriesSermons!.indexPathForCell(myCell)
-//
-//                    }
-//                    break
-//                default:
-//                    break
-//                }
-//            }
-//        }
     }
 
     func numberOfSectionsInTableView(_ tableView: UITableView) -> Int
@@ -1559,25 +1248,23 @@ class MediaViewController : UIViewController
         }
     }
     
-    /*
-    */
     func tableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell
     {
-        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.SERMON_CELL, for: indexPath) as! MediaTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.SERMON_CELL, for: indexPath) as? MediaTableViewCell ?? MediaTableViewCell()
     
         // Configure the cell...
-//        cell.vc = self
-//        cell.row = (indexPath as NSIndexPath).row
         cell.sermon = seriesSelected?.sermons?[(indexPath as NSIndexPath).row]
         
         return cell
     }
     
-    func tableView(_ tableView: UITableView, shouldSelectRowAtIndexPath indexPath: IndexPath) -> Bool {
+    func tableView(_ tableView: UITableView, shouldSelectRowAtIndexPath indexPath: IndexPath) -> Bool
+    {
         return true
     }
     
-    fileprivate func addEndObserver() {
+    fileprivate func addEndObserver()
+    {
         if (globals.mediaPlayer.player != nil) && (globals.mediaPlayer.playing != nil) {
 
         }
@@ -1651,55 +1338,14 @@ class MediaViewController : UIViewController
             return
         }
 
-//        guard let currentTime = globals.mediaPlayer.playing?.currentTime else {
-//            return
-//        }
-//        
-//        guard let playingCurrentTime = Double(currentTime) else {
-//            return
-//        }
-//        
-//        guard let playerCurrentTime = globals.mediaPlayer.currentTime?.seconds else {
-//            return
-//        }
-
-//        guard let playerCurrentTime = globals.mediaPlayer.currentTime?.seconds, playerCurrentTime >= 0, playerCurrentTime <= length else {
-//            return
-//        }
-//        
-//        guard let mediaItemCurrentTime = globals.mediaPlayer.playing?.currentTime, let playingCurrentTime = Double(mediaItemCurrentTime), playingCurrentTime >= 0, Int(playingCurrentTime) <= Int(length) else {
-//            return
-//        }
-
         var progress = -1.0
         
-        //            print("currentTime",selectedSermon?.currentTime)
-        //            print("timeNow",timeNow)
-        //            print("progress",progress)
-        //            print("length",length)
-        
-//        if (length > 0) {
-//        }
-
         switch state {
         case .playing:
-            //                if (playingCurrentTime >= 0) && (playerCurrentTime <= globals.mediaPlayer.duration!.seconds) {
-            //                }
-            
             progress = playerCurrentTime / length
-            
-            //                    if sliding && (Int(progress*100) == Int(playingCurrentTime/length*100)) {
-            //                        print("DONE SLIDING")
-            //                        sliding = false
-            //                    }
             
             if !controlView.sliding {
                 if globals.mediaPlayer.loaded {
-                    //                        print("playing")
-                    //                        print("timeNow",timeNow)
-                    //                        print("progress",progress)
-                    //                        print("length",length)
-                    
                     if playerCurrentTime == 0 {
                         progress = playingCurrentTime / length
                         slider.value = Float(progress)
@@ -1712,7 +1358,7 @@ class MediaViewController : UIViewController
                     print("not loaded")
                 }
             } else {
-                print("still sliding 1")
+
             }
             
             elapsed.isHidden = false
@@ -1722,20 +1368,12 @@ class MediaViewController : UIViewController
             break
             
         case .paused:
-            //                    if sermonSelected?.currentTime != playerCurrentTime.description {
             progress = playingCurrentTime / length
-            
-            //                        print("paused")
-            //                        print("timeNow",timeNow)
-            //                        print("progress",progress)
-            //                        print("length",length)
-            
-//            slider.value = Float(progress)
 
             if !controlView.sliding {
                 slider.value = Float(progress)
             } else {
-                print("still sliding 2")
+
             }
 
             setTimes(timeNow: playingCurrentTime,length: length)
@@ -1744,24 +1382,15 @@ class MediaViewController : UIViewController
             remaining.isHidden = false
             slider.isHidden = false
             slider.isEnabled = true
-            //                    }
             break
             
         case .stopped:
-            //                    if sermonSelected?.currentTime != playerCurrentTime.description {
             progress = playingCurrentTime / length
-            
-            //                        print("stopped")
-            //                        print("timeNow",timeNow)
-            //                        print("progress",progress)
-            //                        print("length",length)
-            
-//            slider.value = Float(progress)
 
             if !controlView.sliding {
                 slider.value = Float(progress)
             } else {
-                print("still sliding 3")
+
             }
 
             setTimes(timeNow: playingCurrentTime,length: length)
@@ -1770,7 +1399,6 @@ class MediaViewController : UIViewController
             remaining.isHidden = false
             slider.isHidden = false
             slider.isEnabled = true
-            //                    }
             break
             
         default:
@@ -1787,8 +1415,6 @@ class MediaViewController : UIViewController
         guard let length = globals.mediaPlayer.duration?.seconds else {
             return
         }
-        
-//        let length = Float(globals.mediaPlayer.duration!.seconds)
         
         let timeNow = self.slider.value * Float(length)
         
@@ -1818,21 +1444,16 @@ class MediaViewController : UIViewController
                 slider.isHidden = true
             }
         } else {
-            //            print(player?.currentItem?.status.rawValue)
             if (player?.currentItem?.status == .readyToPlay) {
                 if  let length = player?.currentItem?.duration.seconds,
                     let currentTime = sermonSelected?.currentTime,
                     let timeNow = Double(currentTime) {
                     let progress = timeNow / length
                     
-                    //                        print("timeNow",timeNow)
-                    //                        print("progress",progress)
-                    //                        print("length",length)
-                    
                     if !controlView.sliding {
                         slider.value = Float(progress)
                     } else {
-                        print("still sliding 4")
+
                     }
                     setTimes(timeNow: timeNow,length: length)
                     
@@ -1867,7 +1488,7 @@ class MediaViewController : UIViewController
             return
         }
         
-        guard (globals.mediaPlayer.state != nil) else {
+        guard let state = globals.mediaPlayer.state else {
             return
         }
         
@@ -1883,19 +1504,12 @@ class MediaViewController : UIViewController
         setupPlayPauseButton()
         setupSpinner()
         
-//        if (!globals.mediaPlayer.loaded) {
-//            if (!spinner.isAnimating) {
-//                spinner.isHidden = false
-//                spinner.startAnimating()
-//            }
-//        }
-        
         func showState(_ state:String)
         {
             //            print(state)
         }
         
-        switch globals.mediaPlayer.state! {
+        switch state {
         case .none:
             showState("none")
             break
@@ -1904,31 +1518,11 @@ class MediaViewController : UIViewController
             showState("playing")
             
             setupSpinner()
-//            setSliderAndTimesToAudio()
 
             if globals.mediaPlayer.loaded {
                 setSliderAndTimesToAudio()
                 setupPlayPauseButton()
             }
-
-//            if (!globals.mediaPlayer.loaded) {
-//                if (!spinner.isAnimating) {
-//                    spinner.isHidden = false
-//                    spinner.startAnimating()
-//                }
-//            } else {
-//                if (globals.mediaPlayer.rate > 0) && (globals.mediaPlayer.currentTime!.seconds > Double((globals.mediaPlayer.startTime!))!) {
-//                    if spinner.isAnimating {
-//                        spinner.isHidden = true
-//                        spinner.stopAnimating()
-//                    }
-//                } else {
-//                    if !spinner.isAnimating {
-//                        spinner.isHidden = false
-//                        spinner.startAnimating()
-//                    }
-//                }
-//            }
             break
             
         case .paused:
@@ -1940,13 +1534,6 @@ class MediaViewController : UIViewController
                 setSliderAndTimesToAudio()
                 setupPlayPauseButton()
             }
-            
-//            if globals.mediaPlayer.loaded || globals.mediaPlayer.loadFailed {
-//                if spinner.isAnimating {
-//                    spinner.stopAnimating()
-//                    spinner.isHidden = true
-//                }
-//            }
             break
             
         case .stopped:
@@ -1955,39 +1542,13 @@ class MediaViewController : UIViewController
             
         case .seekingForward:
             showState("seekingForward")
-//            if !spinner.isAnimating {
-//                spinner.isHidden = false
-//                spinner.startAnimating()
-//            }
             break
             
         case .seekingBackward:
             showState("seekingBackward")
-//            if !spinner.isAnimating {
-//                spinner.isHidden = false
-//                spinner.startAnimating()
-//            }
             break
         }
     }
-    
-//    fileprivate func networkUnavailable(_ message:String?)
-//    {
-//        if (UIApplication.shared.applicationState == UIApplicationState.active) { // && (self.view.window != nil)
-//            dismiss(animated: true, completion: nil)
-//            
-//            let alert = UIAlertController(title: Constants.Network_Error,
-//                message: message,
-//                preferredStyle: UIAlertControllerStyle.alert)
-//            
-//            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-//                
-//            })
-//            alert.addAction(action)
-//            
-//            present(alert, animated: true, completion: nil)
-//        }
-//    }
     
     func removeSliderObserver()
     {
@@ -2005,13 +1566,6 @@ class MediaViewController : UIViewController
         removeSliderObserver()
         
         self.sliderObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.SLIDER, target: self, selector: #selector(MediaViewController.sliderTimer), userInfo: nil, repeats: true)
-
-//        DispatchQueue.main.async(execute: { () -> Void in
-//        })
-        
-//        globals.mediaPlayer.sliderTimerReturn = globals.mediaPlayer.player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (CMTime) in
-//            self?.sliderTimer()
-//            })
     }
     
     func playCurrentSermon(_ sermon:Sermon?)
@@ -2039,17 +1593,17 @@ class MediaViewController : UIViewController
             seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
         }
         
-        if seekToTime != nil {
+        if let seekToTime = seekToTime {
             let loadedTimeRanges = (globals.mediaPlayer.player?.currentItem?.loadedTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
-                return cmTimeRange.containsTime(seekToTime!)
+                return cmTimeRange.containsTime(seekToTime)
             })
             
             let seekableTimeRanges = (globals.mediaPlayer.player?.currentItem?.seekableTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
-                return cmTimeRange.containsTime(seekToTime!)
+                return cmTimeRange.containsTime(seekToTime)
             })
             
             if (loadedTimeRanges != nil) || (seekableTimeRanges != nil) {
-                globals.mediaPlayer.seek(to: seekToTime?.seconds)
+                globals.mediaPlayer.seek(to: seekToTime.seconds)
                 
                 globals.mediaPlayer.play()
                 
@@ -2077,7 +1631,7 @@ class MediaViewController : UIViewController
             return
         }
 
-        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
+        guard let reachability = globals.reachability, reachability.isReachable else {
             alert(viewController: self, title: "Audio Not Available", message: "Please check your network connection and try again.")
             return
         }

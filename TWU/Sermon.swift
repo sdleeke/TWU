@@ -49,11 +49,13 @@ class Download {
             
         }
         didSet {
-            if state != oldValue {
-                DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
-                })
+            guard state != oldValue else {
+                return
             }
+            
+            DispatchQueue.main.async(execute: { () -> Void in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+            })
         }
     }
     
@@ -86,13 +88,14 @@ class Download {
         
         let downloadRequest = URLRequest(url: downloadURL)
 
-        let configuration = URLSessionConfiguration.ephemeral
+        let configuration = URLSessionConfiguration.default
+        
+//        let configuration = URLSessionConfiguration.ephemeral
         
         // This allows the downloading to continue even if the app goes into the background or terminates.
-//            let configuration = URLSessionConfiguration.background(withIdentifier: Constants.IDENTIFIER.DOWNLOAD + fileSystemURL!.lastPathComponent)
-//            configuration.sessionSendsLaunchEvents = true
-        
-        //        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+//        let downloadIdentifier = Constants.IDENTIFIER.DOWNLOAD + fileSystemURL.lastPathComponent
+//        let configuration = URLSessionConfiguration.background(withIdentifier: downloadIdentifier)
+//        configuration.sessionSendsLaunchEvents = true
         
         session = URLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
         
@@ -179,8 +182,8 @@ extension Sermon : URLSessionDownloadDelegate
             
             if audioDownload.state != .none {
                 if let range = downloadTask.taskDescription?.range(of: "."),
-                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound),
-                    let sermon = globals.sermonFromSermonID(Int(id)!) {
+                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound), let num = Int(id),
+                    let sermon = globals.sermonFromSermonID(num) {
                     globals.alert(title: "Download Failed", message: sermon.title)
                 } else {
                     globals.alert(title: "Download Failed", message: nil)
@@ -206,7 +209,11 @@ extension Sermon : URLSessionDownloadDelegate
             
             print("session: \(session.sessionDescription ?? "Session Description")")
             print("task: \(downloadTask.taskDescription ?? "Task Description")")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            
+            if let fileSystemURL = audioDownload.fileSystemURL {
+                print("filename: \(fileSystemURL.lastPathComponent)")
+            }
+            
             print("bytes written: \(totalBytesWritten)")
             print("bytes expected to write: \(totalBytesExpectedToWrite)")
         }
@@ -244,19 +251,15 @@ extension Sermon : URLSessionDownloadDelegate
         
             if audioDownload.state != .none {
                 if let range = downloadTask.taskDescription?.range(of: "."),
-                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound),
-                    let sermon = globals.sermonFromSermonID(Int(id)!) {
+                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound), let num = Int(id),
+                    let sermon = globals.sermonFromSermonID(num) {
                     globals.alert(title: "Download Failed", message: sermon.title)
                 } else {
                     globals.alert(title: "Download Failed", message: nil)
                 }
             }
-//            if audioDownload.state != .none {
-//                globals.alert(title: "Download Failed", message: "Please check your network connection and try again")
-//            }
             
-            audioDownload.cancel() // .task?
-//            audioDownload.state = .none
+            audioDownload.cancel()
 
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
@@ -270,7 +273,11 @@ extension Sermon : URLSessionDownloadDelegate
             print("URLSession:downloadTask:didFinishDownloadingToURL:")
             
             print("taskDescription: \(downloadTask.taskDescription!)")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            
+            if let fileSystemURL = audioDownload.fileSystemURL {
+                print("filename: \(fileSystemURL.lastPathComponent)")
+            }
+            
             print("bytes written: \(audioDownload.totalBytesWritten)")
             print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
             print("location: \(location)")
@@ -335,8 +342,7 @@ extension Sermon : URLSessionDownloadDelegate
                 }
             }
             
-            audioDownload.cancel() // .task?
-//            audioDownload.state = .none
+            audioDownload.cancel()
 
             DispatchQueue.main.async(execute: { () -> Void in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
@@ -349,8 +355,10 @@ extension Sermon : URLSessionDownloadDelegate
         if debug {
             print("URLSession:task:didCompleteWithError:")
             
-            print("path: \(audioDownload.fileSystemURL!.path)")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            if let fileSystemURL = audioDownload.fileSystemURL {
+                print("path: \(fileSystemURL.path)")
+                print("filename: \(fileSystemURL.lastPathComponent)")
+            }
             print("bytes written: \(audioDownload.totalBytesWritten)")
             print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
         }
@@ -378,15 +386,18 @@ extension Sermon : URLSessionDownloadDelegate
         if debug {
             print("URLSession:didBecomeInvalidWithError:")
             
-            print("path: \(audioDownload.fileSystemURL!.path)")
-            print("filename: \(audioDownload.fileSystemURL!.lastPathComponent)")
+            if let fileSystemURL = audioDownload.fileSystemURL {
+                print("path: \(fileSystemURL.path)")
+                print("filename: \(fileSystemURL.lastPathComponent)")
+            }
+            
             print("bytes written: \(audioDownload.totalBytesWritten)")
             print("bytes expected to write: \(audioDownload.totalBytesExpectedToWrite)")
         }
         
-        if (error != nil) {
-            NSLog("with error: \(error!.localizedDescription)")
-            globals.alert(title: "Network Error", message: error?.localizedDescription)
+        if let error = error {
+            NSLog("with error: \(error.localizedDescription)")
+            globals.alert(title: "Network Error", message: error.localizedDescription)
             audioDownload.state = .none
         }
         
@@ -438,7 +449,7 @@ class Sermon : NSObject {
     
     var atEnd:Bool {
         get {
-            return settings![Constants.SETTINGS.AT_END] == "YES"
+            return settings?[Constants.SETTINGS.AT_END] == "YES"
         }
         
         set {
@@ -454,13 +465,21 @@ class Sermon : NSObject {
 
     var audioURL:URL? {
         get {
-            return URL(string: Constants.URL.BASE.AUDIO + audio!)
+            guard let audio = audio else {
+                return nil
+            }
+            
+            return URL(string: Constants.URL.BASE.AUDIO + audio)
         }
     }
 
     var audioFileSystemURL:URL? {
         get {
-            return cachesURL()?.appendingPathComponent(audio!)
+            guard let audio = audio else {
+                return nil
+            }
+            
+            return cachesURL()?.appendingPathComponent(audio)
         }
     }
     
@@ -591,10 +610,6 @@ class Sermon : NSObject {
                     globals.sermonSettings?[sermonID] = [String:String]()
                 }
                 
-                //                            print("\(globals.sermonSettings!)")
-                //                            print("\(sermon!)")
-                //                            print("\(newValue!)")
-                
                 if (globals.sermonSettings?[sermonID]?[key] != newValue) {
                     globals.sermonSettings?[sermonID]?[key] = newValue
                     
@@ -610,10 +625,6 @@ class Sermon : NSObject {
     }()
     
     var downloads = [String:Download]()
-    
-    //    lazy var downloads:[String:Download]? = {
-    //        return [String:Download]()
-    //    }()
     
     lazy var audioDownload:Download! = {
         [unowned self] in

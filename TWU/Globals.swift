@@ -31,16 +31,18 @@ struct MediaRepository {
         didSet {
             index = nil
             
-            if (list != nil) {
-                for series in list! {
-                    if index == nil {
-                        index = [Int:Series]()
-                    }
-                    if index![series.id] == nil {
-                        index![series.id] = series
-                    } else {
-                        print("DUPLICATE SERIES ID: \(series)")
-                    }
+            guard let list = list else {
+                return
+            }
+
+            for series in list {
+                if index == nil {
+                    index = [Int:Series]()
+                }
+                if index?[series.id] == nil {
+                    index?[series.id] = series
+                } else {
+                    print("DUPLICATE SERIES ID: \(series)")
                 }
             }
         }
@@ -50,12 +52,10 @@ struct MediaRepository {
 
 class Globals : NSObject
 {
-    let reachability = Reachability(hostname: "www.thewordunleashed.org")!
+    var reachability : Reachability?
     
-    var splitViewController:UISplitViewController!
+    var splitViewController : UISplitViewController!
     
-//    var playerTimerReturn:Any?
-
     var sorting:String? = Constants.Sorting.Newest_to_Oldest {
         willSet {
             
@@ -80,29 +80,31 @@ class Globals : NSObject
             
         }
         didSet {
-            if filter != oldValue {
-                if (filter != nil) {
-                    showing = .filtered
-                    filteredSeries = series?.filter({ (series:Series) -> Bool in
-                        return series.book == filter
-                    })
-                } else {
-                    showing = .all
-                    filteredSeries = nil
-                }
-                
-                updateSearchResults()
-                
-                activeSeries = sortSeries(activeSeries,sorting: sorting)
-
-                let defaults = UserDefaults.standard
-                if (filter != nil) {
-                    defaults.set(filter,forKey: Constants.FILTER)
-                } else {
-                    defaults.removeObject(forKey: Constants.FILTER)
-                }
-                defaults.synchronize()
+            guard filter != oldValue else {
+                return
             }
+            
+            if (filter != nil) {
+                showing = .filtered
+                filteredSeries = series?.filter({ (series:Series) -> Bool in
+                    return series.book == filter
+                })
+            } else {
+                showing = .all
+                filteredSeries = nil
+            }
+            
+            updateSearchResults()
+            
+            activeSeries = sortSeries(activeSeries,sorting: sorting)
+
+            let defaults = UserDefaults.standard
+            if (filter != nil) {
+                defaults.set(filter,forKey: Constants.FILTER)
+            } else {
+                defaults.removeObject(forKey: Constants.FILTER)
+            }
+            defaults.synchronize()
         }
     }
     
@@ -139,13 +141,6 @@ class Globals : NSObject
     var searchSeries:[Series]?
     
     var searchText:String?
-//    {
-//        didSet {
-//            if searchText != oldValue {
-//                updateSearchResults()
-//            }
-//        }
-//    }
 
     var showingAbout:Bool = false
     {
@@ -181,22 +176,24 @@ class Globals : NSObject
             
         }
         didSet {
-            if (series != nil) {
+            if let series = series {
                 index = [Int:Series]()
-                for sermonSeries in series! {
-                    if index![sermonSeries.id] == nil {
-                        index![sermonSeries.id] = sermonSeries
+                for sermonSeries in series {
+                    if index?[sermonSeries.id] == nil {
+                        index?[sermonSeries.id] = sermonSeries
                     } else {
                         print("DUPLICATE SERIES ID: \(sermonSeries)")
                     }
                 }
             }
+            
             if (filter != nil) {
                 showing = .filtered
                 filteredSeries = series?.filter({ (series:Series) -> Bool in
                     return series.book == filter
                 })
             }
+            
             updateSearchResults()
         }
     }
@@ -205,11 +202,11 @@ class Globals : NSObject
     
     func sermonFromSermonID(_ id:Int) -> Sermon?
     {
-        guard index != nil else {
+        guard let index = index else {
             return nil
         }
         
-        for (_,value) in index! {
+        for (_,value) in index {
             if let sermons = value.sermons {
                 for sermon in sermons {
                     if sermon.id == id {
@@ -260,61 +257,15 @@ class Globals : NSObject
         }
     }
     
-    var reachabilityStatus : Reachability.NetworkStatus?
+    var priorReachabilityStatus : Reachability.NetworkStatus?
     
     func reachabilityTransition()
     {
-        if self.reachabilityStatus != nil {
-            switch self.reachabilityStatus! {
-            case .notReachable:
-                switch reachability.currentReachabilityStatus {
-                case .notReachable:
-                    print("Not Reachable -> Not Reachable")
-                    break
-                    
-                case .reachableViaWLAN:
-                    print("Not Reachable -> Reachable via WLAN, e.g. WiFi or Bluetooth")
-                    break
-                    
-                case .reachableViaWWAN:
-                    print("Not Reachable -> Reachable via WWAN, e.g. Cellular")
-                    break
-                }
-                break
-                
-            case .reachableViaWLAN:
-                switch reachability.currentReachabilityStatus {
-                case .notReachable:
-                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Not Reachable")
-                    break
-                    
-                case .reachableViaWLAN:
-                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WLAN, e.g. WiFi or Bluetooth")
-                    break
-                    
-                case .reachableViaWWAN:
-                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WWAN, e.g. Cellular")
-                    break
-                }
-                break
-                
-            case .reachableViaWWAN:
-                switch reachability.currentReachabilityStatus {
-                case .notReachable:
-                    print("Reachable via WWAN, e.g. Cellular -> Not Reachable")
-                    break
-                    
-                case .reachableViaWLAN:
-                    print("Reachable via WWAN, e.g. Cellular -> Reachable via WLAN, e.g. WiFi or Bluetooth")
-                    break
-                    
-                case .reachableViaWWAN:
-                    print("Reachable via WWAN, e.g. Cellular -> Reachable via WWAN, e.g. Cellular")
-                    break
-                }
-                break
-            }
-        } else {
+        guard let reachability = reachability else {
+            return
+        }
+        
+        guard let priorReachabilityStatus = priorReachabilityStatus else {
             switch reachability.currentReachabilityStatus {
             case .notReachable:
                 print("Not Reachable")
@@ -328,25 +279,80 @@ class Globals : NSObject
                 print("Reachable via WWAN, e.g. Cellular")
                 break
             }
+
+            return
         }
         
-        // (reachabilityStatus == .notReachable) && (
-        // currentReachabilityStatus != .notReachable
+        switch priorReachabilityStatus {
+        case .notReachable:
+            switch reachability.currentReachabilityStatus {
+            case .notReachable:
+                print("Not Reachable -> Not Reachable")
+                break
+                
+            case .reachableViaWLAN:
+                print("Not Reachable -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                break
+                
+            case .reachableViaWWAN:
+                print("Not Reachable -> Reachable via WWAN, e.g. Cellular")
+                break
+            }
+            break
+            
+        case .reachableViaWLAN:
+            switch reachability.currentReachabilityStatus {
+            case .notReachable:
+                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Not Reachable")
+                break
+                
+            case .reachableViaWLAN:
+                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                break
+                
+            case .reachableViaWWAN:
+                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WWAN, e.g. Cellular")
+                break
+            }
+            break
+            
+        case .reachableViaWWAN:
+            switch reachability.currentReachabilityStatus {
+            case .notReachable:
+                print("Reachable via WWAN, e.g. Cellular -> Not Reachable")
+                break
+                
+            case .reachableViaWLAN:
+                print("Reachable via WWAN, e.g. Cellular -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                break
+                
+            case .reachableViaWWAN:
+                print("Reachable via WWAN, e.g. Cellular -> Reachable via WWAN, e.g. Cellular")
+                break
+            }
+            break
+        }
         
-        if reachability.isReachable && (globals.mediaRepository.list != nil) {
+        if priorReachabilityStatus == .notReachable, reachability.isReachable, globals.mediaRepository.list != nil {
             globals.alert(title: "Network Connection Restored",message: "")
         }
         
-        if !reachability.isReachable && (globals.mediaRepository.list != nil) {
+        if priorReachabilityStatus != .notReachable, !reachability.isReachable, globals.mediaRepository.list != nil {
             globals.alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
         }
         
-        reachabilityStatus = reachability.currentReachabilityStatus
+        self.priorReachabilityStatus = reachability.currentReachabilityStatus
     }
     
     override init()
     {
         super.init()
+        
+        guard let reachability = Reachability(hostname: "www.thewordunleashed.org") else {
+            return
+        }
+        
+        self.reachability = reachability
         
         reachability.whenReachable = { reachability in
             // this is called on a background thread, but UI updates must
@@ -367,9 +373,7 @@ class Globals : NSObject
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
             }
         }
-        
-        //        NotificationCenter.default.addObserver(self, selector: #selector(self.reachabilityChanged),name: ReachabilityChangedNotification,object: reachability)
-        
+
         do {
             try reachability.startNotifier()
         } catch {
@@ -379,19 +383,21 @@ class Globals : NSObject
 
     func cancelAllDownloads()
     {
-        if (series != nil) {
-            for series in series! {
-                if series.sermons != nil {
-                    for sermon in series.sermons! {
-                        if sermon.audioDownload.active {
-                            sermon.audioDownload.task?.cancel()
-                            sermon.audioDownload.task = nil
-                            
-                            sermon.audioDownload.totalBytesWritten = 0
-                            sermon.audioDownload.totalBytesExpectedToWrite = 0
-                            
-                            sermon.audioDownload.state = .none
-                        }
+        guard let series = series else {
+            return
+        }
+        
+        for series in series {
+            if let sermons = series.sermons {
+                for sermon in sermons {
+                    if sermon.audioDownload.active {
+                        sermon.audioDownload.task?.cancel()
+                        sermon.audioDownload.task = nil
+                        
+                        sermon.audioDownload.totalBytesWritten = 0
+                        sermon.audioDownload.totalBytesExpectedToWrite = 0
+                        
+                        sermon.audioDownload.state = .none
                     }
                 }
             }
@@ -400,7 +406,7 @@ class Globals : NSObject
     
     func updateSearchResults()
     {
-        if searchActive { //  && (searchText != nil) && (searchText != Constants.EMPTY_STRING)
+        if searchActive {
             searchSeries = seriesToSearch?.filter({ (series:Series) -> Bool in
                 guard let searchText = searchText else {
                     return false
@@ -441,7 +447,6 @@ class Globals : NSObject
     {
         print("saveSermonSettings")
         let defaults = UserDefaults.standard
-        //    print("\(sermonSettings)")
         defaults.set(seriesSettings,forKey: Constants.SETTINGS.KEY.SERIES)
         defaults.set(sermonSettings,forKey: Constants.SETTINGS.KEY.SERMON)
         defaults.synchronize()
@@ -452,12 +457,10 @@ class Globals : NSObject
         let defaults = UserDefaults.standard
         
         if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERIES) {
-            //        print("\(settingsDictionary)")
             seriesSettings = settingsDictionary as? [String:[String:String]]
         }
         
         if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERMON) {
-            //        print("\(settingsDictionary)")
             sermonSettings = settingsDictionary as? [String:[String:String]]
         }
         
@@ -500,8 +503,6 @@ class Globals : NSObject
                 }
             }
         }
-
-        //    print("\(sermonSettings)")
     }
     
     func alertViewer()
@@ -551,25 +552,32 @@ class Globals : NSObject
         }
     }
     
-    func motionEnded(_ motion: UIEventSubtype, event: UIEvent?) {
-        if (motion == .motionShake) {
-            if (mediaPlayer.playing != nil) {
-                switch mediaPlayer.state! {
-                case .paused:
-                    mediaPlayer.play()
-                    break
-                    
-                default:
-                    mediaPlayer.pause()
-                    break
-                }
+    func motionEnded(_ motion: UIEventSubtype, event: UIEvent?)
+    {
+        guard (motion == .motionShake) else {
+            return
+        }
+        
+        guard (mediaPlayer.playing != nil) else {
+            return
+        }
+        
+        if let state = mediaPlayer.state {
+            switch state {
+            case .paused:
+                mediaPlayer.play()
+                break
                 
-                DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-                })
+            default:
+                mediaPlayer.pause()
+                break
             }
         }
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
+        })
     }
 
     func addAccessoryEvents()
@@ -642,8 +650,12 @@ class Globals : NSObject
             MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = true
             MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
                 NSLog("MPChangePlaybackPositionCommand")
-                self.mediaPlayer.seek(to: (event as! MPChangePlaybackPositionCommandEvent).positionTime)
-                return MPRemoteCommandHandlerStatus.success
+                if let positionTime = (event as? MPChangePlaybackPositionCommandEvent)?.positionTime {
+                    self.mediaPlayer.seek(to: positionTime)
+                    return MPRemoteCommandHandlerStatus.success
+                } else {
+                    return MPRemoteCommandHandlerStatus.commandFailed
+                }
             })
         } else {
             // Fallback on earlier versions

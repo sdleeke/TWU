@@ -136,7 +136,7 @@ class AboutViewController : UIViewController
     
     fileprivate func networkUnavailable(_ message:String?)
     {
-        if (UIApplication.shared.applicationState == UIApplicationState.active) { //  && (self.view.window != nil)
+        if (UIApplication.shared.applicationState == UIApplicationState.active) {
             dismiss(animated: true, completion: nil)
             
             let alert = UIAlertController(title: Constants.Network_Error,
@@ -154,8 +154,12 @@ class AboutViewController : UIViewController
     
     fileprivate func openWebSite(_ urlString:String)
     {
-        if (UIApplication.shared.canOpenURL(URL(string:urlString)!)) { // Reachability.isConnectedToNetwork() &&
-            UIApplication.shared.openURL(URL(string:urlString)!)
+        guard let url = URL(string:urlString) else {
+            return
+        }
+        
+        if (UIApplication.shared.canOpenURL(url)) { // Reachability.isConnectedToNetwork() &&
+            UIApplication.shared.openURL(url)
         } else {
             networkUnavailable("Unable to open web site: \(urlString)")
         }
@@ -193,38 +197,42 @@ class AboutViewController : UIViewController
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
         
-        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController {
-            if let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
-                navigationController.modalPresentationStyle = .popover
-                //            popover?.preferredContentSize = CGSizeMake(300, 500)
-                
-                navigationController.popoverPresentationController?.permittedArrowDirections = .up
-                navigationController.popoverPresentationController?.delegate = self
-                
-                navigationController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
-                
-                //                popover.navigationItem.title = "Actions"
-                
-                popover.navigationController?.isNavigationBarHidden = true
-                
-                popover.delegate = self
-                popover.purpose = .selectingAction
-                
-                var actionMenu = [String]()
-                
-                actionMenu.append(Constants.Email_TWU)
-                actionMenu.append(Constants.TWU_Website)
-                
-                actionMenu.append(Constants.Share_This_App)
-                
-                popover.strings = actionMenu
-                
-                popover.showIndex = false //(globals.grouping == .series)
-                popover.showSectionHeaders = false
-                
-                present(navigationController, animated: true, completion: nil)
-            }
+        guard let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController else {
+            return
         }
+        
+        guard let popover = navigationController.viewControllers[0] as? PopoverTableViewController else {
+            return
+        }
+        
+        navigationController.modalPresentationStyle = .popover
+        //            popover?.preferredContentSize = CGSizeMake(300, 500)
+        
+        navigationController.popoverPresentationController?.permittedArrowDirections = .up
+        navigationController.popoverPresentationController?.delegate = self
+        
+        navigationController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        
+        //                popover.navigationItem.title = "Actions"
+        
+        popover.navigationController?.isNavigationBarHidden = true
+        
+        popover.delegate = self
+        popover.purpose = .selectingAction
+        
+        var actionMenu = [String]()
+        
+        actionMenu.append(Constants.Email_TWU)
+        actionMenu.append(Constants.TWU_Website)
+        
+        actionMenu.append(Constants.Share_This_App)
+        
+        popover.strings = actionMenu
+        
+        popover.showIndex = false //(globals.grouping == .series)
+        popover.showSectionHeaders = false
+        
+        present(navigationController, animated: true, completion: nil)
     }
     
     var actionButton:UIBarButtonItem?
@@ -235,7 +243,10 @@ class AboutViewController : UIViewController
         // Do any additional setup after loading the view.
         
         actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(AboutViewController.actions))
-        actionButton?.setTitleTextAttributes([NSFontAttributeName:UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE)!], for: UIControlState())
+        
+        if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
+            actionButton?.setTitleTextAttributes([NSFontAttributeName:font], for: UIControlState())
+        }
         
         self.navigationItem.rightBarButtonItem = actionButton
     }

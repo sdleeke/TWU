@@ -19,7 +19,7 @@ enum PopoverPurpose {
 
 protocol PopoverTableViewControllerDelegate
 {
-    func rowClickedAtIndex(_ index:Int, strings:[String], purpose:PopoverPurpose) // , sermon:Sermon?
+    func rowClickedAtIndex(_ index:Int, strings:[String], purpose:PopoverPurpose)
 }
 
 struct Section {
@@ -33,13 +33,10 @@ class PopoverTableViewController: UITableViewController {
     var delegate : PopoverTableViewControllerDelegate?
     var purpose : PopoverPurpose?
     
-//    var selectedSermon:Sermon?
-    
     var allowsSelection:Bool = true
     var allowsMultipleSelection:Bool = false
     
     var showIndex:Bool = false
-//    var indexByLastName:Bool = false
     var showSectionHeaders:Bool = false
     
     var strings:[String]?
@@ -51,7 +48,7 @@ class PopoverTableViewController: UITableViewController {
     
     func setPreferredContentSize()
     {
-        guard (strings != nil) else {
+        guard let strings = strings else {
             return
         }
         
@@ -60,40 +57,35 @@ class PopoverTableViewController: UITableViewController {
         var height:CGFloat = 0.0
         var width:CGFloat = 0.0
         
-        //        print(strings)
-        
-        for string in strings! {
+        for string in strings {
             let widthSize: CGSize = CGSize(width: .greatestFiniteMagnitude, height: 44.0)
             let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], context: nil)
             
             let heightSize: CGSize = CGSize(width: view.bounds.width - 30, height: .greatestFiniteMagnitude)
             let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], context: nil)
             
-            //            print(string)
-            //            print(maxSize)
-            
             if maxWidth.width > width {
-                //                print(string)
                 width = maxWidth.width
             }
             
             height += 44
             
-            //            print(maxHeight.height, (Int(maxHeight.height) / 16) - 1)
             height += CGFloat(((Int(maxHeight.height) / 16) - 1) * 16)
         }
         
         width += 2*20
         
-        switch purpose! {
-        case .selectingFiltering:
-            fallthrough
-        case .selectingSorting:
-            width += 44
-            break
-            
-        default:
-            break
+        if let purpose = purpose {
+            switch purpose {
+            case .selectingFiltering:
+                fallthrough
+            case .selectingSorting:
+                width += 44
+                break
+                
+            default:
+                break
+            }
         }
         
         if showIndex {
@@ -117,59 +109,6 @@ class PopoverTableViewController: UITableViewController {
 
         tableView.allowsSelection = allowsSelection
         tableView.allowsMultipleSelection = allowsMultipleSelection
-        
-//        var max = 0
-//        
-//        if (navigationItem.title != nil) {
-//            max = navigationItem.title!.characters.count
-//        }
-//        
-//        for string in strings! {
-//            if string.characters.contains("\n") {
-//                var newString = string
-//                
-//                var strings = [String]()
-//                
-//                repeat {
-//                    strings.append(newString.substring(to: newString.range(of: "\n")!.lowerBound))
-//                    newString = newString.substring(from: newString.range(of: "\n")!.upperBound)
-//                } while newString.characters.contains("\n")
-//                
-//                strings.append(newString)
-//                
-//                for string in strings {
-//                    if string.characters.count > max {
-//                        max = string.characters.count
-//                    }
-//                }
-//            } else {
-//                if string.characters.count > max {
-//                    max = string.characters.count
-//                }
-//            }
-//        }
-//        
-//        //        print("count: \(CGFloat(strings!.count)) rowHeight: \(tableView.rowHeight) height: \(height)")
-//        
-//        var width = CGFloat(max * 12)
-//        if width < 200 {
-//            width = 200
-//        }
-//        var height = 50 * CGFloat(strings!.count) //35 tableView.rowHeight was -1 which I don't understand
-//        if height < 150 {
-//            height = 150
-//        }
-//        
-//        if showSectionHeaders {
-//            height = 1.5*height
-//        }
-//
-//        self.preferredContentSize = CGSize(width: width, height: height)
-        
-//        print("Strings: \(strings)")
-//        print("Sections: \(sections)")
-//        print("Section Indexes: \(sectionIndexes)")
-//        print("Section Counts: \(sectionCounts)")
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -190,31 +129,17 @@ class PopoverTableViewController: UITableViewController {
 
         let a = "A"
             
-        section.titles = Array(Set(strings.map({ (string:String) -> String in
-            return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
-            
-//                if indexByLastName {
-//                    return lastNameFromName(string)!.substring(to: a.endIndex)
-//                } else {
-//                    return stringWithoutPrefixes(string)!.substring(to: a.endIndex)
-//                }
+        let sectionTitles = Array(Set(strings.map({ (string:String) -> String in
+            return stringWithoutPrefixes(string)?.substring(to: a.endIndex) ?? ""
         }))).sorted() { $0 < $1 }
         
         var indexes = [Int]()
         var counts = [Int]()
         
-        for sectionTitle in section.titles! {
+        for sectionTitle in sectionTitles {
             var counter = 0
             
             for index in 0..<strings.count {
-//                    var string:String?
-//
-//                    if indexByLastName {
-//                        string = lastNameFromName(strings?[index])!.substring(to: a.endIndex)
-//                    } else {
-//                        string = stringWithoutPrefixes(strings?[index])!.substring(to: a.endIndex)
-//                    }
-
                 let string = stringWithoutPrefixes(strings[index])?.substring(to: a.endIndex)
                 
                 if (sectionTitle == string) {
@@ -227,6 +152,8 @@ class PopoverTableViewController: UITableViewController {
             
             counts.append(counter)
         }
+        
+        section.titles = sectionTitles.count > 0 ? sectionTitles : nil
         
         section.indexes = indexes.count > 0 ? indexes : nil
         section.counts = counts.count > 0 ? counts : nil
@@ -257,7 +184,8 @@ class PopoverTableViewController: UITableViewController {
 //        NotificationCenter.default.removeObserver(self)
     }
     
-    override func didReceiveMemoryWarning() {
+    override func didReceiveMemoryWarning()
+    {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
         URLCache.shared.removeAllCachedResponses()
@@ -265,27 +193,30 @@ class PopoverTableViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int
+    {
         // #warning Potentially incomplete method implementation.
         // Return the number of sections.
-        if (showIndex) {
-            return self.section.titles != nil ? self.section.titles!.count : 0
+        if showIndex {
+            return self.section.titles?.count ?? 0
         } else {
             return 1
         }
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
-        if (showIndex) {
-            return self.section.counts != nil ? self.section.counts![section] : 0
+        if showIndex {
+            return self.section.counts?[section] ?? 0
         } else {
-            return strings != nil ? strings!.count : 0
+            return strings?.count ?? 0
         }
     }
 
-    override func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+    override func sectionIndexTitles(for tableView: UITableView) -> [String]?
+    {
         if (showIndex) {
             return self.section.titles
         } else {
@@ -293,11 +224,8 @@ class PopoverTableViewController: UITableViewController {
         }
     }
     
-//    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-//        return 48
-//    }
-    
-    override func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+    override func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int
+    {
         if (showIndex) {
             return index
         } else {
@@ -305,36 +233,41 @@ class PopoverTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String?
+    {
         if (showIndex && showSectionHeaders) {
-            return self.section.titles != nil ? self.section.titles![section] : nil
+            return self.section.titles?[section]
         } else {
             return nil
         }
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    {
         let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.POPOVER_CELL, for: indexPath)
 
         var index = -1
         
-        if (showIndex) {
-            index = section.indexes != nil ? section.indexes![(indexPath as NSIndexPath).section]+(indexPath as NSIndexPath).row : -1
+        if showIndex, let indexes = section.indexes {
+            index = indexes[indexPath.section] + indexPath.row
         } else {
-            index = (indexPath as NSIndexPath).row
+            index = indexPath.row
+        }
+        
+        guard let purpose = purpose else {
+            return cell
         }
         
         // Configure the cell...
-        switch purpose! {
+        switch purpose {
         case .selectingAction:
             cell.accessoryType = UITableViewCellAccessoryType.none
             break
             
         case .selectingFiltering:
-            //            print("strings: \(strings[indexPath.row]) sermontTag: \(globals.sermonTag)")
             switch globals.showing {
             case .all:
-                if strings![index] == Constants.All {
+                if strings?[index] == Constants.All {
                     cell.accessoryType = UITableViewCellAccessoryType.checkmark
                 } else {
                     cell.accessoryType = UITableViewCellAccessoryType.none
@@ -342,7 +275,7 @@ class PopoverTableViewController: UITableViewController {
                 break
             
             case .filtered:
-                if strings![index] == globals.filter {
+                if strings?[index] == globals.filter {
                     cell.accessoryType = UITableViewCellAccessoryType.checkmark
                 } else {
                     cell.accessoryType = UITableViewCellAccessoryType.none
@@ -363,67 +296,23 @@ class PopoverTableViewController: UITableViewController {
             break
         }
 
-        cell.textLabel?.text = strings![index]
+        cell.textLabel?.text = strings?[index]
 
         return cell
     }
 
-    override func tableView(_ TableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let cell = tableView.cellForRowAtIndexPath(indexPath)
-
+    override func tableView(_ TableView: UITableView, didSelectRowAt indexPath: IndexPath)
+    {
         var index = -1
-        if (showIndex) {
-            index = self.section.indexes != nil ? self.section.indexes![(indexPath as NSIndexPath).section]+(indexPath as NSIndexPath).row : -1
+        
+        if showIndex, let indexes = self.section.indexes {
+            index = indexes[indexPath.section] + indexPath.row
         } else {
-            index = (indexPath as NSIndexPath).row
+            index = indexPath.row
         }
 
-        delegate?.rowClickedAtIndex(index, strings: self.strings!, purpose: self.purpose!) // , sermon: self.selectedSermon
+        if let strings = strings, let purpose = purpose {
+            delegate?.rowClickedAtIndex(index, strings: strings, purpose: purpose)
+        }
     }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
