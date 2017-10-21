@@ -89,9 +89,9 @@ func shareHTML(viewController:UIViewController,htmlString:String?)
     activityViewController.popoverPresentationController?.barButtonItem = viewController.navigationItem.rightBarButtonItem
     
     // present the view controller
-    DispatchQueue.main.async(execute: { () -> Void in
+    Thread.onMainThread {
         viewController.present(activityViewController, animated: false, completion: nil)
-    })
+    }
 }
 
 extension Date
@@ -274,9 +274,9 @@ func networkUnavailable(viewController:UIViewController,message:String?)
     })
     alert.addAction(action)
 
-    DispatchQueue.main.async(execute: { () -> Void in
+    Thread.onMainThread {
         viewController.present(alert, animated: true, completion: nil)
-    })
+    }
 }
 
 func filesOfTypeInCache(_ fileType:String) -> [String]?
@@ -343,10 +343,10 @@ func alert(viewController:UIViewController,title:String?,message:String?)
     })
     alert.addAction(action)
     
-    DispatchQueue.main.async(execute: { () -> Void in
+    Thread.onMainThread {
         UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
         viewController.present(alert, animated: true, completion: nil)
-    })
+    }
 }
 
 func stringWithoutPrefixes(_ fromString:String?) -> String?
@@ -384,9 +384,9 @@ func userAlert(title:String?,message:String?)
         
         //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
-        })
+        }
     }
 }
 

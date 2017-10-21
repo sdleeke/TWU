@@ -53,9 +53,9 @@ class Download {
                 return
             }
             
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
-            })
+            }
         }
     }
     
@@ -106,9 +106,9 @@ class Download {
         
         task?.resume()
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        })
+        }
     }
     
     func delete()
@@ -190,16 +190,13 @@ extension Sermon : URLSessionDownloadDelegate
                 }
             }
 
-//            globals.alert(title: "Download Failed", message: "Please check your network connection and try again")
-                    
             audioDownload.cancel() // task?.
-//            audioDownload.state = .none
 
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
-            })
+            }
                     
             return
         }
@@ -230,10 +227,10 @@ extension Sermon : URLSessionDownloadDelegate
             audioDownload.totalBytesWritten = totalBytesWritten
             audioDownload.totalBytesExpectedToWrite = totalBytesExpectedToWrite
             
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
                 UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            })
+            }
             
             break
             
@@ -261,11 +258,11 @@ extension Sermon : URLSessionDownloadDelegate
             
             audioDownload.cancel()
 
-            DispatchQueue.main.async(execute: { () -> Void in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
+            Thread.onMainThread {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
-            })
+            }
             return
         }
         
@@ -311,9 +308,9 @@ extension Sermon : URLSessionDownloadDelegate
             audioDownload.state = .none
         }
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        })
+        }
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
@@ -344,11 +341,11 @@ extension Sermon : URLSessionDownloadDelegate
             
             audioDownload.cancel()
 
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.audioDownload)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.audioDownload.sermon)
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
-            })
+            }
             return
         }
         
@@ -376,9 +373,9 @@ extension Sermon : URLSessionDownloadDelegate
         
         audioDownload.session?.invalidateAndCancel()
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        })
+        }
     }
     
     func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?)

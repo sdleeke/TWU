@@ -237,9 +237,9 @@ class MediaViewController : UIViewController
                     removePlayerObserver()
                 }
 
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread {
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-                })
+                }
             } else {
 
             }
@@ -265,8 +265,6 @@ class MediaViewController : UIViewController
             print("playing")
             globals.mediaPlayer.pause()
             
-            //                setupPlayPauseButton()
-            
             if spinner.isAnimating {
                 spinner.stopAnimating()
                 spinner.isHidden = true
@@ -274,7 +272,7 @@ class MediaViewController : UIViewController
             break
             
         case .paused:
-//            print("paused")
+            print("paused")
             if globals.mediaPlayer.loaded && (globals.mediaPlayer.url == sermonSelected?.playingURL) {
                 playCurrentSermon(sermonSelected)
             } else {
@@ -289,13 +287,11 @@ class MediaViewController : UIViewController
         case .seekingForward:
             print("seekingForward")
             globals.mediaPlayer.pause()
-            //                setupPlayPauseButton()
             break
             
         case .seekingBackward:
             print("seekingBackward")
             globals.mediaPlayer.pause()
-            //                setupPlayPauseButton()
             break
         }
     }
@@ -314,7 +310,7 @@ class MediaViewController : UIViewController
 
     func setupPlayPauseButton()
     {
-        guard let state = globals.mediaPlayer.state, sermonSelected != nil else {
+        guard sermonSelected != nil else {
             playPauseButton.isEnabled = false
             playPauseButton.isHidden = true
             return
@@ -323,19 +319,21 @@ class MediaViewController : UIViewController
         if (sermonSelected == globals.mediaPlayer.playing) {
             playPauseButton.isEnabled = globals.mediaPlayer.loaded || globals.mediaPlayer.loadFailed
             
-            switch state {
-            case .playing:
-                //                    print("Pause")
-                playPauseButton.setTitle(Constants.FA.PAUSE, for: UIControlState())
-                break
-                
-            case .paused:
-                //                    print("Play")
-                playPauseButton.setTitle(Constants.FA.PLAY, for: UIControlState())
-                break
-                
-            default:
-                break
+            if let state = globals.mediaPlayer.state {
+                switch state {
+                case .playing:
+                    //                    print("Pause")
+                    playPauseButton.setTitle(Constants.FA.PAUSE, for: UIControlState())
+                    break
+                    
+                case .paused:
+                    //                    print("Play")
+                    playPauseButton.setTitle(Constants.FA.PLAY, for: UIControlState())
+                    break
+                    
+                default:
+                    break
+                }
             }
         } else {
             playPauseButton.isEnabled = true
@@ -736,9 +734,9 @@ class MediaViewController : UIViewController
 
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
-            })
+            }
         })
 
         updateUI()
@@ -854,16 +852,14 @@ class MediaViewController : UIViewController
             }
         }
 
-        if let series = self.seriesSelected {
-            if let image = series.loadArt() {
-                seriesArt.image = image
-            } else {
-                DispatchQueue.global(qos: .background).async { () -> Void in
-                    if let image = series.fetchArt() {
-                        if self.seriesSelected == series {
-                            DispatchQueue.main.async {
-                                self.seriesArt.image = image
-                            }
+        if let image = seriesSelected.loadArt() {
+            seriesArt.image = image
+        } else {
+            DispatchQueue.global(qos: .background).async { () -> Void in
+                if let image = seriesSelected.fetchArt() {
+                    if self.seriesSelected == seriesSelected {
+                        Thread.onMainThread {
+                            self.seriesArt.image = image
                         }
                     }
                 }
@@ -1014,9 +1010,9 @@ class MediaViewController : UIViewController
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         
         DispatchQueue.global(qos: .background).async {
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
-            })
+            }
         }
         
         updateUI()
@@ -1049,9 +1045,9 @@ class MediaViewController : UIViewController
             
             // Purely for the delay?
             DispatchQueue.global(qos: .background).async(execute: {
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread {
                     globals.mediaPlayer.play()
-                })
+                }
             })
         }
         
@@ -1095,10 +1091,8 @@ class MediaViewController : UIViewController
         }
     }
     
-    override func viewWillAppear(_ animated: Bool)
+    func setupNotifications()
     {
-        super.viewWillAppear(animated)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
@@ -1108,7 +1102,7 @@ class MediaViewController : UIViewController
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.showPlaying), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
-
+        
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToLoad), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
         
@@ -1117,6 +1111,13 @@ class MediaViewController : UIViewController
         
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool)
+    {
+        super.viewWillAppear(animated)
+        
+        setupNotifications()
         
         pageControl.isEnabled = true
         
@@ -1154,9 +1155,9 @@ class MediaViewController : UIViewController
         
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.none)
-            })
+            }
         })
     }
     
@@ -1166,9 +1167,9 @@ class MediaViewController : UIViewController
 
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
-            })
+            }
         })
         
         if globals.isLoading && (navigationController?.visibleViewController == self) && (splitViewController?.viewControllers.count == 1) {

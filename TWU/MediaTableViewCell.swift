@@ -15,10 +15,10 @@ class MediaTableViewCell: UITableViewCell
             
         }
         didSet {
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: oldValue)
                 NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewCell.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
-            })
+            }
             
             updateUI()
         }

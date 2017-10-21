@@ -357,9 +357,9 @@ class MediaPlayer : NSObject {
                         play()
                     }
                     
-                    DispatchQueue.main.async(execute: { () -> Void in
+                    Thread.onMainThread {
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
-                    })
+                    }
                 }
                 
                 if (url != nil) {
@@ -388,9 +388,9 @@ class MediaPlayer : NSObject {
     {
         pause()
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
-        })
+        }
         
         if let duration = duration?.seconds, let currentTime = currentTime?.seconds {
             playing?.atEnd = currentTime >= (duration - 1)
@@ -416,9 +416,9 @@ class MediaPlayer : NSObject {
             stop()
         }
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
-        })
+        }
     }
     
     func reload(_ sermon:Sermon?)
@@ -510,9 +510,9 @@ class MediaPlayer : NSObject {
     {
         loadFailed = true
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
-        })
+        }
 
         globals.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
     }
@@ -521,9 +521,9 @@ class MediaPlayer : NSObject {
     {
         loadFailed = true
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
-        })
+        }
         
         if (UIApplication.shared.applicationState == UIApplicationState.active) {
             globals.alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
@@ -618,8 +618,6 @@ class MediaPlayer : NSObject {
         }
         
         self.playerObserverTimer = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PLAYER, target: self, selector: #selector(MediaPlayer.playerObserver), userInfo: nil, repeats: true)
-//        DispatchQueue.main.async(execute: { () -> Void in
-//        })
         
         unobserve()
 
@@ -743,10 +741,10 @@ class MediaPlayer : NSObject {
         
         stateTime = PlayerStateTime(sermon: playing,state:.playing)
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-        })
+        }
         
         player?.play()
         
@@ -761,10 +759,10 @@ class MediaPlayer : NSObject {
         
         player?.pause()
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-        })
+        }
         
         setupPlayingInfoCenter()
     }
@@ -825,9 +823,9 @@ class MediaPlayer : NSObject {
         player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution),
                      completionHandler: { (finished:Bool) in
                         if finished {
-                            DispatchQueue.main.async(execute: { () -> Void in
+                            Thread.onMainThread {
                                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
-                            })
+                            }
                         }
         })
         
@@ -907,9 +905,9 @@ class MediaPlayer : NSObject {
             if playing == nil {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
             } else {
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread {
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-                })
+                }
             }
             
             let defaults = UserDefaults.standard

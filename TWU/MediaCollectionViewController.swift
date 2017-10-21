@@ -203,9 +203,9 @@ class MediaCollectionViewController: UIViewController
             defaults.set("\(seriesSelected.id)", forKey: Constants.SETTINGS.SELECTED.SERIES)
             defaults.synchronize()
             
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-            })
+            }
         }
     }
 
@@ -369,9 +369,9 @@ class MediaCollectionViewController: UIViewController
             
             //Without this background/main dispatching there isn't time to scroll after a reload.
             DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread {
                     self.collectionView.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition.top, animated: true)
-                })
+                }
             })
         }
     }
@@ -389,9 +389,9 @@ class MediaCollectionViewController: UIViewController
         setupPlayingPausedButton()
 
         if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
-            })
+            }
         }
     }
     
@@ -532,14 +532,14 @@ class MediaCollectionViewController: UIViewController
         globals.isLoading = true
         
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 if !globals.isRefreshing {
                     self.view.bringSubview(toFront: self.activityIndicator)
                     self.activityIndicator.isHidden = false
                     self.activityIndicator.startAnimating()
                 }
                 self.navigationItem.title = Constants.Titles.Loading_Series
-            })
+            }
             
             if let seriesDicts = self.loadSeriesDicts() {
                 globals.series = self.seriesFromSeriesDicts(seriesDicts)
@@ -547,12 +547,12 @@ class MediaCollectionViewController: UIViewController
             
             self.seriesSelected = globals.seriesSelected
 
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 self.navigationItem.title = Constants.Titles.Loading_Settings
-            })
+            }
             globals.loadSettings()
 
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 self.navigationItem.title = Constants.Titles.Setting_up_Player
                 if (globals.mediaPlayer.playing != nil) {
                     globals.mediaPlayer.playOnLoad = false
@@ -571,7 +571,7 @@ class MediaCollectionViewController: UIViewController
                 }
 
                 completion?()
-            })
+            }
 
             globals.isLoading = false
         })

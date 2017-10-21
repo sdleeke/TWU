@@ -10,6 +10,19 @@ import Foundation
 import MediaPlayer
 import CloudKit
 
+extension Thread {
+    static func onMainThread(block:(()->(Void))?)
+    {
+        if Thread.isMainThread {
+            block?()
+        } else {
+            DispatchQueue.main.async(execute: { () -> Void in
+                block?()
+            })
+        }
+    }
+}
+
 enum Showing {
     case all
     case filtered
@@ -145,9 +158,9 @@ class Globals : NSObject
     var showingAbout:Bool = false
     {
         didSet {
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
-            })
+            }
         }
     }
     
@@ -359,7 +372,7 @@ class Globals : NSObject
             // be on the main thread, like this:
             self.reachabilityTransition()
             
-            DispatchQueue.main.async() {
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
             }
         }
@@ -369,7 +382,7 @@ class Globals : NSObject
             // be on the main thread, like this:
             self.reachabilityTransition()
             
-            DispatchQueue.main.async() {
+            Thread.onMainThread {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
             }
         }
@@ -525,11 +538,11 @@ class Globals : NSObject
             })
             alertVC.addAction(action)
             
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 globals.splitViewController.present(alertVC, animated: true, completion: {
                     self.alerts.remove(at: 0)
                 })
-            })
+            }
         }
     }
     
@@ -574,10 +587,10 @@ class Globals : NSObject
             }
         }
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-        })
+        }
     }
 
     func addAccessoryEvents()
