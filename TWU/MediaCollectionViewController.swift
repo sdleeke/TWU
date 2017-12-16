@@ -462,15 +462,7 @@ class MediaCollectionViewController: UIViewController
 
     func jsonFromURL(urlString:String,filename:String) -> Any?
     {
-        guard let url = URL(string: urlString) else {
-            return nil
-        }
-        
-        guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) else {
-            return nil
-        }
-        
-        guard let reachability = globals.reachability, reachability.isReachable else {
+        guard let reachability = globals.reachability, reachability.isReachable, let url = URL(string: urlString) else {
             print("json not reachable.")
             return jsonFromFileSystem(filename: filename)
         }
@@ -483,8 +475,10 @@ class MediaCollectionViewController: UIViewController
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
                 
                 do {
-                    try data.write(to: jsonFileSystemURL)
-                    
+                    if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
+                        try data.write(to: jsonFileSystemURL)
+                    }
+    
                     print("able to write json to the file system")
                 } catch let error as NSError {
                     print("unable to write json to the file system.")
@@ -606,8 +600,9 @@ class MediaCollectionViewController: UIViewController
     
     func enableBarButtons()
     {
+        navigationItem.leftBarButtonItem?.isEnabled = true
+
         if (globals.series != nil) {
-            navigationItem.leftBarButtonItem?.isEnabled = true
             navigationItem.rightBarButtonItem?.isEnabled = true
             enableToolBarButtons()
         }
@@ -619,14 +614,13 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        globals.isRefreshing = true
-        
         globals.mediaPlayer.unobserve()
         
         globals.mediaPlayer.pause()
 
         globals.cancelAllDownloads()
         
+        globals.searchActive = false
         searchBar.placeholder = nil
         
         if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
@@ -634,10 +628,34 @@ class MediaCollectionViewController: UIViewController
         }
         
         disableBarButtons()
+
+        // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
+        globals = Globals()
+        
+        Thread.onMainThread {
+            globals.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: globals, selector: #selector(Globals.alertViewer), userInfo: nil, repeats: true)
+        }
+        
+        globals.splitViewController = splitViewController
+        globals.splitViewController.delegate = splitViewController?.delegate
+        globals.splitViewController.preferredDisplayMode = .allVisible
+        
+        collectionView?.reloadData()
+        
+        if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
+            logo.isHidden = false
+            view.bringSubview(toFront: logo)
+        }
+        
+        globals.isRefreshing = true
+        enableBarButtons()
         
         loadSeries()
         {
             guard globals.series == nil else {
+                self.logo.isHidden = true
+                self.collectionView.reloadData()
+                self.scrollToSeries(self.seriesSelected)
                 return
             }
 
@@ -645,11 +663,8 @@ class MediaCollectionViewController: UIViewController
                                           message: "Please check your network connection and try again.",
                                           preferredStyle: UIAlertControllerStyle.alert)
             
-            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                if globals.isRefreshing {
-                    self.refreshControl?.endRefreshing()
-                    globals.isRefreshing = false
-                }
+            let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+
             })
             alert.addAction(action)
             
@@ -659,6 +674,7 @@ class MediaCollectionViewController: UIViewController
     
     func updateUI()
     {
+        // TO DO: This needs to be a real updateUI() not just a reload on the collectionView.  E.g. Each button needs to be handled individually.
         collectionView.reloadData()
     }
     
@@ -825,7 +841,7 @@ class MediaCollectionViewController: UIViewController
                                           message: "Please check your network connection and try again.",
                                           preferredStyle: UIAlertControllerStyle.alert)
             
-            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+            let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
                 
             })
             alert.addAction(action)
@@ -842,6 +858,12 @@ class MediaCollectionViewController: UIViewController
 
         if globals.series == nil {
             disableBarButtons()
+            enableBarButtons()
+
+            if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
+                logo.isHidden = false
+                view.bringSubview(toFront: logo)
+            }
         }
 
         navigationController?.isToolbarHidden = false

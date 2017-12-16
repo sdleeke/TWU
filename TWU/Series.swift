@@ -92,6 +92,8 @@ class Series : Equatable, CustomStringConvertible {
                 return -1
             }
             
+            print(startingIndex)
+            
             if let num = Int(startingIndex) {
                 return num
             } else {
@@ -266,7 +268,7 @@ class Series : Equatable, CustomStringConvertible {
     }
     var index:[Int:Sermon]?
     
-    struct Settings {
+    class Settings {
         weak var series:Series?
         
         init(series:Series?) {

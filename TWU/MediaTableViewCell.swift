@@ -29,7 +29,7 @@ class MediaTableViewCell: UITableViewCell
         guard Thread.isMainThread else {
             return
         }
-        
+
         if sermon?.series?.numberOfSermons == 1, let title = sermon?.series?.title {
             self.title?.text = title
         }

@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-struct Constants {
+enum Constants {
     static let APP_ID = "org.countrysidebible.TWU"
     
     static let CMTime_Resolution = Int32(1000)
@@ -24,14 +24,14 @@ struct Constants {
     static let MIN_PLAY_TIME = 15.0
     static let MIN_LOAD_TIME = 30.0
     
-    struct TIMER_INTERVAL {
+    enum TIMER_INTERVAL {
         static let SLIDER       = 0.1
         static let PLAYER       = 0.1
         static let LOADING      = 0.2
         static let PROGRESS     = 0.1
     }
     
-    struct INTERVAL {
+    enum INTERVAL {
 //        static let DOWNLOAD_TIMER   = 0.5
 //        static let SLIDER_TIMER     = 0.5
 //        static let PLAYER_TIMER     = 0.2
@@ -43,7 +43,7 @@ struct Constants {
         static let SKIP_TIME = 15
     }
     
-    struct FIELDS {
+    enum FIELDS {
         static let ID = "id"
         static let NAME = "name"
         static let TITLE = "title"
@@ -55,7 +55,7 @@ struct Constants {
         static let SHOW = "show"
     }
     
-    struct NOTIFICATION {
+    enum NOTIFICATION {
         static let UPDATE_PLAY_PAUSE        = "UPDATE PLAY PAUSE"
         static let UPDATE_PLAYING_PAUSED    = "UPDATE PLAYING PAUSED"
         
@@ -90,13 +90,13 @@ struct Constants {
         static let DID_ENTER_BACKGROUND     = "DID ENTER BACKGROUND"
     }
     
-    struct JSON {
+    enum JSON {
         static let ARRAY_KEY = "series"
         static let URL = "https://www.thewordunleashed.org/medialist.php"
         static let SERIES = "series.json"
     }
     
-    struct TWU {
+    enum TWU {
         static let SHORT = "TWU"
         static let LONG = "The Word Unleashed"
         
@@ -109,7 +109,7 @@ struct Constants {
         static let GIVING_URL = "https://countrysidebible.ccbchurch.com/goto/giving" // "https://countryside.infellowship.com/OnlineGiving/GiveNow/NoAccount/"
     }
     
-    struct REMOTE_NOTIFICATION {
+    enum REMOTE_NOTIFICATION {
         static let SUBSCRIPTION_RECORD_TYPE = "Globals"
         static let CATEGORY = "UPDATE"
         static let ALERT_BODY = "Update Available"
@@ -120,7 +120,7 @@ struct Constants {
         static let LATER_ACTION_TITLE = "Update Later"
     }
     
-    struct IDENTIFIER {
+    enum IDENTIFIER {
         static let POPOVER_CELL = "PopoverCell"
         static let POPOVER_TABLEVIEW = "PopoverTableView"
         
@@ -130,7 +130,7 @@ struct Constants {
         static let DOWNLOAD = "com.leeke.TWU.download."
     }
     
-    struct FA {
+    enum FA {
         static let name = "FontAwesome"
         static let FONT_SIZE = CGFloat(24.0)
         static let PLAY = "\u{f04b}"
@@ -138,7 +138,7 @@ struct Constants {
         static let ACTION = "\u{f150}"
     }
     
-    struct FILE_EXTENSION {
+    enum FILE_EXTENSION {
         static let MP3 = ".mp3"
         static let TMP = ".tmp"
         static let JPEG = ".jpg"
@@ -150,7 +150,7 @@ struct Constants {
 
     static let AUTO_ADVANCE = "AUTO_ADVANCE"
     
-    struct Titles {
+    enum Titles {
         static let Loading_Series = "Loading Series"
         static let Loading_Settings = "Loading Settings"
         
@@ -171,8 +171,8 @@ struct Constants {
     
     static let ZERO = "0"
 
-    struct URL {
-        struct BASE {
+    enum URL {
+        enum BASE {
             //This must support https to be compatible with iOS 9
             static let AUDIO = "http://sitedata.thewordunleashed.org/avmedia/broadcasts/twu"
             
@@ -185,31 +185,31 @@ struct Constants {
         }
     }
     
-    struct SCRIPTURE_URL {
+    enum SCRIPTURE_URL {
         static let PREFIX = "http://www.biblegateway.com/passage/?search="
         static let POSTFIX = "&version=NASB"
     }
     
-    struct SEGUE {
+    enum SEGUE {
         static let SHOW_ABOUT = "Show About"
         static let SHOW_SERIES = "Show Series"
         static let SHOW_SETTINGS = "Show Settings"
     }
     
-    struct SETTINGS {
-        struct SELECTED {
+    enum SETTINGS {
+        enum SELECTED {
             static let SERIES = "series selected"
             static let SERMON = "sermon selected"
         }
 
-        struct PLAYING {
+        enum PLAYING {
             static let SERIES = "series playing"
             static let SERMON_INDEX = "sermon playing index"
         }
 
         static let AT_END = "At End"
         
-        struct KEY {
+        enum KEY {
             static let SERIES = "Series Settings"
             static let SERMON = "Sermon Settings"
         }
@@ -238,7 +238,7 @@ struct Constants {
     static let Sort = "Sort"
     static let Sorting_Options_Title = "Sort"
     
-    struct Sorting {
+    enum Sorting {
         static let Newest_to_Oldest = "Newest to Oldest"
         static let Oldest_to_Newest = "Oldest to Newest"
         static let Title_AZ = "Title A - Z"
@@ -285,7 +285,7 @@ struct Constants {
     static let Share_on_Facebook = "Share on Facebook"
     static let Share_on_Twitter = "Share on Twitter"
 
-    struct TESTAMENT {
+    enum TESTAMENT {
         static let OLD:[String] = [
             "Genesis",
             "Exodus",

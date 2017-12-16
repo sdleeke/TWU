@@ -18,8 +18,24 @@ enum State {
 }
 
 class Download {
-    weak var sermon:Sermon?
+    init(sermon:Sermon?,purpose:String?,downloadURL:URL?,fileSystemURL:URL?)
+    {
+        self.sermon = sermon
+        self.purpose = purpose
+        self.downloadURL = downloadURL
+        self.fileSystemURL = fileSystemURL
+        
+        if let fileSystemURL = fileSystemURL {
+            //            print(fileSystemURL!.path!)
+            //            print(FileManager.default.fileExists(atPath: fileSystemURL!.path!))
+            if FileManager.default.fileExists(atPath: fileSystemURL.path) {
+                self.state = .downloaded
+            }
+        }
+    }
     
+    weak var sermon:Sermon?
+
     var purpose:String?
     
     var downloadURL:URL?
@@ -565,7 +581,7 @@ class Sermon : NSObject {
         }
     }
     
-    struct Settings {
+    class Settings {
         weak var sermon:Sermon?
         
         init(sermon:Sermon?) {
@@ -625,11 +641,12 @@ class Sermon : NSObject {
     
     lazy var audioDownload:Download! = {
         [unowned self] in
-        var download = Download()
-        download.sermon = self
-        download.purpose = Constants.AUDIO
-        download.downloadURL = self.audioURL
-        download.fileSystemURL = self.audioFileSystemURL
+        let download = Download(sermon:self,purpose:Constants.AUDIO,downloadURL:self.audioURL,fileSystemURL:self.audioFileSystemURL)
+        // NEVER EVER DO THIS.  Causes LOTS of bad behavior since didSets will NOT happen in an init but they WILL happen below.
+//        download.sermon = self
+//        download.purpose = Constants.AUDIO
+//        download.downloadURL = self.audioURL
+//        download.fileSystemURL = self.audioFileSystemURL
         self.downloads[Constants.AUDIO] = download
         return download
     }()

@@ -245,7 +245,7 @@ class AboutViewController : UIViewController
         actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(AboutViewController.actions))
         
         if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
-            actionButton?.setTitleTextAttributes([NSFontAttributeName:font], for: UIControlState())
+            actionButton?.setTitleTextAttributes([NSFontAttributeName:font])
         }
         
         self.navigationItem.rightBarButtonItem = actionButton
