@@ -13,7 +13,7 @@ class MediaCollectionViewCell: UICollectionViewCell {
 
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    var vc:MediaCollectionViewController?
+//    var vc:MediaCollectionViewController?
     
     var series:Series? {
         willSet {
@@ -21,6 +21,7 @@ class MediaCollectionViewCell: UICollectionViewCell {
         }
         didSet {
             if series != oldValue {
+                seriesArt.image = nil
                 updateUI()
             }
         }

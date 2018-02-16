@@ -24,7 +24,7 @@ class MediaTableViewCell: UITableViewCell
         }
     }
     
-    func updateUI()
+    @objc func updateUI()
     {
         guard Thread.isMainThread else {
             return

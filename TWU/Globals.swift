@@ -11,7 +11,7 @@ import MediaPlayer
 import CloudKit
 
 extension UIBarButtonItem {
-    func setTitleTextAttributes(_ attributes:[String:UIFont])
+    func setTitleTextAttributes(_ attributes:[NSAttributedStringKey:UIFont])
     {
         setTitleTextAttributes(attributes, for: UIControlState.normal)
         setTitleTextAttributes(attributes, for: UIControlState.disabled)
@@ -545,7 +545,7 @@ class Globals : NSObject
         }
     }
     
-    func alertViewer()
+    @objc func alertViewer()
     {
         for alert in alerts {
             print(alert)

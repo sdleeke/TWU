@@ -781,7 +781,7 @@ class MediaPlayer : NSObject {
         player = nil
     }
     
-    func doneSeeking()
+    @objc func doneSeeking()
     {
         print("DONE SEEKING")
         

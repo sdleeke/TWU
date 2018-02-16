@@ -59,10 +59,10 @@ class PopoverTableViewController: UITableViewController {
         
         for string in strings {
             let widthSize: CGSize = CGSize(width: .greatestFiniteMagnitude, height: 44.0)
-            let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], context: nil)
+            let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 16.0)], context: nil)
             
             let heightSize: CGSize = CGSize(width: view.bounds.width - 30, height: .greatestFiniteMagnitude)
-            let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], context: nil)
+            let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 16.0)], context: nil)
             
             if maxWidth.width > width {
                 width = maxWidth.width
@@ -130,7 +130,11 @@ class PopoverTableViewController: UITableViewController {
         let a = "A"
             
         let sectionTitles = Array(Set(strings.map({ (string:String) -> String in
-            return stringWithoutPrefixes(string)?.substring(to: a.endIndex) ?? ""
+            if let string = stringWithoutPrefixes(string) {
+                return String(string[..<a.endIndex])
+            }
+            
+            return ""
         }))).sorted() { $0 < $1 }
         
         var indexes = [Int]()
@@ -140,13 +144,15 @@ class PopoverTableViewController: UITableViewController {
             var counter = 0
             
             for index in 0..<strings.count {
-                let string = stringWithoutPrefixes(strings[index])?.substring(to: a.endIndex)
-                
-                if (sectionTitle == string) {
-                    if (counter == 0) {
-                        indexes.append(index)
+                if var string = stringWithoutPrefixes(strings[index]) {
+                    string = String(string[..<a.endIndex])
+                    
+                    if (sectionTitle == string) {
+                        if (counter == 0) {
+                            indexes.append(index)
+                        }
+                        counter += 1
                     }
-                    counter += 1
                 }
             }
             
@@ -159,7 +165,7 @@ class PopoverTableViewController: UITableViewController {
         section.counts = counts.count > 0 ? counts : nil
     }
     
-    func willResignActive()
+    @objc func willResignActive()
     {
         dismiss(animated: true, completion: nil)
     }

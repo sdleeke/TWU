@@ -25,7 +25,7 @@ extension UIApplication
             let maxAppSize = max(w.bounds.size.width, w.bounds.size.height)
             let minAppSize = min(w.bounds.size.width, w.bounds.size.height)
             
-            return maxScreenSize == maxAppSize && minScreenSize == minAppSize
+            return (maxScreenSize == maxAppSize) && (minScreenSize == minAppSize)
         }
         
         return true
@@ -104,7 +104,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         }
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
+    func applicationWillEnterForeground(_ application: UIApplication)
+    {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 //        print("applicationWillEnterForeground")
         
@@ -133,7 +134,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         }
     }
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
+    func applicationDidBecomeActive(_ application: UIApplication)
+    {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("applicationDidBecomeActive")
         Thread.onMainThread {
@@ -161,19 +163,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
         configuration.sessionSendsLaunchEvents = true
         
-        var filename:String?
+        var filename = String(identifier[Constants.IDENTIFIER.DOWNLOAD.endIndex...])
         
-        filename = identifier.substring(from: Constants.IDENTIFIER.DOWNLOAD.endIndex)
-        
-        if let range = filename?.range(of: Constants.FILE_EXTENSION.MP3) {
-            filename = filename?.substring(to: range.lowerBound)
+        if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
+            filename = String(filename[..<range.lowerBound])
         }
         
         if let allSeries = globals.series {
             for series in allSeries {
                 if let sermons = series.sermons {
                     for sermon in sermons {
-                        if let filename = filename, (sermon.id == Int(filename)) {
+                        if sermon.id == Int(filename) {
                             sermon.audioDownload.session = URLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
                             sermon.audioDownload.completionHandler = completionHandler
                             //Do we need to recreate the downloadTask for this session?

@@ -71,6 +71,47 @@ extension MediaCollectionViewController : UICollectionViewDelegate
     }
 }
 
+extension MediaCollectionViewController : UICollectionViewDelegateFlowLayout
+{
+    func collectionView(_: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt: IndexPath) -> CGSize
+    {
+        var minSize:CGFloat = 0.0
+        var maxSize:CGFloat = 0.0
+        
+        // We want at least two full icons showing in either direction.
+        
+        var minIndex = 2
+        var maxIndex = 2
+        
+        let minMeasure = min(view.bounds.height,view.bounds.width)
+        let maxMeasure = max(view.bounds.height,view.bounds.width)
+        
+        repeat {
+            minSize = (minMeasure - CGFloat(10*(minIndex+1)))/CGFloat(minIndex)
+            minIndex += 1
+        } while minSize > minMeasure
+        
+        repeat {
+            maxSize = (maxMeasure - CGFloat(10*(maxIndex+1)))/CGFloat(maxIndex)
+            maxIndex += 1
+        } while maxSize > maxMeasure/(maxMeasure / minSize)
+        
+        var size:CGFloat = 0
+        
+        // These get the gap right between the icons.
+        
+        if minMeasure == view.bounds.height {
+            size = min(minSize,maxSize)
+        }
+        
+        if minMeasure == view.bounds.width {
+            size = max(minSize,maxSize)
+        }
+        
+        return CGSize(width: size,height: size)
+    }
+}
+
 extension MediaCollectionViewController : UISearchBarDelegate
 {
     // MARK: UISearchBarDelegate
@@ -229,7 +270,7 @@ class MediaCollectionViewController: UIViewController
         }
     }
 
-    func sorting(_ button:UIBarButtonItem?)
+    @objc func sorting(_ button:UIBarButtonItem?)
     {
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
@@ -259,7 +300,7 @@ class MediaCollectionViewController: UIViewController
         present(navigationController, animated: true, completion: nil)
     }
     
-    func filtering(_ button:UIBarButtonItem?)
+    @objc func filtering(_ button:UIBarButtonItem?)
     {
         //In case we have one already showing
         dismiss(animated: true, completion: nil)
@@ -290,7 +331,7 @@ class MediaCollectionViewController: UIViewController
         present(navigationController, animated: true, completion: nil)
     }
     
-    func settings(_ button:UIBarButtonItem?)
+    @objc func settings(_ button:UIBarButtonItem?)
     {
         dismiss(animated: true, completion: nil)
         performSegue(withIdentifier: Constants.SEGUE.SHOW_SETTINGS, sender: nil)
@@ -608,7 +649,7 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
-    func handleRefresh(_ refreshControl: UIRefreshControl)
+    @objc func handleRefresh(_ refreshControl: UIRefreshControl)
     {
         guard Thread.isMainThread else {
             return
@@ -672,7 +713,7 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
-    func updateUI()
+    @objc func updateUI()
     {
         // TO DO: This needs to be a real updateUI() not just a reload on the collectionView.  E.g. Each button needs to be handled individually.
         collectionView.reloadData()
@@ -691,7 +732,8 @@ class MediaCollectionViewController: UIViewController
         NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
     }
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         
         // globals.series loaded in didBecomeActive.
@@ -758,7 +800,7 @@ class MediaCollectionViewController: UIViewController
         navigationItem.setRightBarButton(playingPausedButton, animated: true)
     }
 
-    func setupPlayingPausedButton()
+    @objc func setupPlayingPausedButton()
     {
         guard (globals.mediaPlayer.player != nil) && (globals.mediaPlayer.playing != nil) else {
             if (navigationItem.rightBarButtonItem != nil) {
@@ -800,24 +842,24 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
-    func deviceOrientationDidChange()
+    @objc func deviceOrientationDidChange()
     {
         if navigationController?.visibleViewController == self {
             navigationController?.isToolbarHidden = false
         }
     }
     
-    func showingAboutDidChange()
+    @objc func showingAboutDidChange()
     {
         aboutButton.isEnabled = !globals.showingAbout
     }
     
-    func willEnterForeground()
+    @objc func willEnterForeground()
     {
         
     }
     
-    func didBecomeActive()
+    @objc func didBecomeActive()
     {
         guard !globals.isLoading, globals.series == nil else {
             return
@@ -880,44 +922,6 @@ class MediaCollectionViewController: UIViewController
         
         //Solves icon sizing problem in split screen multitasking.
         collectionView.reloadData()
-    }
-    
-    func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: IndexPath) -> CGSize
-    {
-        var minSize:CGFloat = 0.0
-        var maxSize:CGFloat = 0.0
-        
-        // We want at least two full icons showing in either direction.
-        
-        var minIndex = 2
-        var maxIndex = 2
-        
-        let minMeasure = min(view.bounds.height,view.bounds.width)
-        let maxMeasure = max(view.bounds.height,view.bounds.width)
-        
-        repeat {
-            minSize = (minMeasure - CGFloat(10*(minIndex+1)))/CGFloat(minIndex)
-            minIndex += 1
-        } while minSize > minMeasure
-        
-        repeat {
-            maxSize = (maxMeasure - CGFloat(10*(maxIndex+1)))/CGFloat(maxIndex)
-            maxIndex += 1
-        } while maxSize > maxMeasure/(maxMeasure / minSize)
-        
-        var size:CGFloat = 0
-
-        // These get the gap right between the icons.
-        
-        if minMeasure == view.bounds.height {
-            size = min(minSize,maxSize)
-        }
-        
-        if minMeasure == view.bounds.width {
-            size = max(minSize,maxSize)
-        }
-
-        return CGSize(width: size,height: size)
     }
     
     func about()
@@ -1033,7 +1037,7 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
-    func gotoNowPlaying()
+    @objc func gotoNowPlaying()
     {
         globals.gotoNowPlaying = true
         

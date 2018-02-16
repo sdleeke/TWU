@@ -20,7 +20,7 @@ class SettingsViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    func didEnterBackground()
+    @objc func didEnterBackground()
     {
         dismiss(animated: true, completion: nil)
     }

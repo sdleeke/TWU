@@ -256,7 +256,7 @@ func lastNameFromName(_ name:String?) -> String?
     if var lastname = name {
         while (lastname.range(of: Constants.SINGLE_SPACE) != nil) {
             if let range = lastname.range(of: Constants.SINGLE_SPACE) {
-                lastname = lastname.substring(from: range.upperBound)
+                lastname = String(lastname[range.upperBound...])
             }
         }
         return lastname
@@ -294,7 +294,7 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
         
         for string in array {
             if let range = string.range(of: fileType) {
-                if fileType == string.substring(from: range.lowerBound) {
+                if fileType == String(string[range.lowerBound...]) {
                     files.append(string)
                 }
             }
@@ -351,18 +351,22 @@ func alert(viewController:UIViewController,title:String?,message:String?)
 
 func stringWithoutPrefixes(_ fromString:String?) -> String?
 {
+    guard let fromString = fromString else {
+        return nil
+    }
+
     var sortString = fromString
     
     let quote:String = "\""
     let prefixes = ["A ","An ","And ","The "]
     
-    if (fromString?.endIndex >= quote.endIndex) && (fromString?.substring(to: quote.endIndex) == quote) {
-        sortString = fromString?.substring(from: quote.endIndex)
+    if fromString.endIndex >= quote.endIndex, String(fromString[..<quote.endIndex]) == quote {
+        sortString = String(fromString[quote.endIndex...])
     }
     
     for prefix in prefixes {
-        if (fromString?.endIndex >= prefix.endIndex) && (fromString?.substring(to: prefix.endIndex) == prefix) {
-            sortString = fromString?.substring(from: prefix.endIndex)
+        if fromString.endIndex >= prefix.endIndex, String(fromString[..<prefix.endIndex]) == prefix {
+            sortString = String(fromString[prefix.endIndex...])
             break
         }
     }

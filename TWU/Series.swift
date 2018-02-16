@@ -22,6 +22,9 @@ func != (lhs:Series,rhs:Series) -> Bool
 class Series : Equatable, CustomStringConvertible {
     var dict:[String:String]?
     
+    init() {
+    }
+    
     init(seriesDict:[String:String]?)
     {
         dict = seriesDict
@@ -139,14 +142,17 @@ class Series : Equatable, CustomStringConvertible {
     
     var book:String? {
         get {
+            guard let scripture = scripture else {
+                return nil
+            }
+            
             if (dict?[Constants.FIELDS.BOOK] == nil) {
                 if (scripture == Constants.Selected_Scriptures) {
                     dict?[Constants.FIELDS.BOOK] = Constants.Selected_Scriptures
                 } else {
                     if (dict?[Constants.FIELDS.BOOK] == nil) {
                         for bookTitle in Constants.TESTAMENT.OLD {
-                            if (scripture?.endIndex >= bookTitle.endIndex) &&
-                                (scripture?.substring(to: bookTitle.endIndex) == bookTitle) {
+                            if scripture.endIndex >= bookTitle.endIndex, String(scripture[..<bookTitle.endIndex]) == bookTitle {
                                     dict?[Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
@@ -154,8 +160,7 @@ class Series : Equatable, CustomStringConvertible {
                     }
                     if (dict?[Constants.FIELDS.BOOK] == nil) {
                         for bookTitle in Constants.TESTAMENT.NEW {
-                            if (scripture?.endIndex >= bookTitle.endIndex) &&
-                                (scripture?.substring(to: bookTitle.endIndex) == bookTitle) {
+                            if scripture.endIndex >= bookTitle.endIndex, String(scripture[..<bookTitle.endIndex]) == bookTitle {
                                     dict?[Constants.FIELDS.BOOK] = bookTitle
                                     break
                             }
@@ -325,7 +330,7 @@ class Series : Equatable, CustomStringConvertible {
     var sermonSelected:Sermon? {
         get {
             if let sermonID = settings?[Constants.SETTINGS.SELECTED.SERMON] {
-                if let range = sermonID.range(of: Constants.COLON), let num = Int(sermonID.substring(from: range.upperBound)) {
+                if let range = sermonID.range(of: Constants.COLON), let num = Int(String(sermonID[range.upperBound...])) {
                     return sermons?[num - startingIndex]
                 }
             }
@@ -346,9 +351,6 @@ class Series : Equatable, CustomStringConvertible {
             
             settings?[Constants.SETTINGS.SELECTED.SERMON] = sermonID
         }
-    }
-    
-    init() {
     }
     
     var description : String {

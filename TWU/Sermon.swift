@@ -197,10 +197,12 @@ extension Sermon : URLSessionDownloadDelegate
             print("DOWNLOAD ERROR: ",(downloadTask.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
             
             if audioDownload.state != .none {
-                if let range = downloadTask.taskDescription?.range(of: "."),
-                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound), let num = Int(id),
-                    let sermon = globals.sermonFromSermonID(num) {
-                    globals.alert(title: "Download Failed", message: sermon.title)
+                if let taskDescription = downloadTask.taskDescription, let range = taskDescription.range(of: ".") {
+                    let id = String(taskDescription[..<range.lowerBound])
+
+                    if let num = Int(id), let sermon = globals.sermonFromSermonID(num) {
+                        globals.alert(title: "Download Failed", message: sermon.title)
+                    }
                 } else {
                     globals.alert(title: "Download Failed", message: nil)
                 }
@@ -263,10 +265,12 @@ extension Sermon : URLSessionDownloadDelegate
             print("DOWNLOAD ERROR: ",(downloadTask.response as? HTTPURLResponse)?.statusCode as Any,audioDownload.totalBytesExpectedToWrite)
         
             if audioDownload.state != .none {
-                if let range = downloadTask.taskDescription?.range(of: "."),
-                    let id = downloadTask.taskDescription?.substring(to: range.lowerBound), let num = Int(id),
-                    let sermon = globals.sermonFromSermonID(num) {
-                    globals.alert(title: "Download Failed", message: sermon.title)
+                if let taskDescription = downloadTask.taskDescription, let range = taskDescription.range(of: ".") {
+                    let id = String(taskDescription[..<range.lowerBound])
+                
+                    if let num = Int(id), let sermon = globals.sermonFromSermonID(num) {
+                        globals.alert(title: "Download Failed", message: sermon.title)
+                    }
                 } else {
                     globals.alert(title: "Download Failed", message: nil)
                 }
@@ -337,14 +341,15 @@ extension Sermon : URLSessionDownloadDelegate
             print("DOWNLOAD ERROR: ",(task.response as? HTTPURLResponse)?.statusCode as Any,audioDownload.totalBytesExpectedToWrite)
 
             if audioDownload.state != .none {
-                if let range = task.taskDescription?.range(of: "."),
-                    let idString = task.taskDescription?.substring(to: range.lowerBound),
-                    let id = Int(idString),
-                    let title = globals.sermonFromSermonID(id)?.title {
-                    if let error = error {
-                        globals.alert(title: "Download Failed", message: title + "\nError: " + error.localizedDescription)
-                    } else {
-                        globals.alert(title: "Download Failed", message: title)
+                if let taskDescription = task.taskDescription, let range = taskDescription.range(of: ".") {
+                    let idString = String(taskDescription[..<range.lowerBound])
+                    
+                    if let id = Int(idString), let title = globals.sermonFromSermonID(id)?.title {
+                        if let error = error {
+                            globals.alert(title: "Download Failed", message: title + "\nError: " + error.localizedDescription)
+                        } else {
+                            globals.alert(title: "Download Failed", message: title)
+                        }
                     }
                 } else {
                     if let error = error {
@@ -419,20 +424,23 @@ extension Sermon : URLSessionDownloadDelegate
     
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession)
     {
+        guard let identifier = session.configuration.identifier else {
+            return
+        }
+        
         print("URLSessionDidFinishEventsForBackgroundURLSession")
-        var filename:String?
         
-        filename = session.configuration.identifier?.substring(from: Constants.IDENTIFIER.DOWNLOAD.endIndex)
+        var filename = String(identifier[Constants.IDENTIFIER.DOWNLOAD.endIndex...])
         
-        if let range = filename?.range(of: Constants.FILE_EXTENSION.MP3) {
-            filename = filename?.substring(to: range.lowerBound)
+        if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
+            filename = String(filename[..<range.lowerBound])
         }
         
         if let series = globals.series {
             for series in series {
                 if let sermons = series.sermons {
                     for sermon in sermons {
-                        if let filename = filename, (sermon.id == Int(filename)) {
+                        if sermon.id == Int(filename) {
                             sermon.audioDownload.completionHandler?()
                         }
                     }

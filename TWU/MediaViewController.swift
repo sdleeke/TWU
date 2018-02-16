@@ -128,6 +128,40 @@ class ControlView : UIView
     }
 }
 
+extension MediaViewController : UITableViewDelegate
+{
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    {
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.SERMON_CELL, for: indexPath) as? MediaTableViewCell ?? MediaTableViewCell()
+        
+        // Configure the cell...
+        cell.sermon = seriesSelected?.sermons?[(indexPath as NSIndexPath).row]
+        
+        return cell
+    }
+}
+
+extension MediaViewController : UITableViewDataSource
+{
+    func numberOfSections(in: UITableView) -> Int
+    {
+        // #warning Potentially incomplete method implementation.
+        // Return the number of sections.
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    {
+        // #warning Incomplete method implementation.
+        // Return the number of rows in the section.
+        if let seriesSelected = seriesSelected {
+            return seriesSelected.show
+        } else {
+            return 0
+        }
+    }
+}
+
 class MediaViewController : UIViewController
 {
     var observerActive = false
@@ -308,7 +342,7 @@ class MediaViewController : UIViewController
         }
     }
 
-    func setupPlayPauseButton()
+    @objc func setupPlayPauseButton()
     {
         guard sermonSelected != nil else {
             playPauseButton.isEnabled = false
@@ -647,7 +681,7 @@ class MediaViewController : UIViewController
         }
     }
 
-    func actions()
+    @objc func actions()
     {
         guard let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW) as? UINavigationController else {
             return
@@ -721,7 +755,7 @@ class MediaViewController : UIViewController
         present(navigationController, animated: true, completion: nil)
     }
 
-    func updateView()
+    @objc func updateView()
     {
         guard Thread.isMainThread else {
             return
@@ -742,7 +776,7 @@ class MediaViewController : UIViewController
         updateUI()
     }
     
-    func clearView()
+    @objc func clearView()
     {
         guard Thread.isMainThread else {
             return
@@ -810,7 +844,7 @@ class MediaViewController : UIViewController
         actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaViewController.actions))
         
         if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
-            actionButton?.setTitleTextAttributes([NSFontAttributeName:font])
+            actionButton?.setTitleTextAttributes([NSAttributedStringKey.font : font])
         }
 
         self.navigationItem.rightBarButtonItem = actionButton
@@ -843,9 +877,10 @@ class MediaViewController : UIViewController
         if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
             if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
                 let attributedString = try? NSMutableAttributedString(data: data,
-                                                                      options: [NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType],
+                                                                      // DocumentAttributeKey.documentType
+                                                                      options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
                                                                       documentAttributes: nil) {
-                attributedString.addAttributes([NSFontAttributeName:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
+                attributedString.addAttributes([NSAttributedStringKey.font:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
                                                range: NSMakeRange(0, attributedString.length))
 
                 seriesDescription.attributedText = attributedString
@@ -929,7 +964,7 @@ class MediaViewController : UIViewController
         }
     }
 
-    func updateUI()
+    @objc func updateUI()
     {
         //These are being added here for the case when this view is opened and the sermon selected is playing already
         if self.navigationController?.visibleViewController == self {
@@ -984,7 +1019,7 @@ class MediaViewController : UIViewController
         tableView.scrollToRow(at: indexPath, at: position, animated: false)
     }
 
-    func showPlaying()
+    @objc func showPlaying()
     {
         guard Thread.isMainThread else {
             return
@@ -1018,7 +1053,7 @@ class MediaViewController : UIViewController
         updateUI()
     }
     
-    func readyToPlay()
+    @objc func readyToPlay()
     {
         guard Thread.isMainThread else {
             return
@@ -1056,20 +1091,20 @@ class MediaViewController : UIViewController
         setupPlayPauseButton()
     }
     
-    func doneSeeking()
+    @objc func doneSeeking()
     {
         controlView.sliding = false
         print("DONE SEEKING")
     }
     
-    func deviceOrientationDidChange()
+    @objc func deviceOrientationDidChange()
     {
         if navigationController?.visibleViewController == self {
             navigationController?.isToolbarHidden = true
         }
     }
     
-    func failedToLoad()
+    @objc func failedToLoad()
     {
         guard (sermonSelected != nil) else {
             return
@@ -1080,7 +1115,7 @@ class MediaViewController : UIViewController
         }
     }
     
-    func failedToPlay()
+    @objc func failedToPlay()
     {
         guard (sermonSelected != nil) else {
             return
@@ -1196,7 +1231,7 @@ class MediaViewController : UIViewController
         // Dispose of any resources that can be recreated.
     }
     
-    func flip(_ sender: MediaViewController)
+    @objc func flip(_ sender: MediaViewController)
     {
         let frontView = self.seriesArtAndDescription.subviews[0]
         let backView = self.seriesArtAndDescription.subviews[1]
@@ -1229,39 +1264,6 @@ class MediaViewController : UIViewController
         if let navCon = destination as? UINavigationController, let visibleViewController = navCon.visibleViewController {
             destination = visibleViewController
         }
-    }
-
-    func numberOfSectionsInTableView(_ tableView: UITableView) -> Int
-    {
-        // #warning Potentially incomplete method implementation.
-        // Return the number of sections.
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
-    {
-        // #warning Incomplete method implementation.
-        // Return the number of rows in the section.
-        if let seriesSelected = seriesSelected {
-            return seriesSelected.show
-        } else {
-            return 0
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell
-    {
-        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.SERMON_CELL, for: indexPath) as? MediaTableViewCell ?? MediaTableViewCell()
-    
-        // Configure the cell...
-        cell.sermon = seriesSelected?.sermons?[(indexPath as NSIndexPath).row]
-        
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, shouldSelectRowAtIndexPath indexPath: IndexPath) -> Bool
-    {
-        return true
     }
     
     fileprivate func addEndObserver()
@@ -1475,7 +1477,7 @@ class MediaViewController : UIViewController
         }
     }
     
-    func sliderTimer()
+    @objc func sliderTimer()
     {
         guard Thread.isMainThread else {
             return
@@ -1659,14 +1661,14 @@ class MediaViewController : UIViewController
         }
     }
     
-    func tableView(_ tableView: UITableView, didDeselectRowAtIndexPath indexPath: IndexPath)
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath)
     {
 //        if let cell = seriesSermons.cellForRowAtIndexPath(indexPath) as? MediaTableViewCell {
 //
 //        }
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAtIndexPath indexPath: IndexPath)
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
         sermonSelected = seriesSelected?.sermons?[(indexPath as NSIndexPath).row]
         
