@@ -254,14 +254,15 @@ class MediaViewController : UIViewController
 
     var seriesSelected:Series?
     
-    var sermonSelected:Sermon? {
+    var sermonSelected:Sermon?
+    {
         willSet {
             
         }
         didSet {
             seriesSelected?.sermonSelected = sermonSelected
 
-            if let sermonSelected = sermonSelected, sermonSelected != oldValue {
+            if let sermonSelected = sermonSelected { // sermonSelected != oldValue
                 if (sermonSelected != globals.mediaPlayer.playing) {
                     removeSliderObserver()
                     if let playingURL = sermonSelected.playingURL {
@@ -284,7 +285,8 @@ class MediaViewController : UIViewController
     @IBOutlet weak var spinner: UIActivityIndicatorView!
     
     @IBOutlet weak var playPauseButton: UIButton!
-    @IBAction func playPause(_ sender: UIButton) {
+    @IBAction func playPause(_ sender: UIButton)
+    {
         guard let state = globals.mediaPlayer.state, globals.mediaPlayer.playing == sermonSelected, globals.mediaPlayer.player != nil else {
             playNewSermon(sermonSelected)
             return
@@ -382,22 +384,24 @@ class MediaViewController : UIViewController
     
     @IBOutlet weak var seriesArtAndDescription: UIView!
     
-    @IBOutlet weak var seriesArt: UIImageView! {
+    @IBOutlet weak var seriesArt: UIImageView!
+    {
         willSet {
             
         }
         didSet {
-            let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
+            let tap = UITapGestureRecognizer(target: self, action: #selector(flip(_:)))
             seriesArt.addGestureRecognizer(tap)
         }
     }
     
-    @IBOutlet weak var seriesDescription: UITextView! {
+    @IBOutlet weak var seriesDescription: UITextView!
+    {
         willSet {
             
         }
         didSet {
-            let tap = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.flip(_:)))
+            let tap = UITapGestureRecognizer(target: self, action: #selector(flip(_:)))
             seriesDescription.addGestureRecognizer(tap)
             
             seriesDescription.text = seriesSelected?.text
@@ -440,7 +444,7 @@ class MediaViewController : UIViewController
         
         switch state {
         case .playing:
-            controlView.sliding = globals.reachability?.isReachable ?? false
+            controlView.sliding = globals.reachability.isReachable // ?? false
             break
             
         default:
@@ -841,7 +845,7 @@ class MediaViewController : UIViewController
             return
         }
         
-        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaViewController.actions))
+        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(actions))
         
         if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
             actionButton?.setTitleTextAttributes([NSAttributedStringKey.font : font])
@@ -1126,26 +1130,37 @@ class MediaViewController : UIViewController
         }
     }
     
+    @objc func reachableTransition()
+    {
+        // This just triggers the didSet as if we had just selected it all over again.
+        // Which sets up the AVPlayer to show length and position for mediaItems that aren't loaded in the media Player.
+        if let sermonSelected = sermonSelected {
+            self.sermonSelected = sermonSelected
+        }
+        
+        updateUI()
+    }
+
     func setupNotifications()
     {
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(reachableTransition), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(reachableTransition), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.showPlaying), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(showPlaying), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToLoad), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(failedToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(failedToLoad), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.readyToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(readyToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(setupPlayPauseButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool)
@@ -1568,7 +1583,7 @@ class MediaViewController : UIViewController
     {
         removeSliderObserver()
         
-        self.sliderObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.SLIDER, target: self, selector: #selector(MediaViewController.sliderTimer), userInfo: nil, repeats: true)
+        self.sliderObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.SLIDER, target: self, selector: #selector(sliderTimer), userInfo: nil, repeats: true)
     }
     
     func playCurrentSermon(_ sermon:Sermon?)
@@ -1630,16 +1645,16 @@ class MediaViewController : UIViewController
     {
         globals.mediaPlayer.pauseIfPlaying()
 
-        guard (sermon != nil) else {
+        guard let sermon = sermon else {
             return
         }
 
-        guard let reachability = globals.reachability, reachability.isReachable else {
+        guard globals.reachability.isReachable || sermon.audioDownload.isDownloaded else { // let reachability = globals.reachability, 
             alert(viewController: self, title: "Audio Not Available", message: "Please check your network connection and try again.")
             return
         }
         
-        if (!spinner.isAnimating) {
+        if !spinner.isAnimating {
             spinner.isHidden = false
             spinner.startAnimating()
         }

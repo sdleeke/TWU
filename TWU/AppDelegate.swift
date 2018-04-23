@@ -58,10 +58,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         
         globals = Globals()
         
-        Thread.onMainThread {
-            globals.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: globals, selector: #selector(Globals.alertViewer), userInfo: nil, repeats: true)
-        }
-        
         globals.splitViewController = svc
         
         globals.splitViewController.delegate = self

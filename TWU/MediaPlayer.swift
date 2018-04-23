@@ -103,7 +103,8 @@ class PlayerStateTime {
     }
 }
 
-class MediaPlayer : NSObject {
+class MediaPlayer : NSObject
+{
     var playerTimerReturn:Any? = nil
     var sliderTimerReturn:Any? = nil
     
@@ -611,13 +612,21 @@ class MediaPlayer : NSObject {
         }
     }
     
+    @objc func reachableTransition()
+    {
+        if !loaded, playing != nil {
+            playOnLoad = false
+            setup(playing)
+        }
+    }
+    
     func observe()
     {
         guard Thread.isMainThread else {
             return
         }
         
-        self.playerObserverTimer = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PLAYER, target: self, selector: #selector(MediaPlayer.playerObserver), userInfo: nil, repeats: true)
+        self.playerObserverTimer = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PLAYER, target: self, selector: #selector(playerObserver), userInfo: nil, repeats: true)
         
         unobserve()
 
@@ -641,11 +650,11 @@ class MediaPlayer : NSObject {
             self.playerTimer()
         })
 
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.didPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
 
-//        NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.stop), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(reachableTransition), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
         
         pause()
     }

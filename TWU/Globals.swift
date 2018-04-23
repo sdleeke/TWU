@@ -92,11 +92,10 @@ class MediaRepository {
 
 class Globals : NSObject
 {
-    var reachability : Reachability?
-    
     var splitViewController : UISplitViewController!
     
-    var sorting:String? = Constants.Sorting.Newest_to_Oldest {
+    var sorting:String? = Constants.Sorting.Newest_to_Oldest
+    {
         willSet {
             
         }
@@ -115,7 +114,8 @@ class Globals : NSObject
         }
     }
     
-    var filter:String? {
+    var filter:String?
+    {
         willSet {
             
         }
@@ -160,7 +160,8 @@ class Globals : NSObject
     
     var searchButtonClicked = false
 
-    var searchActive:Bool = false {
+    var searchActive:Bool = false
+    {
         willSet {
             
         }
@@ -172,7 +173,8 @@ class Globals : NSObject
         }
     }
     
-    var searchValid:Bool {
+    var searchValid:Bool
+    {
         get {
             return searchActive && (searchText != nil) && (searchText != Constants.EMPTY_STRING)
         }
@@ -191,7 +193,8 @@ class Globals : NSObject
         }
     }
     
-    var seriesSelected:Series? {
+    var seriesSelected:Series?
+    {
         get {
             var seriesSelected:Series?
             
@@ -211,7 +214,8 @@ class Globals : NSObject
     
     var filteredSeries:[Series]?
     
-    var series:[Series]? {
+    var series:[Series]?
+    {
         willSet {
             
         }
@@ -261,7 +265,8 @@ class Globals : NSObject
     
     var showing:Showing = .all
 
-    var seriesToSearch:[Series]? {
+    var seriesToSearch:[Series]?
+    {
         get {
             switch showing {
             case .all:
@@ -273,7 +278,8 @@ class Globals : NSObject
         }
     }
     
-    var activeSeries:[Series]? {
+    var activeSeries:[Series]?
+    {
         get {
             if searchActive {
                 return searchSeries
@@ -297,15 +303,135 @@ class Globals : NSObject
         }
     }
     
+    var reachability = Reachability(hostname: "www.thewordunleashed.org")!
+    
     var priorReachabilityStatus : Reachability.NetworkStatus?
     
     func reachabilityTransition()
     {
-        guard let reachability = reachability else {
-            return
-        }
+//        guard let reachability = reachability else {
+//            return
+//        }
+//
+//        guard let priorReachabilityStatus = priorReachabilityStatus else {
+//            switch reachability.currentReachabilityStatus {
+//            case .notReachable:
+//                print("Not Reachable")
+//                break
+//
+//            case .reachableViaWLAN:
+//                print("Reachable via WLAN, e.g. WiFi or Bluetooth")
+//                break
+//
+//            case .reachableViaWWAN:
+//                print("Reachable via WWAN, e.g. Cellular")
+//                break
+//            }
+//
+//            return
+//        }
+//
+//        switch priorReachabilityStatus {
+//        case .notReachable:
+//            switch reachability.currentReachabilityStatus {
+//            case .notReachable:
+//                print("Not Reachable -> Not Reachable")
+//                break
+//
+//            case .reachableViaWLAN:
+//                print("Not Reachable -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+//                break
+//
+//            case .reachableViaWWAN:
+//                print("Not Reachable -> Reachable via WWAN, e.g. Cellular")
+//                break
+//            }
+//            break
+//
+//        case .reachableViaWLAN:
+//            switch reachability.currentReachabilityStatus {
+//            case .notReachable:
+//                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Not Reachable")
+//                break
+//
+//            case .reachableViaWLAN:
+//                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+//                break
+//
+//            case .reachableViaWWAN:
+//                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WWAN, e.g. Cellular")
+//                break
+//            }
+//            break
+//
+//        case .reachableViaWWAN:
+//            switch reachability.currentReachabilityStatus {
+//            case .notReachable:
+//                print("Reachable via WWAN, e.g. Cellular -> Not Reachable")
+//                break
+//
+//            case .reachableViaWLAN:
+//                print("Reachable via WWAN, e.g. Cellular -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+//                break
+//
+//            case .reachableViaWWAN:
+//                print("Reachable via WWAN, e.g. Cellular -> Reachable via WWAN, e.g. Cellular")
+//                break
+//            }
+//            break
+//        }
         
-        guard let priorReachabilityStatus = priorReachabilityStatus else {
+        if let priorReachabilityStatus = priorReachabilityStatus {
+            switch priorReachabilityStatus {
+            case .notReachable:
+                switch reachability.currentReachabilityStatus {
+                case .notReachable:
+                    print("Not Reachable -> Not Reachable")
+                    break
+                    
+                case .reachableViaWLAN:
+                    print("Not Reachable -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                    break
+                    
+                case .reachableViaWWAN:
+                    print("Not Reachable -> Reachable via WWAN, e.g. Cellular")
+                    break
+                }
+                break
+                
+            case .reachableViaWLAN:
+                switch reachability.currentReachabilityStatus {
+                case .notReachable:
+                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Not Reachable")
+                    break
+                    
+                case .reachableViaWLAN:
+                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                    break
+                    
+                case .reachableViaWWAN:
+                    print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WWAN, e.g. Cellular")
+                    break
+                }
+                break
+                
+            case .reachableViaWWAN:
+                switch reachability.currentReachabilityStatus {
+                case .notReachable:
+                    print("Reachable via WWAN, e.g. Cellular -> Not Reachable")
+                    break
+                    
+                case .reachableViaWLAN:
+                    print("Reachable via WWAN, e.g. Cellular -> Reachable via WLAN, e.g. WiFi or Bluetooth")
+                    break
+                    
+                case .reachableViaWWAN:
+                    print("Reachable via WWAN, e.g. Cellular -> Reachable via WWAN, e.g. Cellular")
+                    break
+                }
+                break
+            }
+        } else {
             switch reachability.currentReachabilityStatus {
             case .notReachable:
                 print("Not Reachable")
@@ -319,80 +445,32 @@ class Globals : NSObject
                 print("Reachable via WWAN, e.g. Cellular")
                 break
             }
+        }
 
-            return
+        if priorReachabilityStatus == .notReachable, reachability.isReachable, series != nil {
+            alert(title: "Network Connection Restored",message: "")
         }
         
-        switch priorReachabilityStatus {
-        case .notReachable:
-            switch reachability.currentReachabilityStatus {
-            case .notReachable:
-                print("Not Reachable -> Not Reachable")
-                break
-                
-            case .reachableViaWLAN:
-                print("Not Reachable -> Reachable via WLAN, e.g. WiFi or Bluetooth")
-                break
-                
-            case .reachableViaWWAN:
-                print("Not Reachable -> Reachable via WWAN, e.g. Cellular")
-                break
-            }
-            break
-            
-        case .reachableViaWLAN:
-            switch reachability.currentReachabilityStatus {
-            case .notReachable:
-                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Not Reachable")
-                break
-                
-            case .reachableViaWLAN:
-                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WLAN, e.g. WiFi or Bluetooth")
-                break
-                
-            case .reachableViaWWAN:
-                print("Reachable via WLAN, e.g. WiFi or Bluetooth -> Reachable via WWAN, e.g. Cellular")
-                break
-            }
-            break
-            
-        case .reachableViaWWAN:
-            switch reachability.currentReachabilityStatus {
-            case .notReachable:
-                print("Reachable via WWAN, e.g. Cellular -> Not Reachable")
-                break
-                
-            case .reachableViaWLAN:
-                print("Reachable via WWAN, e.g. Cellular -> Reachable via WLAN, e.g. WiFi or Bluetooth")
-                break
-                
-            case .reachableViaWWAN:
-                print("Reachable via WWAN, e.g. Cellular -> Reachable via WWAN, e.g. Cellular")
-                break
-            }
-            break
+        if priorReachabilityStatus != .notReachable, !reachability.isReachable, series != nil {
+            alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
         }
         
-        if priorReachabilityStatus == .notReachable, reachability.isReachable, globals.mediaRepository.list != nil {
-            globals.alert(title: "Network Connection Restored",message: "")
-        }
-        
-        if priorReachabilityStatus != .notReachable, !reachability.isReachable, globals.mediaRepository.list != nil {
-            globals.alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
-        }
-        
-        self.priorReachabilityStatus = reachability.currentReachabilityStatus
+        priorReachabilityStatus = reachability.currentReachabilityStatus
     }
     
     override init()
     {
         super.init()
         
-        guard let reachability = Reachability(hostname: "www.thewordunleashed.org") else {
-            return
+        Thread.onMainThread {
+            self.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.alertViewer), userInfo: nil, repeats: true)
         }
-        
-        self.reachability = reachability
+
+//        guard let reachability = Reachability(hostname: "www.thewordunleashed.org") else {
+//            return
+//        }
+//        
+//        self.reachability = reachability
         
         reachability.whenReachable = { reachability in
             // this is called on a background thread, but UI updates must
@@ -547,29 +625,31 @@ class Globals : NSObject
     
     @objc func alertViewer()
     {
-        for alert in alerts {
-            print(alert)
-        }
+//        for alert in alerts {
+//            print(alert)
+//        }
         
         guard UIApplication.shared.applicationState == UIApplicationState.active else {
             return
         }
         
-        if let alert = alerts.first {
-            let alertVC = UIAlertController(title:alert.title,
-                                            message:alert.message,
-                                            preferredStyle: UIAlertControllerStyle.alert)
+        guard alerts.count > 0, let alert = alerts.first else {
+            return
+        }
+        
+        let alertVC = UIAlertController(title:alert.title,
+                                        message:alert.message,
+                                        preferredStyle: UIAlertControllerStyle.alert)
+        
+        let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
             
-            let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                
+        })
+        alertVC.addAction(action)
+        
+        Thread.onMainThread {
+            self.splitViewController.present(alertVC, animated: true, completion: {
+                self.alerts.remove(at: 0)
             })
-            alertVC.addAction(action)
-            
-            Thread.onMainThread {
-                globals.splitViewController.present(alertVC, animated: true, completion: {
-                    self.alerts.remove(at: 0)
-                })
-            }
         }
     }
     

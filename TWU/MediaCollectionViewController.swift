@@ -339,11 +339,11 @@ class MediaCollectionViewController: UIViewController
     
     fileprivate func setupSortingAndGroupingOptions()
     {
-        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.sorting(_:)))
+        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.plain, target: self, action: #selector(sorting(_:)))
         
-        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.filtering(_:)))
+        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.plain, target: self, action: #selector(filtering(_:)))
         
-        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.settings(_:)))
+        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.plain, target: self, action: #selector(settings(_:)))
         
         let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil)
         
@@ -503,7 +503,7 @@ class MediaCollectionViewController: UIViewController
 
     func jsonFromURL(urlString:String,filename:String) -> Any?
     {
-        guard let reachability = globals.reachability, reachability.isReachable, let url = URL(string: urlString) else {
+        guard globals.reachability.isReachable, let url = URL(string: urlString) else { // let reachability = globals.reachability, 
             print("json not reachable.")
             return jsonFromFileSystem(filename: filename)
         }
@@ -673,10 +673,6 @@ class MediaCollectionViewController: UIViewController
         // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
         globals = Globals()
         
-        Thread.onMainThread {
-            globals.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: globals, selector: #selector(Globals.alertViewer), userInfo: nil, repeats: true)
-        }
-        
         globals.splitViewController = splitViewController
         globals.splitViewController.delegate = splitViewController?.delegate
         globals.splitViewController.preferredDisplayMode = .allVisible
@@ -721,15 +717,15 @@ class MediaCollectionViewController: UIViewController
     
     func addNotifications()
     {
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.showingAboutDidChange), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(showingAboutDidChange), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaCollectionViewController.setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
     }
     
     override func viewDidLoad()
@@ -743,7 +739,7 @@ class MediaCollectionViewController: UIViewController
         splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
         
         refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(MediaCollectionViewController.handleRefresh(_:)), for: UIControlEvents.valueChanged)
+        refreshControl?.addTarget(self, action: #selector(handleRefresh(_:)), for: UIControlEvents.valueChanged)
 
         if let refreshControl = refreshControl {
             collectionView.addSubview(refreshControl)
@@ -792,7 +788,7 @@ class MediaCollectionViewController: UIViewController
         var playingPausedButton = navigationItem.rightBarButtonItem
         
         if (playingPausedButton == nil) {
-            playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.plain, target: self, action: #selector(MediaCollectionViewController.gotoNowPlaying))
+            playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.plain, target: self, action: #selector(gotoNowPlaying))
         }
         
         playingPausedButton?.title = title

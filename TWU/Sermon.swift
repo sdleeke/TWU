@@ -44,7 +44,7 @@ class Download {
             
         }
         didSet {
-            state = isDownloaded() ? .downloaded : .none
+            state = isDownloaded ? .downloaded : .none
         }
     }
     
@@ -77,13 +77,15 @@ class Download {
     
     var completionHandler: (() -> (Void))?
     
-    func isDownloaded() -> Bool
+    var isDownloaded : Bool
     {
-        guard let fileSystemURL = fileSystemURL else {
-            return false
+        get {
+            guard let fileSystemURL = fileSystemURL else {
+                return false
+            }
+            
+            return FileManager.default.fileExists(atPath: fileSystemURL.path)
         }
-        
-        return FileManager.default.fileExists(atPath: fileSystemURL.path)
     }
     
     func download()

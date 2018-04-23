@@ -242,7 +242,7 @@ class AboutViewController : UIViewController
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(AboutViewController.actions))
+        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(actions))
         
         if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
             actionButton?.setTitleTextAttributes([NSAttributedStringKey.font : font])
