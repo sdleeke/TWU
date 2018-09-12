@@ -737,6 +737,8 @@ class MediaCollectionViewController: UIViewController
         // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
 //        globals = Globals()
         
+        Globals.shared.series = nil
+
 //        Globals.shared.splitViewController = splitViewController
 //        Globals.shared.splitViewController.delegate = splitViewController?.delegate
 //        Globals.shared.splitViewController.preferredDisplayMode = .allVisible

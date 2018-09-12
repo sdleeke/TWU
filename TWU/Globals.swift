@@ -218,6 +218,7 @@ class Globals //: NSObject
     
     var gotoNowPlaying:Bool = false
     
+    // \/\/\/ Replace with Search struct/class
     var searchButtonClicked = false
 
     var searchActive:Bool = false
@@ -240,10 +241,12 @@ class Globals //: NSObject
         }
     }
     
+    // Search results
     var searchSeries:[Series]?
     
     var searchText:String?
-
+    // /\/\/\ Replace
+    
     var showingAbout:Bool = false
     {
         didSet {
@@ -268,10 +271,7 @@ class Globals //: NSObject
         }
     }
     
-    var mediaRepository = MediaRepository()
-    
-    var filteredSeries:[Series]?
-    
+    // From NEW JSON
     var meta:[String:Any]?
     
     var audioURL : String?
@@ -299,6 +299,11 @@ class Globals //: NSObject
     {
         return (meta?["imageSuffix"] as? [String:String])?["16x9"]
     }
+
+    // Use this to replace filteredSeries, series, index, sermonFromSermonID, seriesToSearch, activeSeries
+    //    var mediaRepository = MediaRepository()
+    
+    var filteredSeries:[Series]?
     
     var series:[Series]?
     {
