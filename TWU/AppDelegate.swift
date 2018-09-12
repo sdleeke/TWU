@@ -56,26 +56,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
             return false
         }
         
-        globals = Globals()
+//        globals = Globals()
         
-        globals.splitViewController = svc
+        Globals.shared.splitViewController = svc
         
-        globals.splitViewController.delegate = self
+        Globals.shared.splitViewController.delegate = self
         
-        globals.splitViewController.preferredDisplayMode = .allVisible
+        Globals.shared.splitViewController.preferredDisplayMode = .allVisible
 
-        let hClass = globals.splitViewController.traitCollection.horizontalSizeClass
-        let vClass = globals.splitViewController.traitCollection.verticalSizeClass
+        let hClass = Globals.shared.splitViewController.traitCollection.horizontalSizeClass
+        let vClass = Globals.shared.splitViewController.traitCollection.verticalSizeClass
         
         if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
-            if let navigationController = globals.splitViewController.viewControllers[globals.splitViewController.viewControllers.count-1] as? UINavigationController {
-                navigationController.topViewController?.navigationItem.leftBarButtonItem = globals.splitViewController.displayModeButtonItem
+            if let navigationController = Globals.shared.splitViewController.viewControllers[Globals.shared.splitViewController.viewControllers.count-1] as? UINavigationController {
+                navigationController.topViewController?.navigationItem.leftBarButtonItem = Globals.shared.splitViewController.displayModeButtonItem
             }
         }
         
         // Override point for customization after application launch.
         
-        globals.addAccessoryEvents()
+        Globals.shared.addAccessoryEvents()
         
         startAudio()
         
@@ -105,20 +105,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 //        print("applicationWillEnterForeground")
         
-        if (globals.mediaPlayer.rate == 0) {
+        if (Globals.shared.mediaPlayer.rate == 0) {
             //It is paused, possibly not by us, but by the system
-            if globals.mediaPlayer.isPlaying {
-                globals.mediaPlayer.pause()
+            if Globals.shared.mediaPlayer.isPlaying {
+                Globals.shared.mediaPlayer.pause()
             }
         }
     
-        if (globals.mediaPlayer.rate != 0) {
-            if globals.mediaPlayer.isPaused {
-                globals.mediaPlayer.play()
+        if (Globals.shared.mediaPlayer.rate != 0) {
+            if Globals.shared.mediaPlayer.isPaused {
+                Globals.shared.mediaPlayer.play()
             }
         }
         
-        globals.mediaPlayer.setupPlayingInfoCenter()
+        Globals.shared.mediaPlayer.setupPlayingInfoCenter()
         
         Thread.onMainThread {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
@@ -148,36 +148,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioSessionDelegate, U
         }
     }
 
-    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void)
-    {
-        print("application:handleEventsForBackgroundURLSession")
-        
-        /*
-    In iOS, when a background transfer completes or requires credentials, if your app is no longer running, iOS automatically relaunches your app in the background and calls the application:handleEventsForBackgroundURLSession:completionHandler: method on your app’s UIApplicationDelegate object. This call provides the identifier of the session that caused your app to be launched. Your app should store that completion handler, create a background configuration object with the same identifier, and create a session with that configuration object. The new session is automatically reassociated with ongoing background activity. Later, when the session finishes the last background download task, it sends the session delegate a URLSessionDidFinishEventsForBackgroundURLSession: message. Your session delegate should then call the stored completion handler.
-        */
-        
-        let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
-        configuration.sessionSendsLaunchEvents = true
-        
-        var filename = String(identifier[Constants.IDENTIFIER.DOWNLOAD.endIndex...])
-        
-        if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
-            filename = String(filename[..<range.lowerBound])
-        }
-        
-        if let allSeries = globals.series {
-            for series in allSeries {
-                if let sermons = series.sermons {
-                    for sermon in sermons {
-                        if sermon.id == Int(filename) {
-                            sermon.audioDownload.session = URLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
-                            sermon.audioDownload.completionHandler = completionHandler
-                            //Do we need to recreate the downloadTask for this session?
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void)
+//    {
+//        print("application:handleEventsForBackgroundURLSession")
+//        
+//        /*
+//    In iOS, when a background transfer completes or requires credentials, if your app is no longer running, iOS automatically relaunches your app in the background and calls the application:handleEventsForBackgroundURLSession:completionHandler: method on your app’s UIApplicationDelegate object. This call provides the identifier of the session that caused your app to be launched. Your app should store that completion handler, create a background configuration object with the same identifier, and create a session with that configuration object. The new session is automatically reassociated with ongoing background activity. Later, when the session finishes the last background download task, it sends the session delegate a URLSessionDidFinishEventsForBackgroundURLSession: message. Your session delegate should then call the stored completion handler.
+//        */
+//        
+//        let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
+//        configuration.sessionSendsLaunchEvents = true
+//        
+//        var filename = String(identifier[Constants.IDENTIFIER.DOWNLOAD.endIndex...])
+//        
+//        if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
+//            filename = String(filename[..<range.lowerBound])
+//        }
+//        
+//        if let allSeries = Globals.shared.series {
+//            for series in allSeries {
+//                if let sermons = series.sermons {
+//                    for sermon in sermons {
+//                        if sermon.id == Int(filename) {
+//                            sermon.audioDownload.session = URLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
+//                            sermon.audioDownload.completionHandler = completionHandler
+//                            //Do we need to recreate the downloadTask for this session?
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 

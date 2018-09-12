@@ -202,11 +202,11 @@ extension Sermon : URLSessionDownloadDelegate
                 if let taskDescription = downloadTask.taskDescription, let range = taskDescription.range(of: ".") {
                     let id = String(taskDescription[..<range.lowerBound])
 
-                    if let num = Int(id), let sermon = globals.sermonFromSermonID(num) {
-                        globals.alert(title: "Download Failed", message: sermon.title)
+                    if let sermon = Globals.shared.sermonFromSermonID(id) { // let num = Int(id),
+                        Globals.shared.alert(title: "Download Failed", message: sermon.title)
                     }
                 } else {
-                    globals.alert(title: "Download Failed", message: nil)
+                    Globals.shared.alert(title: "Download Failed", message: nil)
                 }
             }
 
@@ -270,11 +270,11 @@ extension Sermon : URLSessionDownloadDelegate
                 if let taskDescription = downloadTask.taskDescription, let range = taskDescription.range(of: ".") {
                     let id = String(taskDescription[..<range.lowerBound])
                 
-                    if let num = Int(id), let sermon = globals.sermonFromSermonID(num) {
-                        globals.alert(title: "Download Failed", message: sermon.title)
+                    if let sermon = Globals.shared.sermonFromSermonID(id) { // let num = Int(id),
+                        Globals.shared.alert(title: "Download Failed", message: sermon.title)
                     }
                 } else {
-                    globals.alert(title: "Download Failed", message: nil)
+                    Globals.shared.alert(title: "Download Failed", message: nil)
                 }
             }
             
@@ -326,7 +326,7 @@ extension Sermon : URLSessionDownloadDelegate
         } catch let error as NSError {
             NSLog(error.localizedDescription)
             print("failed to copy temp audio download file")
-            globals.alert(title: "Network Error", message: error.localizedDescription)
+            Globals.shared.alert(title: "Network Error", message: error.localizedDescription)
             audioDownload.state = .none
         }
         
@@ -344,20 +344,20 @@ extension Sermon : URLSessionDownloadDelegate
 
             if audioDownload.state != .none {
                 if let taskDescription = task.taskDescription, let range = taskDescription.range(of: ".") {
-                    let idString = String(taskDescription[..<range.lowerBound])
+                    let id = String(taskDescription[..<range.lowerBound])
                     
-                    if let id = Int(idString), let title = globals.sermonFromSermonID(id)?.title {
+                    if let title = Globals.shared.sermonFromSermonID(id)?.title { // let id = Int(idString),
                         if let error = error {
-                            globals.alert(title: "Download Failed", message: title + "\nError: " + error.localizedDescription)
+                            Globals.shared.alert(title: "Download Failed", message: title + "\nError: " + error.localizedDescription)
                         } else {
-                            globals.alert(title: "Download Failed", message: title)
+                            Globals.shared.alert(title: "Download Failed", message: title)
                         }
                     }
                 } else {
                     if let error = error {
-                        globals.alert(title: "Download Failed", message: "Error: " + error.localizedDescription)
+                        Globals.shared.alert(title: "Download Failed", message: "Error: " + error.localizedDescription)
                     } else {
-                        globals.alert(title: "Download Failed", message: nil)
+                        Globals.shared.alert(title: "Download Failed", message: nil)
                     }
                 }
             }
@@ -387,7 +387,7 @@ extension Sermon : URLSessionDownloadDelegate
             NSLog("with error: \(error.localizedDescription) statusCode:\(statusCode)")
             // May be user initiated.
             if error.localizedDescription != "cancelled" {
-                globals.alert(title: "Network Error", message: error.localizedDescription)
+                Globals.shared.alert(title: "Network Error", message: error.localizedDescription)
             }
             audioDownload.state = .none
         }
@@ -417,7 +417,7 @@ extension Sermon : URLSessionDownloadDelegate
         
         if let error = error {
             NSLog("with error: \(error.localizedDescription)")
-            globals.alert(title: "Network Error", message: error.localizedDescription)
+            Globals.shared.alert(title: "Network Error", message: error.localizedDescription)
             audioDownload.state = .none
         }
         
@@ -438,11 +438,11 @@ extension Sermon : URLSessionDownloadDelegate
             filename = String(filename[..<range.lowerBound])
         }
         
-        if let series = globals.series {
+        if let series = Globals.shared.series {
             for series in series {
                 if let sermons = series.sermons {
                     for sermon in sermons {
-                        if sermon.id == Int(filename) {
+                        if sermon.id == filename { // Int()
                             sermon.audioDownload.completionHandler?()
                         }
                     }
@@ -455,7 +455,27 @@ extension Sermon : URLSessionDownloadDelegate
 class Sermon : NSObject {
     weak var series:Series?
     
-    var id:Int
+    var dict:[String:Any]?
+    
+    var id:String!
+    {
+        return dict?["mediaCode"] as? String
+    }
+    
+    var part:String!
+    {
+        return dict?["part"] as? String
+    }
+    
+    var publishDate:String!
+    {
+        return dict?["publishDate"] as? String
+    }
+    
+    var text:String?
+    {
+        return dict?["description"] as? String
+    }
     
     var title:String?
     {
@@ -467,7 +487,13 @@ class Sermon : NSObject {
             return nil
         }
         
-        return "\(title) (Part \(index+1) of \(series.numberOfSermons))"
+        // index+1
+        
+        if let part = part {
+            return "\(title) (Part \(part) of \(series.numberOfSermons))"
+        } else {
+            return title
+        }
     }
     
     var atEnd:Bool {
@@ -482,17 +508,23 @@ class Sermon : NSObject {
     
     var audio:String? {
         get {
-            return String(format: Constants.FILENAME_FORMAT, id)
+            return id + Constants.FILE_EXTENSION.MP3 // String(format: Constants.FILENAME_FORMAT, id)
         }
     }
 
     var audioURL:URL? {
         get {
+            guard let audioURL = Globals.shared.audioURL else {
+                return nil
+            }
+            
             guard let audio = audio else {
                 return nil
             }
             
-            return URL(string: Constants.URL.BASE.AUDIO + audio)
+            return URL(string: audioURL + audio)
+            
+//            return URL(string: Constants.URL.BASE.AUDIO + audio)
         }
     }
 
@@ -527,7 +559,7 @@ class Sermon : NSObject {
                 return nil
             }
             
-            return "\(series.id)\(Constants.COLON)\(id)"
+            return id // "\(series.id)\(Constants.COLON)\(id)"
         }
     }
 
@@ -558,35 +590,47 @@ class Sermon : NSObject {
         }
     }
     
-    init(series:Series,id:Int) {
+    init(series:Series,dict:[String:Any]?)
+    { // ,id:String
         self.series = series
-        self.id = id
+        
+        switch Constants.JSON.URL {
+        case Constants.JSON.URLS.SERIES_JSON:
+            self.dict = dict?["program"] as? [String:Any]
+            break
+            
+        default:
+            self.dict = dict
+            break
+        }
+        
+//        self.id = id
     }
     
-    var index:Int {
-        get {
-            guard let series = series else {
-                return -1
-            }
-            
-            return id - series.startingIndex
-        }
-    }
+//    var index:Int {
+//        get {
+//            guard let series = series else {
+//                return -1
+//            }
+//
+//            return id - series.startingIndex
+//        }
+//    }
     
     override var description : String {
         get {
             guard let series = series else {
                 return "ERROR"
             }
-            
+
             //This requires that date, service, title, and speaker fields all be non-nil
-            
+
             var sermonString = "Sermon:"
-            
+
             sermonString = "\(sermonString) \(series.title ?? "Title")"
 
-            sermonString = "\(sermonString) Part:\(index+1)"
-            
+            sermonString = "\(sermonString) Part:\(part!)"
+
             return sermonString
         }
     }
@@ -605,7 +649,7 @@ class Sermon : NSObject {
             get {
                 var value:String?
                 if let sermonID = self.sermon?.sermonID {
-                    value = globals.sermonSettings?[sermonID]?[key]
+                    value = Globals.shared.sermonSettings?[sermonID]?[key]
                 }
                 return value
             }
@@ -625,19 +669,19 @@ class Sermon : NSObject {
                     return
                 }
                 
-                if (globals.sermonSettings == nil) {
-                    globals.sermonSettings = [String:[String:String]]()
+                if (Globals.shared.sermonSettings == nil) {
+                    Globals.shared.sermonSettings = [String:[String:String]]()
                 }
                 
-                if (globals.sermonSettings?[sermonID] == nil) {
-                    globals.sermonSettings?[sermonID] = [String:String]()
+                if (Globals.shared.sermonSettings?[sermonID] == nil) {
+                    Globals.shared.sermonSettings?[sermonID] = [String:String]()
                 }
                 
-                if (globals.sermonSettings?[sermonID]?[key] != newValue) {
-                    globals.sermonSettings?[sermonID]?[key] = newValue
+                if (Globals.shared.sermonSettings?[sermonID]?[key] != newValue) {
+                    Globals.shared.sermonSettings?[sermonID]?[key] = newValue
                     
                     // For a high volume of activity this can be very expensive.
-                    globals.saveSettingsBackground()
+                    Globals.shared.saveSettingsBackground()
                 }
             }
         }

@@ -130,7 +130,7 @@ class AboutViewController : UIViewController
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
     {
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
-            globals.motionEnded(motion, event: event)
+            Globals.shared.motionEnded(motion, event: event)
         }
     }
     
@@ -229,7 +229,7 @@ class AboutViewController : UIViewController
         
         popover.strings = actionMenu
         
-        popover.showIndex = false //(globals.grouping == .series)
+        popover.showIndex = false //(Globals.shared.grouping == .series)
         popover.showSectionHeaders = false
         
         present(navigationController, animated: true, completion: nil)
@@ -283,7 +283,7 @@ class AboutViewController : UIViewController
     {
         super.viewWillDisappear(animated)
         
-        globals.showingAbout = false
+        Globals.shared.showingAbout = false
         
         NotificationCenter.default.removeObserver(self)
     }

@@ -40,14 +40,14 @@ extension MediaCollectionViewController : UICollectionViewDataSource
     {
         //#warning Incomplete method implementation -- Return the number of items in the section
         //return series[section].count
-        return globals.activeSeries?.count ?? 0
+        return Globals.shared.activeSeries?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as? MediaCollectionViewCell {
             // Configure the cell
-            cell.series = globals.activeSeries?[indexPath.row]
+            cell.series = Globals.shared.activeSeries?[indexPath.row]
             
             return cell
         } else {
@@ -117,39 +117,39 @@ extension MediaCollectionViewController : UISearchBarDelegate
     // MARK: UISearchBarDelegate
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool
     {
-        return !globals.isLoading && !globals.isRefreshing && (globals.series != nil)
+        return !Globals.shared.isLoading && !Globals.shared.isRefreshing && (Globals.shared.series != nil)
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar)
     {
         searchBar.showsCancelButton = true
         
-        globals.searchButtonClicked = false
+        Globals.shared.searchButtonClicked = false
         
-        globals.searchActive = true
+        Globals.shared.searchActive = true
 
-        globals.updateSearchResults()
+        Globals.shared.updateSearchResults()
         
         collectionView?.reloadData()
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
     {
-        globals.searchButtonClicked = true
+        Globals.shared.searchButtonClicked = true
         searchBar.resignFirstResponder()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
-        globals.searchButtonClicked = true
+        Globals.shared.searchButtonClicked = true
         searchBar.resignFirstResponder()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
     {
-        globals.searchButtonClicked = false
-        globals.searchText = searchBar.text
-        globals.updateSearchResults()
+        Globals.shared.searchButtonClicked = false
+        Globals.shared.searchText = searchBar.text
+        Globals.shared.updateSearchResults()
         
         collectionView?.reloadData()
     }
@@ -160,9 +160,9 @@ extension MediaCollectionViewController : UISearchBarDelegate
         searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
         
-        globals.searchText = nil
-        globals.searchSeries = nil
-        globals.searchActive = false
+        Globals.shared.searchText = nil
+        Globals.shared.searchSeries = nil
+        Globals.shared.searchActive = false
         
         collectionView?.reloadData()
     }
@@ -188,25 +188,25 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
         
         switch purpose {
         case .selectingSorting:
-            globals.sorting = strings[index]
+            Globals.shared.sorting = strings[index]
             collectionView.reloadData()
             break
             
         case .selectingFiltering:
-            if (globals.filter != strings[index]) {
+            if (Globals.shared.filter != strings[index]) {
                 searchBar.placeholder = strings[index]
                 
                 if (strings[index] == Constants.All) {
-                    globals.showing = .all
-                    globals.filter = nil
+                    Globals.shared.showing = .all
+                    Globals.shared.filter = nil
                 } else {
-                    globals.showing = .filtered
-                    globals.filter = strings[index]
+                    Globals.shared.showing = .filtered
+                    Globals.shared.filter = strings[index]
                 }
                 
                 self.collectionView.reloadData()
                 
-                if globals.activeSeries != nil {
+                if Globals.shared.activeSeries != nil {
                     let indexPath = IndexPath(item:0,section:0)
                     collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
                 }
@@ -241,7 +241,7 @@ class MediaCollectionViewController: UIViewController
             }
 
             let defaults = UserDefaults.standard
-            defaults.set("\(seriesSelected.id)", forKey: Constants.SETTINGS.SELECTED.SERIES)
+            defaults.set(seriesSelected.name, forKey: Constants.SETTINGS.SELECTED.SERIES)
             defaults.synchronize()
             
             Thread.onMainThread {
@@ -266,7 +266,7 @@ class MediaCollectionViewController: UIViewController
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
     {
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
-            globals.motionEnded(motion, event: event)
+            Globals.shared.motionEnded(motion, event: event)
         }
     }
 
@@ -325,7 +325,7 @@ class MediaCollectionViewController: UIViewController
         popover.delegate = self
         
         popover.purpose = .selectingFiltering
-        popover.strings = booksFromSeries(globals.series)
+        popover.strings = booksFromSeries(Globals.shared.series)
         popover.strings?.insert(Constants.All, at: 0)
         
         present(navigationController, animated: true, completion: nil)
@@ -374,12 +374,12 @@ class MediaCollectionViewController: UIViewController
     
     fileprivate func setupSearchBar()
     {
-        switch globals.showing {
+        switch Globals.shared.showing {
         case .all:
             searchBar.placeholder = Constants.All
             break
         case .filtered:
-            searchBar.placeholder = globals.filter
+            searchBar.placeholder = Globals.shared.filter
             break
         }
     }
@@ -390,7 +390,7 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        if (!globals.isLoading && !globals.isRefreshing) {
+        if (!Globals.shared.isLoading && !Globals.shared.isRefreshing) {
             self.navigationItem.title = Constants.TWU.LONG
         }
     }
@@ -405,7 +405,7 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        if let index = globals.activeSeries?.index(of: series) {
+        if let index = Globals.shared.activeSeries?.index(of: series) {
             let indexPath = IndexPath(item: index, section: 0)
             
             //Without this background/main dispatching there isn't time to scroll after a reload.
@@ -436,13 +436,25 @@ class MediaCollectionViewController: UIViewController
         }
     }
     
-    func seriesFromSeriesDicts(_ seriesDicts:[[String:String]]?) -> [Series]?
+    func seriesFromSeriesDicts(_ seriesDicts:[[String:Any]]?) -> [Series]?
     {
-        return seriesDicts?.filter({ (seriesDict:[String:String]) -> Bool in
+        return seriesDicts?.filter({ (seriesDict:[String:Any]) -> Bool in
             let series = Series(seriesDict: seriesDict)
-            return series.show != 0
-        }).map({ (seriesDict:[String:String]) -> Series in
-            return Series(seriesDict: seriesDict)
+            return series.sermons?.count > 0 // .show != 0
+        }).map({ (seriesDict:[String:Any]) -> Series in
+            let series = Series(seriesDict: seriesDict)
+
+            DispatchQueue.global(qos: .background).async { () -> Void in
+                series.coverArt { (image:UIImage?) in
+                    guard let name = series.coverArtURL?.lastPathComponent else {
+                        return
+                    }
+                    
+                    Globals.shared.images[name] = image
+                }
+            }
+
+            return series
         })
     }
     
@@ -501,59 +513,109 @@ class MediaCollectionViewController: UIViewController
         }
     }
 
+    lazy var operationQueue:OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.underlyingQueue = DispatchQueue(label: "JSON")
+        operationQueue.qualityOfService = .background
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
+
     func jsonFromURL(urlString:String,filename:String) -> Any?
     {
-        guard globals.reachability.isReachable, let url = URL(string: urlString) else { // let reachability = globals.reachability, 
+        guard Globals.shared.reachability.isReachable, let url = URL(string: urlString) else { // let reachability = Globals.shared.reachability, 
             print("json not reachable.")
             return jsonFromFileSystem(filename: filename)
         }
         
-        do {
-            let data = try Data(contentsOf: url)
-            print("able to read json from the URL.")
-            
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
-                
+        if Globals.shared.format == Constants.JSON.URL, let json = jsonFromFileSystem(filename: filename) {
+            operationQueue.addOperation {
                 do {
-                    if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
-                        try data.write(to: jsonFileSystemURL)
-                    }
-    
-                    print("able to write json to the file system")
-                } catch let error as NSError {
-                    print("unable to write json to the file system.")
+                    let data = try Data(contentsOf: url)
+                    print("able to read json from the URL.")
                     
+                    do {
+                        if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
+                            try data.write(to: jsonFileSystemURL)
+                        }
+                        Globals.shared.format = Constants.JSON.URL
+                        print("able to write json to the file system")
+                    } catch let error as NSError {
+                        print("unable to write json to the file system.")
+                        NSLog(error.localizedDescription)
+                    }
+                } catch let error {
                     NSLog(error.localizedDescription)
                 }
+            }
+
+            return json
+        } else {
+            do {
+                let data = try Data(contentsOf: url)
+                print("able to read json from the URL.")
                 
-                return json
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data, options: [])
+                    
+                    do {
+                        if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
+                            try data.write(to: jsonFileSystemURL)
+                        }
+                        Globals.shared.format = Constants.JSON.URL
+                        print("able to write json to the file system")
+                    } catch let error as NSError {
+                        print("unable to write json to the file system.")
+                        
+                        NSLog(error.localizedDescription)
+                    }
+                    
+                    return json
+                } catch let error as NSError {
+                    NSLog(error.localizedDescription)
+                    return jsonFromFileSystem(filename: filename)
+                }
             } catch let error as NSError {
                 NSLog(error.localizedDescription)
                 return jsonFromFileSystem(filename: filename)
             }
-        } catch let error as NSError {
-            NSLog(error.localizedDescription)
-            return jsonFromFileSystem(filename: filename)
         }
     }
     
-    func loadSeriesDicts() -> [[String:String]]?
+    func loadSeriesDicts() -> [[String:Any]]?
     {
         guard let json = jsonFromURL(urlString: Constants.JSON.URL,filename: Constants.JSON.SERIES) as? [String:Any] else {
             print("could not get json from file, make sure that file contains valid json.")
             return nil
         }
         
-        var seriesDicts = [[String:String]]()
+        if let meta = json[Constants.JSON.KEYS.META] as? [String:Any] {
+            Globals.shared.meta = meta
+        }
         
-        if let series = json[Constants.JSON.ARRAY_KEY] as? [[String:String]] {
+        var seriesDicts = [[String:Any]]()
+        
+        var key : String
+        
+        switch Constants.JSON.URL {
+        case Constants.JSON.URLS.MEDIALIST_PHP:
+            key = Constants.JSON.KEYS.SERIES
+            break
+            
+        default:
+            key = Constants.JSON.KEYS.DATA
+            break
+        }
+        
+        if let series = json[key] as? [[String:Any]] {
             for i in 0..<series.count {
-                var dict = [String:String]()
+                var dict = [String:Any]()
                 
                 for (key,value) in series[i] {
-                    dict["\(key)"] = "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                    dict[key] = value // "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                 }
+
+                print(dict)
                 
                 seriesDicts.append(dict)
             }
@@ -564,11 +626,11 @@ class MediaCollectionViewController: UIViewController
     
     func loadSeries(_ completion: (() -> Void)?)
     {
-        globals.isLoading = true
+        Globals.shared.isLoading = true
         
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
-                if !globals.isRefreshing {
+                if !Globals.shared.isRefreshing {
                     self.view.bringSubview(toFront: self.activityIndicator)
                     self.activityIndicator.isHidden = false
                     self.activityIndicator.startAnimating()
@@ -577,29 +639,31 @@ class MediaCollectionViewController: UIViewController
             }
             
             if let seriesDicts = self.loadSeriesDicts() {
-                globals.series = self.seriesFromSeriesDicts(seriesDicts)
+                Globals.shared.series = self.seriesFromSeriesDicts(seriesDicts)
             }
             
-            self.seriesSelected = globals.seriesSelected
+            self.seriesSelected = Globals.shared.seriesSelected
 
             Thread.onMainThread {
                 self.navigationItem.title = Constants.Titles.Loading_Settings
             }
-            globals.loadSettings()
-
+            Globals.shared.loadSettings()
+            
+            Thread.sleep(forTimeInterval: 1.0)
+            
             Thread.onMainThread {
                 self.navigationItem.title = Constants.Titles.Setting_up_Player
-                if (globals.mediaPlayer.playing != nil) {
-                    globals.mediaPlayer.playOnLoad = false
-                    globals.mediaPlayer.setup(globals.mediaPlayer.playing)
+                if (Globals.shared.mediaPlayer.playing != nil) {
+                    Globals.shared.mediaPlayer.playOnLoad = false
+                    Globals.shared.mediaPlayer.setup(Globals.shared.mediaPlayer.playing)
                 }
 
                 self.navigationItem.title = Constants.TWU.LONG
                 self.setupViews()
 
-                if globals.isRefreshing {
+                if Globals.shared.isRefreshing {
                     self.refreshControl?.endRefreshing()
-                    globals.isRefreshing = false
+                    Globals.shared.isRefreshing = false
                 } else {
                     self.activityIndicator.stopAnimating()
                     self.activityIndicator.isHidden = true
@@ -608,7 +672,7 @@ class MediaCollectionViewController: UIViewController
                 completion?()
             }
 
-            globals.isLoading = false
+            Globals.shared.isLoading = false
         })
     }
     
@@ -630,7 +694,7 @@ class MediaCollectionViewController: UIViewController
     
     func enableToolBarButtons()
     {
-        if (globals.series != nil) {
+        if (Globals.shared.series != nil) {
             if let barButtons = toolbarItems {
                 for barButton in barButtons {
                     barButton.isEnabled = true
@@ -643,7 +707,7 @@ class MediaCollectionViewController: UIViewController
     {
         navigationItem.leftBarButtonItem?.isEnabled = true
 
-        if (globals.series != nil) {
+        if (Globals.shared.series != nil) {
             navigationItem.rightBarButtonItem?.isEnabled = true
             enableToolBarButtons()
         }
@@ -655,13 +719,13 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        globals.mediaPlayer.unobserve()
+        Globals.shared.mediaPlayer.unobserve()
         
-        globals.mediaPlayer.pause()
+        Globals.shared.mediaPlayer.pause()
 
-        globals.cancelAllDownloads()
+        Globals.shared.cancelAllDownloads()
         
-        globals.searchActive = false
+        Globals.shared.searchActive = false
         searchBar.placeholder = nil
         
         if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
@@ -671,11 +735,11 @@ class MediaCollectionViewController: UIViewController
         disableBarButtons()
 
         // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
-        globals = Globals()
+//        globals = Globals()
         
-        globals.splitViewController = splitViewController
-        globals.splitViewController.delegate = splitViewController?.delegate
-        globals.splitViewController.preferredDisplayMode = .allVisible
+//        Globals.shared.splitViewController = splitViewController
+//        Globals.shared.splitViewController.delegate = splitViewController?.delegate
+//        Globals.shared.splitViewController.preferredDisplayMode = .allVisible
         
         collectionView?.reloadData()
         
@@ -684,12 +748,12 @@ class MediaCollectionViewController: UIViewController
             view.bringSubview(toFront: logo)
         }
         
-        globals.isRefreshing = true
+        Globals.shared.isRefreshing = true
         enableBarButtons()
         
         loadSeries()
         {
-            guard globals.series == nil else {
+            guard Globals.shared.series == nil else {
                 self.logo.isHidden = true
                 self.collectionView.reloadData()
                 self.scrollToSeries(self.seriesSelected)
@@ -732,7 +796,7 @@ class MediaCollectionViewController: UIViewController
     {
         super.viewDidLoad()
         
-        // globals.series loaded in didBecomeActive.
+        // Globals.shared.series loaded in didBecomeActive.
 
         addNotifications()
         
@@ -762,14 +826,14 @@ class MediaCollectionViewController: UIViewController
     
     func setPlayingPausedButton()
     {
-        guard globals.mediaPlayer.playing != nil else {
+        guard Globals.shared.mediaPlayer.playing != nil else {
             navigationItem.setRightBarButton(nil, animated: true)
             return
         }
         
         var title:String?
         
-        if let state = globals.mediaPlayer.state {
+        if let state = Globals.shared.mediaPlayer.state {
             switch state {
             case .paused:
                 title = Constants.Paused
@@ -798,14 +862,14 @@ class MediaCollectionViewController: UIViewController
 
     @objc func setupPlayingPausedButton()
     {
-        guard (globals.mediaPlayer.player != nil) && (globals.mediaPlayer.playing != nil) else {
+        guard (Globals.shared.mediaPlayer.player != nil) && (Globals.shared.mediaPlayer.playing != nil) else {
             if (navigationItem.rightBarButtonItem != nil) {
                 navigationItem.setRightBarButton(nil, animated: true)
             }
             return
         }
 
-        guard (!globals.showingAbout) else {
+        guard (!Globals.shared.showingAbout) else {
             // Showing About
             setPlayingPausedButton()
             return
@@ -817,14 +881,14 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        guard (seriesSelected == globals.mediaPlayer.playing?.series) else {
+        guard (seriesSelected == Globals.shared.mediaPlayer.playing?.series) else {
             // iPhone
             setPlayingPausedButton()
             return
         }
         
         if let sermonSelected = seriesSelected?.sermonSelected {
-            if (sermonSelected != globals.mediaPlayer.playing) {
+            if (sermonSelected != Globals.shared.mediaPlayer.playing) {
                 setPlayingPausedButton()
             } else {
                 if (navigationItem.rightBarButtonItem != nil) {
@@ -847,7 +911,7 @@ class MediaCollectionViewController: UIViewController
     
     @objc func showingAboutDidChange()
     {
-        aboutButton.isEnabled = !globals.showingAbout
+        aboutButton.isEnabled = !Globals.shared.showingAbout
     }
     
     @objc func willEnterForeground()
@@ -857,7 +921,7 @@ class MediaCollectionViewController: UIViewController
     
     @objc func didBecomeActive()
     {
-        guard !globals.isLoading, globals.series == nil else {
+        guard !Globals.shared.isLoading, Globals.shared.series == nil else {
             return
         }
         
@@ -868,7 +932,7 @@ class MediaCollectionViewController: UIViewController
         
         loadSeries()
         {
-            guard globals.series == nil else {
+            guard Globals.shared.series == nil else {
                 self.logo.isHidden = true
                 self.collectionView.reloadData()
                 self.scrollToSeries(self.seriesSelected)
@@ -894,7 +958,7 @@ class MediaCollectionViewController: UIViewController
 
         logo.isHidden = true
 
-        if globals.series == nil {
+        if Globals.shared.series == nil {
             disableBarButtons()
             enableBarButtons()
 
@@ -906,7 +970,7 @@ class MediaCollectionViewController: UIViewController
 
         navigationController?.isToolbarHidden = false
 
-        if globals.searchActive && !globals.searchButtonClicked {
+        if Globals.shared.searchActive && !Globals.shared.searchButtonClicked {
             searchBar.becomeFirstResponder()
         }
         
@@ -922,7 +986,7 @@ class MediaCollectionViewController: UIViewController
     
     func about()
     {
-        guard globals.showingAbout else {
+        guard Globals.shared.showingAbout else {
             return
         }
         
@@ -993,22 +1057,22 @@ class MediaCollectionViewController: UIViewController
                 
             case Constants.SEGUE.SHOW_ABOUT:
                 //The block below only matters on an iPad
-                globals.showingAbout = true
+                Globals.shared.showingAbout = true
                 setupPlayingPausedButton()
                 break
                 
             case Constants.SEGUE.SHOW_SERIES:
-                if (globals.gotoNowPlaying) {
+                if (Globals.shared.gotoNowPlaying) {
                     //This pushes a NEW MediaViewController.
                     
-                    seriesSelected = globals.mediaPlayer.playing?.series
+                    seriesSelected = Globals.shared.mediaPlayer.playing?.series
                     
                     if let dvc = destination as? MediaViewController {
-                        dvc.seriesSelected = globals.mediaPlayer.playing?.series
-                        dvc.sermonSelected = globals.mediaPlayer.playing
+                        dvc.seriesSelected = Globals.shared.mediaPlayer.playing?.series
+                        dvc.sermonSelected = Globals.shared.mediaPlayer.playing
                     }
 
-                    globals.gotoNowPlaying = !globals.gotoNowPlaying
+                    Globals.shared.gotoNowPlaying = !Globals.shared.gotoNowPlaying
                 } else {
                     if let myCell = sender as? MediaCollectionViewCell {
                         seriesSelected = myCell.series
@@ -1035,7 +1099,7 @@ class MediaCollectionViewController: UIViewController
     
     @objc func gotoNowPlaying()
     {
-        globals.gotoNowPlaying = true
+        Globals.shared.gotoNowPlaying = true
         
         performSegue(withIdentifier: Constants.SEGUE.SHOW_SERIES, sender: self)
     }

@@ -55,7 +55,7 @@ enum Showing {
     case filtered
 }
 
-var globals:Globals!
+//var globals:Globals!
 
 struct Alert {
     var title : String
@@ -77,21 +77,61 @@ class MediaRepository {
 
             for series in list {
                 if index == nil {
-                    index = [Int:Series]()
+                    index = [String:Series]()
                 }
-                if index?[series.id] == nil {
-                    index?[series.id] = series
+                if index?[series.name] == nil {
+                    index?[series.name] = series
                 } else {
                     print("DUPLICATE SERIES ID: \(series)")
                 }
             }
         }
     }
-    var index: [Int:Series]?
+    var index: [String:Series]?
 }
 
-class Globals : NSObject
+struct CoverArt {
+    var storage : [String:UIImage]?
+    
+//    init(storage:[String:UIImage]?)
+//    {
+//        self.storage = storage
+//    }
+    
+    // Make it threadsafe
+    let queue = DispatchQueue(label: "CoverArt")
+    
+    subscript(key:String?) -> UIImage? {
+        get {
+            return queue.sync {
+                guard let key = key else {
+                    return nil
+                }
+                
+                return storage?[key]
+            }
+        }
+        set {
+            queue.sync {
+                guard let key = key else {
+                    return
+                }
+                
+                if storage == nil {
+                    storage = [String:UIImage]()
+                }
+                storage?[key] = newValue
+            }
+        }
+    }
+}
+
+class Globals //: NSObject
 {
+    static var shared = Globals()
+    
+    var images = CoverArt() // [String:UIImage]()
+    
     var splitViewController : UISplitViewController!
     
     var sorting:String? = Constants.Sorting.Newest_to_Oldest
@@ -113,6 +153,26 @@ class Globals : NSObject
             }
         }
     }
+    
+    var format:String?
+    {
+        get {
+            let defaults = UserDefaults.standard
+
+            return defaults.string(forKey: Constants.FORMAT)
+        }
+        
+        set {
+            let defaults = UserDefaults.standard
+            if (newValue != nil) {
+                defaults.set(newValue,forKey: Constants.FORMAT)
+            } else {
+                defaults.removeObject(forKey: Constants.FORMAT)
+            }
+            defaults.synchronize()
+        }
+    }
+
     
     var filter:String?
     {
@@ -199,12 +259,10 @@ class Globals : NSObject
             var seriesSelected:Series?
             
             let defaults = UserDefaults.standard
-            if let seriesSelectedStr = defaults.string(forKey: Constants.SETTINGS.SELECTED.SERIES) {
-                if let seriesSelectedID = Int(seriesSelectedStr) {
-                    seriesSelected = index?[seriesSelectedID]
-                }
+            if let seriesSelectedName = defaults.string(forKey: Constants.SETTINGS.SELECTED.SERIES) {
+                seriesSelected = index?[seriesSelectedName]
             }
-            defaults.synchronize()
+//            defaults.synchronize()
             
             return seriesSelected
         }
@@ -214,6 +272,34 @@ class Globals : NSObject
     
     var filteredSeries:[Series]?
     
+    var meta:[String:Any]?
+    
+    var audioURL : String?
+    {
+        switch Constants.JSON.URL {
+        case Constants.JSON.URLS.MEDIALIST_PHP:
+            return Constants.URL.BASE.PHP_AUDIO
+            
+        default:
+            return meta?["audio"] as? String
+        }
+    }
+    
+    var imageURL : String?
+    {
+        return meta?["image"] as? String
+    }
+
+    var squareSuffix : String?
+    {
+        return (meta?["imageSuffix"] as? [String:String])?["1x1"]
+    }
+    
+    var wideSuffix : String?
+    {
+        return (meta?["imageSuffix"] as? [String:String])?["16x9"]
+    }
+    
     var series:[Series]?
     {
         willSet {
@@ -221,10 +307,14 @@ class Globals : NSObject
         }
         didSet {
             if let series = series {
-                index = [Int:Series]()
+                index = [String:Series]()
                 for sermonSeries in series {
-                    if index?[sermonSeries.id] == nil {
-                        index?[sermonSeries.id] = sermonSeries
+                    guard let name = sermonSeries.name else {
+                        continue
+                    }
+                    
+                    if index?[name] == nil {
+                        index?[name] = sermonSeries
                     } else {
                         print("DUPLICATE SERIES ID: \(sermonSeries)")
                     }
@@ -242,9 +332,9 @@ class Globals : NSObject
         }
     }
     
-    var index:[Int:Series]?
+    var index:[String:Series]?
     
-    func sermonFromSermonID(_ id:Int) -> Sermon?
+    func sermonFromSermonID(_ id:String) -> Sermon?
     {
         guard let index = index else {
             return nil
@@ -458,9 +548,9 @@ class Globals : NSObject
         priorReachabilityStatus = reachability.currentReachabilityStatus
     }
     
-    override init()
+    init() // override 
     {
-        super.init()
+//        super.init()
         
         Thread.onMainThread {
             self.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.alertViewer), userInfo: nil, repeats: true)
@@ -596,29 +686,29 @@ class Globals : NSObject
             }
         }
         
-        if let seriesPlayingIDStr = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERIES) {
-            if let seriesPlayingID = Int(seriesPlayingIDStr) {
-                if let index = series?.index(where: { (series) -> Bool in
-                    return series.id == seriesPlayingID
-                }) {
-                    let seriesPlaying = series?[index]
-                    
-                    if let sermonPlayingIndexStr = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERMON_INDEX) {
-                        if let sermonPlayingIndex = Int(sermonPlayingIndexStr) {
-                            if let show = seriesPlaying?.show {
-                                if (sermonPlayingIndex > (show - 1)) {
-                                    mediaPlayer.playing = nil
-                                } else {
-                                    mediaPlayer.playing = seriesPlaying?.sermons?[sermonPlayingIndex]
-                                }
-                            } else {
-                                mediaPlayer.playing = nil
-                            }
-                        }
-                    }
-                } else {
-                    defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
+        if let seriesPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERIES) {
+            if let index = self.series?.index(where: { (series) -> Bool in
+                return series.name == seriesPlaying
+            }) {
+                let seriesPlaying = series?[index]
+                
+                if let sermonPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERMON) {
+                    mediaPlayer.playing = seriesPlaying?.sermons?.filter({ (sermon) -> Bool in
+                        return sermon.id == sermonPlaying
+                    }).first
+
+//                    if let show = seriesPlaying?.show {
+//                        if (sermonPlayingIndex > (show - 1)) {
+//                            mediaPlayer.playing = nil
+//                        } else {
+//                            mediaPlayer.playing = seriesPlaying?.sermons?[sermonPlayingIndex]
+//                        }
+//                    } else {
+//                        mediaPlayer.playing = nil
+//                    }
                 }
+            } else {
+                defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
             }
         }
     }

@@ -10,6 +10,89 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+extension String {
+    var url : URL?
+    {
+        get {
+            return URL(string: self)
+        }
+    }
+}
+
+extension URL {
+    func image(block:((UIImage)->()))
+    {
+        guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+            return
+        }
+        
+        if let image = UIImage(contentsOfFile: imageURL.path) {
+            //                    print("Image \(imageName) in file system")
+            block(image)
+        } else {
+            //                    print("Image \(imageName) not in file system")
+            guard let data = try? Data(contentsOf: self) else {
+                return
+            }
+            
+            guard let image = UIImage(data: data) else {
+                return
+            }
+            
+            DispatchQueue.global(qos: .background).async {
+                do {
+                    try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                    print("Image \(self.lastPathComponent) saved to file system")
+                } catch let error as NSError {
+                    NSLog(error.localizedDescription)
+                    print("Image \(self.lastPathComponent) not saved to file system")
+                }
+            }
+            
+            block(image)
+        }
+    }
+    
+//    var image : UIImage?
+//    {
+//        get {
+//            guard Globals.shared.images[self.lastPathComponent] == nil else {
+//                return Globals.shared.images[self.lastPathComponent]
+//            }
+//
+//            guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+//                return nil
+//            }
+//
+//            if let image = UIImage(contentsOfFile: imageURL.path) {
+//                //                    print("Image \(imageName) in file system")
+//                return image
+//            } else {
+//                //                    print("Image \(imageName) not in file system")
+//                guard let data = try? Data(contentsOf: self) else {
+//                    return nil
+//                }
+//
+//                guard let image = UIImage(data: data) else {
+//                    return nil
+//                }
+//
+//                DispatchQueue.global(qos: .background).async {
+//                    do {
+//                        try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+//                        print("Image \(self.lastPathComponent) saved to file system")
+//                    } catch let error as NSError {
+//                        NSLog(error.localizedDescription)
+//                        print("Image \(self.lastPathComponent) not saved to file system")
+//                    }
+//                }
+//
+//                return image
+//            }
+//        }
+//    }
+}
+
 func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   switch (lhs, rhs) {
   case let (l?, r?):
@@ -209,10 +292,34 @@ func sortSeries(_ series:[Series]?,sorting:String?) -> [Series]?
         results = series.sorted() { $0.titleSort > $1.titleSort }
         break
     case Constants.Sorting.Newest_to_Oldest:
-        results = series.sorted() { $0.id > $1.id }
+        switch Constants.JSON.URL {
+        case Constants.JSON.URLS.MEDIALIST_PHP:
+            results = series.sorted() { $0.id > $1.id }
+            
+        case Constants.JSON.URLS.MEDIALIST_JSON:
+            fallthrough
+            
+        case Constants.JSON.URLS.SERIES_JSON:
+            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
+            
+        default:
+            return nil
+        }
         break
     case Constants.Sorting.Oldest_to_Newest:
-        results = series.sorted() { $0.id < $1.id }
+        switch Constants.JSON.URL {
+        case Constants.JSON.URLS.MEDIALIST_PHP:
+            results = series.sorted() { $0.id < $1.id }
+            
+        case Constants.JSON.URLS.MEDIALIST_JSON:
+            fallthrough
+            
+        case Constants.JSON.URLS.SERIES_JSON:
+            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
+            
+        default:
+            return nil
+        }
         break
     default:
         break

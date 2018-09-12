@@ -145,48 +145,79 @@ class MediaPlayer : NSObject
 
     func setupPlayingInfoCenter()
     {
-        if let title = playing?.series?.title, let index = playing?.index {
-            var sermonInfo = [String:AnyObject]()
-            
-            sermonInfo[MPMediaItemPropertyTitle] = "\(title) (Part \(index + 1))" as AnyObject
-            
-            sermonInfo[MPMediaItemPropertyArtist] = Constants.Tom_Pennington as AnyObject
-            
-            sermonInfo[MPMediaItemPropertyAlbumTitle] = title as AnyObject
-            
-            sermonInfo[MPMediaItemPropertyAlbumArtist] = Constants.Tom_Pennington as AnyObject
-            
-            if let art = playing?.series?.loadArt() {
+        guard let title = playing?.series?.title else {
+            return
+        }
+        
+        guard let index = playing?.index else {
+            return
+        }
+        
+        var sermonInfo = [String:AnyObject]()
+        
+        // FIX
+//            sermonInfo[MPMediaItemPropertyTitle] = "\(title) (Part \(part))" as AnyObject
+        
+        sermonInfo[MPMediaItemPropertyArtist] = Constants.Tom_Pennington as AnyObject
+        
+        sermonInfo[MPMediaItemPropertyAlbumTitle] = title as AnyObject
+        
+        sermonInfo[MPMediaItemPropertyAlbumArtist] = Constants.Tom_Pennington as AnyObject
+        
+        playing?.series?.coverArt { (image:UIImage?) in
+            if let image = image {
                 if #available(iOS 10.0, *) {
-                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: art.size, requestHandler: { (CGSize) -> UIImage in
-                        return art
+                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (CGSize) -> UIImage in
+                        return image
                     })
                 } else {
                     // Fallback on earlier versions
-                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: art)
+                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)
                 }
             }
-            
-            sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = index + 1 as AnyObject
-            
-            if let numberOfSermons = playing?.series?.numberOfSermons {
-                sermonInfo[MPMediaItemPropertyAlbumTrackCount] = numberOfSermons as AnyObject
-            }
-            
-            if let duration = duration?.seconds {
-                sermonInfo[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
-            }
-            
-            if let currentTime = currentTime?.seconds {
-                sermonInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: currentTime)
-            }
-            
-            if let rate = rate {
-                sermonInfo[MPNowPlayingInfoPropertyPlaybackRate] = NSNumber(value: rate)
-            }
-            
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = sermonInfo
+//                if let coverArt = self.playing?.series?.coverArt {
+//                    if #available(iOS 10.0, *) {
+//                        sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: coverArt.size, requestHandler: { (CGSize) -> UIImage in
+//                            return coverArt
+//                        })
+//                    } else {
+//                        // Fallback on earlier versions
+//                        sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: coverArt)
+//                    }
+//                }
         }
+            
+//            if let art = playing?.series?.loadArt() {
+//                if #available(iOS 10.0, *) {
+//                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: art.size, requestHandler: { (CGSize) -> UIImage in
+//                        return art
+//                    })
+//                } else {
+//                    // Fallback on earlier versions
+//                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: art)
+//                }
+//            }
+            
+            // FIX
+//            sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = index + 1 as AnyObject
+            
+        if let numberOfSermons = playing?.series?.numberOfSermons {
+            sermonInfo[MPMediaItemPropertyAlbumTrackCount] = numberOfSermons as AnyObject
+        }
+        
+        if let duration = duration?.seconds {
+            sermonInfo[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
+        }
+        
+        if let currentTime = currentTime?.seconds {
+            sermonInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: currentTime)
+        }
+        
+        if let rate = rate {
+            sermonInfo[MPNowPlayingInfoPropertyPlaybackRate] = NSNumber(value: rate)
+        }
+        
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = sermonInfo
     }
     
     func updateCurrentTimeForPlaying()
@@ -402,7 +433,7 @@ class MediaPlayer : NSObject
             playing?.atEnd = true
         }
         
-        if globals.autoAdvance, let playing = playing, playing.atEnd,
+        if Globals.shared.autoAdvance, let playing = playing, playing.atEnd,
             let mediaItems = playing.series?.sermons,
             let index = mediaItems.index(of: playing), index < (mediaItems.count - 1) {
             let nextMediaItem = mediaItems[index + 1]
@@ -515,7 +546,7 @@ class MediaPlayer : NSObject
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
         }
 
-        globals.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
+        Globals.shared.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
     }
     
     func failedToPlay()
@@ -527,7 +558,7 @@ class MediaPlayer : NSObject
         }
         
         if (UIApplication.shared.applicationState == UIApplicationState.active) {
-            globals.alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
+            Globals.shared.alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
         }
     }
 
@@ -795,7 +826,7 @@ class MediaPlayer : NSObject
         print("DONE SEEKING")
         
         if isPlaying {
-            globals.mediaPlayer.checkPlayToEnd()
+            Globals.shared.mediaPlayer.checkPlayToEnd()
         }
     }
 
@@ -921,13 +952,13 @@ class MediaPlayer : NSObject
             
             let defaults = UserDefaults.standard
             if let playing = playing {
-                if let id = playing.series?.id {
-                    defaults.set("\(id)", forKey: Constants.SETTINGS.PLAYING.SERIES)
+                if let name = playing.series?.name {
+                    defaults.set(name, forKey: Constants.SETTINGS.PLAYING.SERIES)
                 }
-                defaults.set("\(playing.index)", forKey: Constants.SETTINGS.PLAYING.SERMON_INDEX)
+                defaults.set(playing.id, forKey: Constants.SETTINGS.PLAYING.SERMON)
             } else {
                 defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
-                defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERMON_INDEX)
+                defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERMON)
             }
             defaults.synchronize()
         }

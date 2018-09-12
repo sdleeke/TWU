@@ -45,11 +45,15 @@ enum Constants {
     
     enum FIELDS {
         static let ID = "id"
+
         static let NAME = "name"
+        static let FEATURED_START_DATE = "featuredStartDate"
         static let TITLE = "title"
         static let SCRIPTURE = "scripture"
         static let BOOK = "book"
         static let TEXT = "text"
+        static let DESCRIPTION = "description"
+
         static let STARTING_INDEX = "startingIndex"
         static let NUMBER_OF_SERMONS = "numberOfSermons"
         static let SHOW = "show"
@@ -91,8 +95,20 @@ enum Constants {
     }
     
     enum JSON {
-        static let ARRAY_KEY = "series"
-        static let URL = "https://www.thewordunleashed.org/medialist.php"
+        enum KEYS {
+            static let SERIES = "series"
+            static let DATA = "data"
+            static let META = "meta"
+        }
+        
+        enum URLS {
+            static let MEDIALIST_PHP = "https://www.thewordunleashed.org/medialist.php"
+            static let MEDIALIST_JSON = "https://craft.thewordunleashed.org/medialist.json"
+            static let SERIES_JSON = "https://craft.thewordunleashed.org/series.json"
+        }
+
+        static let URL = URLS.MEDIALIST_PHP
+
         static let SERIES = "series.json"
     }
     
@@ -174,14 +190,17 @@ enum Constants {
     enum URL {
         enum BASE {
             //This must support https to be compatible with iOS 9
-            static let AUDIO = "http://sitedata.thewordunleashed.org/avmedia/broadcasts/twu"
-            
+            static let PHP_AUDIO = "http://sitedata.thewordunleashed.org/avmedia/broadcasts/"
+//            static let CRAFT_AUDIO_PREFIX = "https://craft.thewordunleashed.org/series/"
+//            static let CRAFT_AUDIO_POSTFIX = "?media=audio&mediacode="
+
             //Used in the email and social media for series
-            static let WEB = "http://www.thewordunleashed.org/index.php/series?seriesId="
-            
+            static let PHP_WEB = "http://www.thewordunleashed.org/index.php/series?seriesId="
+            static let CRAFT_WEB = "https://craft.thewordunleashed.org/series/"
+
             //Used for testing downloading the album art in real time - which didn't meet performance requirements,
             //we would have to implement caching, which is more work that embedding the album art in the app resources, at least for now.
-            static let IMAGE = "http://sitedata.thewordunleashed.org/avmedia/series/"
+            static let PHP_IMAGE = "http://sitedata.thewordunleashed.org/avmedia/series/"
         }
     }
     
@@ -204,7 +223,7 @@ enum Constants {
 
         enum PLAYING {
             static let SERIES = "series playing"
-            static let SERMON_INDEX = "sermon playing index"
+            static let SERMON = "sermon playing"
         }
 
         static let AT_END = "At End"
@@ -222,7 +241,7 @@ enum Constants {
 
     static let DOWNLOADING_TITLE = "Downloading Sermons"
     
-    static let FILENAME_FORMAT = "%04d" + Constants.FILE_EXTENSION.MP3
+    static let FILENAME_FORMAT = "%04d" // + Constants.FILE_EXTENSION.MP3
     
     static let EMPTY_STRING = ""
     static let SINGLE_SPACE = " "
@@ -233,6 +252,8 @@ enum Constants {
     static let The_Word_Unleashed = "The Word Unleashed"
     
     static let All = "All"
+    
+    static let FORMAT = "format"
     
     static let SORTING = "sorting"
     static let Sort = "Sort"
