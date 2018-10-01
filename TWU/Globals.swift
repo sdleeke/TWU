@@ -10,45 +10,45 @@ import Foundation
 import MediaPlayer
 import CloudKit
 
-extension UIBarButtonItem {
-    func setTitleTextAttributes(_ attributes:[NSAttributedStringKey:UIFont])
-    {
-        setTitleTextAttributes(attributes, for: UIControlState.normal)
-        setTitleTextAttributes(attributes, for: UIControlState.disabled)
-        setTitleTextAttributes(attributes, for: UIControlState.selected)
-    }
-}
-
-extension UISegmentedControl {
-    func setTitleTextAttributes(_ attributes:[String:UIFont])
-    {
-        setTitleTextAttributes(attributes, for: UIControlState.normal)
-        setTitleTextAttributes(attributes, for: UIControlState.disabled)
-        setTitleTextAttributes(attributes, for: UIControlState.selected)
-    }
-}
-
-extension UIButton {
-    func setTitle(_ string:String?)
-    {
-        setTitle(string, for: UIControlState.normal)
-        setTitle(string, for: UIControlState.disabled)
-        setTitle(string, for: UIControlState.selected)
-    }
-}
-
-extension Thread {
-    static func onMainThread(block:(()->(Void))?)
-    {
-        if Thread.isMainThread {
-            block?()
-        } else {
-            DispatchQueue.main.async(execute: { () -> Void in
-                block?()
-            })
-        }
-    }
-}
+//extension UIBarButtonItem {
+//    func setTitleTextAttributes(_ attributes:[NSAttributedStringKey:UIFont])
+//    {
+//        setTitleTextAttributes(attributes, for: UIControlState.normal)
+//        setTitleTextAttributes(attributes, for: UIControlState.disabled)
+//        setTitleTextAttributes(attributes, for: UIControlState.selected)
+//    }
+//}
+//
+//extension UISegmentedControl {
+//    func setTitleTextAttributes(_ attributes:[String:UIFont])
+//    {
+//        setTitleTextAttributes(attributes, for: UIControlState.normal)
+//        setTitleTextAttributes(attributes, for: UIControlState.disabled)
+//        setTitleTextAttributes(attributes, for: UIControlState.selected)
+//    }
+//}
+//
+//extension UIButton {
+//    func setTitle(_ string:String?)
+//    {
+//        setTitle(string, for: UIControlState.normal)
+//        setTitle(string, for: UIControlState.disabled)
+//        setTitle(string, for: UIControlState.selected)
+//    }
+//}
+//
+//extension Thread {
+//    static func onMainThread(block:(()->(Void))?)
+//    {
+//        if Thread.isMainThread {
+//            block?()
+//        } else {
+//            DispatchQueue.main.async(execute: { () -> Void in
+//                block?()
+//            })
+//        }
+//    }
+//}
 
 enum Showing {
     case all

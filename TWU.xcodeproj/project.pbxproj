@@ -31,6 +31,8 @@
 		17A571201BEA370000C0D278 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A5711F1BEA370000C0D278 /* Globals.swift */; };
 		17B75BA71B9463F900672A3B /* functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B75BA61B9463F900672A3B /* functions.swift */; };
 		17B75BA91B946D9E00672A3B /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17B75BA81B946D9E00672A3B /* MediaPlayer.framework */; };
+		17B875DF2159487800BD8D28 /* generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B875DE2159487800BD8D28 /* generics.swift */; };
+		17B875E12159489100BD8D28 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B875E02159489100BD8D28 /* extensions.swift */; };
 		17FBFBDD1B6C62F70057D027 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */; };
 		17FFEFEB1B73673A006D8169 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FFEFEA1B73673A006D8169 /* AboutViewController.swift */; };
 /* End PBXBuildFile section */
@@ -83,6 +85,8 @@
 		17A5711F1BEA370000C0D278 /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		17B75BA61B9463F900672A3B /* functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = functions.swift; sourceTree = "<group>"; };
 		17B75BA81B946D9E00672A3B /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		17B875DE2159487800BD8D28 /* generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = generics.swift; sourceTree = "<group>"; };
+		17B875E02159489100BD8D28 /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		17FDE1791C84700300516C77 /* Series.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Series.entitlements; path = TWU/Series.entitlements; sourceTree = "<group>"; };
 		17FFEFEA1B73673A006D8169 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
@@ -160,6 +164,8 @@
 				17A5711B1BEA363900C0D278 /* Sermon.swift */,
 				175EDA291BAC8BF200942E6D /* Reachability.swift */,
 				177FBA921C5CE1B800AFBB50 /* OBSlider.swift */,
+				17B875DE2159487800BD8D28 /* generics.swift */,
+				17B875E02159489100BD8D28 /* extensions.swift */,
 				17B75BA61B9463F900672A3B /* functions.swift */,
 				179C4FC71B6803C900727DE0 /* MediaCollectionViewCell.swift */,
 				179C4FC51B68035B00727DE0 /* MediaCollectionViewController.swift */,
@@ -366,6 +372,7 @@
 				174ACCD51EF48C050056FCBC /* MediaPlayer.swift in Sources */,
 				17B75BA71B9463F900672A3B /* functions.swift in Sources */,
 				179C4FC81B6803C900727DE0 /* MediaCollectionViewCell.swift in Sources */,
+				17B875E12159489100BD8D28 /* extensions.swift in Sources */,
 				171C73521B6C1B3400CF85AE /* MediaViewController.swift in Sources */,
 				17FFEFEB1B73673A006D8169 /* AboutViewController.swift in Sources */,
 				179C4FC61B68035B00727DE0 /* MediaCollectionViewController.swift in Sources */,
@@ -376,6 +383,7 @@
 				176703951B6D076300A8435F /* MediaTableViewCell.swift in Sources */,
 				17A571201BEA370000C0D278 /* Globals.swift in Sources */,
 				17A5711C1BEA363900C0D278 /* Sermon.swift in Sources */,
+				17B875DF2159487800BD8D28 /* generics.swift in Sources */,
 				1712CD6A1C76B2BF005E09D6 /* SettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -87,11 +87,11 @@ enum Constants {
         
         static let SHOWING_ABOUT_CHANGED    = "SHOWING ABOUT CHANGED"
         
-        static let WILL_RESIGN_ACTIVE       = "WILL RESIGN ACTIVE"
-        static let DID_BECOME_ACTIVE        = "DID BECOME ACTIVE"
-        static let WILL_TERMINATE           = "WILL TERMINATE"
-        static let WILL_ENTER_FORGROUND     = "WILL ENTER FORGROUND"
-        static let DID_ENTER_BACKGROUND     = "DID ENTER BACKGROUND"
+//        static let WILL_RESIGN_ACTIVE       = "WILL RESIGN ACTIVE"
+//        static let DID_BECOME_ACTIVE        = "DID BECOME ACTIVE"
+//        static let WILL_TERMINATE           = "WILL TERMINATE"
+//        static let WILL_ENTER_FORGROUND     = "WILL ENTER FORGROUND"
+//        static let DID_ENTER_BACKGROUND     = "DID ENTER BACKGROUND"
     }
     
     enum JSON {

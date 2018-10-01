@@ -10,126 +10,126 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
-extension String {
-    var url : URL?
-    {
-        get {
-            return URL(string: self)
-        }
-    }
-}
-
-extension URL {
-    func image(block:((UIImage)->()))
-    {
-        guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
-            return
-        }
-        
-        if let image = UIImage(contentsOfFile: imageURL.path) {
-            //                    print("Image \(imageName) in file system")
-            block(image)
-        } else {
-            //                    print("Image \(imageName) not in file system")
-            guard let data = try? Data(contentsOf: self) else {
-                return
-            }
-            
-            guard let image = UIImage(data: data) else {
-                return
-            }
-            
-            DispatchQueue.global(qos: .background).async {
-                do {
-                    try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-                    print("Image \(self.lastPathComponent) saved to file system")
-                } catch let error as NSError {
-                    NSLog(error.localizedDescription)
-                    print("Image \(self.lastPathComponent) not saved to file system")
-                }
-            }
-            
-            block(image)
-        }
-    }
-    
-//    var image : UIImage?
+//extension String {
+//    var url : URL?
 //    {
 //        get {
-//            guard Globals.shared.images[self.lastPathComponent] == nil else {
-//                return Globals.shared.images[self.lastPathComponent]
-//            }
-//
-//            guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
-//                return nil
-//            }
-//
-//            if let image = UIImage(contentsOfFile: imageURL.path) {
-//                //                    print("Image \(imageName) in file system")
-//                return image
-//            } else {
-//                //                    print("Image \(imageName) not in file system")
-//                guard let data = try? Data(contentsOf: self) else {
-//                    return nil
-//                }
-//
-//                guard let image = UIImage(data: data) else {
-//                    return nil
-//                }
-//
-//                DispatchQueue.global(qos: .background).async {
-//                    do {
-//                        try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-//                        print("Image \(self.lastPathComponent) saved to file system")
-//                    } catch let error as NSError {
-//                        NSLog(error.localizedDescription)
-//                        print("Image \(self.lastPathComponent) not saved to file system")
-//                    }
-//                }
-//
-//                return image
-//            }
+//            return URL(string: self)
 //        }
 //    }
-}
+//}
 
-func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
-}
+//extension URL {
+//    func image(block:((UIImage)->()))
+//    {
+//        guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+//            return
+//        }
+//        
+//        if let image = UIImage(contentsOfFile: imageURL.path) {
+//            //                    print("Image \(imageName) in file system")
+//            block(image)
+//        } else {
+//            //                    print("Image \(imageName) not in file system")
+//            guard let data = try? Data(contentsOf: self) else {
+//                return
+//            }
+//            
+//            guard let image = UIImage(data: data) else {
+//                return
+//            }
+//            
+//            DispatchQueue.global(qos: .background).async {
+//                do {
+//                    try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+//                    print("Image \(self.lastPathComponent) saved to file system")
+//                } catch let error as NSError {
+//                    NSLog(error.localizedDescription)
+//                    print("Image \(self.lastPathComponent) not saved to file system")
+//                }
+//            }
+//            
+//            block(image)
+//        }
+//    }
+//    
+////    var image : UIImage?
+////    {
+////        get {
+////            guard Globals.shared.images[self.lastPathComponent] == nil else {
+////                return Globals.shared.images[self.lastPathComponent]
+////            }
+////
+////            guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+////                return nil
+////            }
+////
+////            if let image = UIImage(contentsOfFile: imageURL.path) {
+////                //                    print("Image \(imageName) in file system")
+////                return image
+////            } else {
+////                //                    print("Image \(imageName) not in file system")
+////                guard let data = try? Data(contentsOf: self) else {
+////                    return nil
+////                }
+////
+////                guard let image = UIImage(data: data) else {
+////                    return nil
+////                }
+////
+////                DispatchQueue.global(qos: .background).async {
+////                    do {
+////                        try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+////                        print("Image \(self.lastPathComponent) saved to file system")
+////                    } catch let error as NSError {
+////                        NSLog(error.localizedDescription)
+////                        print("Image \(self.lastPathComponent) not saved to file system")
+////                    }
+////                }
+////
+////                return image
+////            }
+////        }
+////    }
+//}
 
-func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l > r
-  default:
-    return rhs < lhs
-  }
-}
-
-func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-    switch (lhs, rhs) {
-    case let (l?, r?):
-        return l >= r
-    default:
-        return !(lhs < rhs)
-    }
-}
-
-func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-    switch (lhs, rhs) {
-    case let (l?, r?):
-        return l <= r
-    default:
-        return !(lhs > rhs)
-    }
-}
+//func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+//  switch (lhs, rhs) {
+//  case let (l?, r?):
+//    return l < r
+//  case (nil, _?):
+//    return true
+//  default:
+//    return false
+//  }
+//}
+//
+//func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+//  switch (lhs, rhs) {
+//  case let (l?, r?):
+//    return l > r
+//  default:
+//    return rhs < lhs
+//  }
+//}
+//
+//func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+//    switch (lhs, rhs) {
+//    case let (l?, r?):
+//        return l >= r
+//    default:
+//        return !(lhs < rhs)
+//    }
+//}
+//
+//func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+//    switch (lhs, rhs) {
+//    case let (l?, r?):
+//        return l <= r
+//    default:
+//        return !(lhs > rhs)
+//    }
+//}
 
 func startAudio()
 {
@@ -177,88 +177,88 @@ func shareHTML(viewController:UIViewController,htmlString:String?)
     }
 }
 
-extension Date
-{
-    init?(dateString:String) {
-        let dateStringFormatter = DateFormatter()
-        dateStringFormatter.dateFormat = "MM/dd/yyyy"
-        dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
-        if let d = dateStringFormatter.date(from: dateString) {
-            self = Date(timeInterval:0, since:d)
-        } else {
-            self = Date()
-        }
-    }
-    
-    func isNewerThanDate(_ dateToCompare : Date) -> Bool
-    {
-        //Declare Variables
-        var isNewer = false
-        
-        //Compare Values
-        if self.compare(dateToCompare) == ComparisonResult.orderedDescending
-        {
-            isNewer = true
-        }
-        
-        //Return Result
-        return isNewer
-    }
-    
-    
-    func isOlderThanDate(_ dateToCompare : Date) -> Bool
-    {
-        //Declare Variables
-        var isOlder = false
-        
-        //Compare Values
-        if self.compare(dateToCompare) == ComparisonResult.orderedAscending
-        {
-            isOlder = true
-        }
-        
-        //Return Result
-        return isOlder
-    }
-    
-    
-    // Claims to be a redeclaration, but I can't find the other.
-    //    func isEqualToDate(dateToCompare : NSDate) -> Bool
-    //    {
-    //        //Declare Variables
-    //        var isEqualTo = false
-    //
-    //        //Compare Values
-    //        if self.compare(dateToCompare) == NSComparisonResult.OrderedSame
-    //        {
-    //            isEqualTo = true
-    //        }
-    //
-    //        //Return Result
-    //        return isEqualTo
-    //    }
-    
-    
-    
-    func addDays(_ daysToAdd : Int) -> Date
-    {
-        let secondsInDays : TimeInterval = Double(daysToAdd) * 60 * 60 * 24
-        let dateWithDaysAdded : Date = self.addingTimeInterval(secondsInDays)
-        
-        //Return Result
-        return dateWithDaysAdded
-    }
-    
-    
-    func addHours(_ hoursToAdd : Int) -> Date
-    {
-        let secondsInHours : TimeInterval = Double(hoursToAdd) * 60 * 60
-        let dateWithHoursAdded : Date = self.addingTimeInterval(secondsInHours)
-        
-        //Return Result
-        return dateWithHoursAdded
-    }
-}
+//extension Date
+//{
+//    init?(dateString:String) {
+//        let dateStringFormatter = DateFormatter()
+//        dateStringFormatter.dateFormat = "MM/dd/yyyy"
+//        dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
+//        if let d = dateStringFormatter.date(from: dateString) {
+//            self = Date(timeInterval:0, since:d)
+//        } else {
+//            self = Date()
+//        }
+//    }
+//
+//    func isNewerThanDate(_ dateToCompare : Date) -> Bool
+//    {
+//        //Declare Variables
+//        var isNewer = false
+//
+//        //Compare Values
+//        if self.compare(dateToCompare) == ComparisonResult.orderedDescending
+//        {
+//            isNewer = true
+//        }
+//
+//        //Return Result
+//        return isNewer
+//    }
+//
+//
+//    func isOlderThanDate(_ dateToCompare : Date) -> Bool
+//    {
+//        //Declare Variables
+//        var isOlder = false
+//
+//        //Compare Values
+//        if self.compare(dateToCompare) == ComparisonResult.orderedAscending
+//        {
+//            isOlder = true
+//        }
+//
+//        //Return Result
+//        return isOlder
+//    }
+//
+//
+//    // Claims to be a redeclaration, but I can't find the other.
+//    //    func isEqualToDate(dateToCompare : NSDate) -> Bool
+//    //    {
+//    //        //Declare Variables
+//    //        var isEqualTo = false
+//    //
+//    //        //Compare Values
+//    //        if self.compare(dateToCompare) == NSComparisonResult.OrderedSame
+//    //        {
+//    //            isEqualTo = true
+//    //        }
+//    //
+//    //        //Return Result
+//    //        return isEqualTo
+//    //    }
+//
+//
+//
+//    func addDays(_ daysToAdd : Int) -> Date
+//    {
+//        let secondsInDays : TimeInterval = Double(daysToAdd) * 60 * 60 * 24
+//        let dateWithDaysAdded : Date = self.addingTimeInterval(secondsInDays)
+//
+//        //Return Result
+//        return dateWithDaysAdded
+//    }
+//
+//
+//    func addHours(_ hoursToAdd : Int) -> Date
+//    {
+//        let secondsInHours : TimeInterval = Double(hoursToAdd) * 60 * 60
+//        let dateWithHoursAdded : Date = self.addingTimeInterval(secondsInHours)
+//
+//        //Return Result
+//        return dateWithHoursAdded
+//    }
+//}
 
 func documentsURL() -> URL?
 {
