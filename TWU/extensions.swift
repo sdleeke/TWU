@@ -10,6 +10,24 @@ import Foundation
 import UIKit
 import PDFKit
 
+extension UIImage
+{
+    func resize(scale:CGFloat) -> UIImage?
+    {
+        let toScaleSize = CGSize(width: scale * self.size.width, height: scale * self.size.height)
+        
+        UIGraphicsBeginImageContextWithOptions(toScaleSize, true, self.scale)
+        
+        self.draw(in: CGRect(x: 0, y: 0, width: scale * self.size.width, height: scale * self.size.height))
+        
+        let scaledImage = UIGraphicsGetImageFromCurrentImageContext()
+        
+        UIGraphicsEndImageContext()
+        
+        return scaledImage
+    }
+}
+
 extension UIBarButtonItem
 {
     func setTitleTextAttributes(_ attributes:[NSAttributedStringKey:UIFont])
@@ -120,6 +138,11 @@ extension String {
 
 extension URL
 {
+    var fileSystemURL : URL?
+    {
+        return cachesURL()?.appendingPathComponent(self.lastPathComponent)
+    }
+    
     var data : Data?
     {
         get {
@@ -136,6 +159,22 @@ extension URL
             }
             
             return PDFDocument(data: data)
+        }
+    }
+    
+    func delete()
+    {
+        guard let fileSystemURL = fileSystemURL else {
+            return
+        }
+        
+        // Check if file exists and if so, delete it.
+        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
+            do {
+                try FileManager.default.removeItem(at: fileSystemURL)
+            } catch let error as NSError {
+                print("failed to delete download: \(error.localizedDescription)")
+            }
         }
     }
     

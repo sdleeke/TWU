@@ -313,3 +313,178 @@ class ThreadSafeDictionary<T>
         }
     }
 }
+
+class ThreadSafeDictionaryOfDictionaries<T>
+{
+    private var storage = [String:[String:T]]()
+    
+    var count : Int
+    {
+        get {
+            return queue.sync {
+                return storage.count
+            }
+        }
+    }
+    
+    var copy : [String:[String:T]]?
+    {
+        get {
+            return queue.sync {
+                return storage.count > 0 ? storage : nil
+            }
+        }
+    }
+    
+    var isEmpty : Bool
+    {
+        return queue.sync {
+            return storage.isEmpty
+        }
+    }
+    
+    var values : [[String:T]]
+    {
+        get {
+            return queue.sync {
+                return Array(storage.values)
+            }
+        }
+    }
+    
+    var keys : [String]
+    {
+        get {
+            return queue.sync {
+                return Array(storage.keys)
+            }
+        }
+    }
+    
+    func clear()
+    {
+        queue.sync {
+            self.storage = [String:[String:T]]()
+        }
+    }
+    
+    func update(storage:[String:[String:T]])
+    {
+        queue.sync {
+            self.storage = storage
+        }
+    }
+    
+    // Make it thread safe
+    lazy var queue : DispatchQueue = {
+        return DispatchQueue(label: name)
+    }()
+    
+    var name : String
+    
+    init(name:String)
+    {
+        self.name = name
+    }
+    
+    subscript(outer:String?) -> [String:T]? {
+        get {
+            return queue.sync {
+                guard let outer = outer else {
+                    return nil
+                }
+                
+                return storage[outer]
+            }
+        }
+        set {
+            queue.sync {
+                guard let outer = outer else {
+                    return
+                }
+                
+                storage[outer] = newValue
+            }
+        }
+    }
+    
+    subscript(outer:String?,inner:String?) -> T? {
+        get {
+            return queue.sync {
+                guard let outer = outer else {
+                    return nil
+                }
+                
+                guard let inner = inner else {
+                    return nil
+                }
+                
+                return storage[outer]?[inner]
+            }
+        }
+        set {
+            queue.sync {
+                guard let outer = outer else {
+                    return
+                }
+                
+                guard let inner = inner else {
+                    return
+                }
+                
+                if storage[outer] == nil {
+                    storage[outer] = [String:T]()
+                }
+                
+                storage[outer]?[inner] = newValue
+            }
+        }
+    }
+}
+
+class Fetch<T>
+{
+    //    lazy var operationQueue : OperationQueue! = {
+    //        let operationQueue = OperationQueue()
+    //        operationQueue.name = name
+    //        operationQueue.qualityOfService = .userInteractive
+    //        operationQueue.maxConcurrentOperationCount = 1
+    //        return operationQueue
+    //    }()
+    
+    init(_ fetch:(()->(T?))? = nil) // name:String,
+    {
+        //        self.name = name
+        self.fetch = fetch
+    }
+    
+    var queue = DispatchQueue.global(qos: .userInitiated)
+    
+    var fetch : (()->(T?))?
+    
+    //    var name : String
+    
+    var cache : T?
+    
+    var result:T?
+    {
+        get {
+            //            operationQueue.waitUntilAllOperationsAreFinished()
+            
+            guard cache == nil else {
+                return cache
+            }
+            
+            queue.sync {
+                self.cache = self.fetch?()
+            }
+            //            operationQueue.addOperation {
+            //                self.cache = self.fetch?()
+            //            }
+            
+            //            operationQueue.waitUntilAllOperationsAreFinished()
+            
+            return cache
+        }
+    }
+}
