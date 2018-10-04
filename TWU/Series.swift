@@ -518,7 +518,7 @@ class Series : Equatable //, CustomStringConvertible
             get {
                 var value:String?
                 if let series = self.series?.name {
-                    value = Globals.shared.seriesSettings?[series]?[key]
+                    value = Globals.shared.settings.series[series,key]
                 }
                 return value
             }
@@ -538,18 +538,18 @@ class Series : Equatable //, CustomStringConvertible
                     return
                 }
                 
-                if (Globals.shared.seriesSettings == nil) {
-                    Globals.shared.seriesSettings = [String:[String:String]]()
-                }
+//                if (Globals.shared.seriesSettings == nil) {
+//                    Globals.shared.seriesSettings = [String:[String:String]]()
+//                }
                 
-                if (Globals.shared.seriesSettings?[name] == nil) {
-                    Globals.shared.seriesSettings?[name] = [String:String]()
-                }
+//                if (Globals.shared.seriesSettings?[name] == nil) {
+//                    Globals.shared.seriesSettings?[name] = [String:String]()
+//                }
                 
-                Globals.shared.seriesSettings?[name]?[key] = newValue
+                Globals.shared.settings.series[name,key] = newValue
                 
                 // For a high volume of activity this can be very expensive.
-                Globals.shared.saveSettingsBackground()
+                Globals.shared.settings.saveBackground()
             }
         }
     }

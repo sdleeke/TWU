@@ -169,8 +169,12 @@ class ThreadSafeArray<T>
         }
     }
     
-    func update(storage:[T])
+    func update(storage:Any?)
     {
+        guard let storage = storage as? [T] else {
+            return
+        }
+        
         queue.sync {
             self.storage = storage
         }
@@ -273,8 +277,12 @@ class ThreadSafeDictionary<T>
         }
     }
     
-    func update(storage:[String:T])
+    func update(storage:Any?)
     {
+        guard let storage = storage as? [String:T] else {
+            return
+        }
+        
         queue.sync {
             self.storage = storage
         }
@@ -368,8 +376,12 @@ class ThreadSafeDictionaryOfDictionaries<T>
         }
     }
     
-    func update(storage:[String:[String:T]])
+    func update(storage:Any?)
     {
+        guard let storage = storage as? [String:[String:T]] else {
+            return
+        }
+        
         queue.sync {
             self.storage = storage
         }

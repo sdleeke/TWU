@@ -433,7 +433,7 @@ class MediaPlayer : NSObject
             playing?.atEnd = true
         }
         
-        if Globals.shared.autoAdvance, let playing = playing, playing.atEnd,
+        if Globals.shared.settings.autoAdvance, let playing = playing, playing.atEnd,
             let mediaItems = playing.series?.sermons,
             let index = mediaItems.index(of: playing), index < (mediaItems.count - 1) {
             let nextMediaItem = mediaItems[index + 1]
@@ -546,7 +546,7 @@ class MediaPlayer : NSObject
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
         }
 
-        Globals.shared.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
+        Alerts.shared.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
     }
     
     func failedToPlay()
@@ -558,7 +558,7 @@ class MediaPlayer : NSObject
         }
         
         if (UIApplication.shared.applicationState == UIApplicationState.active) {
-            Globals.shared.alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
+            Alerts.shared.alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
         }
     }
 

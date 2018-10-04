@@ -780,7 +780,7 @@ class MediaViewController : UIViewController
             return
         }
         
-        seriesSelected = Globals.shared.seriesSelected
+        seriesSelected = Globals.shared.series.selected
         sermonSelected = seriesSelected?.sermonSelected
         
         tableView.reloadData()
@@ -1207,7 +1207,7 @@ class MediaViewController : UIViewController
         
         if (seriesSelected == nil) {
             // Should only happen on an iPad on initial startup, i.e. when this view initially loads, not because of a segue.
-            seriesSelected = Globals.shared.seriesSelected
+            seriesSelected = Globals.shared.series.selected
         }
         
         sermonSelected = seriesSelected?.sermonSelected

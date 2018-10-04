@@ -40,14 +40,14 @@ extension MediaCollectionViewController : UICollectionViewDataSource
     {
         //#warning Incomplete method implementation -- Return the number of items in the section
         //return series[section].count
-        return Globals.shared.activeSeries?.count ?? 0
+        return Globals.shared.series.active?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as? MediaCollectionViewCell {
             // Configure the cell
-            cell.series = Globals.shared.activeSeries?[indexPath.row]
+            cell.series = Globals.shared.series.active?[indexPath.row]
             
             return cell
         } else {
@@ -117,39 +117,39 @@ extension MediaCollectionViewController : UISearchBarDelegate
     // MARK: UISearchBarDelegate
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool
     {
-        return !Globals.shared.isLoading && !Globals.shared.isRefreshing && (Globals.shared.series != nil)
+        return !Globals.shared.isLoading && !Globals.shared.isRefreshing // && (Globals.shared.series != nil)
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar)
     {
         searchBar.showsCancelButton = true
         
-        Globals.shared.searchButtonClicked = false
+        Globals.shared.series.search.buttonClicked = false
         
-        Globals.shared.searchActive = true
+        Globals.shared.series.search.active = true
 
-        Globals.shared.updateSearchResults()
+        Globals.shared.series.updateSearchResults()
         
         collectionView?.reloadData()
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
     {
-        Globals.shared.searchButtonClicked = true
+        Globals.shared.series.search.buttonClicked = true
         searchBar.resignFirstResponder()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
-        Globals.shared.searchButtonClicked = true
+        Globals.shared.series.search.buttonClicked = true
         searchBar.resignFirstResponder()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
     {
-        Globals.shared.searchButtonClicked = false
-        Globals.shared.searchText = searchBar.text
-        Globals.shared.updateSearchResults()
+        Globals.shared.series.search.buttonClicked = false
+        Globals.shared.series.search.text = searchBar.text
+        Globals.shared.series.updateSearchResults()
         
         collectionView?.reloadData()
     }
@@ -160,9 +160,9 @@ extension MediaCollectionViewController : UISearchBarDelegate
         searchBar.showsCancelButton = false
         searchBar.resignFirstResponder()
         
-        Globals.shared.searchText = nil
-        Globals.shared.searchSeries = nil
-        Globals.shared.searchActive = false
+        Globals.shared.series.search.text = nil
+        Globals.shared.series.search.results = nil
+        Globals.shared.series.search.active = false
         
         collectionView?.reloadData()
     }
@@ -188,25 +188,25 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
         
         switch purpose {
         case .selectingSorting:
-            Globals.shared.sorting = strings[index]
+            Globals.shared.series.sorting = strings[index]
             collectionView.reloadData()
             break
             
         case .selectingFiltering:
-            if (Globals.shared.filter != strings[index]) {
+            if (Globals.shared.series.filter != strings[index]) {
                 searchBar.placeholder = strings[index]
                 
                 if (strings[index] == Constants.All) {
-                    Globals.shared.showing = .all
-                    Globals.shared.filter = nil
+                    Globals.shared.series.showing = .all
+                    Globals.shared.series.filter = nil
                 } else {
-                    Globals.shared.showing = .filtered
-                    Globals.shared.filter = strings[index]
+                    Globals.shared.series.showing = .filtered
+                    Globals.shared.series.filter = strings[index]
                 }
                 
                 self.collectionView.reloadData()
                 
-                if Globals.shared.activeSeries != nil {
+                if Globals.shared.series.active != nil {
                     let indexPath = IndexPath(item:0,section:0)
                     collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
                 }
@@ -325,7 +325,7 @@ class MediaCollectionViewController: UIViewController
         popover.delegate = self
         
         popover.purpose = .selectingFiltering
-        popover.strings = booksFromSeries(Globals.shared.series)
+        popover.strings = booksFromSeries(Globals.shared.series.all)
         popover.strings?.insert(Constants.All, at: 0)
         
         present(navigationController, animated: true, completion: nil)
@@ -374,12 +374,12 @@ class MediaCollectionViewController: UIViewController
     
     fileprivate func setupSearchBar()
     {
-        switch Globals.shared.showing {
+        switch Globals.shared.series.showing {
         case .all:
             searchBar.placeholder = Constants.All
             break
         case .filtered:
-            searchBar.placeholder = Globals.shared.filter
+            searchBar.placeholder = Globals.shared.series.filter
             break
         }
     }
@@ -405,7 +405,7 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        if let index = Globals.shared.activeSeries?.index(of: series) {
+        if let index = Globals.shared.series.active?.index(of: series) {
             let indexPath = IndexPath(item: index, section: 0)
             
             //Without this background/main dispatching there isn't time to scroll after a reload.
@@ -639,15 +639,15 @@ class MediaCollectionViewController: UIViewController
             }
             
             if let seriesDicts = self.loadSeriesDicts() {
-                Globals.shared.series = self.seriesFromSeriesDicts(seriesDicts)
+                Globals.shared.series.all = self.seriesFromSeriesDicts(seriesDicts)
             }
             
-            self.seriesSelected = Globals.shared.seriesSelected
+            self.seriesSelected = Globals.shared.series.selected
 
             Thread.onMainThread {
                 self.navigationItem.title = Constants.Titles.Loading_Settings
             }
-            Globals.shared.loadSettings()
+            Globals.shared.settings.load()
             
             Thread.sleep(forTimeInterval: 1.0)
             
@@ -694,7 +694,7 @@ class MediaCollectionViewController: UIViewController
     
     func enableToolBarButtons()
     {
-        if (Globals.shared.series != nil) {
+        if (Globals.shared.series.all != nil) {
             if let barButtons = toolbarItems {
                 for barButton in barButtons {
                     barButton.isEnabled = true
@@ -707,7 +707,7 @@ class MediaCollectionViewController: UIViewController
     {
         navigationItem.leftBarButtonItem?.isEnabled = true
 
-        if (Globals.shared.series != nil) {
+        if (Globals.shared.series.all != nil) {
             navigationItem.rightBarButtonItem?.isEnabled = true
             enableToolBarButtons()
         }
@@ -723,9 +723,9 @@ class MediaCollectionViewController: UIViewController
         
         Globals.shared.mediaPlayer.pause()
 
-        Globals.shared.cancelAllDownloads()
+        Globals.shared.series.cancelAllDownloads()
         
-        Globals.shared.searchActive = false
+        Globals.shared.series.search.active = false
         searchBar.placeholder = nil
         
         if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
@@ -737,7 +737,7 @@ class MediaCollectionViewController: UIViewController
         // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
 //        globals = Globals()
         
-        Globals.shared.series = nil
+        Globals.shared.settings.series.clear()
 
 //        Globals.shared.splitViewController = splitViewController
 //        Globals.shared.splitViewController.delegate = splitViewController?.delegate
@@ -755,12 +755,12 @@ class MediaCollectionViewController: UIViewController
         
         loadSeries()
         {
-            guard Globals.shared.series == nil else {
-                self.logo.isHidden = true
-                self.collectionView.reloadData()
-                self.scrollToSeries(self.seriesSelected)
-                return
-            }
+//            guard Globals.shared.settings.series == nil else {
+//                self.logo.isHidden = true
+//                self.collectionView.reloadData()
+//                self.scrollToSeries(self.seriesSelected)
+//                return
+//            }
 
             let alert = UIAlertController(title: "No media available.",
                                           message: "Please check your network connection and try again.",
@@ -926,7 +926,7 @@ class MediaCollectionViewController: UIViewController
     
     @objc func didBecomeActive()
     {
-        guard !Globals.shared.isLoading, Globals.shared.series == nil else {
+        guard !Globals.shared.isLoading, Globals.shared.series.all == nil else {
             return
         }
         
@@ -937,7 +937,7 @@ class MediaCollectionViewController: UIViewController
         
         loadSeries()
         {
-            guard Globals.shared.series == nil else {
+            guard Globals.shared.series.all == nil else {
                 self.logo.isHidden = true
                 self.collectionView.reloadData()
                 self.scrollToSeries(self.seriesSelected)
@@ -963,7 +963,7 @@ class MediaCollectionViewController: UIViewController
 
         logo.isHidden = true
 
-        if Globals.shared.series == nil {
+        if Globals.shared.series.all == nil {
             disableBarButtons()
             enableBarButtons()
 
@@ -975,7 +975,7 @@ class MediaCollectionViewController: UIViewController
 
         navigationController?.isToolbarHidden = false
 
-        if Globals.shared.searchActive && !Globals.shared.searchButtonClicked {
+        if Globals.shared.series.search.active && !Globals.shared.series.search.buttonClicked {
             searchBar.becomeFirstResponder()
         }
         

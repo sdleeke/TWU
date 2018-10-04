@@ -273,7 +273,7 @@ class PopoverTableViewController: UITableViewController {
             break
             
         case .selectingFiltering:
-            switch Globals.shared.showing {
+            switch Globals.shared.series.showing {
             case .all:
                 if strings?[index] == Constants.All {
                     cell.accessoryType = UITableViewCellAccessoryType.checkmark
@@ -283,7 +283,7 @@ class PopoverTableViewController: UITableViewController {
                 break
             
             case .filtered:
-                if strings?[index] == Globals.shared.filter {
+                if strings?[index] == Globals.shared.series.filter {
                     cell.accessoryType = UITableViewCellAccessoryType.checkmark
                 } else {
                     cell.accessoryType = UITableViewCellAccessoryType.none
@@ -292,7 +292,7 @@ class PopoverTableViewController: UITableViewController {
             }
             
         case .selectingSorting:
-            if (strings?[index].lowercased() == Globals.shared.sorting?.lowercased()) {
+            if (strings?[index].lowercased() == Globals.shared.series.sorting?.lowercased()) {
                 cell.accessoryType = UITableViewCellAccessoryType.checkmark
             } else {
                 cell.accessoryType = UITableViewCellAccessoryType.none

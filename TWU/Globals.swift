@@ -50,109 +50,97 @@ import CloudKit
 //    }
 //}
 
-enum Showing {
+enum Showing
+{
     case all
     case filtered
 }
 
 //var globals:Globals!
 
-struct Alert {
+struct Alert
+{
     var title : String
     var message : String?
 }
 
-class MediaRepository {
-    var list : [Series]?
-    {
-        willSet {
-            
-        }
-        didSet {
-            index = nil
-            
-            guard let list = list else {
-                return
-            }
-
-            for series in list {
-                if index == nil {
-                    index = [String:Series]()
-                }
-                if index?[series.name] == nil {
-                    index?[series.name] = series
-                } else {
-                    print("DUPLICATE SERIES ID: \(series)")
-                }
-            }
-        }
-    }
-    var index: [String:Series]?
-}
-
-struct CoverArt {
-    var storage : [String:UIImage]?
-    
-//    init(storage:[String:UIImage]?)
+//class MediaRepository
+//{
+//    // Make thread safe?
+//    var index = ThreadSafeDictionary<Series>(name: "SERIES_INDEX") // [String:Series]?
+//
+//    var list : [Series]?
 //    {
-//        self.storage = storage
+//        willSet {
+//
+//        }
+//        didSet {
+////            index = nil
+//
+//            index.clear()
+//
+//            guard let list = list else {
+//                return
+//            }
+//
+//            for series in list {
+////                if index == nil {
+////                    index = [String:Series]()
+////                }
+//                if index[series.name] == nil {
+//                    index[series.name] = series
+//                } else {
+//                    print("DUPLICATE SERIES ID: \(series)")
+//                }
+//            }
+//        }
 //    }
-    
-    // Make it threadsafe
-    let queue = DispatchQueue(label: "CoverArt")
-    
-    subscript(key:String?) -> UIImage? {
-        get {
-            return queue.sync {
-                guard let key = key else {
-                    return nil
-                }
-                
-                return storage?[key]
-            }
-        }
-        set {
-            queue.sync {
-                guard let key = key else {
-                    return
-                }
-                
-                if storage == nil {
-                    storage = [String:UIImage]()
-                }
-                storage?[key] = newValue
-            }
-        }
-    }
-}
+//}
+
+//struct CoverArt {
+//    var storage : [String:UIImage]?
+//
+////    init(storage:[String:UIImage]?)
+////    {
+////        self.storage = storage
+////    }
+//
+//    // Make it threadsafe
+//    let queue = DispatchQueue(label: "CoverArt")
+//
+//    subscript(key:String?) -> UIImage? {
+//        get {
+//            return queue.sync {
+//                guard let key = key else {
+//                    return nil
+//                }
+//
+//                return storage?[key]
+//            }
+//        }
+//        set {
+//            queue.sync {
+//                guard let key = key else {
+//                    return
+//                }
+//
+//                if storage == nil {
+//                    storage = [String:UIImage]()
+//                }
+//                storage?[key] = newValue
+//            }
+//        }
+//    }
+//}
+
 
 class Globals //: NSObject
 {
     static var shared = Globals()
     
-    var images = CoverArt() // [String:UIImage]()
+    var images = ThreadSafeDictionary<UIImage>(name: "CoverArt") // CoverArt() // [String:UIImage]()
     
     var splitViewController : UISplitViewController!
-    
-    var sorting:String? = Constants.Sorting.Newest_to_Oldest
-    {
-        willSet {
-            
-        }
-        didSet {
-            if sorting != oldValue {
-                activeSeries = sortSeries(activeSeries,sorting: sorting)
-                
-                let defaults = UserDefaults.standard
-                if (sorting != nil) {
-                    defaults.set(sorting,forKey: Constants.SORTING)
-                } else {
-                    defaults.removeObject(forKey: Constants.SORTING)
-                }
-                defaults.synchronize()
-            }
-        }
-    }
     
     var format:String?
     {
@@ -173,79 +161,14 @@ class Globals //: NSObject
         }
     }
 
-    
-    var filter:String?
-    {
-        willSet {
-            
-        }
-        didSet {
-            guard filter != oldValue else {
-                return
-            }
-            
-            if (filter != nil) {
-                showing = .filtered
-                filteredSeries = series?.filter({ (series:Series) -> Bool in
-                    return series.book == filter
-                })
-            } else {
-                showing = .all
-                filteredSeries = nil
-            }
-            
-            updateSearchResults()
-            
-            activeSeries = sortSeries(activeSeries,sorting: sorting)
-
-            let defaults = UserDefaults.standard
-            if (filter != nil) {
-                defaults.set(filter,forKey: Constants.FILTER)
-            } else {
-                defaults.removeObject(forKey: Constants.FILTER)
-            }
-            defaults.synchronize()
-        }
-    }
-    
     var isRefreshing:Bool   = false
     var isLoading:Bool      = false
     
-    var seriesSettings:[String:[String:String]]?
-    var sermonSettings:[String:[String:String]]?
+    var settings = Settings()
 
     var mediaPlayer = MediaPlayer()
     
     var gotoNowPlaying:Bool = false
-    
-    // \/\/\/ Replace with Search struct/class
-    var searchButtonClicked = false
-
-    var searchActive:Bool = false
-    {
-        willSet {
-            
-        }
-        didSet {
-            if !searchActive {
-                searchText = nil
-                activeSeries = sortSeries(activeSeries,sorting: sorting)
-            }
-        }
-    }
-    
-    var searchValid:Bool
-    {
-        get {
-            return searchActive && (searchText != nil) && (searchText != Constants.EMPTY_STRING)
-        }
-    }
-    
-    // Search results
-    var searchSeries:[Series]?
-    
-    var searchText:String?
-    // /\/\/\ Replace
     
     var showingAbout:Bool = false
     {
@@ -256,22 +179,8 @@ class Globals //: NSObject
         }
     }
     
-    var seriesSelected:Series?
-    {
-        get {
-            var seriesSelected:Series?
-            
-            let defaults = UserDefaults.standard
-            if let seriesSelectedName = defaults.string(forKey: Constants.SETTINGS.SELECTED.SERIES) {
-                seriesSelected = index?[seriesSelectedName]
-            }
-//            defaults.synchronize()
-            
-            return seriesSelected
-        }
-    }
-    
     // From NEW JSON
+    // Make thread safe?
     var meta:[String:Any]?
     
     var audioURL : String?
@@ -301,102 +210,9 @@ class Globals //: NSObject
     }
 
     // Use this to replace filteredSeries, series, index, sermonFromSermonID, seriesToSearch, activeSeries
-    //    var mediaRepository = MediaRepository()
+//    var mediaRepository = MediaRepository()
     
-    var filteredSeries:[Series]?
-    
-    var series:[Series]?
-    {
-        willSet {
-            
-        }
-        didSet {
-            if let series = series {
-                index = [String:Series]()
-                for sermonSeries in series {
-                    guard let name = sermonSeries.name else {
-                        continue
-                    }
-                    
-                    if index?[name] == nil {
-                        index?[name] = sermonSeries
-                    } else {
-                        print("DUPLICATE SERIES ID: \(sermonSeries)")
-                    }
-                }
-            }
-            
-            if (filter != nil) {
-                showing = .filtered
-                filteredSeries = series?.filter({ (series:Series) -> Bool in
-                    return series.book == filter
-                })
-            }
-            
-            updateSearchResults()
-        }
-    }
-    
-    var index:[String:Series]?
-    
-    func sermonFromSermonID(_ id:String) -> Sermon?
-    {
-        guard let index = index else {
-            return nil
-        }
-        
-        for (_,value) in index {
-            if let sermons = value.sermons {
-                for sermon in sermons {
-                    if sermon.id == id {
-                        return sermon
-                    }
-                }
-            }
-        }
-        
-        return nil
-    }
-    
-    var showing:Showing = .all
-
-    var seriesToSearch:[Series]?
-    {
-        get {
-            switch showing {
-            case .all:
-                return series
-                
-            case .filtered:
-                return filteredSeries
-            }
-        }
-    }
-    
-    var activeSeries:[Series]?
-    {
-        get {
-            if searchActive {
-                return searchSeries
-            } else {
-                return seriesToSearch
-            }
-        }
-        set {
-            if searchActive {
-                searchSeries = newValue
-            } else {
-                switch showing {
-                case .all:
-                    series = newValue
-                    break
-                case .filtered:
-                    filteredSeries = newValue
-                    break
-                }
-            }
-        }
-    }
+    var series = Media()
     
     var reachability = Reachability(hostname: "www.thewordunleashed.org")!
     
@@ -542,12 +358,12 @@ class Globals //: NSObject
             }
         }
 
-        if priorReachabilityStatus == .notReachable, reachability.isReachable, series != nil {
-            alert(title: "Network Connection Restored",message: "")
+        if priorReachabilityStatus == .notReachable, reachability.isReachable, series.all != nil {
+            Alerts.shared.alert(title: "Network Connection Restored",message: "")
         }
         
-        if priorReachabilityStatus != .notReachable, !reachability.isReachable, series != nil {
-            alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
+        if priorReachabilityStatus != .notReachable, !reachability.isReachable, series.all != nil {
+            Alerts.shared.alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
         }
         
         priorReachabilityStatus = reachability.currentReachabilityStatus
@@ -557,10 +373,6 @@ class Globals //: NSObject
     {
 //        super.init()
         
-        Thread.onMainThread {
-            self.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.alertViewer), userInfo: nil, repeats: true)
-        }
-
 //        guard let reachability = Reachability(hostname: "www.thewordunleashed.org") else {
 //            return
 //        }
@@ -591,179 +403,6 @@ class Globals //: NSObject
             try reachability.startNotifier()
         } catch {
             print("Unable to start notifier")
-        }
-    }
-
-    func cancelAllDownloads()
-    {
-        guard let series = series else {
-            return
-        }
-        
-        for series in series {
-            if let sermons = series.sermons {
-                for sermon in sermons {
-                    if sermon.audioDownload.active {
-                        sermon.audioDownload.task?.cancel()
-                        sermon.audioDownload.task = nil
-                        
-                        sermon.audioDownload.totalBytesWritten = 0
-                        sermon.audioDownload.totalBytesExpectedToWrite = 0
-                        
-                        sermon.audioDownload.state = .none
-                    }
-                }
-            }
-        }
-    }
-    
-    func updateSearchResults()
-    {
-        if searchActive {
-            searchSeries = seriesToSearch?.filter({ (series:Series) -> Bool in
-                guard let searchText = searchText else {
-                    return false
-                }
-                
-                var seriesResult = false
-                
-                if let string = series.title  {
-                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-                }
-                
-                if let string = series.scripture {
-                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-                }
-                
-                return seriesResult
-            })
-            
-            // Filter will return an empty array and we don't want that.
-            
-            if searchSeries?.count == 0 {
-                searchSeries = nil
-            }
-        } else {
-            searchSeries = seriesToSearch
-        }
-    }
-    
-    func saveSettingsBackground()
-    {
-        print("saveSermonSettingsBackground")
-        DispatchQueue.global(qos: .background).async { () -> Void in
-            self.saveSettings()
-        }
-    }
-    
-    func saveSettings()
-    {
-        print("saveSermonSettings")
-        let defaults = UserDefaults.standard
-        defaults.set(seriesSettings,forKey: Constants.SETTINGS.KEY.SERIES)
-        defaults.set(sermonSettings,forKey: Constants.SETTINGS.KEY.SERMON)
-        defaults.synchronize()
-    }
-    
-    func loadSettings()
-    {
-        let defaults = UserDefaults.standard
-        
-        if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERIES) {
-            seriesSettings = settingsDictionary as? [String:[String:String]]
-        }
-        
-        if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERMON) {
-            sermonSettings = settingsDictionary as? [String:[String:String]]
-        }
-        
-        if let sorting = defaults.string(forKey: Constants.SORTING) {
-            self.sorting = sorting
-        }
-        
-        if let filter = defaults.string(forKey: Constants.FILTER) {
-            if (filter == Constants.All) {
-                self.filter = nil
-                self.showing = .all
-            } else {
-                self.filter = filter
-                self.showing = .filtered
-            }
-        }
-        
-        if let seriesPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERIES) {
-            if let index = self.series?.index(where: { (series) -> Bool in
-                return series.name == seriesPlaying
-            }) {
-                let seriesPlaying = series?[index]
-                
-                if let sermonPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERMON) {
-                    mediaPlayer.playing = seriesPlaying?.sermons?.filter({ (sermon) -> Bool in
-                        return sermon.id == sermonPlaying
-                    }).first
-
-//                    if let show = seriesPlaying?.show {
-//                        if (sermonPlayingIndex > (show - 1)) {
-//                            mediaPlayer.playing = nil
-//                        } else {
-//                            mediaPlayer.playing = seriesPlaying?.sermons?[sermonPlayingIndex]
-//                        }
-//                    } else {
-//                        mediaPlayer.playing = nil
-//                    }
-                }
-            } else {
-                defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
-            }
-        }
-    }
-    
-    @objc func alertViewer()
-    {
-//        for alert in alerts {
-//            print(alert)
-//        }
-        
-        guard UIApplication.shared.applicationState == UIApplicationState.active else {
-            return
-        }
-        
-        guard alerts.count > 0, let alert = alerts.first else {
-            return
-        }
-        
-        let alertVC = UIAlertController(title:alert.title,
-                                        message:alert.message,
-                                        preferredStyle: UIAlertControllerStyle.alert)
-        
-        let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-            
-        })
-        alertVC.addAction(action)
-        
-        Thread.onMainThread {
-            self.splitViewController.present(alertVC, animated: true, completion: {
-                self.alerts.remove(at: 0)
-            })
-        }
-    }
-    
-    var alerts = [Alert]()
-    
-    var alertTimer : Timer?
-    
-    func alert(title:String,message:String?)
-    {
-        alerts.append(Alert(title: title, message: message))
-    }
-    
-    var autoAdvance:Bool {
-        get {
-            return UserDefaults.standard.bool(forKey: Constants.AUTO_ADVANCE)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: Constants.AUTO_ADVANCE)
-            UserDefaults.standard.synchronize()
         }
     }
     
