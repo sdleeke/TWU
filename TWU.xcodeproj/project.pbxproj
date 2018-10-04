@@ -37,6 +37,8 @@
 		17CFC25A21663D8B00A28F69 /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC25921663D8B00A28F69 /* Media.swift */; };
 		17CFC25C21663E4700A28F69 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC25B21663E4700A28F69 /* Alerts.swift */; };
 		17CFC25E21663F1600A28F69 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC25D21663F1600A28F69 /* Settings.swift */; };
+		17CFC26021666E9300A28F69 /* Meta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC25F21666E9300A28F69 /* Meta.swift */; };
+		17CFC2622166700200A28F69 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC2612166700200A28F69 /* JSON.swift */; };
 		17FBFBDD1B6C62F70057D027 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */; };
 		17FFEFEB1B73673A006D8169 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FFEFEA1B73673A006D8169 /* AboutViewController.swift */; };
 /* End PBXBuildFile section */
@@ -95,6 +97,8 @@
 		17CFC25921663D8B00A28F69 /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
 		17CFC25B21663E4700A28F69 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		17CFC25D21663F1600A28F69 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		17CFC25F21666E9300A28F69 /* Meta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meta.swift; sourceTree = "<group>"; };
+		17CFC2612166700200A28F69 /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 		17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		17FDE1791C84700300516C77 /* Series.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Series.entitlements; path = TWU/Series.entitlements; sourceTree = "<group>"; };
 		17FFEFEA1B73673A006D8169 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
@@ -168,8 +172,10 @@
 				17A571191BEA361000C0D278 /* Constants.swift */,
 				17A5711F1BEA370000C0D278 /* Globals.swift */,
 				17CFC25D21663F1600A28F69 /* Settings.swift */,
+				17CFC25F21666E9300A28F69 /* Meta.swift */,
 				17CFC25B21663E4700A28F69 /* Alerts.swift */,
 				17CFC25921663D8B00A28F69 /* Media.swift */,
+				17CFC2612166700200A28F69 /* JSON.swift */,
 				17CFC25721663D7000A28F69 /* Search.swift */,
 				174ACCD41EF48C050056FCBC /* MediaPlayer.swift */,
 				17A5711D1BEA365900C0D278 /* Series.swift */,
@@ -394,9 +400,11 @@
 				17CFC25821663D7000A28F69 /* Search.swift in Sources */,
 				17A5711E1BEA365900C0D278 /* Series.swift in Sources */,
 				17CFC25A21663D8B00A28F69 /* Media.swift in Sources */,
+				17CFC2622166700200A28F69 /* JSON.swift in Sources */,
 				176703951B6D076300A8435F /* MediaTableViewCell.swift in Sources */,
 				17A571201BEA370000C0D278 /* Globals.swift in Sources */,
 				17A5711C1BEA363900C0D278 /* Sermon.swift in Sources */,
+				17CFC26021666E9300A28F69 /* Meta.swift in Sources */,
 				17B875DF2159487800BD8D28 /* generics.swift in Sources */,
 				17CFC25C21663E4700A28F69 /* Alerts.swift in Sources */,
 				17CFC25E21663F1600A28F69 /* Settings.swift in Sources */,

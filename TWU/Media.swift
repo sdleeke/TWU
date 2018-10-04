@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class Media
 {
@@ -27,38 +28,9 @@ class Media
         }
     }
     
-    var search = Search()
-    
-    func updateSearchResults()
-    {
-        if search.active {
-            search.results = toSearch?.filter({ (series:Series) -> Bool in
-                guard let searchText = search.text else {
-                    return false
-                }
-                
-                var seriesResult = false
-                
-                if let string = series.title  {
-                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-                }
-                
-                if let string = series.scripture {
-                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-                }
-                
-                return seriesResult
-            })
-            
-            // Filter will return an empty array and we don't want that.
-            
-            if search.results?.count == 0 {
-                search.results = nil
-            }
-        } else {
-            search.results = toSearch
-        }
-    }
+    lazy var search:Search! = {
+        return Search(media:self)
+    }()
     
     var sorting:String? = Constants.Sorting.Newest_to_Oldest
     {
@@ -101,7 +73,7 @@ class Media
                 //                filteredSeries = nil
             }
             
-            updateSearchResults()
+//            updateSearchResults()
             
             // BAD
             //            activeSeries = sortSeries(activeSeries,sorting: sorting)
@@ -178,7 +150,7 @@ class Media
             //                })
             //            }
             
-            //            updateSearchResults()
+//            updateSearchResults()
         }
     }
     
@@ -237,5 +209,34 @@ class Media
         }
         
         return nil
+    }
+
+    var images = ThreadSafeDictionary<UIImage>(name: "CoverArt") // CoverArt() // [String:UIImage]()
+    
+    func load(seriesDicts:[[String:Any]]?)
+    {
+        all = from(seriesDicts: seriesDicts)
+    }
+    
+    func from(seriesDicts:[[String:Any]]?) -> [Series]?
+    {
+        return seriesDicts?.filter({ (seriesDict:[String:Any]) -> Bool in
+            let series = Series(seriesDict: seriesDict)
+            return series.sermons?.count > 0 // .show != 0
+        }).map({ (seriesDict:[String:Any]) -> Series in
+            let series = Series(seriesDict: seriesDict)
+            
+            DispatchQueue.global(qos: .background).async { () -> Void in
+                series.coverArt { (image:UIImage?) in
+                    guard let name = series.coverArtURL?.lastPathComponent else {
+                        return
+                    }
+                    
+                    self.images[name] = image
+                }
+            }
+            
+            return series
+        })
     }
 }

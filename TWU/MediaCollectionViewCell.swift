@@ -37,7 +37,7 @@ class MediaCollectionViewCell: UICollectionViewCell {
             return
         }
         
-        if let image = Globals.shared.images[name] {
+        if let image = Globals.shared.series.images[name] {
             self.seriesArt.image = image
         } else {
             self.activityIndicator.startAnimating()
@@ -49,7 +49,7 @@ class MediaCollectionViewCell: UICollectionViewCell {
                         
                         if let image = image {
                             if self.series == series {
-                                Globals.shared.images[name] = image
+                                Globals.shared.series.images[name] = image
                                 self.seriesArt.image = image
                             }
                         } else {

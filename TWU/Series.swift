@@ -299,7 +299,7 @@ class Series : Equatable //, CustomStringConvertible
                 return nil
             }
             
-            guard let imageURL = Globals.shared.imageURL else {
+            guard let imageURL = Globals.shared.meta.imageURL else {
                 return nil
             }
             
@@ -307,7 +307,7 @@ class Series : Equatable //, CustomStringConvertible
                 return nil
             }
             
-            guard let squareSuffix = Globals.shared.squareSuffix else {
+            guard let squareSuffix = Globals.shared.meta.squareSuffix else {
                 return nil
             }
             

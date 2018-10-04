@@ -514,7 +514,7 @@ class Sermon : NSObject {
 
     var audioURL:URL? {
         get {
-            guard let audioURL = Globals.shared.audioURL else {
+            guard let audioURL = Globals.shared.meta.audioURL else {
                 return nil
             }
             

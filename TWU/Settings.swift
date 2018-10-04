@@ -83,7 +83,8 @@ class Settings
         }
     }
     
-    var autoAdvance:Bool {
+    var autoAdvance:Bool
+    {
         get {
             return UserDefaults.standard.bool(forKey: Constants.AUTO_ADVANCE)
         }
