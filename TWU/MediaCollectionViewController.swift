@@ -755,12 +755,12 @@ class MediaCollectionViewController: UIViewController
         
         loadSeries()
         {
-//            guard Globals.shared.settings.series == nil else {
-//                self.logo.isHidden = true
-//                self.collectionView.reloadData()
-//                self.scrollToSeries(self.seriesSelected)
-//                return
-//            }
+            guard Globals.shared.series.all == nil else {
+                self.logo.isHidden = true
+                self.collectionView.reloadData()
+                self.scrollToSeries(self.seriesSelected)
+                return
+            }
 
             let alert = UIAlertController(title: "No media available.",
                                           message: "Please check your network connection and try again.",
