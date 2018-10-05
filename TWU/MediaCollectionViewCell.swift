@@ -33,32 +33,51 @@ class MediaCollectionViewCell: UICollectionViewCell {
             return
         }
         
-        guard let name = series.coverArtURL?.lastPathComponent else {
-            return
-        }
+//        guard let name = series.coverArtURL?.lastPathComponent else {
+//            return
+//        }
+
+        self.activityIndicator.startAnimating()
         
-        if let image = Globals.shared.series.images[name] {
-            self.seriesArt.image = image
-        } else {
-            self.activityIndicator.startAnimating()
-            
-            DispatchQueue.global(qos: .userInteractive).async { () -> Void in
-                series.coverArt { (image:UIImage?) in
-                    Thread.onMainThread {
-                        self.activityIndicator.stopAnimating()
-                        
-                        if let image = image {
-                            if self.series == series {
-                                Globals.shared.series.images[name] = image
-                                self.seriesArt.image = image
-                            }
-                        } else {
-                            self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+        DispatchQueue.global(qos: .userInteractive).async { () -> Void in
+            series.coverArt.block { (image:UIImage?) in
+                Thread.onMainThread {
+                    self.activityIndicator.stopAnimating()
+                    
+                    if let image = image {
+                        if self.series == series {
+//                            Globals.shared.series.images[name] = image
+                            self.seriesArt.image = image
                         }
+                    } else {
+                        self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                     }
                 }
             }
         }
+        
+//        if let image = Globals.shared.series.images[name] {
+//            self.seriesArt.image = image
+//        } else {
+//            self.activityIndicator.startAnimating()
+//
+//            DispatchQueue.global(qos: .userInteractive).async { () -> Void in
+//                series.coverArt { (image:UIImage?) in
+//                    Thread.onMainThread {
+//                        self.activityIndicator.stopAnimating()
+//
+//                        if let image = image {
+//                            if self.series == series {
+//                                Globals.shared.series.images[name] = image
+//                                self.seriesArt.image = image
+//                            }
+//                        } else {
+//                            self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+//                        }
+//                    }
+//                }
+//            }
+//        }
         
 //            DispatchQueue.global(qos: .userInteractive).async { () -> Void in
 //                series.coverArt { (image:UIImage?) in

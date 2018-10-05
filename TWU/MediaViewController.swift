@@ -907,7 +907,7 @@ class MediaViewController : UIViewController
         }
 
         DispatchQueue.global(qos: .background).async { () -> Void in
-            seriesSelected.coverArt { (image:UIImage?) in
+            seriesSelected.coverArt.block { (image:UIImage?) in
                 Thread.onMainThread {
                     if self.seriesSelected == seriesSelected {
                         self.seriesArt.image = image

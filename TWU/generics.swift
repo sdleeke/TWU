@@ -456,46 +456,75 @@ class ThreadSafeDictionaryOfDictionaries<T>
 
 class Fetch<T>
 {
-    //    lazy var operationQueue : OperationQueue! = {
-    //        let operationQueue = OperationQueue()
-    //        operationQueue.name = name
-    //        operationQueue.qualityOfService = .userInteractive
-    //        operationQueue.maxConcurrentOperationCount = 1
-    //        return operationQueue
-    //    }()
+    lazy var operationQueue : OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = name
+        operationQueue.qualityOfService = .userInteractive
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
     
-    init(_ fetch:(()->(T?))? = nil) // name:String,
+    init(name:String,fetch:(()->(T?))? = nil) //
     {
-        //        self.name = name
+        self.name = name
         self.fetch = fetch
     }
     
-    var queue = DispatchQueue.global(qos: .userInitiated)
+//    var queue = DispatchQueue.global(qos: .userInitiated)
     
     var fetch : (()->(T?))?
     
-    //    var name : String
+    var name : String
     
     var cache : T?
+
+    func clear()
+    {
+        cache = nil
+    }
+    
+    func load()
+    {
+        operationQueue.waitUntilAllOperationsAreFinished()
+        
+        guard cache == nil else {
+            return
+        }
+        
+        operationQueue.addOperation {
+            self.cache = self.fetch?()
+        }
+
+//        return queue.sync {
+//            guard cache == nil else {
+//                return
+//            }
+//
+//            self.cache = self.fetch?()
+//        }
+    }
     
     var result:T?
     {
         get {
-            //            operationQueue.waitUntilAllOperationsAreFinished()
+//            guard cache == nil else {
+//                return cache
+//            }
+//
+//            return queue.sync {
+//                guard cache == nil else {
+//                    return cache
+//                }
+//
+//                self.cache = self.fetch?()
+//
+//                return cache
+//            }
+
+            load()
             
-            guard cache == nil else {
-                return cache
-            }
-            
-            queue.sync {
-                self.cache = self.fetch?()
-            }
-            //            operationQueue.addOperation {
-            //                self.cache = self.fetch?()
-            //            }
-            
-            //            operationQueue.waitUntilAllOperationsAreFinished()
-            
+            operationQueue.waitUntilAllOperationsAreFinished()
+
             return cache
         }
     }

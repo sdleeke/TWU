@@ -514,7 +514,7 @@ class Sermon : NSObject {
 
     var audioURL:URL? {
         get {
-            guard let audioURL = Globals.shared.meta.audioURL else {
+            guard let audioURL = Globals.shared.series.meta.audioURL else {
                 return nil
             }
             
@@ -534,7 +534,7 @@ class Sermon : NSObject {
                 return nil
             }
             
-            return cachesURL()?.appendingPathComponent(audio)
+            return fileSystemURL(audio)
         }
     }
     

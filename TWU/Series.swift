@@ -299,7 +299,7 @@ class Series : Equatable //, CustomStringConvertible
                 return nil
             }
             
-            guard let imageURL = Globals.shared.meta.imageURL else {
+            guard let imageURL = Globals.shared.series.meta.imageURL else {
                 return nil
             }
             
@@ -307,7 +307,7 @@ class Series : Equatable //, CustomStringConvertible
                 return nil
             }
             
-            guard let squareSuffix = Globals.shared.meta.squareSuffix else {
+            guard let squareSuffix = Globals.shared.series.meta.squareSuffix else {
                 return nil
             }
             
@@ -317,31 +317,39 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    func coverArt(block:((UIImage?)->()))
-    {
-        coverArtURL?.image(block:block)
-    }
+//    func coverArt(block:((UIImage?)->()))
+//    {
+////        coverArtURL?.image(block:block)
+//
+//        if let image = coverArt {
+//            block(image)
+//        }
+//        
+////        if let image = Globals.shared.series.images[name] {
+////            block(image)
+////        } else {
+////            coverArtURL?.image(block:block)
+////        }
+//    }
     
+//    lazy var fetchCoverArt : Fetch<UIImage>! = {
+//        let fetch = Fetch<UIImage>() // name:id+"POSTER"
+//        fetch.fetch = {
+//            return self.coverArtURL?.image
+//        }
+//        return fetch
+//    }()
+//
 //    var coverArt : UIImage?
 //    {
 //        get {
-//            guard let imageURL = Globals.shared.imageURL else {
-//                return nil
-//            }
-//            
-//            guard let imageName = name else {
-//                return nil
-//            }
-//            
-//            guard let squareSuffix = Globals.shared.squareSuffix else {
-//                return nil
-//            }
-//
-//            let imageCloudURL = imageURL + imageName + squareSuffix // + Constants.FILE_EXTENSION.JPEG
-//
-//            return imageCloudURL.url?.image
+//            return fetchCoverArt.result
 //        }
 //    }
+    
+    lazy var coverArt = {
+        return FetchedImage(url: coverArtURL)
+    }()
     
     var book:String? {
         get {

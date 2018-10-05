@@ -11,6 +11,8 @@ import UIKit
 
 class Media
 {
+    let meta = Meta()
+    
     var showing:Showing = .all
     
     var selected:Series?
@@ -211,7 +213,7 @@ class Media
         return nil
     }
 
-    var images = ThreadSafeDictionary<UIImage>(name: "CoverArt") // CoverArt() // [String:UIImage]()
+//    var images = ThreadSafeDictionary<UIImage>(name: "CoverArt") // CoverArt() // [String:UIImage]()
     
     func load(seriesDicts:[[String:Any]]?)
     {
@@ -227,13 +229,14 @@ class Media
             let series = Series(seriesDict: seriesDict)
             
             DispatchQueue.global(qos: .background).async { () -> Void in
-                series.coverArt { (image:UIImage?) in
-                    guard let name = series.coverArtURL?.lastPathComponent else {
-                        return
-                    }
-                    
-                    self.images[name] = image
-                }
+                series.coverArt.load()
+//                series.coverArt { (image:UIImage?) in
+//                    guard let name = series.coverArtURL?.lastPathComponent else {
+//                        return
+//                    }
+//                    
+//                    self.images[name] = image
+//                }
             }
             
             return series

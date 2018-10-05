@@ -33,6 +33,7 @@
 		17B75BA91B946D9E00672A3B /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17B75BA81B946D9E00672A3B /* MediaPlayer.framework */; };
 		17B875DF2159487800BD8D28 /* generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B875DE2159487800BD8D28 /* generics.swift */; };
 		17B875E12159489100BD8D28 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B875E02159489100BD8D28 /* extensions.swift */; };
+		17CDEF0C21676DAA00B21C87 /* FetchedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CDEF0B21676DAA00B21C87 /* FetchedImage.swift */; };
 		17CFC25821663D7000A28F69 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC25721663D7000A28F69 /* Search.swift */; };
 		17CFC25A21663D8B00A28F69 /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC25921663D8B00A28F69 /* Media.swift */; };
 		17CFC25C21663E4700A28F69 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CFC25B21663E4700A28F69 /* Alerts.swift */; };
@@ -93,6 +94,7 @@
 		17B75BA81B946D9E00672A3B /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		17B875DE2159487800BD8D28 /* generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = generics.swift; sourceTree = "<group>"; };
 		17B875E02159489100BD8D28 /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
+		17CDEF0B21676DAA00B21C87 /* FetchedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchedImage.swift; sourceTree = "<group>"; };
 		17CFC25721663D7000A28F69 /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
 		17CFC25921663D8B00A28F69 /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
 		17CFC25B21663E4700A28F69 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				17A5711B1BEA363900C0D278 /* Sermon.swift */,
 				175EDA291BAC8BF200942E6D /* Reachability.swift */,
 				177FBA921C5CE1B800AFBB50 /* OBSlider.swift */,
+				17CDEF0B21676DAA00B21C87 /* FetchedImage.swift */,
 				17B875DE2159487800BD8D28 /* generics.swift */,
 				17B875E02159489100BD8D28 /* extensions.swift */,
 				17B75BA61B9463F900672A3B /* functions.swift */,
@@ -408,6 +411,7 @@
 				17B875DF2159487800BD8D28 /* generics.swift in Sources */,
 				17CFC25C21663E4700A28F69 /* Alerts.swift in Sources */,
 				17CFC25E21663F1600A28F69 /* Settings.swift in Sources */,
+				17CDEF0C21676DAA00B21C87 /* FetchedImage.swift in Sources */,
 				1712CD6A1C76B2BF005E09D6 /* SettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

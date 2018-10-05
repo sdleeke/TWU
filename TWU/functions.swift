@@ -266,6 +266,38 @@ func documentsURL() -> URL?
     return fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
 }
 
+func remove(_ filename:String)
+{
+    if let fileSystemURL = fileSystemURL(filename) {
+        do {
+            try FileManager.default.removeItem(atPath: fileSystemURL.path)
+        } catch let error as NSError {
+            NSLog(error.localizedDescription)
+            print("failed to copy sermons.json")
+        }
+    }
+}
+
+func save(_ filename:String)
+{
+    //Get documents directory URL
+    guard let fileSystemURL = fileSystemURL(filename) else {
+        return
+    }
+    
+    let fileManager = FileManager.default
+    
+    // Check if file exist
+    if (!fileManager.fileExists(atPath: fileSystemURL.path)){
+        //            downloadJSON()
+    }
+}
+
+func fileSystemURL(_ filename:String) -> URL?
+{
+    return cachesURL()?.appendingPathComponent(filename)
+}
+
 func cachesURL() -> URL?
 {
     let fileManager = FileManager.default

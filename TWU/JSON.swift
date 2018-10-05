@@ -10,47 +10,13 @@ import Foundation
 
 class JSON
 {
-    var fileSystemURL : URL?
-    {
-        get {
-            return cachesURL()?.appendingPathComponent(Constants.JSON.SERIES)
-        }
-    }
-    
-    func remove()
-    {
-        if let fileSystemURL = fileSystemURL {
-            do {
-                try FileManager.default.removeItem(atPath: fileSystemURL.path)
-            } catch let error as NSError {
-                NSLog(error.localizedDescription)
-                print("failed to copy sermons.json")
-            }
-        }
-    }
-    
-    func save()
-    {
-        //Get documents directory URL
-        guard let fileSystemURL = fileSystemURL else {
-            return
-        }
-        
-        let fileManager = FileManager.default
-        
-        // Check if file exist
-        if (!fileManager.fileExists(atPath: fileSystemURL.path)){
-            //            downloadJSON()
-        }
-    }
-    
     func get(from filename:String?) -> Any?
     {
         guard let filename = filename else {
             return nil
         }
         
-        guard let fileSystemURL = cachesURL()?.appendingPathComponent(filename) else {
+        guard let fileSystemURL = fileSystemURL(filename) else {
             return nil
         }
         
@@ -113,8 +79,8 @@ class JSON
                     print("able to read json from the URL.")
                     
                     do {
-                        if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
-                            try data.write(to: jsonFileSystemURL)
+                        if let fileSystemURL = fileSystemURL(filename) {
+                            try data.write(to: fileSystemURL)
                         }
                         self.format = Constants.JSON.URL
                         print("able to write json to the file system")
@@ -137,7 +103,7 @@ class JSON
                     let json = try JSONSerialization.jsonObject(with: data, options: [])
                     
                     do {
-                        if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
+                        if let jsonFileSystemURL = fileSystemURL(filename) {
                             try data.write(to: jsonFileSystemURL)
                         }
                         format = Constants.JSON.URL
@@ -168,7 +134,7 @@ class JSON
         }
         
         if let meta = json[Constants.JSON.KEYS.META] as? [String:Any] {
-            Globals.shared.meta.update(contents:meta)
+            Globals.shared.series.meta.update(contents:meta)
         }
         
         var seriesDicts = [[String:Any]]()
@@ -193,7 +159,7 @@ class JSON
                     dict[key] = value // "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                 }
                 
-                print(dict)
+//                print(dict)
                 
                 seriesDicts.append(dict)
             }
