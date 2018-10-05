@@ -348,7 +348,7 @@ class Series : Equatable //, CustomStringConvertible
 //    }
     
     lazy var coverArt = {
-        return FetchedImage(url: coverArtURL)
+        return FetchImage(url: coverArtURL)
     }()
     
     var book:String? {
