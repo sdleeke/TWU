@@ -483,7 +483,7 @@ func alert(viewController:UIViewController,title:String?,message:String?)
     alert.addAction(action)
     
     Thread.onMainThread {
-        UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
+        Globals.shared.rootViewController?.dismiss(animated: true, completion: nil)
         viewController.present(alert, animated: true, completion: nil)
     }
 }
@@ -528,7 +528,7 @@ func userAlert(title:String?,message:String?)
         //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
         
         Thread.onMainThread {
-            UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+            Globals.shared.rootViewController?.present(alert, animated: true, completion: nil)
         }
     }
 }

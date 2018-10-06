@@ -57,20 +57,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             return false
         }
         
+        svc.delegate = self
+        svc.preferredDisplayMode = .allVisible
+
 //        globals = Globals()
         
-        Globals.shared.splitViewController = svc
-        
-        Globals.shared.splitViewController.delegate = self
-        
-        Globals.shared.splitViewController.preferredDisplayMode = .allVisible
+//        Globals.shared.splitViewController = svc
+//
+//        Globals.shared.splitViewController.delegate = self
+//
+//        Globals.shared.splitViewController.preferredDisplayMode = .allVisible
 
-        let hClass = Globals.shared.splitViewController.traitCollection.horizontalSizeClass
-        let vClass = Globals.shared.splitViewController.traitCollection.verticalSizeClass
+        let hClass = svc.traitCollection.horizontalSizeClass
+        let vClass = svc.traitCollection.verticalSizeClass
         
         if (hClass == UIUserInterfaceSizeClass.regular) && (vClass == UIUserInterfaceSizeClass.compact) {
-            if let navigationController = Globals.shared.splitViewController.viewControllers[Globals.shared.splitViewController.viewControllers.count-1] as? UINavigationController {
-                navigationController.topViewController?.navigationItem.leftBarButtonItem = Globals.shared.splitViewController.displayModeButtonItem
+            if let navigationController = svc.viewControllers[svc.viewControllers.count-1] as? UINavigationController {
+                navigationController.topViewController?.navigationItem.leftBarButtonItem = svc.displayModeButtonItem
             }
         }
         

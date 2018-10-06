@@ -26,7 +26,25 @@ class Globals //: NSObject
 {
     static var shared = Globals()
     
-    var splitViewController : UISplitViewController!
+//    var splitViewController : UISplitViewController!
+    
+    var rootViewController : UIViewController! {
+        get {
+            return UIApplication.shared.keyWindow?.rootViewController
+        }
+    }
+    
+    var splitViewController : UISplitViewController! {
+        get {
+            return rootViewController as? UISplitViewController
+        }
+    }
+    
+    var storyboard : UIStoryboard! {
+        get {
+            return rootViewController?.storyboard
+        }
+    }
     
     var isRefreshing:Bool   = false
     var isLoading:Bool      = false
