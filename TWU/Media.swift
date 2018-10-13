@@ -144,15 +144,6 @@ class Media
                     }
                 }
             }
-            
-            //            if (filter != nil) {
-            //                showing = .filtered
-            //                filteredSeries = series?.filter({ (series:Series) -> Bool in
-            //                    return series.book == filter
-            //                })
-            //            }
-            
-//            updateSearchResults()
         }
     }
     
@@ -178,20 +169,6 @@ class Media
                 return sortSeries(toSearch,sorting: sorting)
             }
         }
-        //        set {
-        //            if search.active {
-        //                search.series = newValue
-        //            } else {
-        //                switch showing {
-        //                case .all:
-        //                    series = newValue
-        //                    break
-        //                case .filtered:
-        //                    filteredSeries = newValue
-        //                    break
-        //                }
-        //            }
-        //        }
     }
     
     func sermon(from id:String) -> Sermon?
@@ -213,8 +190,6 @@ class Media
         return nil
     }
 
-//    var images = ThreadSafeDictionary<UIImage>(name: "CoverArt") // CoverArt() // [String:UIImage]()
-    
     func load(seriesDicts:[[String:Any]]?)
     {
         all = from(seriesDicts: seriesDicts)
@@ -230,13 +205,6 @@ class Media
             
             DispatchQueue.global(qos: .background).async { () -> Void in
                 series.coverArt.load()
-//                series.coverArt { (image:UIImage?) in
-//                    guard let name = series.coverArtURL?.lastPathComponent else {
-//                        return
-//                    }
-//                    
-//                    self.images[name] = image
-//                }
             }
             
             return series

@@ -182,7 +182,6 @@ class AboutViewController : UIViewController
         
         mailComposeViewController.setToRecipients([Constants.TWU.EMAIL])
         mailComposeViewController.setSubject(Constants.The_Word_Unleashed)
-        //        mailComposeViewController.setMessageBody(bodyString, isHTML: false)
         mailComposeViewController.setMessageBody(bodyString, isHTML: true)
         
         if MFMailComposeViewController.canSendMail() {
@@ -206,14 +205,11 @@ class AboutViewController : UIViewController
         }
         
         navigationController.modalPresentationStyle = .popover
-        //            popover?.preferredContentSize = CGSizeMake(300, 500)
         
         navigationController.popoverPresentationController?.permittedArrowDirections = .up
         navigationController.popoverPresentationController?.delegate = self
         
         navigationController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
-        
-        //                popover.navigationItem.title = "Actions"
         
         popover.navigationController?.isNavigationBarHidden = true
         
@@ -229,7 +225,7 @@ class AboutViewController : UIViewController
         
         popover.strings = actionMenu
         
-        popover.showIndex = false //(Globals.shared.grouping == .series)
+        popover.showIndex = false
         popover.showSectionHeaders = false
         
         present(navigationController, animated: true, completion: nil)

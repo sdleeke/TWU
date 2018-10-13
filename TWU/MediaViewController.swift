@@ -253,9 +253,6 @@ class MediaViewController : UIViewController
         
         player = AVPlayer(url: url)
         addPlayerObserver()
-        
-//            if player == nil {
-//            }
     }
     
     var sliderObserver: Timer?
@@ -478,33 +475,26 @@ class MediaViewController : UIViewController
     
     @IBAction func sliderTouchDown(_ sender: UISlider)
     {
-//        print("sliderTouchDown")
         controlView.sliding = true
         removeSliderObserver()
     }
     
     @IBAction func sliderTouchUpOutside(_ sender: UISlider)
     {
-//        print("sliderTouchUpOutside")
         adjustAudioAfterUserMovedSlider()
     }
     
     @IBAction func sliderTouchUpInside(_ sender: UISlider)
     {
-//        print("sliderTouchUpInside")
         adjustAudioAfterUserMovedSlider()
     }
     
     @IBAction func sliderValueChanging(_ sender: UISlider)
     {
-//        print("sliderValueChanging")
         setTimesToSlider()
     }
     
     var views : (seriesArt: UIView?, seriesDescription: UIView?)
-
-//    var sliderObserver: NSTimer?
-//    var playObserver: NSTimer?
 
     var actionButton:UIBarButtonItem?
     
@@ -599,14 +589,11 @@ class MediaViewController : UIViewController
             return
         }
         
-//        bodyString = bodyString + addressStringHTML()
-        
         let mailComposeViewController = MFMailComposeViewController()
         mailComposeViewController.mailComposeDelegate = self // Extremely important to set the --mailComposeDelegate-- property, NOT the --delegate-- property
         
         mailComposeViewController.setToRecipients([])
         mailComposeViewController.setSubject(Constants.Email_Subject)
-        //        mailComposeViewController.setMessageBody(bodyString, isHTML: false)
         mailComposeViewController.setMessageBody(bodyString, isHTML: true)
         
         if MFMailComposeViewController.canSendMail() {
@@ -636,7 +623,6 @@ class MediaViewController : UIViewController
         var urlString = Constants.SCRIPTURE_URL.PREFIX + scripture + Constants.SCRIPTURE_URL.POSTFIX
         
         urlString = urlString.replacingOccurrences(of: " ", with: "+", options: NSString.CompareOptions.literal, range: nil)
-        //        println("\(urlString)")
         
         if let url = URL(string:urlString) {
             if UIApplication.shared.canOpenURL(url) {
@@ -644,15 +630,6 @@ class MediaViewController : UIViewController
             } else {
                 networkUnavailable(viewController: self,message: "Unable to open url: \(url)")
             }
-            //            if Reachability.isConnectedToNetwork() {
-            //                if UIApplication.sharedApplication().canOpenURL(url) {
-            //                    UIApplication.sharedApplication().openURL(url)
-            //                } else {
-            //                    networkUnavailable("Unable to open url: \(url)")
-            //                }
-            //            } else {
-            //                networkUnavailable("Unable to connect to the internet to open: \(url)")
-            //            }
         }
     }
     
@@ -914,28 +891,7 @@ class MediaViewController : UIViewController
                     }
                 }
             }
-//            if let image = self.seriesSelected?.coverArt {
-//                Thread.onMainThread {
-//                    if self.seriesSelected == seriesSelected {
-//                        self.seriesArt.image = image
-//                    }
-//                }
-//            }
         }
-        
-//        if let image = seriesSelected.loadArt() {
-//            seriesArt.image = image
-//        } else {
-//            DispatchQueue.global(qos: .background).async { () -> Void in
-//                if let image = seriesSelected.fetchArt() {
-//                    Thread.onMainThread {
-//                        if self.seriesSelected == seriesSelected {
-//                            self.seriesArt.image = image
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         seriesArt.isHidden = pageControl.currentPage == 1
         seriesDescription.isHidden = pageControl.currentPage == 0
@@ -1619,7 +1575,7 @@ class MediaViewController : UIViewController
     {
         removeSliderObserver()
         
-        self.sliderObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.SLIDER, target: self, selector: #selector(sliderTimer), userInfo: nil, repeats: true)
+        self.sliderObserver = Timer.scheduledTimer(timeInterval: Constants.INTERVALS.TIMERS.SLIDER, target: self, selector: #selector(sliderTimer), userInfo: nil, repeats: true)
     }
     
     func playCurrentSermon(_ sermon:Sermon?)
@@ -1714,9 +1670,7 @@ class MediaViewController : UIViewController
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath)
     {
-//        if let cell = seriesSermons.cellForRowAtIndexPath(indexPath) as? MediaTableViewCell {
-//
-//        }
+
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
@@ -1770,5 +1724,4 @@ class MediaViewController : UIViewController
     // Pass the selected object to the new view controller.
     }
     */
-    
 }

@@ -26,8 +26,6 @@ class Globals //: NSObject
 {
     static var shared = Globals()
     
-//    var splitViewController : UISplitViewController!
-    
     var rootViewController : UIViewController! {
         get {
             return UIApplication.shared.keyWindow?.rootViewController

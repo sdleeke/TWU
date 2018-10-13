@@ -23,10 +23,6 @@ class Series : Equatable //, CustomStringConvertible
 {
     var dict:[String:Any]?
     
-//    init() {
-//        
-//    }
-    
     init(seriesDict:[String:Any]?)
     {
         dict = seriesDict
@@ -235,11 +231,6 @@ class Series : Equatable //, CustomStringConvertible
             
             case Constants.JSON.URLS.SERIES_JSON:
                 return sermons?.count ?? -1
-//                if let featuredStartDate = featuredStartDate {
-//                    return sermons?.count ?? -1
-//                } else {
-//                    return numberOfSermons
-//                }
                 
             default:
                 return -1
@@ -275,19 +266,10 @@ class Series : Equatable //, CustomStringConvertible
     
     var titleSort:String? {
         get {
-//            if (dict?[Constants.FIELDS.TITLE+Constants.SORTING] == nil) {
-//                // Provokes simultaneous access error because title is also in dict
-//                dict?[Constants.FIELDS.TITLE+Constants.SORTING] = stringWithoutPrefixes(title)?.lowercased()
-//            }
-//
-//            return dict?[Constants.FIELDS.TITLE+Constants.SORTING]
-            
             return stringWithoutPrefixes(title)?.lowercased()
         }
     }
 
-//    var coverArt:String?
-    
     var coverArtURL : URL?
     {
         get {
@@ -316,37 +298,7 @@ class Series : Equatable //, CustomStringConvertible
             return coverArtURL.url
         }
     }
-    
-//    func coverArt(block:((UIImage?)->()))
-//    {
-////        coverArtURL?.image(block:block)
-//
-//        if let image = coverArt {
-//            block(image)
-//        }
-//        
-////        if let image = Globals.shared.series.images[name] {
-////            block(image)
-////        } else {
-////            coverArtURL?.image(block:block)
-////        }
-//    }
-    
-//    lazy var fetchCoverArt : Fetch<UIImage>! = {
-//        let fetch = Fetch<UIImage>() // name:id+"POSTER"
-//        fetch.fetch = {
-//            return self.coverArtURL?.image
-//        }
-//        return fetch
-//    }()
-//
-//    var coverArt : UIImage?
-//    {
-//        get {
-//            return fetchCoverArt.result
-//        }
-//    }
-    
+
     lazy var coverArt = {
         return FetchImage(url: coverArtURL)
     }()
@@ -384,117 +336,6 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
 
-//    lazy var operationQueue:OperationQueue! = {
-//        let operationQueue = OperationQueue()
-//        operationQueue.underlyingQueue = DispatchQueue(label: "IMAGE")
-//        operationQueue.qualityOfService = .background
-//        operationQueue.maxConcurrentOperationCount = 1
-//        return operationQueue
-//    }()
-//
-//    func fetchArt() -> UIImage?
-//    {
-//        guard let imageURL = Globals.shared.imageURL else {
-//            return nil
-//        }
-//        
-//        guard let name = name else {
-//            return nil
-//        }
-//        
-//        guard let squareSuffix = Globals.shared.squareSuffix else {
-//            return nil
-//        }
-//        
-////        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"
-//        
-//        let imageName = name
-//        
-//        // See if it is in the cloud, download it and store it in the file system.
-//        
-//        // Try to get it from the cloud
-//        // Constants.URL.BASE.IMAGE
-//        let imageCloudURL = imageURL + imageName + squareSuffix // + Constants.FILE_EXTENSION.JPEG
-//        print("\(imageCloudURL)")
-//
-//        guard let url = URL(string: imageCloudURL) else {
-//            return nil
-//        }
-//        
-//        do {
-//            let imageData = try Data(contentsOf: url)
-//            print("Image \(imageName) read from cloud")
-//            
-//            if let image = UIImage(data: imageData) {
-//                print("Image \(imageName) read from cloud and converted to image")
-//                
-//                Globals.shared.images[imageName] = image
-//                
-//                operationQueue.addOperation {
-//                    do {
-//                        if let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG) {
-//                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-//                            print("Image \(imageName) saved to file system")
-//                        }
-//                    } catch let error as NSError {
-//                        NSLog(error.localizedDescription)
-//                        print("Image \(imageName) not saved to file system")
-//                    }
-//                }
-//                
-//                return image
-//            } else {
-//                print("Image \(imageName) read from cloud but not converted to image")
-//            }
-//        } catch let error as NSError {
-//            NSLog(error.localizedDescription)
-//            print("Image \(imageName) not read from cloud")
-//        }
-//        
-//        print("Image \(imageName) not available")
-//        
-//        return nil
-//    }
-//    
-//    func loadArt() -> UIImage?
-//    {
-//        guard let name = name else {
-//            return nil
-//        }
-//        
-////        let imageName = "\(Constants.COVER_ART_PREAMBLE)\(name)\(Constants.COVER_ART_POSTAMBLE)"
-//
-//        let imageName = name
-//        
-//        guard Globals.shared.images[imageName] == nil else {
-//            return Globals.shared.images[imageName]
-//        }
-//        
-//        // If it isn't in the bundle, see if it is in the file system.
-//        
-//        if let image = UIImage(named:imageName) {
-////            print("Image \(imageName) in bundle")
-//            return image
-//        } else {
-////            print("Image \(imageName) not in bundle")
-//            
-//            // Check to see if it is in the file system.
-//            if let imageURL = cachesURL()?.appendingPathComponent(imageName + Constants.FILE_EXTENSION.JPEG) {
-//                if let image = UIImage(contentsOfFile: imageURL.path) {
-////                    print("Image \(imageName) in file system")
-//                    Globals.shared.images[imageName] = image
-//                    return image
-//                } else {
-////                    print("Image \(imageName) not in file system")
-//                }
-//            }
-//        }
-//        
-////        print("Image \(imageName) not available")
-// 
-//        return nil
-//    }
-    
     var sermons:[Sermon]?
     {
         didSet {
@@ -512,7 +353,8 @@ class Series : Equatable //, CustomStringConvertible
     }
     var index:[String:Sermon]?
     
-    class Settings {
+    class Settings
+    {
         weak var series:Series?
         
         init(series:Series?) {
@@ -546,14 +388,6 @@ class Series : Equatable //, CustomStringConvertible
                     return
                 }
                 
-//                if (Globals.shared.seriesSettings == nil) {
-//                    Globals.shared.seriesSettings = [String:[String:String]]()
-//                }
-                
-//                if (Globals.shared.seriesSettings?[name] == nil) {
-//                    Globals.shared.seriesSettings?[name] = [String:String]()
-//                }
-                
                 Globals.shared.settings.series[name,key] = newValue
                 
                 // For a high volume of activity this can be very expensive.
@@ -561,24 +395,18 @@ class Series : Equatable //, CustomStringConvertible
             }
         }
     }
-
+    
     lazy var settings:Settings? = {
         return Settings(series:self)
     }()
 
-    var sermonSelected:Sermon? {
+    var sermonSelected:Sermon?
+    {
         get {
             if let sermonID = settings?[Constants.SETTINGS.SELECTED.SERMON] {
                 return sermons?.filter({ (sermon) -> Bool in
                     return sermon.id == sermonID
                 }).first // [num - startingIndex]
-//                if let range = sermonID.range(of: Constants.COLON) { // , let num = Int(String(sermonID[range.upperBound...]))
-//                    let id = String(sermonID[range.upperBound...])
-//
-//                    return sermons?.filter({ (sermon) -> Bool in
-//                        return sermon.id == id
-//                    }).first // [num - startingIndex]
-//                }
             }
 
             return nil
@@ -599,7 +427,8 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    var description : String {
+    var description : String
+    {
         //This requires that date, service, title, and speaker fields all be non-nil
         
         var seriesString = "Series: "
@@ -615,8 +444,6 @@ class Series : Equatable //, CustomStringConvertible
         if let name = name, !name.isEmpty {
             seriesString = "\(seriesString)\n\(name)"
         }
-        
-//        seriesString = "\(seriesString)\n\(id)"
         
         seriesString = "\(seriesString) \(startingIndex)"
         

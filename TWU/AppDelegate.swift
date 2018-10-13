@@ -9,29 +9,7 @@
 import UIKit
 import AVFoundation
 import AudioToolbox
-//import MessageUI
-//import CloudKit
 import MediaPlayer
-
-extension UIApplication
-{
-    func isRunningInFullScreen() -> Bool
-    {
-        if let w = self.keyWindow
-        {
-            let maxScreenSize = max(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
-            let minScreenSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
-            
-            let maxAppSize = max(w.bounds.size.width, w.bounds.size.height)
-            let minAppSize = min(w.bounds.size.width, w.bounds.size.height)
-            
-            return (maxScreenSize == maxAppSize) && (minScreenSize == minAppSize)
-        }
-        
-        return true
-    }
-}
-
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate // AVAudioSessionDelegate Deprecated in 12.0
@@ -60,14 +38,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         svc.delegate = self
         svc.preferredDisplayMode = .allVisible
 
-//        globals = Globals()
-        
-//        Globals.shared.splitViewController = svc
-//
-//        Globals.shared.splitViewController.delegate = self
-//
-//        Globals.shared.splitViewController.preferredDisplayMode = .allVisible
-
         let hClass = svc.traitCollection.horizontalSizeClass
         let vClass = svc.traitCollection.verticalSizeClass
         
@@ -91,9 +61,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
         print("applicationWillResignActive")
         
-//        Thread.onMainThread {
-//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_RESIGN_ACTIVE), object: nil)
-//        }
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -101,9 +68,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         print("applicationDidEnterBackground")
         
-//        Thread.onMainThread {
-//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DID_ENTER_BACKGROUND), object: nil)
-//        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication)
@@ -131,8 +95,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
-
-//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
         }
     }
 
@@ -141,9 +103,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("applicationDidBecomeActive")
         
-//        Thread.onMainThread {
-//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
-//        }
     }
 
     func applicationWillTerminate(_ application: UIApplication)
@@ -151,9 +110,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         print("applicationWillTerminate")
         
-//        Thread.onMainThread {
-//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_TERMINATE), object: nil)
-//        }
     }
 
 //    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void)

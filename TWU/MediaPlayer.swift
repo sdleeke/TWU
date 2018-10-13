@@ -175,28 +175,7 @@ class MediaPlayer : NSObject
                     sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)
                 }
             }
-//                if let coverArt = self.playing?.series?.coverArt {
-//                    if #available(iOS 10.0, *) {
-//                        sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: coverArt.size, requestHandler: { (CGSize) -> UIImage in
-//                            return coverArt
-//                        })
-//                    } else {
-//                        // Fallback on earlier versions
-//                        sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: coverArt)
-//                    }
-//                }
         }
-            
-//            if let art = playing?.series?.loadArt() {
-//                if #available(iOS 10.0, *) {
-//                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: art.size, requestHandler: { (CGSize) -> UIImage in
-//                        return art
-//                    })
-//                } else {
-//                    // Fallback on earlier versions
-//                    sermonInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: art)
-//                }
-//            }
             
             // FIX
 //            sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = index + 1 as AnyObject
@@ -657,7 +636,7 @@ class MediaPlayer : NSObject
             return
         }
         
-        self.playerObserverTimer = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PLAYER, target: self, selector: #selector(playerObserver), userInfo: nil, repeats: true)
+        self.playerObserverTimer = Timer.scheduledTimer(timeInterval: Constants.INTERVALS.TIMERS.PLAYER, target: self, selector: #selector(playerObserver), userInfo: nil, repeats: true)
         
         unobserve()
 

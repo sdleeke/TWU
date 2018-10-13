@@ -10,6 +10,25 @@ import Foundation
 import UIKit
 import PDFKit
 
+extension UIApplication
+{
+    func isRunningInFullScreen() -> Bool
+    {
+        if let w = self.keyWindow
+        {
+            let maxScreenSize = max(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
+            let minScreenSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
+            
+            let maxAppSize = max(w.bounds.size.width, w.bounds.size.height)
+            let minAppSize = min(w.bounds.size.width, w.bounds.size.height)
+            
+            return (maxScreenSize == maxAppSize) && (minScreenSize == minAppSize)
+        }
+        
+        return true
+    }
+}
+
 extension UIImage
 {
     func resize(scale:CGFloat) -> UIImage?
@@ -180,38 +199,9 @@ extension URL
     
     func image(block:((UIImage)->()))
     {
-//        guard let imageURL = fileSystemURL else {
-//            return
-//        }
-//        
         if let image = image {
             block(image)
         }
-//        if let image = UIImage(contentsOfFile: imageURL.path) {
-//            //                    print("Image \(imageName) in file system")
-//            block(image)
-//        } else {
-//            //                    print("Image \(imageName) not in file system")
-//            guard let data = data else {
-//                return
-//            }
-//
-//            guard let image = UIImage(data: data) else {
-//                return
-//            }
-//
-//            DispatchQueue.global(qos: .background).async {
-//                do {
-//                    try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-//                    print("Image \(self.lastPathComponent) saved to file system")
-//                } catch let error as NSError {
-//                    NSLog(error.localizedDescription)
-//                    print("Image \(self.lastPathComponent) not saved to file system")
-//                }
-//            }
-//
-//            block(image)
-//        }
     }
     
     var image : UIImage?
@@ -253,10 +243,6 @@ extension URL
 extension Data {
     var html2AttributedString: NSAttributedString? {
         do {
-            //            var options = ["DocumentReadingOptionKey" : ".html", .characterEncoding: String.Encoding.utf8.rawValue]
-            // options: [:],
-            // DocumentAttributeKey.documentType
-            // DocumentAttributeKey.characterEncoding
             return try NSAttributedString(data: self, options: [NSAttributedString.DocumentReadingOptionKey.documentType:NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf16.rawValue], documentAttributes: nil)
         } catch {
             print("error:", error)

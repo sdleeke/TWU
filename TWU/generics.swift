@@ -494,33 +494,11 @@ class Fetch<T>
         operationQueue.addOperation {
             self.cache = self.fetch?()
         }
-
-//        return queue.sync {
-//            guard cache == nil else {
-//                return
-//            }
-//
-//            self.cache = self.fetch?()
-//        }
     }
     
     var result:T?
     {
         get {
-//            guard cache == nil else {
-//                return cache
-//            }
-//
-//            return queue.sync {
-//                guard cache == nil else {
-//                    return cache
-//                }
-//
-//                self.cache = self.fetch?()
-//
-//                return cache
-//            }
-
             load()
             
             operationQueue.waitUntilAllOperationsAreFinished()

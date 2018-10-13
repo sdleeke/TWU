@@ -128,8 +128,6 @@ extension MediaCollectionViewController : UISearchBarDelegate
         
         Globals.shared.series.search.active = true
 
-//        Globals.shared.series.updateSearchResults()
-        
         collectionView?.reloadData()
     }
     
@@ -149,7 +147,6 @@ extension MediaCollectionViewController : UISearchBarDelegate
     {
         Globals.shared.series.search.buttonClicked = false
         Globals.shared.series.search.text = searchBar.text
-//        Globals.shared.series.updateSearchResults()
         
         collectionView?.reloadData()
     }
@@ -161,7 +158,6 @@ extension MediaCollectionViewController : UISearchBarDelegate
         searchBar.resignFirstResponder()
         
         Globals.shared.series.search.text = nil
-//        Globals.shared.series.search.results = nil
         Globals.shared.series.search.active = false
         
         collectionView?.reloadData()
@@ -550,14 +546,8 @@ class MediaCollectionViewController: UIViewController
         disableBarButtons()
 
         // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
-//        globals = Globals()
-        
         Globals.shared.settings.series.clear()
 
-//        Globals.shared.splitViewController = splitViewController
-//        Globals.shared.splitViewController.delegate = splitViewController?.delegate
-//        Globals.shared.splitViewController.preferredDisplayMode = .allVisible
-        
         collectionView?.reloadData()
         
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
@@ -604,9 +594,6 @@ class MediaCollectionViewController: UIViewController
         
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
-        
-//        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)

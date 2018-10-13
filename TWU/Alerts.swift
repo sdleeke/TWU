@@ -22,10 +22,6 @@ class Alerts
     
     @objc func alertViewer()
     {
-        //        for alert in alerts {
-        //            print(alert)
-        //        }
-        
         guard UIApplication.shared.applicationState == UIApplicationState.active else {
             return
         }

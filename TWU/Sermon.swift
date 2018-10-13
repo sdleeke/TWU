@@ -26,8 +26,6 @@ class Download {
         self.fileSystemURL = fileSystemURL
         
         if let fileSystemURL = fileSystemURL {
-            //            print(fileSystemURL!.path!)
-            //            print(FileManager.default.fileExists(atPath: fileSystemURL!.path!))
             if FileManager.default.fileExists(atPath: fileSystemURL.path) {
                 self.state = .downloaded
             }
@@ -108,8 +106,6 @@ class Download {
 
         let configuration = URLSessionConfiguration.default
         
-//        let configuration = URLSessionConfiguration.ephemeral
-        
         // This allows the downloading to continue even if the app goes into the background or terminates.
 //        let downloadIdentifier = Constants.IDENTIFIER.DOWNLOAD + fileSystemURL.lastPathComponent
 //        let configuration = URLSessionConfiguration.background(withIdentifier: downloadIdentifier)
@@ -176,8 +172,6 @@ class Download {
             return
         }
         
-        //            download.task?.cancelByProducingResumeData({ (data: NSData?) -> Void in
-        //            })
         state = .none
 
         task?.cancel()
@@ -392,8 +386,6 @@ extension Sermon : URLSessionDownloadDelegate
             audioDownload.state = .none
         }
         
-        //        removeTempFiles()
-        
         audioDownload.session?.invalidateAndCancel()
         
         Thread.onMainThread {
@@ -554,12 +546,7 @@ class Sermon : NSObject {
 
     var sermonID:String? {
         get {
-            guard let series = series else {
-                print("sermonID: series nil")
-                return nil
-            }
-            
-            return id // "\(series.id)\(Constants.COLON)\(id)"
+            return id
         }
     }
 
@@ -591,7 +578,7 @@ class Sermon : NSObject {
     }
     
     init(series:Series,dict:[String:Any]?)
-    { // ,id:String
+    {
         self.series = series
         
         switch Constants.JSON.URL {
@@ -603,19 +590,7 @@ class Sermon : NSObject {
             self.dict = dict
             break
         }
-        
-//        self.id = id
     }
-    
-//    var index:Int {
-//        get {
-//            guard let series = series else {
-//                return -1
-//            }
-//
-//            return id - series.startingIndex
-//        }
-//    }
     
     override var description : String {
         get {
@@ -669,14 +644,6 @@ class Sermon : NSObject {
                     return
                 }
                 
-//                if (Globals.shared.sermonSettings == nil) {
-//                    Globals.shared.sermonSettings = [String:[String:String]]()
-//                }
-                
-//                if (Globals.shared.sermonSettings?[sermonID] == nil) {
-//                    Globals.shared.sermonSettings?[sermonID] = [String:String]()
-//                }
-                
                 if (Globals.shared.settings.sermon[sermonID,key] != newValue) {
                     Globals.shared.settings.sermon[sermonID,key] = newValue
                     
@@ -696,11 +663,8 @@ class Sermon : NSObject {
     lazy var audioDownload:Download! = {
         [unowned self] in
         let download = Download(sermon:self,purpose:Constants.AUDIO,downloadURL:self.audioURL,fileSystemURL:self.audioFileSystemURL)
-        // NEVER EVER DO THIS.  Causes LOTS of bad behavior since didSets will NOT happen in an init but they WILL happen below.
-//        download.sermon = self
-//        download.purpose = Constants.AUDIO
-//        download.downloadURL = self.audioURL
-//        download.fileSystemURL = self.audioFileSystemURL
+        // didSets will NOT happen in an init but they WILL happen here so DO NOT set properties unless you are sure
+        // no bad behavior will result from the didSets.
         self.downloads[Constants.AUDIO] = download
         return download
     }()

@@ -156,10 +156,8 @@ class JSON
                 var dict = [String:Any]()
                 
                 for (key,value) in series[i] {
-                    dict[key] = value // "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                    dict[key] = value
                 }
-                
-//                print(dict)
                 
                 seriesDicts.append(dict)
             }

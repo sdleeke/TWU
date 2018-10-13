@@ -29,8 +29,6 @@ class Search
         didSet {
             if !active {
                 text = nil
-                // BAD
-                //                    activeSeries = sortSeries(activeSeries,sorting: sorting)
             }
         }
     }
@@ -64,46 +62,9 @@ class Search
                     
                     return seriesResult
                 })
-                
-                // Filter will return an empty array and we don't want that.
-                
-//                if search.results?.count == 0 {
-//                    search.results = nil
-//                }
             } else {
-                return nil // media?.toSearch
+                return nil
             }
         }
     }
-    
-//    func updateSearchResults()
-//    {
-//        if search.active {
-//            search.results = toSearch?.filter({ (series:Series) -> Bool in
-//                guard let searchText = search.text else {
-//                    return false
-//                }
-//                
-//                var seriesResult = false
-//                
-//                if let string = series.title  {
-//                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-//                }
-//                
-//                if let string = series.scripture {
-//                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-//                }
-//                
-//                return seriesResult
-//            })
-//            
-//            // Filter will return an empty array and we don't want that.
-//            
-//            if search.results?.count == 0 {
-//                search.results = nil
-//            }
-//        } else {
-//            search.results = toSearch
-//        }
-//    }
 }

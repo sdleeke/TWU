@@ -66,16 +66,6 @@ class Settings
                     Globals.shared.mediaPlayer.playing = seriesPlaying?.sermons?.filter({ (sermon) -> Bool in
                         return sermon.id == sermonPlaying
                     }).first
-                    
-                    //                    if let show = seriesPlaying?.show {
-                    //                        if (sermonPlayingIndex > (show - 1)) {
-                    //                            mediaPlayer.playing = nil
-                    //                        } else {
-                    //                            mediaPlayer.playing = seriesPlaying?.sermons?[sermonPlayingIndex]
-                    //                        }
-                    //                    } else {
-                    //                        mediaPlayer.playing = nil
-                    //                    }
                 }
             } else {
                 defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
