@@ -483,16 +483,25 @@ class Fetch<T>
         cache = nil
     }
     
+    lazy var queue : DispatchQueue = {
+        return DispatchQueue(label: UUID().uuidString)
+    }()
+    
     func load()
     {
-        operationQueue.waitUntilAllOperationsAreFinished()
-        
-        guard cache == nil else {
-            return
-        }
-        
-        operationQueue.addOperation {
+        queue.sync {
+//            operationQueue.waitUntilAllOperationsAreFinished()
+            
+            guard cache == nil else {
+                return
+            }
             self.cache = self.fetch?()
+            
+//            operationQueue.addOperation {
+//                self.cache = self.fetch?()
+//            }
+//
+//            operationQueue.waitUntilAllOperationsAreFinished()
         }
     }
     
@@ -501,8 +510,6 @@ class Fetch<T>
         get {
             load()
             
-            operationQueue.waitUntilAllOperationsAreFinished()
-
             return cache
         }
     }
