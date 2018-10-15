@@ -35,6 +35,29 @@ extension Double {
 
 extension String
 {
+    var withoutPrefixes : String
+    {
+        get {
+            var sortString = self
+            
+            let quote:String = "\""
+            let prefixes = ["A ","An ","And ","The "]
+            
+            if self.endIndex >= quote.endIndex, String(self[..<quote.endIndex]) == quote {
+                sortString = String(self[quote.endIndex...])
+            }
+            
+            for prefix in prefixes {
+                if self.endIndex >= prefix.endIndex, String(self[..<prefix.endIndex]) == prefix {
+                    sortString = String(self[prefix.endIndex...])
+                    break
+                }
+            }
+            
+            return sortString
+        }
+    }
+    
     var hmsToSeconds : Double?
     {
         get {
@@ -105,6 +128,7 @@ extension String
         }
     }
 }
+
 extension UIApplication
 {
     func isRunningInFullScreen() -> Bool

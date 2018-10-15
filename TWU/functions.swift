@@ -262,30 +262,30 @@ func alert(viewController:UIViewController,title:String?,message:String?)
     }
 }
 
-func stringWithoutPrefixes(_ fromString:String?) -> String?
-{
-    guard let fromString = fromString else {
-        return nil
-    }
-
-    var sortString = fromString
-    
-    let quote:String = "\""
-    let prefixes = ["A ","An ","And ","The "]
-    
-    if fromString.endIndex >= quote.endIndex, String(fromString[..<quote.endIndex]) == quote {
-        sortString = String(fromString[quote.endIndex...])
-    }
-    
-    for prefix in prefixes {
-        if fromString.endIndex >= prefix.endIndex, String(fromString[..<prefix.endIndex]) == prefix {
-            sortString = String(fromString[prefix.endIndex...])
-            break
-        }
-    }
-    
-    return sortString
-}
+//func stringWithoutPrefixes(_ fromString:String?) -> String?
+//{
+//    guard let fromString = fromString else {
+//        return nil
+//    }
+//
+//    var sortString = fromString
+//    
+//    let quote:String = "\""
+//    let prefixes = ["A ","An ","And ","The "]
+//    
+//    if fromString.endIndex >= quote.endIndex, String(fromString[..<quote.endIndex]) == quote {
+//        sortString = String(fromString[quote.endIndex...])
+//    }
+//    
+//    for prefix in prefixes {
+//        if fromString.endIndex >= prefix.endIndex, String(fromString[..<prefix.endIndex]) == prefix {
+//            sortString = String(fromString[prefix.endIndex...])
+//            break
+//        }
+//    }
+//    
+//    return sortString
+//}
 
 func userAlert(title:String?,message:String?)
 {
