@@ -455,25 +455,15 @@ class ThreadSafeDictionaryOfDictionaries<T>
 
 class Fetch<T>
 {
-    lazy var operationQueue : OperationQueue! = {
-        let operationQueue = OperationQueue()
-        operationQueue.name = name
-        operationQueue.qualityOfService = .userInteractive
-        operationQueue.maxConcurrentOperationCount = 1
-        return operationQueue
-    }()
-    
-    init(name:String,fetch:(()->(T?))? = nil) //
+    init(name:String,fetch:(()->(T?))? = nil)
     {
         self.name = name
         self.fetch = fetch
     }
     
-//    var queue = DispatchQueue.global(qos: .userInitiated)
-    
     var fetch : (()->(T?))?
     
-    var name : String
+    var name : String?
     
     var cache : T?
 
@@ -483,24 +473,16 @@ class Fetch<T>
     }
     
     lazy var queue : DispatchQueue = {
-        return DispatchQueue(label: UUID().uuidString)
+        return DispatchQueue(label: name ?? UUID().uuidString)
     }()
     
     func load()
     {
         queue.sync {
-//            operationQueue.waitUntilAllOperationsAreFinished()
-            
             guard cache == nil else {
                 return
             }
             self.cache = self.fetch?()
-            
-//            operationQueue.addOperation {
-//                self.cache = self.fetch?()
-//            }
-//
-//            operationQueue.waitUntilAllOperationsAreFinished()
         }
     }
     

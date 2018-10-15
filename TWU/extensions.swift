@@ -10,7 +10,8 @@ import Foundation
 import UIKit
 import PDFKit
 
-extension Double {
+extension Double
+{
     var secondsToHMS : String?
     {
         get {
@@ -265,7 +266,8 @@ extension NSLayoutConstraint {
     }
 }
 
-extension String {
+extension String
+{
     var url : URL?
     {
         get {
@@ -381,7 +383,8 @@ extension URL
     }
 }
 
-extension Data {
+extension Data
+{
     var html2AttributedString: NSAttributedString? {
         do {
             return try NSAttributedString(data: self, options: [NSAttributedString.DocumentReadingOptionKey.documentType:NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf16.rawValue], documentAttributes: nil)
@@ -395,7 +398,8 @@ extension Data {
     }
 }
 
-extension String {
+extension String
+{
     var html2AttributedString: NSAttributedString? {
         return self.data(using: String.Encoding.utf16)?.html2AttributedString
     }
