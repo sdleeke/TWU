@@ -44,27 +44,27 @@ class Search
     var results:[Series]?
     {
         get {
-            if active {
-                return media?.toSearch?.filter({ (series:Series) -> Bool in
-                    guard let searchText = self.text else {
-                        return false
-                    }
-                    
-                    var seriesResult = false
-                    
-                    if let string = series.title  {
-                        seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-                    }
-                    
-                    if let string = series.scripture {
-                        seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
-                    }
-                    
-                    return seriesResult
-                })
-            } else {
+            guard active else {
                 return nil
             }
+            
+            return media?.toSearch?.filter({ (series:Series) -> Bool in
+                guard let searchText = self.text else {
+                    return false
+                }
+                
+                var seriesResult = false
+                
+                if let string = series.title  {
+                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
+                }
+                
+                if let string = series.scripture {
+                    seriesResult = seriesResult || ((string.range(of: searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)) != nil)
+                }
+                
+                return seriesResult
+            })
         }
     }
 }

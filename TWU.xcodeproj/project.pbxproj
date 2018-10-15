@@ -12,6 +12,7 @@
 		1712CD6A1C76B2BF005E09D6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */; };
 		17141EFB1CBE660800B31D23 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17141EFA1CBE660800B31D23 /* Images.xcassets */; };
 		171C73521B6C1B3400CF85AE /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171C73511B6C1B3400CF85AE /* MediaViewController.swift */; };
+		1736F2DC2174EBAA00F2D8EC /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1736F2DB2174EBAA00F2D8EC /* Download.swift */; };
 		174ACCD51EF48C050056FCBC /* MediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174ACCD41EF48C050056FCBC /* MediaPlayer.swift */; };
 		17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */; };
 		175EDA2A1BAC8BF200942E6D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175EDA291BAC8BF200942E6D /* Reachability.swift */; };
@@ -67,6 +68,7 @@
 		1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		17141EFA1CBE660800B31D23 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		171C73511B6C1B3400CF85AE /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MediaViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		1736F2DB2174EBAA00F2D8EC /* Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
 		174ACCD41EF48C050056FCBC /* MediaPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaPlayer.swift; sourceTree = "<group>"; };
 		17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewController.swift; sourceTree = "<group>"; };
 		175EDA291BAC8BF200942E6D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				174ACCD41EF48C050056FCBC /* MediaPlayer.swift */,
 				17A5711D1BEA365900C0D278 /* Series.swift */,
 				17A5711B1BEA363900C0D278 /* Sermon.swift */,
+				1736F2DB2174EBAA00F2D8EC /* Download.swift */,
 				175EDA291BAC8BF200942E6D /* Reachability.swift */,
 				177FBA921C5CE1B800AFBB50 /* OBSlider.swift */,
 				17CDEF0B21676DAA00B21C87 /* FetchImage.swift */,
@@ -413,6 +416,7 @@
 				17CFC25E21663F1600A28F69 /* Settings.swift in Sources */,
 				17CDEF0C21676DAA00B21C87 /* FetchImage.swift in Sources */,
 				1712CD6A1C76B2BF005E09D6 /* SettingsViewController.swift in Sources */,
+				1736F2DC2174EBAA00F2D8EC /* Download.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

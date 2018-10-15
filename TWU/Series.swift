@@ -11,15 +11,15 @@ import UIKit
 
 func == (lhs:Series,rhs:Series) -> Bool
 {
-    return (lhs.name == rhs.name) //&& (lhs.id == rhs.id)
+    return (lhs.name == rhs.name)
 }
 
 func != (lhs:Series,rhs:Series) -> Bool
 {
-    return (lhs.name != rhs.name) //|| (lhs.id != rhs.id)
+    return (lhs.name != rhs.name)
 }
 
-class Series : Equatable //, CustomStringConvertible
+class Series : Equatable
 {
     var dict:[String:Any]?
     
@@ -49,7 +49,7 @@ class Series : Equatable //, CustomStringConvertible
         case Constants.JSON.URLS.SERIES_JSON:
             if let programs = dict?["programs"] as? [[String:Any]] {
                 for program in programs {
-                    let sermon = Sermon(series: self,dict:program) // ,id:startingIndex+i
+                    let sermon = Sermon(series: self,dict:program)
                     if sermons == nil {
                         sermons = [sermon]
                     } else {
@@ -64,7 +64,8 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    var id:Int! {
+    var id:Int!
+    {
         get {
             guard Constants.JSON.URL == Constants.JSON.URLS.MEDIALIST_PHP else {
                 return nil
@@ -82,7 +83,8 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
 
-    var seriesID:String! {
+    var seriesID:String!
+    {
         get {
             switch Constants.JSON.URL {
             case Constants.JSON.URLS.MEDIALIST_PHP:
@@ -100,7 +102,8 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    var url:URL? {
+    var url:URL?
+    {
         get {
             switch Constants.JSON.URL {
             case Constants.JSON.URLS.MEDIALIST_PHP:
@@ -122,25 +125,29 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
 
-    var name:String! {
+    var name:String!
+    {
         get {
             return dict?[Constants.FIELDS.NAME] as? String
         }
     }
     
-    var title:String? {
+    var title:String?
+    {
         get {
             return dict?[Constants.FIELDS.TITLE] as? String
         }
     }
     
-    var scripture:String? {
+    var scripture:String?
+    {
         get {
             return dict?[Constants.FIELDS.SCRIPTURE] as? String
         }
     }
     
-    var text:String? {
+    var text:String?
+    {
         get {
             switch Constants.JSON.URL {
             case Constants.JSON.URLS.MEDIALIST_PHP:
@@ -158,7 +165,8 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    var startingIndex:Int {
+    var startingIndex:Int
+    {
         get {
             switch Constants.JSON.URL {
             case Constants.JSON.URLS.MEDIALIST_PHP:
@@ -212,7 +220,8 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    var show:Int {
+    var show:Int
+    {
         get {
             switch Constants.JSON.URL {
             case Constants.JSON.URLS.MEDIALIST_PHP:
@@ -238,18 +247,19 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    var numberOfSermons:Int {
+    var numberOfSermons:Int
+    {
         get {
             switch Constants.JSON.URL {
             case Constants.JSON.URLS.MEDIALIST_PHP:
-                if let numberOfSermons = dict?[Constants.FIELDS.NUMBER_OF_SERMONS] as? String { // , let num = Int(numberOfSermons)
+                if let numberOfSermons = dict?[Constants.FIELDS.NUMBER_OF_SERMONS] as? String {
                     return Int(numberOfSermons)!
                 } else {
                     return -1
                 }
 
             case Constants.JSON.URLS.MEDIALIST_JSON:
-                if let numberOfSermons = dict?[Constants.FIELDS.NUMBER_OF_SERMONS] as? Int { // , let num = Int(numberOfSermons)
+                if let numberOfSermons = dict?[Constants.FIELDS.NUMBER_OF_SERMONS] as? Int {
                     return numberOfSermons
                 } else {
                     return -1
@@ -264,7 +274,8 @@ class Series : Equatable //, CustomStringConvertible
         }
     }
     
-    var titleSort:String? {
+    var titleSort:String?
+    {
         get {
             return stringWithoutPrefixes(title)?.lowercased()
         }
@@ -293,7 +304,7 @@ class Series : Equatable //, CustomStringConvertible
                 return nil
             }
             
-            let coverArtURL = imageURL + imageName + squareSuffix // + Constants.FILE_EXTENSION.JPEG
+            let coverArtURL = imageURL + imageName + squareSuffix
             
             return coverArtURL.url
         }
@@ -303,7 +314,8 @@ class Series : Equatable //, CustomStringConvertible
         return FetchImage(url: coverArtURL)
     }()
     
-    var book:String? {
+    var book:String?
+    {
         get {
             guard let scripture = scripture else {
                 return nil
@@ -406,7 +418,7 @@ class Series : Equatable //, CustomStringConvertible
             if let sermonID = settings?[Constants.SETTINGS.SELECTED.SERMON] {
                 return sermons?.filter({ (sermon) -> Bool in
                     return sermon.id == sermonID
-                }).first // [num - startingIndex]
+                }).first
             }
 
             return nil

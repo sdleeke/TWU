@@ -20,7 +20,21 @@ class FetchImage
     
     func fetchIt() -> UIImage?
     {
-        return self.url?.image
+        guard let image = self.url?.image else {
+            return nil
+        }
+        
+        if let fileSystemURL = url?.fileSystemURL, !fileSystemURL.downloaded {
+            do {
+                try UIImageJPEGRepresentation(image, 1.0)?.write(to: fileSystemURL, options: [.atomic])
+                print("Image \(fileSystemURL.lastPathComponent) saved to file system")
+            } catch let error as NSError {
+                NSLog(error.localizedDescription)
+                print("Image \(fileSystemURL.lastPathComponent) not saved to file system")
+            }
+        }
+        
+        return image
     }
     
     func block(_ block:((UIImage?)->()))
@@ -74,10 +88,8 @@ class FetchCachedImage : FetchImage
             return image
         }
         
-        guard let image = self.url?.image else {
-            return nil
-        }
-        
+        let image = super.fetchIt()
+                
         self.cachedImage = image
         
         return image

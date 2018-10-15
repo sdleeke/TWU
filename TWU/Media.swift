@@ -24,7 +24,6 @@ class Media
             if let seriesSelectedName = defaults.string(forKey: Constants.SETTINGS.SELECTED.SERIES) {
                 seriesSelected = index[seriesSelectedName]
             }
-            //            defaults.synchronize()
             
             return seriesSelected
         }
@@ -41,9 +40,6 @@ class Media
         }
         didSet {
             if sorting != oldValue {
-                // BAD
-                //                activeSeries = sortSeries(activeSeries,sorting: sorting)
-                
                 let defaults = UserDefaults.standard
                 if (sorting != nil) {
                     defaults.set(sorting,forKey: Constants.SORTING)
@@ -67,18 +63,9 @@ class Media
             
             if (filter != nil) {
                 showing = .filtered
-                //                filteredSeries = series?.filter({ (series:Series) -> Bool in
-                //                    return series.book == filter
-                //                })
             } else {
                 showing = .all
-                //                filteredSeries = nil
             }
-            
-//            updateSearchResults()
-            
-            // BAD
-            //            activeSeries = sortSeries(activeSeries,sorting: sorting)
             
             let defaults = UserDefaults.standard
             if (filter != nil) {

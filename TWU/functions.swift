@@ -299,8 +299,6 @@ func userAlert(title:String?,message:String?)
         })
         alert.addAction(action)
         
-        //        alert.modalPresentationStyle = UIModalPresentationStyle.Popover
-        
         Thread.onMainThread {
             Globals.shared.rootViewController?.present(alert, animated: true, completion: nil)
         }

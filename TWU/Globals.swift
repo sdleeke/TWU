@@ -26,19 +26,22 @@ class Globals //: NSObject
 {
     static var shared = Globals()
     
-    var rootViewController : UIViewController! {
+    var rootViewController : UIViewController!
+    {
         get {
             return UIApplication.shared.keyWindow?.rootViewController
         }
     }
     
-    var splitViewController : UISplitViewController! {
+    var splitViewController : UISplitViewController!
+    {
         get {
             return rootViewController as? UISplitViewController
         }
     }
     
-    var storyboard : UIStoryboard! {
+    var storyboard : UIStoryboard!
+    {
         get {
             return rootViewController?.storyboard
         }
@@ -147,7 +150,7 @@ class Globals //: NSObject
         priorReachabilityStatus = reachability.currentReachabilityStatus
     }
     
-    init() // override 
+    init()
     {
         reachability.whenReachable = { reachability in
             // this is called on a background thread, but UI updates must

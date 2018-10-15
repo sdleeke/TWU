@@ -175,8 +175,6 @@ class AboutViewController : UIViewController
     {
         let bodyString = String()
         
-        //        bodyString = bodyString + addressStringHTML()
-        
         let mailComposeViewController = MFMailComposeViewController()
         mailComposeViewController.mailComposeDelegate = self // Extremely important to set the --mailComposeDelegate-- property, NOT the --delegate-- property
         

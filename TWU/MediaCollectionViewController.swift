@@ -174,7 +174,7 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
 {
     // MARK: PopoverTableViewControllerDelegate
 
-    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose) // , sermon:Sermon?
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose)
     {
         guard Thread.isMainThread else {
             return
@@ -536,8 +536,6 @@ class MediaCollectionViewController: UIViewController
         Globals.shared.series.cancelAllDownloads()
         
         // Leave search alone.
-//        Globals.shared.series.search.active = false
-//        searchBar.placeholder = nil
         
         if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)

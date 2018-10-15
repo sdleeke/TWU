@@ -40,7 +40,6 @@ class MediaCollectionViewCell: UICollectionViewCell {
                     
                     if let image = image {
                         if self.series == series {
-//                            Globals.shared.series.images[name] = image
                             self.seriesArt.image = image
                         }
                     } else {

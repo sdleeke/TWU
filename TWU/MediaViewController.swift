@@ -370,12 +370,10 @@ class MediaViewController : UIViewController
             if let state = Globals.shared.mediaPlayer.state {
                 switch state {
                 case .playing:
-                    //                    print("Pause")
                     playPauseButton.setTitle(Constants.FA.PAUSE, for: UIControlState())
                     break
                     
                 case .paused:
-                    //                    print("Play")
                     playPauseButton.setTitle(Constants.FA.PLAY, for: UIControlState())
                     break
                     
@@ -689,7 +687,7 @@ class MediaViewController : UIViewController
         
         navigationController.modalPresentationStyle = .popover
 
-    navigationController.popoverPresentationController?.permittedArrowDirections = .up
+        navigationController.popoverPresentationController?.permittedArrowDirections = .up
         navigationController.popoverPresentationController?.delegate = self
         
         navigationController.popoverPresentationController?.barButtonItem = actionButton
@@ -1157,8 +1155,6 @@ class MediaViewController : UIViewController
         
         setupNotifications()
         
-//        pageControl.isEnabled = true
-        
         views = (seriesArt: self.seriesArt, seriesDescription: self.seriesDescription)
         
         if (seriesSelected == nil) {
@@ -1245,7 +1241,6 @@ class MediaViewController : UIViewController
         
         if let view = self.seriesArtAndDescription.subviews[0] as? UITextView {
             view.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
-            //            view.scrollRangeToVisible(NSMakeRange(0, 0))  // snaps in to place because it animates by default
         }
 
         frontView.isHidden = false
@@ -1287,38 +1282,39 @@ class MediaViewController : UIViewController
             return
         }
         
-        let elapsedHours = max(Int(timeNow / (60*60)),0)
-        let elapsedMins = max(Int((timeNow - (Double(elapsedHours) * 60*60)) / 60),0)
-        let elapsedSec = max(Int(timeNow.truncatingRemainder(dividingBy: 60)),0)
-
-        var elapsed:String
+//        let elapsedHours = max(Int(timeNow / (60*60)),0)
+//        let elapsedMins = max(Int((timeNow - (Double(elapsedHours) * 60*60)) / 60),0)
+//        let elapsedSec = max(Int(timeNow.truncatingRemainder(dividingBy: 60)),0)
+//
+//        var elapsed:String
+//        
+//        if (elapsedHours > 0) {
+//            elapsed = "\(String(format: "%d",elapsedHours)):"
+//        } else {
+//            elapsed = Constants.EMPTY_STRING
+//        }
+//        
+//        elapsed = elapsed + "\(String(format: "%02d",elapsedMins)):\(String(format: "%02d",elapsedSec))"
         
-        if (elapsedHours > 0) {
-            elapsed = "\(String(format: "%d",elapsedHours)):"
-        } else {
-            elapsed = Constants.EMPTY_STRING
-        }
-        
-        elapsed = elapsed + "\(String(format: "%02d",elapsedMins)):\(String(format: "%02d",elapsedSec))"
-        
-        self.elapsed.text = elapsed
+        self.elapsed.text = timeNow.secondsToHMS
         
         let timeRemaining = max(length - timeNow,0)
-        let remainingHours = max(Int(timeRemaining / (60*60)),0)
-        let remainingMins = max(Int((timeRemaining - (Double(remainingHours) * 60*60)) / 60),0)
-        let remainingSec = max(Int(timeRemaining.truncatingRemainder(dividingBy: 60)),0)
         
-        var remaining:String
+//        let remainingHours = max(Int(timeRemaining / (60*60)),0)
+//        let remainingMins = max(Int((timeRemaining - (Double(remainingHours) * 60*60)) / 60),0)
+//        let remainingSec = max(Int(timeRemaining.truncatingRemainder(dividingBy: 60)),0)
+//
+//        var remaining:String
+//
+//        if (remainingHours > 0) {
+//            remaining = "\(String(format: "%d",remainingHours)):"
+//        } else {
+//            remaining = Constants.EMPTY_STRING
+//        }
+//
+//        remaining = remaining + "\(String(format: "%02d",remainingMins)):\(String(format: "%02d",remainingSec))"
         
-        if (remainingHours > 0) {
-            remaining = "\(String(format: "%d",remainingHours)):"
-        } else {
-            remaining = Constants.EMPTY_STRING
-        }
-        
-        remaining = remaining + "\(String(format: "%02d",remainingMins)):\(String(format: "%02d",remainingSec))"
-        
-        self.remaining.text = remaining
+        self.remaining.text = timeRemaining.secondsToHMS
     }
     
     

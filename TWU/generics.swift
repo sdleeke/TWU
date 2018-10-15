@@ -1,6 +1,5 @@
 //
 //  generics.swift
-//  MapBuddy
 //
 //  Created by Steve Leeke on 9/22/18.
 //  Copyright © 2018 Steve Leeke. All rights reserved.

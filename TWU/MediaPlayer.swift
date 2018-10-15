@@ -149,14 +149,18 @@ class MediaPlayer : NSObject
             return
         }
         
-        guard let index = playing?.index else {
+        guard let partString = playing?.partString else {
+            return
+        }
+        
+        guard let partNumber = playing?.partNumber else {
             return
         }
         
         var sermonInfo = [String:AnyObject]()
         
         // FIX
-//            sermonInfo[MPMediaItemPropertyTitle] = "\(title) (Part \(part))" as AnyObject
+        sermonInfo[MPMediaItemPropertyTitle] = "\(title) \(partString)" as AnyObject
         
         sermonInfo[MPMediaItemPropertyArtist] = Constants.Tom_Pennington as AnyObject
         
@@ -176,10 +180,9 @@ class MediaPlayer : NSObject
                 }
             }
         }
-            
-            // FIX
-//            sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = index + 1 as AnyObject
-            
+        
+        sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = partNumber as AnyObject
+        
         if let numberOfSermons = playing?.series?.numberOfSermons {
             sermonInfo[MPMediaItemPropertyAlbumTrackCount] = numberOfSermons as AnyObject
         }
@@ -703,7 +706,7 @@ class MediaPlayer : NSObject
             }
         }
         
-        NotificationCenter.default.removeObserver(self) //, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
     
     func unload()
@@ -819,10 +822,6 @@ class MediaPlayer : NSObject
             return
         }
         
-//        guard let url = url else {
-//            return
-//        }
-        
         guard loaded else {
             return
         }
@@ -836,8 +835,6 @@ class MediaPlayer : NSObject
         if seek < 0 {
             seek = 0
         }
-        
-//                    player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution))
         
         player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution),
                      completionHandler: { (finished:Bool) in
@@ -913,8 +910,6 @@ class MediaPlayer : NSObject
     var playOnLoad:Bool = true
     var loaded:Bool = false
     var loadFailed:Bool = false
-    
-    //    var observer: Timer?
     
     var playing:Sermon? {
         willSet {

@@ -10,6 +10,101 @@ import Foundation
 import UIKit
 import PDFKit
 
+extension Double {
+    var secondsToHMS : String?
+    {
+        get {
+            let hours = max(Int(self / (60*60)),0)
+            let mins = max(Int((self - (Double(hours) * 60*60)) / 60),0)
+            let sec = max(Int(self.truncatingRemainder(dividingBy: 60)),0)
+            
+            var string:String
+            
+            if (hours > 0) {
+                string = "\(String(format: "%d",hours)):"
+            } else {
+                string = Constants.EMPTY_STRING
+            }
+            
+            string += "\(String(format: "%02d",mins)):\(String(format: "%02d",sec))"
+            
+            return string
+        }
+    }
+}
+
+extension String
+{
+    var hmsToSeconds : Double?
+    {
+        get {
+            guard self.range(of: ":") != nil else {
+                return nil
+            }
+            
+            var str = self.replacingOccurrences(of: ",", with: ".")
+            
+            var numbers = [Double]()
+            
+            repeat {
+                if let index = str.range(of: ":") {
+                    let numberString = String(str[..<index.lowerBound])
+                    
+                    if let number = Double(numberString) {
+                        numbers.append(number)
+                    }
+                    
+                    str = String(str[index.upperBound...])
+                }
+            } while str.range(of: ":") != nil
+            
+            if !str.isEmpty {
+                if let number = Double(str) {
+                    numbers.append(number)
+                }
+            }
+            
+            var seconds = 0.0
+            var counter = 0.0
+            
+            for number in numbers.reversed() {
+                seconds = seconds + (counter != 0 ? number * pow(60.0,counter) : number)
+                counter += 1
+            }
+            
+            return seconds
+        }
+    }
+    
+    var secondsToHMS : String?
+    {
+        get {
+            guard let timeNow = Double(self) else {
+                return nil
+            }
+            
+            let hours = max(Int(timeNow / (60*60)),0)
+            let mins = max(Int((timeNow - (Double(hours) * 60*60)) / 60),0)
+            let sec = max(Int(timeNow.truncatingRemainder(dividingBy: 60)),0)
+            let fraction = timeNow - Double(Int(timeNow))
+            
+            var hms:String
+            
+            if (hours > 0) {
+                hms = "\(String(format: "%02d",hours)):"
+            } else {
+                hms = "00:" //Constants.EMPTY_STRING
+            }
+            
+            // \(String(format: "%.3f",fraction)
+            // .trimmingCharacters(in: CharacterSet(charactersIn: "0."))
+            
+            hms = hms + "\(String(format: "%02d",mins)):\(String(format: "%02d",sec)).\(String(format: "%03d",Int(fraction * 1000)))"
+            
+            return hms
+        }
+    }
+}
 extension UIApplication
 {
     func isRunningInFullScreen() -> Bool
@@ -153,7 +248,14 @@ extension String {
             return URL(string: self)
         }
     }
+
+    var fileSystemURL : URL?
+    {
+        return url?.fileSystemURL
+    }
 }
+
+fileprivate var queue = DispatchQueue(label: UUID().uuidString)
 
 extension URL
 {
@@ -161,7 +263,18 @@ extension URL
     {
         return cachesURL()?.appendingPathComponent(self.lastPathComponent)
     }
-    
+
+    var downloaded : Bool
+    {
+        get {
+            if let fileSystemURL = fileSystemURL {
+                return FileManager.default.fileExists(atPath: fileSystemURL.path)
+            } else {
+                return false
+            }
+        }
+    }
+
     var data : Data?
     {
         get {
@@ -207,15 +320,13 @@ extension URL
     var image : UIImage?
     {
         get {
-            guard let fileSystemURL = fileSystemURL else {
+            guard let imageURL = fileSystemURL else {
                 return nil
             }
             
-            if let image = UIImage(contentsOfFile: fileSystemURL.path) {
-                //                    print("Image \(imageName) in file system")
+            if imageURL.downloaded, let image = UIImage(contentsOfFile: imageURL.path) {
                 return image
             } else {
-                //                    print("Image \(imageName) not in file system")
                 guard let data = data else {
                     return nil
                 }
@@ -225,12 +336,18 @@ extension URL
                 }
                 
                 DispatchQueue.global(qos: .background).async {
-                    do {
-                        try UIImageJPEGRepresentation(image, 1.0)?.write(to: fileSystemURL, options: [.atomic])
-                        print("Image \(self.lastPathComponent) saved to file system")
-                    } catch let error as NSError {
-                        NSLog(error.localizedDescription)
-                        print("Image \(self.lastPathComponent) not saved to file system")
+                    queue.sync {
+                        guard !imageURL.downloaded else {
+                            return
+                        }
+                        
+                        do {
+                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                            print("Image \(self.lastPathComponent) saved to file system")
+                        } catch let error as NSError {
+                            NSLog(error.localizedDescription)
+                            print("Image \(self.lastPathComponent) not saved to file system")
+                        }
                     }
                 }
 

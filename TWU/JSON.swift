@@ -67,7 +67,7 @@ class JSON
     
     func get(from urlString:String,filename:String) -> Any?
     {
-        guard Globals.shared.reachability.isReachable, let url = URL(string: urlString) else { // let reachability = Globals.shared.reachability,
+        guard Globals.shared.reachability.isReachable, let url = URL(string: urlString) else {
             print("json not reachable.")
             return get(from: filename)
         }
@@ -165,5 +165,4 @@ class JSON
         
         return seriesDicts.count > 0 ? seriesDicts : nil
     }
-    
 }

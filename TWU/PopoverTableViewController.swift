@@ -187,7 +187,6 @@ class PopoverTableViewController: UITableViewController {
     {
         super.viewDidAppear(animated)
 
-//        NotificationCenter.default.removeObserver(self)
     }
     
     override func didReceiveMemoryWarning()
