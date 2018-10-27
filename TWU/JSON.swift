@@ -16,7 +16,7 @@ class JSON
             return nil
         }
         
-        guard let fileSystemURL = fileSystemURL(filename) else {
+        guard let fileSystemURL = filename.fileSystemURL else {
             return nil
         }
         
@@ -65,24 +65,28 @@ class JSON
         return operationQueue
     }()
     
-    func get(from urlString:String,filename:String) -> Any?
+    func get(from urlString:String?,filename:String?) -> Any?
     {
+        guard let urlString = urlString else {
+            return nil
+        }
+        
         guard Globals.shared.reachability.isReachable, let url = URL(string: urlString) else {
             print("json not reachable.")
             return get(from: filename)
         }
         
-        if format == Constants.JSON.URL, let json = get(from: filename) {
+        if format == Constants.JSON.SERIES_JSON, let json = get(from: filename) {
             operationQueue.addOperation {
                 do {
                     let data = try Data(contentsOf: url)
                     print("able to read json from the URL.")
                     
                     do {
-                        if let fileSystemURL = fileSystemURL(filename) {
+                        if let fileSystemURL = filename?.fileSystemURL { // fileSystemURL(filename)
                             try data.write(to: fileSystemURL)
                         }
-                        self.format = Constants.JSON.URL
+                        self.format = Constants.JSON.SERIES_JSON
                         print("able to write json to the file system")
                     } catch let error as NSError {
                         print("unable to write json to the file system.")
@@ -103,10 +107,10 @@ class JSON
                     let json = try JSONSerialization.jsonObject(with: data, options: [])
                     
                     do {
-                        if let jsonFileSystemURL = fileSystemURL(filename) {
+                        if let jsonFileSystemURL = filename?.fileSystemURL {
                             try data.write(to: jsonFileSystemURL)
                         }
-                        format = Constants.JSON.URL
+                        format = Constants.JSON.SERIES_JSON
                         print("able to write json to the file system")
                     } catch let error as NSError {
                         print("unable to write json to the file system.")
@@ -128,7 +132,7 @@ class JSON
 
     func load() -> [[String:Any]]?
     {
-        guard let json = get(from: Constants.JSON.URL,filename: Constants.JSON.SERIES) as? [String:Any] else {
+        guard let json = get(from: Constants.JSON.SERIES_JSON,filename: Constants.JSON.SERIES_JSON.url?.lastPathComponent) as? [String:Any] else {
             print("could not get json from file, make sure that file contains valid json.")
             return nil
         }
@@ -139,17 +143,17 @@ class JSON
         
         var seriesDicts = [[String:Any]]()
         
-        var key : String
+        let key = Constants.JSON.KEYS.DATA
         
-        switch Constants.JSON.URL {
-        case Constants.JSON.URLS.MEDIALIST_PHP:
-            key = Constants.JSON.KEYS.SERIES
-            break
-            
-        default:
-            key = Constants.JSON.KEYS.DATA
-            break
-        }
+//        switch Constants.JSON.URL {
+//        case Constants.JSON.URLS.MEDIALIST_PHP:
+//            key = Constants.JSON.KEYS.SERIES
+//            break
+//            
+//        default:
+//            key = Constants.JSON.KEYS.DATA
+//            break
+//        }
         
         if let series = json[key] as? [[String:Any]] {
             for i in 0..<series.count {

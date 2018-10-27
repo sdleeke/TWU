@@ -70,6 +70,10 @@ extension MediaViewController : PopoverTableViewControllerDelegate
                 openSeriesOnWeb(seriesSelected)
                 break
                 
+            case Constants.Open_Sermon:
+                openSermonOnWeb(sermonSelected)
+                break
+                
             case Constants.Download_All:
                 if let sermons = seriesSelected?.sermons {
                     for sermon in sermons {
@@ -604,8 +608,23 @@ class MediaViewController : UIViewController
     fileprivate func openSeriesOnWeb(_ series:Series?)
     {
         if let url = series?.url {
-            if UIApplication.shared.canOpenURL(url as URL) {
-                UIApplication.shared.openURL(url as URL)
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.openURL(url)
+            } else {
+                alert(viewController: self,title: "Network Error", message: "Unable to open url: \(url)")
+            }
+        }
+    }
+    
+    fileprivate func openSermonOnWeb(_ sermon:Sermon?)
+    {
+        if let url = sermon?.cbcURL {
+            UIApplication.shared.openURL(url)
+        }
+        
+        if let url = sermon?.url {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.openURL(url)
             } else {
                 alert(viewController: self,title: "Network Error", message: "Unable to open url: \(url)")
             }
@@ -699,11 +718,15 @@ class MediaViewController : UIViewController
         
         var actionMenu = [String]()
         
-        if ((seriesSelected?.scripture != nil) && (seriesSelected?.scripture != "") && (seriesSelected?.scripture != Constants.Selected_Scriptures)) {
+        if let isEmpty = seriesSelected?.scripture?.isEmpty, !isEmpty, seriesSelected?.scripture != Constants.Selected_Scriptures {
             actionMenu.append(Constants.Open_Scripture)
         }
 
         actionMenu.append(Constants.Open_Series)
+        
+        if sermonSelected != nil {
+            actionMenu.append(Constants.Open_Sermon)
+        }
         
         if let sermons = seriesSelected?.sermons {
             var sermonsToDownload = 0
@@ -868,6 +891,8 @@ class MediaViewController : UIViewController
         logo.isHidden = true
         pageControl.isHidden = seriesSelected.text == nil
         
+        var seriesAttrbutedString : NSMutableAttributedString!
+        
         if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
             if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
                 let attributedString = try? NSMutableAttributedString(data: data,
@@ -877,10 +902,47 @@ class MediaViewController : UIViewController
                 attributedString.addAttributes([NSAttributedStringKey.font:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
                                                range: NSMakeRange(0, attributedString.length))
 
-                seriesDescription.attributedText = attributedString
+                seriesAttrbutedString = attributedString
             }
         }
 
+        var sermonAttributedStrings = [String:NSMutableAttributedString]()
+        
+        if let sermons = seriesSelected.sermons {
+            for sermon in sermons {
+                if let text = sermon.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+                    if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
+                        let attributedString = try? NSMutableAttributedString(data: data,
+                                                                              // DocumentAttributeKey.documentType
+                            options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
+                            documentAttributes: nil) {
+                        attributedString.addAttributes([NSAttributedStringKey.font:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
+                                                       range: NSMakeRange(0, attributedString.length))
+
+                        sermonAttributedStrings[sermon.partString!] = attributedString
+                    }
+                }
+            }
+        }
+
+        if sermonAttributedStrings.count > 0 {
+            let description = NSMutableAttributedString(attributedString: seriesAttrbutedString)
+
+            for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted() {
+                if let sermonAttributedString = sermonAttributedStrings[sermonAttributedStringKey] {
+                    description.append(NSMutableAttributedString(string: "\n"))
+                    description.append(NSMutableAttributedString(string: "\n"))
+                    description.append(NSAttributedString(string: sermonAttributedStringKey, attributes:Constants.Fonts.Attributes.bold))
+                    description.append(NSMutableAttributedString(string: "\n"))
+                    description.append(sermonAttributedString)
+                }
+            }
+            
+            seriesDescription.attributedText = description
+        } else {
+            seriesDescription.attributedText = seriesAttrbutedString
+        }
+        
         DispatchQueue.global(qos: .background).async { () -> Void in
             seriesSelected.coverArt.block { (image:UIImage?) in
                 Thread.onMainThread {

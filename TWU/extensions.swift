@@ -594,131 +594,133 @@ public extension UIDevice
     var deviceName : String
     {
         get {
-            if UIDevice.current.isSimulator {
-                return "\(UIDevice.current.name):\(UIDevice.current.modelName)"
-            } else {
-                return UIDevice.current.name
-            }
+            return UIDevice.current.name
+            
+//            if UIDevice.current.isSimulator {
+//                return "\(UIDevice.current.name):\(UIDevice.current.modelName)"
+//            } else {
+//                return UIDevice.current.name
+//            }
         }
     }
     
-    var modelName: String
-    {
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        let machineMirror = Mirror(reflecting: systemInfo.machine)
-        var identifier = machineMirror.children.reduce("") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return identifier }
-            return identifier + String(UnicodeScalar(UInt8(value)))
-        }
-        
-        switch identifier {
-        case "i386":
-            fallthrough
-        case "x86_64":
-            if let id = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] {
-                identifier = id
-            }
-            
-        default:
-            break
-        }
-        
-        var modelName: String
-        
-        switch identifier {
-        case "iPhone1,1": modelName = "iPhone"
-        case "iPhone1,2": modelName = "iPhone 3G"
-            
-        case "iPhone2,1": modelName = "iPhone 3GS"
-            
-        case "iPhone3,1": modelName = "iPhone 4 (GSM)"
-        case "iPhone3,2": modelName = "iPhone 4 (GSM Rev A)"
-        case "iPhone3,3": modelName = "iPhone 4 (CDMA)"
-            
-        case "iPhone4,1": modelName = "iPhone 4S"
-            
-        case "iPhone5,1": modelName = "iPhone 5 (GSM)"
-        case "iPhone5,2": modelName = "iPhone 5 (CDMA)"
-            
-        case "iPhone5,3": modelName = "iPhone 5c (GSM)"
-        case "iPhone5,4": modelName = "iPhone 5c (CDMA)"
-            
-        case "iPhone6,1": modelName = "iPhone 5s (GSM)"
-        case "iPhone6,2": modelName = "iPhone 5s (CDMA)"
-            
-        case "iPhone7,1": modelName = "iPhone 6 Plus"
-        case "iPhone7,2": modelName = "iPhone 6"
-            
-        case "iPhone8,1": modelName = "iPhone 6s"
-        case "iPhone8,2": modelName = "iPhone 6s Plus"
-            
-        case "iPhone8,4": modelName = "iPhone SE"
-            
-        case "iPhone9,1": modelName = "iPhone 7 (CDMA+GSM)"
-        case "iPhone9,2": modelName = "iPhone 7 Plus (CDMA+GSM)"
-        case "iPhone9,3": modelName = "iPhone 7 (GSM)"
-        case "iPhone9,4": modelName = "iPhone 7 Plus (GSM)"
-            
-        case "iPod1,1": modelName = "iPod Touch 1st Generation"
-        case "iPod2,1": modelName = "iPod Touch 2nd Generation"
-        case "iPod3,1": modelName = "iPod Touch 3rd Generation"
-        case "iPod4,1": modelName = "iPod Touch 4th Generation"
-        case "iPod5,1": modelName = "iPod Touch 5th Generation"
-            
-        case "iPod7,1": modelName = "iPod Touch 6th Generation"
-            
-        case "iPad1,1": modelName = "iPad"
-            
-        case "iPad2,1": modelName = "iPad 2 (WiFi)"
-        case "iPad2,2": modelName = "iPad 2 (WiFi+GSM)"
-        case "iPad2,3": modelName = "iPad 2 (WiFi+CDMA)"
-        case "iPad2,4": modelName = "iPad 2 (WiFi, revised)"
-            
-        case "iPad2,5": modelName = "iPad Mini (WiFi)"
-        case "iPad2,6": modelName = "iPad Mini (WiFi+GSM)"
-        case "iPad2,7": modelName = "iPad Mini (WiFi+GSM+CDMA)"
-            
-        case "iPad3,1": modelName = "iPad 3rd Generation (WiFi)"
-        case "iPad3,2": modelName = "iPad 3rd Generation (WiFi+GSM+CDMA)"
-        case "iPad3,3": modelName = "iPad 3rd Generation (WiFi+GSM)"
-            
-        case "iPad3,4": modelName = "iPad 4th Generation (WiFi)"
-        case "iPad3,5": modelName = "iPad 4th Generation (WiFi+GSM)"
-        case "iPad3,6": modelName = "iPad 4th Generation (WiFi+GSM+CDMA)"
-            
-        case "iPad4,1": modelName = "iPad Air (WiFi)"
-        case "iPad4,2": modelName = "iPad Air (WiFi+Cellular)"
-        case "iPad4,3": modelName = "iPad Air (revised)"
-            
-        case "iPad4,4": modelName = "iPad mini 2 (WiFi)"
-        case "iPad4,5": modelName = "iPad mini 2 (WiFi+Cellular)"
-        case "iPad4,6": modelName = "iPad mini 2 (revised)"
-            
-        case "iPad4,7": modelName = "iPad mini 3 (WiFi)"
-        case "iPad4,8": modelName = "iPad mini 3 (WiFi+Cellular)"
-        case "iPad4,9": modelName = "iPad mini 3 (China Model)"
-            
-        case "iPad5,1": modelName = "iPad mini 4 (WiFi)"
-        case "iPad5,2": modelName = "iPad mini 4 (WiFi+Cellular)"
-            
-        case "iPad5,3": modelName = "iPad Air 2 (WiFi)"
-        case "iPad5,4": modelName = "iPad Air 2 (WiFi+Cellular)"
-            
-        case "iPad6,3": modelName = "iPad Pro (9.7 inch) (WiFi)"
-        case "iPad6,4": modelName = "iPad Pro (9.7 inch) (WiFi+Cellular)"
-            
-        case "iPad6,7": modelName = "iPad Pro (12.9 inch) (WiFi)"
-        case "iPad6,8": modelName = "iPad Pro (12.9 inch) (WiFi+Cellular)"
-            
-        case "iPad7,3": modelName = "iPad Pro (10.5 inch) (WiFi)"
-        case "iPad7,4": modelName = "iPad Pro (10.5 inch) (WiFi+Cellular)"
-            
-        default: modelName = "Unknown"
-        }
-        
-        return modelName
-    }
+//    var modelName: String
+//    {
+//        var systemInfo = utsname()
+//        uname(&systemInfo)
+//        let machineMirror = Mirror(reflecting: systemInfo.machine)
+//        var identifier = machineMirror.children.reduce("") { identifier, element in
+//            guard let value = element.value as? Int8, value != 0 else { return identifier }
+//            return identifier + String(UnicodeScalar(UInt8(value)))
+//        }
+//
+//        switch identifier {
+//        case "i386":
+//            fallthrough
+//        case "x86_64":
+//            if let id = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] {
+//                identifier = id
+//            }
+//
+//        default:
+//            break
+//        }
+//
+//        var modelName: String
+//
+//        switch identifier {
+//        case "iPhone1,1": modelName = "iPhone"
+//        case "iPhone1,2": modelName = "iPhone 3G"
+//
+//        case "iPhone2,1": modelName = "iPhone 3GS"
+//
+//        case "iPhone3,1": modelName = "iPhone 4 (GSM)"
+//        case "iPhone3,2": modelName = "iPhone 4 (GSM Rev A)"
+//        case "iPhone3,3": modelName = "iPhone 4 (CDMA)"
+//
+//        case "iPhone4,1": modelName = "iPhone 4S"
+//
+//        case "iPhone5,1": modelName = "iPhone 5 (GSM)"
+//        case "iPhone5,2": modelName = "iPhone 5 (CDMA)"
+//
+//        case "iPhone5,3": modelName = "iPhone 5c (GSM)"
+//        case "iPhone5,4": modelName = "iPhone 5c (CDMA)"
+//
+//        case "iPhone6,1": modelName = "iPhone 5s (GSM)"
+//        case "iPhone6,2": modelName = "iPhone 5s (CDMA)"
+//
+//        case "iPhone7,1": modelName = "iPhone 6 Plus"
+//        case "iPhone7,2": modelName = "iPhone 6"
+//
+//        case "iPhone8,1": modelName = "iPhone 6s"
+//        case "iPhone8,2": modelName = "iPhone 6s Plus"
+//
+//        case "iPhone8,4": modelName = "iPhone SE"
+//
+//        case "iPhone9,1": modelName = "iPhone 7 (CDMA+GSM)"
+//        case "iPhone9,2": modelName = "iPhone 7 Plus (CDMA+GSM)"
+//        case "iPhone9,3": modelName = "iPhone 7 (GSM)"
+//        case "iPhone9,4": modelName = "iPhone 7 Plus (GSM)"
+//
+//        case "iPod1,1": modelName = "iPod Touch 1st Generation"
+//        case "iPod2,1": modelName = "iPod Touch 2nd Generation"
+//        case "iPod3,1": modelName = "iPod Touch 3rd Generation"
+//        case "iPod4,1": modelName = "iPod Touch 4th Generation"
+//        case "iPod5,1": modelName = "iPod Touch 5th Generation"
+//
+//        case "iPod7,1": modelName = "iPod Touch 6th Generation"
+//
+//        case "iPad1,1": modelName = "iPad"
+//
+//        case "iPad2,1": modelName = "iPad 2 (WiFi)"
+//        case "iPad2,2": modelName = "iPad 2 (WiFi+GSM)"
+//        case "iPad2,3": modelName = "iPad 2 (WiFi+CDMA)"
+//        case "iPad2,4": modelName = "iPad 2 (WiFi, revised)"
+//
+//        case "iPad2,5": modelName = "iPad Mini (WiFi)"
+//        case "iPad2,6": modelName = "iPad Mini (WiFi+GSM)"
+//        case "iPad2,7": modelName = "iPad Mini (WiFi+GSM+CDMA)"
+//
+//        case "iPad3,1": modelName = "iPad 3rd Generation (WiFi)"
+//        case "iPad3,2": modelName = "iPad 3rd Generation (WiFi+GSM+CDMA)"
+//        case "iPad3,3": modelName = "iPad 3rd Generation (WiFi+GSM)"
+//
+//        case "iPad3,4": modelName = "iPad 4th Generation (WiFi)"
+//        case "iPad3,5": modelName = "iPad 4th Generation (WiFi+GSM)"
+//        case "iPad3,6": modelName = "iPad 4th Generation (WiFi+GSM+CDMA)"
+//
+//        case "iPad4,1": modelName = "iPad Air (WiFi)"
+//        case "iPad4,2": modelName = "iPad Air (WiFi+Cellular)"
+//        case "iPad4,3": modelName = "iPad Air (revised)"
+//
+//        case "iPad4,4": modelName = "iPad mini 2 (WiFi)"
+//        case "iPad4,5": modelName = "iPad mini 2 (WiFi+Cellular)"
+//        case "iPad4,6": modelName = "iPad mini 2 (revised)"
+//
+//        case "iPad4,7": modelName = "iPad mini 3 (WiFi)"
+//        case "iPad4,8": modelName = "iPad mini 3 (WiFi+Cellular)"
+//        case "iPad4,9": modelName = "iPad mini 3 (China Model)"
+//
+//        case "iPad5,1": modelName = "iPad mini 4 (WiFi)"
+//        case "iPad5,2": modelName = "iPad mini 4 (WiFi+Cellular)"
+//
+//        case "iPad5,3": modelName = "iPad Air 2 (WiFi)"
+//        case "iPad5,4": modelName = "iPad Air 2 (WiFi+Cellular)"
+//
+//        case "iPad6,3": modelName = "iPad Pro (9.7 inch) (WiFi)"
+//        case "iPad6,4": modelName = "iPad Pro (9.7 inch) (WiFi+Cellular)"
+//
+//        case "iPad6,7": modelName = "iPad Pro (12.9 inch) (WiFi)"
+//        case "iPad6,8": modelName = "iPad Pro (12.9 inch) (WiFi+Cellular)"
+//
+//        case "iPad7,3": modelName = "iPad Pro (10.5 inch) (WiFi)"
+//        case "iPad7,4": modelName = "iPad Pro (10.5 inch) (WiFi+Cellular)"
+//
+//        default: modelName = "Unknown"
+//        }
+//
+//        return modelName
+//    }
 }
 
 

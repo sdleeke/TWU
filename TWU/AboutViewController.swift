@@ -100,10 +100,10 @@ class AboutViewController : UIViewController
         openWebSite("https://itunes.apple.com/us/podcast/the-word-unleashed/id610499233?mt=2")
     }
 
-    @IBAction func rssfeed(_ sender: UIButton)
-    {
-        openWebSite("http://www.thewordunleashed.org/podcast.php")
-    }
+//    @IBAction func rssfeed(_ sender: UIButton)
+//    {
+//        openWebSite("http://www.thewordunleashed.org/podcast.php")
+//    }
     
     @IBAction func cbc(_ sender: UIButton)
     {

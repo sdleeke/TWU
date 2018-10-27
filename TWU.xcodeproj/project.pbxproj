@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1705173D1B6FDD8D00144ED6 /* iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 170517391B6FDD8D00144ED6 /* iPad.storyboard */; };
-		1705173E1B6FDD8D00144ED6 /* iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1705173B1B6FDD8D00144ED6 /* iPhone.storyboard */; };
+		1705173D1B6FDD8D00144ED6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 170517391B6FDD8D00144ED6 /* Main.storyboard */; };
 		1712CD6A1C76B2BF005E09D6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */; };
 		17141EFB1CBE660800B31D23 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17141EFA1CBE660800B31D23 /* Images.xcassets */; };
 		171C73521B6C1B3400CF85AE /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171C73511B6C1B3400CF85AE /* MediaViewController.swift */; };
 		1736F2DC2174EBAA00F2D8EC /* Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1736F2DB2174EBAA00F2D8EC /* Download.swift */; };
 		174ACCD51EF48C050056FCBC /* MediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174ACCD41EF48C050056FCBC /* MediaPlayer.swift */; };
+		174C433821849F7C00BF9CB4 /* SeriesSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174C433721849F7C00BF9CB4 /* SeriesSettings.swift */; };
+		174C433A2184B5F400BF9CB4 /* SermonSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174C43392184B5F400BF9CB4 /* SermonSettings.swift */; };
 		17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */; };
 		175EDA2A1BAC8BF200942E6D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175EDA291BAC8BF200942E6D /* Reachability.swift */; };
 		176703951B6D076300A8435F /* MediaTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176703941B6D076300A8435F /* MediaTableViewCell.swift */; };
@@ -63,13 +64,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1705173A1B6FDD8D00144ED6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/iPad.storyboard; sourceTree = "<group>"; };
-		1705173C1B6FDD8D00144ED6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/iPhone.storyboard; sourceTree = "<group>"; };
+		1705173A1B6FDD8D00144ED6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		17141EFA1CBE660800B31D23 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		171C73511B6C1B3400CF85AE /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MediaViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		1736F2DB2174EBAA00F2D8EC /* Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
 		174ACCD41EF48C050056FCBC /* MediaPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaPlayer.swift; sourceTree = "<group>"; };
+		174C433721849F7C00BF9CB4 /* SeriesSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeriesSettings.swift; sourceTree = "<group>"; };
+		174C43392184B5F400BF9CB4 /* SermonSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SermonSettings.swift; sourceTree = "<group>"; };
 		17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewController.swift; sourceTree = "<group>"; };
 		175EDA291BAC8BF200942E6D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		176703941B6D076300A8435F /* MediaTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewCell.swift; sourceTree = "<group>"; };
@@ -182,7 +184,9 @@
 				17CFC2612166700200A28F69 /* JSON.swift */,
 				17CFC25721663D7000A28F69 /* Search.swift */,
 				174ACCD41EF48C050056FCBC /* MediaPlayer.swift */,
+				174C433721849F7C00BF9CB4 /* SeriesSettings.swift */,
 				17A5711D1BEA365900C0D278 /* Series.swift */,
+				174C43392184B5F400BF9CB4 /* SermonSettings.swift */,
 				17A5711B1BEA363900C0D278 /* Sermon.swift */,
 				1736F2DB2174EBAA00F2D8EC /* Download.swift */,
 				175EDA291BAC8BF200942E6D /* Reachability.swift */,
@@ -198,8 +202,7 @@
 				17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */,
 				17FFEFEA1B73673A006D8169 /* AboutViewController.swift */,
 				1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */,
-				170517391B6FDD8D00144ED6 /* iPad.storyboard */,
-				1705173B1B6FDD8D00144ED6 /* iPhone.storyboard */,
+				170517391B6FDD8D00144ED6 /* Main.storyboard */,
 				176D4C1D1C01FCFA009EC031 /* fontawesome-webfont.ttf */,
 				179C4FAE1B6801D600727DE0 /* LaunchScreen.xib */,
 				17141EFA1CBE660800B31D23 /* Images.xcassets */,
@@ -363,9 +366,8 @@
 			files = (
 				176D4C1E1C01FD10009EC031 /* fontawesome-webfont.ttf in Resources */,
 				179C4FB01B6801D600727DE0 /* LaunchScreen.xib in Resources */,
-				1705173D1B6FDD8D00144ED6 /* iPad.storyboard in Resources */,
+				1705173D1B6FDD8D00144ED6 /* Main.storyboard in Resources */,
 				17141EFB1CBE660800B31D23 /* Images.xcassets in Resources */,
-				1705173E1B6FDD8D00144ED6 /* iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,10 +409,12 @@
 				17A5711E1BEA365900C0D278 /* Series.swift in Sources */,
 				17CFC25A21663D8B00A28F69 /* Media.swift in Sources */,
 				17CFC2622166700200A28F69 /* JSON.swift in Sources */,
+				174C433A2184B5F400BF9CB4 /* SermonSettings.swift in Sources */,
 				176703951B6D076300A8435F /* MediaTableViewCell.swift in Sources */,
 				17A571201BEA370000C0D278 /* Globals.swift in Sources */,
 				17A5711C1BEA363900C0D278 /* Sermon.swift in Sources */,
 				17CFC26021666E9300A28F69 /* Meta.swift in Sources */,
+				174C433821849F7C00BF9CB4 /* SeriesSettings.swift in Sources */,
 				17B875DF2159487800BD8D28 /* generics.swift in Sources */,
 				17CFC25C21663E4700A28F69 /* Alerts.swift in Sources */,
 				17CFC25E21663F1600A28F69 /* Settings.swift in Sources */,
@@ -444,20 +448,12 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		170517391B6FDD8D00144ED6 /* iPad.storyboard */ = {
+		170517391B6FDD8D00144ED6 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				1705173A1B6FDD8D00144ED6 /* Base */,
 			);
-			name = iPad.storyboard;
-			sourceTree = "<group>";
-		};
-		1705173B1B6FDD8D00144ED6 /* iPhone.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1705173C1B6FDD8D00144ED6 /* Base */,
-			);
-			name = iPhone.storyboard;
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 		179C4FAE1B6801D600727DE0 /* LaunchScreen.xib */ = {

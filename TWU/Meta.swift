@@ -20,13 +20,15 @@ struct Meta
     
     var audioURL : String?
     {
-        switch Constants.JSON.URL {
-        case Constants.JSON.URLS.MEDIALIST_PHP:
-            return Constants.URL.BASE.PHP_AUDIO
-            
-        default:
-            return storage["audio"] as? String
-        }
+        return storage["audio"] as? String
+        
+//        switch Constants.JSON.URL {
+//        case Constants.JSON.URLS.MEDIALIST_PHP:
+//            return Constants.URL.BASE.PHP_AUDIO
+//            
+//        default:
+//            return storage["audio"] as? String
+//        }
     }
     
     var imageURL : String?

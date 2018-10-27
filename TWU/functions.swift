@@ -64,7 +64,7 @@ func documentsURL() -> URL?
 
 func remove(_ filename:String)
 {
-    if let fileSystemURL = fileSystemURL(filename) {
+    if let fileSystemURL = filename.fileSystemURL {
         do {
             try FileManager.default.removeItem(atPath: fileSystemURL.path)
         } catch let error as NSError {
@@ -77,7 +77,7 @@ func remove(_ filename:String)
 func save(_ filename:String)
 {
     //Get documents directory URL
-    guard let fileSystemURL = fileSystemURL(filename) else {
+    guard let fileSystemURL = filename.fileSystemURL else {
         return
     }
     
@@ -89,10 +89,10 @@ func save(_ filename:String)
     }
 }
 
-func fileSystemURL(_ filename:String) -> URL?
-{
-    return cachesURL()?.appendingPathComponent(filename)
-}
+//func fileSystemURL(_ filename:String?) -> URL?
+//{
+//    return cachesURL()?.appendingPathComponent(filename)
+//}
 
 func cachesURL() -> URL?
 {
@@ -120,34 +120,38 @@ func sortSeries(_ series:[Series]?,sorting:String?) -> [Series]?
         results = series.sorted() { $0.titleSort > $1.titleSort }
         break
     case Constants.Sorting.Newest_to_Oldest:
-        switch Constants.JSON.URL {
-        case Constants.JSON.URLS.MEDIALIST_PHP:
-            results = series.sorted() { $0.id > $1.id }
-            
-        case Constants.JSON.URLS.MEDIALIST_JSON:
-            fallthrough
-            
-        case Constants.JSON.URLS.SERIES_JSON:
-            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
-            
-        default:
-            return nil
-        }
+        results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
+        
+//        switch Constants.JSON.URL {
+//        case Constants.JSON.URLS.MEDIALIST_PHP:
+//            results = series.sorted() { $0.id > $1.id }
+//
+//        case Constants.JSON.URLS.MEDIALIST_JSON:
+//            fallthrough
+//
+//        case Constants.JSON.URLS.SERIES_JSON:
+//            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
+//
+//        default:
+//            return nil
+//        }
         break
     case Constants.Sorting.Oldest_to_Newest:
-        switch Constants.JSON.URL {
-        case Constants.JSON.URLS.MEDIALIST_PHP:
-            results = series.sorted() { $0.id < $1.id }
-            
-        case Constants.JSON.URLS.MEDIALIST_JSON:
-            fallthrough
-            
-        case Constants.JSON.URLS.SERIES_JSON:
-            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
-            
-        default:
-            return nil
-        }
+        results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
+        
+//        switch Constants.JSON.URL {
+//        case Constants.JSON.URLS.MEDIALIST_PHP:
+//            results = series.sorted() { $0.id < $1.id }
+//            
+//        case Constants.JSON.URLS.MEDIALIST_JSON:
+//            fallthrough
+//            
+//        case Constants.JSON.URLS.SERIES_JSON:
+//            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
+//            
+//        default:
+//            return nil
+//        }
         break
     default:
         break

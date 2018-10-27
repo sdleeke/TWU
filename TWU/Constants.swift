@@ -85,20 +85,22 @@ enum Constants {
     
     enum JSON {
         enum KEYS {
-            static let SERIES = "series"
+//            static let SERIES = "series"
             static let DATA = "data"
             static let META = "meta"
         }
         
-        enum URLS {
-            static let MEDIALIST_PHP = "https://www.thewordunleashed.org/medialist.php"
-            static let MEDIALIST_JSON = "https://craft.thewordunleashed.org/medialist.json"
-            static let SERIES_JSON = "https://craft.thewordunleashed.org/series.json"
-        }
+//        enum URLS {
+//            static let MEDIALIST_PHP = "https://www.thewordunleashed.org/medialist.php"
+//            static let MEDIALIST_JSON = "https://www.thewordunleashed.org/medialist.json" // craft.
+//            static let SERIES_JSON = "https://www.thewordunleashed.org/series.json" // craft.
+//        }
+//
+//        static let URL = URLS.SERIES_JSON // URLS.MEDIALIST_PHP
 
-        static let URL = URLS.MEDIALIST_PHP
+        static let SERIES_JSON = "https://www.thewordunleashed.org/series.json" // craft.
 
-        static let SERIES = "series.json"
+//        static let SERIES = "series.json"
     }
     
     enum TWU {
@@ -135,6 +137,30 @@ enum Constants {
         static let DOWNLOAD = "com.leeke.TWU.download."
     }
     
+    enum Fonts {
+        static let body = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
+        
+        static let bold = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
+        
+        enum Attributes {
+            static let normal = [ NSAttributedStringKey.font: Fonts.body ]
+            
+            static let bold = [ NSAttributedStringKey.font: Fonts.bold ]
+            
+            static let marked = [ NSAttributedStringKey.backgroundColor: UIColor.lightGray,
+                                  NSAttributedStringKey.font: Fonts.body ]
+            
+            static let highlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
+                                       NSAttributedStringKey.font: Fonts.body ]
+            
+            static let destructive = [ NSAttributedStringKey.foregroundColor: UIColor.red,
+                                       NSAttributedStringKey.font: Fonts.body ]
+            
+            static let boldHighlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
+                                           NSAttributedStringKey.font: Fonts.bold ]
+        }
+    }
+
     enum FA {
         static let name = "FontAwesome"
         static let FONT_SIZE = CGFloat(24.0)
@@ -179,17 +205,19 @@ enum Constants {
     enum URL {
         enum BASE {
             //This must support https to be compatible with iOS 9
-            static let PHP_AUDIO = "http://sitedata.thewordunleashed.org/avmedia/broadcasts/"
-//            static let CRAFT_AUDIO_PREFIX = "https://craft.thewordunleashed.org/series/"
-//            static let CRAFT_AUDIO_POSTFIX = "?media=audio&mediacode="
+//            static let PHP_AUDIO = "http://sitedata.thewordunleashed.org/avmedia/broadcasts/"
+            static let AUDIO_PREFIX = "https://www.thewordunleashed.org/series/"  // CRAFT_ // craft.
+            static let AUDIO_POSTFIX = "?media=audio&mediacode="
 
             //Used in the email and social media for series
-            static let PHP_WEB = "http://www.thewordunleashed.org/index.php/series?seriesId="
-            static let CRAFT_WEB = "https://craft.thewordunleashed.org/series/"
+//            static let PHP_WEB = "http://www.thewordunleashed.org/index.php/series?seriesId="
+            static let SERIES_WEB = "https://www.thewordunleashed.org/series/" // craft.
 
+            static let SERMON_WEB = "https://www.countrysidebible.org/cbcmedia?return=single&mediacode="
+            
             //Used for testing downloading the album art in real time - which didn't meet performance requirements,
             //we would have to implement caching, which is more work that embedding the album art in the app resources, at least for now.
-            static let PHP_IMAGE = "http://sitedata.thewordunleashed.org/avmedia/series/"
+//            static let PHP_IMAGE = "http://sitedata.thewordunleashed.org/avmedia/series/"
         }
     }
     
@@ -288,7 +316,8 @@ enum Constants {
     static let Selected_Scriptures = "Selected Scriptures"
     static let Open_Scripture = "Open Scripture"
     
-    static let Open_Series = "Open on TWU Web Site" // Series 
+    static let Open_Series = "Open on TWU" // Series //  Web Site
+    static let Open_Sermon = "Open on CBC" // Series //  Web Site
 //    static let Email_Series = "E-Mail" // Series
     static let Share = "Share" // Series
     
