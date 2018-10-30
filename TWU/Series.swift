@@ -237,11 +237,9 @@ class Series : Equatable
         }
     }
     
-    var show:Int
-    {
-        get {
-            return sermons?.count ?? -1
-            
+//    var show:Int
+//    {
+//        get {
 //            switch Constants.JSON.URL {
 //            case Constants.JSON.URLS.MEDIALIST_PHP:
 //                if let show = dict?[Constants.FIELDS.SHOW] as? String { // , let num = Int(show)
@@ -263,14 +261,12 @@ class Series : Equatable
 //            default:
 //                return -1
 //            }
-        }
-    }
+//        }
+//    }
 
-    var numberOfSermons:Int
-    {
-        get {
-            return sermons?.count ?? -1
-
+//    var numberOfSermons:Int
+//    {
+//        get {
 //            switch Constants.JSON.URL {
 //            case Constants.JSON.URLS.MEDIALIST_PHP:
 //                if let numberOfSermons = dict?[Constants.FIELDS.NUMBER_OF_SERMONS] as? String {
@@ -292,8 +288,8 @@ class Series : Equatable
 //            default:
 //                return -1
 //            }
-        }
-    }
+//        }
+//    }
     
     var titleSort:String?
     {
@@ -437,7 +433,9 @@ class Series : Equatable
         
 //        seriesString = "\(seriesString) \(startingIndex)"
         
-        seriesString = "\(seriesString) \(numberOfSermons)"
+        if let numberOfSermons = sermons?.count {
+            seriesString = "\(seriesString) \(numberOfSermons)"
+        }
         
         if let text = text, !text.isEmpty {
             seriesString = "\(seriesString)\n\(text)"

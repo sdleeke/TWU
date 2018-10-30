@@ -173,6 +173,8 @@ class MediaViewController : UIViewController
 
     private var PlayerContext = 0
     
+    @IBOutlet weak var seriesArtSpinner: UIActivityIndicatorView!
+    
     @IBOutlet weak var controlView: ControlView!
 
     @IBOutlet weak var pageControl: UIPageControl!
@@ -261,12 +263,26 @@ class MediaViewController : UIViewController
     
     var sliderObserver: Timer?
 
+    var operationQueue : OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = UUID().uuidString
+        operationQueue.qualityOfService = .userInteractive
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
+    
     var seriesSelected:Series?
     {
         didSet {
             if seriesSelected?.text == nil {
                 pageControl?.isEnabled = false
                 pageControl?.isHidden = true
+            }
+            
+            operationQueue.cancelAllOperations()
+            
+            if isViewLoaded {
+                updateUI()
             }
         }
     }
@@ -404,6 +420,10 @@ class MediaViewController : UIViewController
             
         }
         didSet {
+            guard seriesArt != nil else {
+                return
+            }
+            
             let tap = UITapGestureRecognizer(target: self, action: #selector(flip(_:)))
             seriesArt.addGestureRecognizer(tap)
         }
@@ -867,6 +887,17 @@ class MediaViewController : UIViewController
         self.navigationItem.rightBarButtonItem = actionButton
     }
     
+    func setupPageControl()
+    {
+        if (seriesSelected?.text == nil) || (seriesArt.image == nil) {
+            pageControl.isEnabled = false
+            pageControl.isHidden = true
+        } else {
+            pageControl.isEnabled = true
+            pageControl.isHidden = false
+        }
+    }
+    
     fileprivate func setupArtAndDescription()
     {
         guard Thread.isMainThread else {
@@ -889,9 +920,9 @@ class MediaViewController : UIViewController
         seriesArtAndDescription.isHidden = false
         
         logo.isHidden = true
-        pageControl.isHidden = seriesSelected.text == nil
-        
-        var seriesAttrbutedString : NSMutableAttributedString!
+        pageControl.isHidden = (seriesSelected.text == nil) || (seriesArt.image == nil)
+
+        var seriesAttrbutedString : NSMutableAttributedString?
         
         if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
             if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
@@ -925,33 +956,58 @@ class MediaViewController : UIViewController
             }
         }
 
-        if sermonAttributedStrings.count > 0 {
-            let description = NSMutableAttributedString(attributedString: seriesAttrbutedString)
-
-            for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted(by: { (first,second) -> Bool in
-                return Int(first) < Int(second)
-            }) {
-                if let sermonAttributedString = sermonAttributedStrings[sermonAttributedStringKey] {
-                    description.append(NSMutableAttributedString(string: "\n"))
-                    description.append(NSMutableAttributedString(string: "\n"))
-                    description.append(NSAttributedString(string: "Part \(sermonAttributedStringKey) of \(sermonAttributedStrings.keys.count)", attributes:Constants.Fonts.Attributes.bold))
-                    description.append(NSMutableAttributedString(string: "\n"))
-                    description.append(sermonAttributedString)
-                }
-            }
-            
-            seriesDescription.attributedText = description
-        } else {
-            seriesDescription.attributedText = seriesAttrbutedString
-        }
-        
-        DispatchQueue.global(qos: .background).async { () -> Void in
-            seriesSelected.coverArt.block { (image:UIImage?) in
-                Thread.onMainThread {
-                    if self.seriesSelected == seriesSelected {
-                        self.seriesArt.image = image
+        if let seriesAttrbutedString = seriesAttrbutedString {
+            if sermonAttributedStrings.count > 0 {
+                let description = NSMutableAttributedString(attributedString: seriesAttrbutedString)
+                
+                for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted(by: { (first,second) -> Bool in
+                    return Int(first) < Int(second)
+                }) {
+                    if let sermonAttributedString = sermonAttributedStrings[sermonAttributedStringKey] {
+                        description.append(NSMutableAttributedString(string: "\n"))
+                        description.append(NSMutableAttributedString(string: "\n"))
+                        description.append(NSAttributedString(string: "Part \(sermonAttributedStringKey) of \(sermonAttributedStrings.keys.count)", attributes:Constants.Fonts.Attributes.bold))
+                        description.append(NSMutableAttributedString(string: "\n"))
+                        description.append(sermonAttributedString)
                     }
                 }
+                
+                seriesDescription.attributedText = description
+            } else {
+                seriesDescription.attributedText = seriesAttrbutedString
+            }
+        } else {
+            if let name = seriesSelected.name {
+                seriesDescription.attributedText = NSAttributedString(string: "Description for \(name) not found.", attributes:Constants.Fonts.Attributes.bold)
+            } else {
+                seriesDescription.attributedText = NSAttributedString(string: "Description not found.", attributes:Constants.Fonts.Attributes.bold)
+            }
+        }
+        
+
+        if let image = seriesSelected.coverArt.fetch?.cache {
+            Thread.onMainThread {
+                if self.seriesSelected == seriesSelected {
+                    self.seriesArt.image = image
+                    self.setupPageControl()
+                }
+            }
+        } else {
+            seriesArtSpinner.isHidden = false
+            seriesArtSpinner.startAnimating()
+
+            operationQueue.addOperation {
+                seriesSelected.coverArt.block { (image:UIImage?) in
+                    Thread.onMainThread {
+                        if self.seriesSelected == seriesSelected {
+                            self.seriesArtSpinner.stopAnimating()
+                            self.seriesArtSpinner.isHidden = true
+                            self.seriesArt.image = image
+                            self.setupPageControl()
+                        }
+                    }
+                }
+
             }
         }
 
@@ -1060,7 +1116,7 @@ class MediaViewController : UIViewController
         
         var indexPath = IndexPath(row: 0, section: 0)
         
-        if (seriesSelected?.show > 1) {
+        if (seriesSelected?.sermons?.count > 1) {
             if let sermonIndex = seriesSelected?.sermons?.index(of: sermon) {
                 indexPath = IndexPath(row: sermonIndex, section: 0)
             }
@@ -1297,6 +1353,10 @@ class MediaViewController : UIViewController
     @objc func flip(_ sender: MediaViewController)
     {
         guard seriesSelected?.text != nil else {
+            return
+        }
+        
+        guard seriesArt.image != nil else {
             return
         }
         

@@ -65,7 +65,7 @@ class Globals //: NSObject
     
     var mediaPlayer = MediaPlayer()
     
-    let series = Media()
+    var series = Media()
     
     let reachability = Reachability(hostname: "www.thewordunleashed.org")!
     

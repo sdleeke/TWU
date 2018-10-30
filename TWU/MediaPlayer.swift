@@ -183,7 +183,7 @@ class MediaPlayer : NSObject
         
         sermonInfo[MPMediaItemPropertyAlbumTrackNumber] = partNumber as AnyObject
         
-        if let numberOfSermons = playing?.series?.numberOfSermons {
+        if let numberOfSermons = playing?.series?.sermons?.count {
             sermonInfo[MPMediaItemPropertyAlbumTrackCount] = numberOfSermons as AnyObject
         }
         

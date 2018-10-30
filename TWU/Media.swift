@@ -185,12 +185,18 @@ class Media
     func from(seriesDicts:[[String:Any]]?) -> [Series]?
     {
         return seriesDicts?.filter({ (seriesDict:[String:Any]) -> Bool in
-            let series = Series(seriesDict: seriesDict)
-            return series.sermons?.count > 0 // .show != 0
+//            let series = Series(seriesDict: seriesDict)
+//            return series.sermons?.count > 0 // .show != 0
+            if let programs = seriesDict["programs"] as? [[String:Any]] {
+                return programs.count > 0
+            } else {
+                return false
+            }
         }).map({ (seriesDict:[String:Any]) -> Series in
             let series = Series(seriesDict: seriesDict)
             
             DispatchQueue.global(qos: .background).async { () -> Void in
+                // This blocks.
                 series.coverArt.load()
             }
             

@@ -30,11 +30,11 @@ class MediaTableViewCell: UITableViewCell
             return
         }
 
-        if sermon?.series?.numberOfSermons == 1, let title = sermon?.series?.title {
+        if sermon?.series?.sermons?.count == 1, let title = sermon?.series?.title {
             self.title?.text = title
         }
         
-        if (sermon?.series?.numberOfSermons > 1) {
+        if (sermon?.series?.sermons?.count > 1) {
             if  let range = sermon?.title?.range(of: "(Part "), let endIndex = sermon?.title?.endIndex,
                 let text = sermon?.title?.replacingOccurrences(of: " ", with: "\u{00a0}", options: String.CompareOptions.caseInsensitive,
                                                                range: Range(uncheckedBounds: (lower: range.lowerBound, upper: endIndex))) {

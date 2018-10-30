@@ -18,21 +18,23 @@ class FetchImage
         self.url = url
     }
     
+    // Why isn't this a var?  Would we pass parameters?
     func fetchIt() -> UIImage?
     {
         guard let image = self.url?.image else {
             return nil
         }
-        
-        if let fileSystemURL = url?.fileSystemURL, !fileSystemURL.downloaded {
-            do {
-                try UIImageJPEGRepresentation(image, 1.0)?.write(to: fileSystemURL, options: [.atomic])
-                print("Image \(fileSystemURL.lastPathComponent) saved to file system")
-            } catch let error as NSError {
-                NSLog(error.localizedDescription)
-                print("Image \(fileSystemURL.lastPathComponent) not saved to file system")
-            }
-        }
+
+        // better handled in url image extension
+//        if let fileSystemURL = url?.fileSystemURL, !fileSystemURL.downloaded {
+//            do {
+//                try UIImageJPEGRepresentation(image, 1.0)?.write(to: fileSystemURL, options: [.atomic])
+//                print("Image \(fileSystemURL.lastPathComponent) saved to file system")
+//            } catch let error as NSError {
+//                NSLog(error.localizedDescription)
+//                print("Image \(fileSystemURL.lastPathComponent) not saved to file system")
+//            }
+//        }
         
         return image
     }
@@ -69,7 +71,7 @@ class FetchImage
         let fetch = Fetch<UIImage>(name:imageName)
         
         fetch.fetch = {
-            self.fetchIt()
+            return self.fetchIt()
         }
         
         return fetch

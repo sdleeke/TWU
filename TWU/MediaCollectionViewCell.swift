@@ -8,7 +8,8 @@
 
 import UIKit
 
-class MediaCollectionViewCell: UICollectionViewCell {
+class MediaCollectionViewCell: UICollectionViewCell
+{
     @IBOutlet weak var seriesArt: UIImageView!
 
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -18,32 +19,53 @@ class MediaCollectionViewCell: UICollectionViewCell {
             
         }
         didSet {
-            if series != oldValue {
+            if (series != oldValue) || (seriesArt.image == nil) {
                 seriesArt.image = nil
+                operationQueue?.cancelAllOperations()
                 updateUI()
             }
         }
     }
     
+    var operationQueue : OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = UUID().uuidString
+        operationQueue.qualityOfService = .userInteractive
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
+
     fileprivate func updateUI()
     {
         guard let series = self.series else {
             return
         }
         
-        self.activityIndicator.startAnimating()
+        guard seriesArt.image == nil else {
+            return
+        }
         
-        DispatchQueue.global(qos: .userInteractive).async { () -> Void in
-            series.coverArt.block { (image:UIImage?) in
-                Thread.onMainThread {
-                    self.activityIndicator.stopAnimating()
-                    
-                    if let image = image {
-                        if self.series == series {
-                            self.seriesArt.image = image
+        if let coverArt = series.coverArt.fetch?.cache {
+            Thread.onMainThread {
+                self.seriesArt.image = coverArt
+            }
+        } else {
+            Thread.onMainThread {
+                self.activityIndicator.startAnimating()
+            }
+            
+            operationQueue.addOperation {
+                series.coverArt.block { (image:UIImage?) in
+                    Thread.onMainThread {
+                        if let image = image {
+                            if self.series == series {
+                                self.activityIndicator.stopAnimating()
+                                self.seriesArt.image = image
+                            }
+                        } else {
+                            self.activityIndicator.stopAnimating()
+                            self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                         }
-                    } else {
-                        self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                     }
                 }
             }

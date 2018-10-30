@@ -72,6 +72,10 @@
                                     <constraint firstAttribute="centerY" secondItem="x2f-dd-r2d" secondAttribute="centerY" id="yv6-ST-or2"/>
                                 </constraints>
                             </view>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="5R1-KV-Xbw">
+                                <rect key="frame" x="141.5" y="156.5" width="37" height="37"/>
+                                <color key="color" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </activityIndicatorView>
                             <pageControl contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="2" translatesAutoresizingMaskIntoConstraints="NO" id="vgK-rU-B9W">
                                 <rect key="frame" x="0.0" y="286" width="320" height="20"/>
                                 <gestureRecognizers/>
@@ -253,6 +257,7 @@
                             <constraint firstItem="VOy-VZ-8Yx" firstAttribute="top" secondItem="vgK-rU-B9W" secondAttribute="bottom" id="MmL-Y6-WKA"/>
                             <constraint firstItem="vgK-rU-B9W" firstAttribute="top" secondItem="sSN-Ac-J4R" secondAttribute="bottom" id="P4K-lK-sML"/>
                             <constraint firstAttribute="trailing" secondItem="VOy-VZ-8Yx" secondAttribute="trailing" id="Qa4-ZI-PpI"/>
+                            <constraint firstItem="5R1-KV-Xbw" firstAttribute="centerY" secondItem="sSN-Ac-J4R" secondAttribute="centerY" id="Sg6-3q-Chy"/>
                             <constraint firstAttribute="centerX" secondItem="sSN-Ac-J4R" secondAttribute="centerX" id="XjV-lr-cwp"/>
                             <constraint firstItem="91J-fh-SJo" firstAttribute="height" secondItem="sSN-Ac-J4R" secondAttribute="height" id="Yic-aQ-dH2"/>
                             <constraint firstItem="VOy-VZ-8Yx" firstAttribute="top" secondItem="q7U-Fv-YgR" secondAttribute="bottom" id="aUP-ky-TFf"/>
@@ -261,6 +266,7 @@
                             <constraint firstItem="vgK-rU-B9W" firstAttribute="trailing" secondItem="sSN-Ac-J4R" secondAttribute="trailing" id="hag-ff-AsF"/>
                             <constraint firstItem="hyM-uV-ueX" firstAttribute="top" relation="greaterThanOrEqual" secondItem="PgQ-UT-9Es" secondAttribute="bottom" constant="8" symbolic="YES" id="i9j-gB-Qw7"/>
                             <constraint firstItem="hyM-uV-ueX" firstAttribute="top" secondItem="vgK-rU-B9W" secondAttribute="bottom" id="itQ-so-UYd"/>
+                            <constraint firstItem="5R1-KV-Xbw" firstAttribute="centerX" secondItem="sSN-Ac-J4R" secondAttribute="centerX" id="jP4-wV-z2s"/>
                             <constraint firstItem="vgK-rU-B9W" firstAttribute="leading" secondItem="sSN-Ac-J4R" secondAttribute="leading" id="m8p-hK-jXJ"/>
                             <constraint firstItem="PgQ-UT-9Es" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ev9-lG-hyo" secondAttribute="leading" constant="20" symbolic="YES" id="oGi-oo-7C4"/>
                             <constraint firstAttribute="centerY" secondItem="PgQ-UT-9Es" secondAttribute="centerY" id="pc6-7t-aod"/>
@@ -307,6 +313,7 @@
                         <outlet property="remaining" destination="3jv-Gb-bb7" id="BGe-6o-YEG"/>
                         <outlet property="seriesArt" destination="x2f-dd-r2d" id="CXN-Cm-tlG"/>
                         <outlet property="seriesArtAndDescription" destination="sSN-Ac-J4R" id="gfo-QB-lc5"/>
+                        <outlet property="seriesArtSpinner" destination="5R1-KV-Xbw" id="gfc-1n-rjg"/>
                         <outlet property="seriesDescription" destination="ufB-oq-a4t" id="xGN-cP-8V2"/>
                         <outlet property="slider" destination="sE0-gY-Yu6" id="dAt-u7-Yqf"/>
                         <outlet property="spinner" destination="01j-65-CbC" id="vxU-48-2On"/>

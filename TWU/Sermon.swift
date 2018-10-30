@@ -64,7 +64,7 @@ class Sermon : NSObject
                 return nil
             }
             
-            if let numberOfSermons = series?.numberOfSermons { // , let index = series?.sermons?.index(of: self)
+            if let numberOfSermons = series?.sermons?.count { // , let index = series?.sermons?.index(of: self)
                 return "Part\u{00a0}\(partNumber)\u{00a0}of\u{00a0}\(numberOfSermons)"
             }
             

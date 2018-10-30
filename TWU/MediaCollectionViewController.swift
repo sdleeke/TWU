@@ -544,7 +544,9 @@ class MediaCollectionViewController: UIViewController
         disableBarButtons()
 
         // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
-        Globals.shared.settings.series.clear()
+        Globals.shared.settings = Settings()
+        Globals.shared.series = Media()
+        Globals.shared.mediaPlayer = MediaPlayer()
 
         collectionView?.reloadData()
         
