@@ -893,7 +893,7 @@ class MediaViewController : UIViewController
         
         var seriesAttrbutedString : NSMutableAttributedString!
         
-        if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+        if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
             if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
                 let attributedString = try? NSMutableAttributedString(data: data,
                                                                       // DocumentAttributeKey.documentType
@@ -910,7 +910,7 @@ class MediaViewController : UIViewController
         
         if let sermons = seriesSelected.sermons {
             for sermon in sermons {
-                if let text = sermon.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+                if let text = sermon.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
                     if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
                         let attributedString = try? NSMutableAttributedString(data: data,
                                                                               // DocumentAttributeKey.documentType
@@ -919,7 +919,7 @@ class MediaViewController : UIViewController
                         attributedString.addAttributes([NSAttributedStringKey.font:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
                                                        range: NSMakeRange(0, attributedString.length))
 
-                        sermonAttributedStrings[sermon.partString!] = attributedString
+                        sermonAttributedStrings[sermon.partNumber] = attributedString
                     }
                 }
             }
@@ -928,11 +928,13 @@ class MediaViewController : UIViewController
         if sermonAttributedStrings.count > 0 {
             let description = NSMutableAttributedString(attributedString: seriesAttrbutedString)
 
-            for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted() {
+            for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted(by: { (first,second) -> Bool in
+                return Int(first) < Int(second)
+            }) {
                 if let sermonAttributedString = sermonAttributedStrings[sermonAttributedStringKey] {
                     description.append(NSMutableAttributedString(string: "\n"))
                     description.append(NSMutableAttributedString(string: "\n"))
-                    description.append(NSAttributedString(string: sermonAttributedStringKey, attributes:Constants.Fonts.Attributes.bold))
+                    description.append(NSAttributedString(string: "Part \(sermonAttributedStringKey) of \(sermonAttributedStrings.keys.count)", attributes:Constants.Fonts.Attributes.bold))
                     description.append(NSMutableAttributedString(string: "\n"))
                     description.append(sermonAttributedString)
                 }
