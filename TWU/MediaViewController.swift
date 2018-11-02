@@ -71,7 +71,7 @@ extension MediaViewController : PopoverTableViewControllerDelegate
                 break
                 
             case Constants.Open_Sermon:
-                openSermonOnWeb(sermonSelected)
+                openSermonOnCBC(sermonSelected)
                 break
                 
             case Constants.Download_All:
@@ -636,18 +636,28 @@ class MediaViewController : UIViewController
         }
     }
     
-    fileprivate func openSermonOnWeb(_ sermon:Sermon?)
+    func openSermonOnWeb(_ sermon:Sermon?)
     {
-        if let url = sermon?.cbcURL {
-            UIApplication.shared.openURL(url)
-        }
-        
         if let url = sermon?.url {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.openURL(url)
             } else {
                 alert(viewController: self,title: "Network Error", message: "Unable to open url: \(url)")
             }
+        }
+    }
+    
+    fileprivate func openSermonOnCBC(_ sermon:Sermon?)
+    {
+        guard let url = sermon?.cbcURL else {
+            openSermonOnWeb(sermon)
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.openURL(url)
+        } else {
+            openSermonOnWeb(sermon)
         }
     }
     
@@ -950,7 +960,9 @@ class MediaViewController : UIViewController
                         attributedString.addAttributes([NSAttributedStringKey.font:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
                                                        range: NSMakeRange(0, attributedString.length))
 
-                        sermonAttributedStrings[sermon.partNumber] = attributedString
+                        if let partNumber = sermon.partNumber {
+                            sermonAttributedStrings[partNumber] = attributedString
+                        }
                     }
                 }
             }

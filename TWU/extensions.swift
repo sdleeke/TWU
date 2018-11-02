@@ -15,6 +15,10 @@ extension Double
     var secondsToHMS : String?
     {
         get {
+            guard !self.isNaN, !self.isInfinite else {
+                return nil
+            }
+            
             let hours = max(Int(self / (60*60)),0)
             let mins = max(Int((self - (Double(hours) * 60*60)) / 60),0)
             let sec = max(Int(self.truncatingRemainder(dividingBy: 60)),0)

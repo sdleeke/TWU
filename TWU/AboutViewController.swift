@@ -55,6 +55,20 @@ extension AboutViewController : PopoverTableViewControllerDelegate
                 openWebSite(Constants.TWU.WEBSITE)
                 break
                 
+            case "Tom's Archives":
+                openArchives()
+                break
+                
+            case "CBC Media App":
+                guard let url = URL(string:Constants.CBC.APP_URL) else {
+                    break
+                }
+                
+                if (UIApplication.shared.canOpenURL(url)) {
+                    UIApplication.shared.openURL(url)
+                }
+                break
+                
             case Constants.Share_This_App:
                 shareHTML(viewController: self,htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
                 break
@@ -152,6 +166,19 @@ class AboutViewController : UIViewController
         }
     }
     
+    fileprivate func openArchives()
+    {
+        guard let url = URL(string: Constants.CBC.ARCHIVES_URL) else {
+            return
+        }
+
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.openURL(url)
+        } else {
+            openWebSite(Constants.TWU.WEBSITE + "/archives")
+        }
+    }
+    
     fileprivate func openWebSite(_ urlString:String)
     {
         guard let url = URL(string:urlString) else {
@@ -218,8 +245,13 @@ class AboutViewController : UIViewController
         
         actionMenu.append(Constants.Email_TWU)
         actionMenu.append(Constants.TWU_Website)
-        
+        actionMenu.append("Tom's Archives")
+
         actionMenu.append(Constants.Share_This_App)
+
+        if let url = URL(string: "cbc://"), !UIApplication.shared.canOpenURL(url) {
+            actionMenu.append("CBC Media App")
+        }
         
         popover.strings = actionMenu
         

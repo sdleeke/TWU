@@ -17,19 +17,19 @@ class Sermon : NSObject
     
     var dict:[String:Any]?
     
-    var id:String!
+    var id:String?
     {
         return mediaCode
     }
     
-    var mediaCode:String!
+    var mediaCode:String?
     {
         get {
             return dict?["mediaCode"] as? String
         }
     }
     
-    var cbcMediaCode:String!
+    var cbcMediaCode:String?
     {
         get {
             return dict?["cbcMediaCode"] as? String
@@ -39,6 +39,9 @@ class Sermon : NSObject
     var url:URL?
     {
         get {
+            guard let cbcMediaCode = cbcMediaCode else {
+                return nil
+            }
             return URL(string: Constants.URL.BASE.SERMON_WEB + cbcMediaCode)
         }
     }
@@ -46,11 +49,14 @@ class Sermon : NSObject
     var cbcURL:URL?
     {
         get {
-            return URL(string: "cbc://" + cbcMediaCode)
+            guard let cbcMediaCode = cbcMediaCode else {
+                return nil
+            }
+            return URL(string: Constants.CBC.ARCHIVES_URL + "&mediaCode=" + cbcMediaCode)
         }
     }
     
-    var partNumber:String!
+    var partNumber:String?
     {
         get {
             return dict?["part"] as? String
@@ -72,7 +78,7 @@ class Sermon : NSObject
         }
     }
     
-    var publishDate:String!
+    var publishDate:String?
     {
         get {
             return dict?["publishDate"] as? String
@@ -119,6 +125,9 @@ class Sermon : NSObject
     var audio:String?
     {
         get {
+            guard let id = id else {
+                return nil
+            }
             return id + Constants.FILE_EXTENSION.MP3
         }
     }
@@ -228,7 +237,9 @@ class Sermon : NSObject
 
             sermonString = "\(sermonString) \(series.title ?? "Title")"
 
-            sermonString = "\(sermonString) Part:\(partNumber!)"
+            if let partNumber = partNumber {
+                sermonString = "\(sermonString) Part:\(partNumber)"
+            }
 
             return sermonString
         }

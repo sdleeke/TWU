@@ -103,6 +103,12 @@ enum Constants {
 //        static let SERIES = "series.json"
     }
     
+    enum CBC {
+        static let WEBSITE  = "https://www.countrysidebible.org"
+        static let APP_URL  = "https://itunes.apple.com/us/app/countryside-bible-church/id1166303807?mt=8"
+        static let ARCHIVES_URL = "cbc://category=Sermons&tag=Pennington,%20Tom&sorting=reverse%20chronological&grouping=year"
+    }
+    
     enum TWU {
         static let SHORT = "TWU"
         static let LONG = "The Word Unleashed"

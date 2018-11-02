@@ -115,6 +115,9 @@ class Series : Equatable
     
     var url:URL?
     {
+        guard let name = name else {
+            return nil
+        }
         return URL(string: Constants.URL.BASE.SERIES_WEB + name)
 
 //        get {
@@ -138,7 +141,7 @@ class Series : Equatable
 //        }
     }
 
-    var name:String!
+    var name:String?
     {
         get {
             return dict?[Constants.FIELDS.NAME] as? String
@@ -373,10 +376,12 @@ class Series : Equatable
             }
             
             for sermon in sermons {
-                if index == nil {
-                    index = [String:Sermon]()
+                if let id = sermon.id {
+                    if index == nil {
+                        index = [String:Sermon]()
+                    }
+                    index?[id] = sermon
                 }
-                index?[sermon.id] = sermon
             }
         }
     }

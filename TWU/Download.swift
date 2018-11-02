@@ -118,7 +118,9 @@ extension Download : URLSessionDownloadDelegate
         if debug {
             print("URLSession:downloadTask:didFinishDownloadingToURL:")
             
-            print("taskDescription: \(downloadTask.taskDescription!)")
+            if let taskDescription = downloadTask.taskDescription {
+                print("taskDescription: \(taskDescription)")
+            }
             
             if let fileSystemURL = fileSystemURL {
                 print("filename: \(fileSystemURL.lastPathComponent)")
