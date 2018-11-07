@@ -45,7 +45,7 @@ class MediaCollectionViewCell: UICollectionViewCell
             return
         }
         
-        if let coverArt = series.coverArt.fetch?.cache {
+        if let coverArt = series.coverArt.fetch.cache {
             Thread.onMainThread {
                 self.seriesArt.image = coverArt
             }

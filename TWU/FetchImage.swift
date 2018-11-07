@@ -18,25 +18,24 @@ class FetchImage
         self.url = url
     }
     
+    var fileSystemURL:URL?
+    {
+        get {
+            return url?.fileSystemURL
+        }
+    }
+    
+    var downloaded:Bool
+    {
+        get {
+            return fileSystemURL?.downloaded ?? false
+        }
+    }
+    
     // Why isn't this a var?  Would we pass parameters?
     func fetchIt() -> UIImage?
     {
-        guard let image = self.url?.image else {
-            return nil
-        }
-
-        // better handled in url image extension
-//        if let fileSystemURL = url?.fileSystemURL, !fileSystemURL.downloaded {
-//            do {
-//                try UIImageJPEGRepresentation(image, 1.0)?.write(to: fileSystemURL, options: [.atomic])
-//                print("Image \(fileSystemURL.lastPathComponent) saved to file system")
-//            } catch let error as NSError {
-//                NSLog(error.localizedDescription)
-//                print("Image \(fileSystemURL.lastPathComponent) not saved to file system")
-//            }
-//        }
-        
-        return image
+        return self.url?.image
     }
     
     func block(_ block:((UIImage?)->()))
@@ -54,21 +53,59 @@ class FetchImage
     var image : UIImage?
     {
         get {
-            return fetch?.result
+            return fetch.result
         }
     }
     
     func load()
     {
-        fetch?.load()
+        fetch.load()
     }
     
-    lazy var fetch:Fetch<UIImage>? = {
-        guard let imageName = imageName else {
-            return nil
-        }
+    lazy var fetch:Fetch<UIImage> = {
+//        guard let imageName = imageName else {
+//            return nil
+//        }
         
         let fetch = Fetch<UIImage>(name:imageName)
+        
+        fetch.store = { (image:UIImage?) in
+            guard let image = image else {
+                return
+            }
+            
+            guard let fileSystemURL = self.fileSystemURL else {
+                return
+            }
+            
+            guard !fileSystemURL.downloaded else {
+                return
+            }
+            
+            do {
+                try UIImageJPEGRepresentation(image, 1.0)?.write(to: fileSystemURL, options: [.atomic])
+                print("Image \(fileSystemURL.lastPathComponent) saved to file system")
+            } catch let error as NSError {
+                NSLog(error.localizedDescription)
+                print("Image \(fileSystemURL.lastPathComponent) not saved to file system")
+            }
+        }
+        
+        fetch.retrieve = {
+            guard let fileSystemURL = self.fileSystemURL else {
+                return nil
+            }
+            
+            guard fileSystemURL.downloaded else {
+                return nil
+            }
+            
+            guard let image = UIImage(contentsOfFile: fileSystemURL.path) else {
+                return nil
+            }
+            
+            return image
+        }
         
         fetch.fetch = {
             return self.fetchIt()

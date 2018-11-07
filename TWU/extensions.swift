@@ -350,39 +350,45 @@ extension URL
     var image : UIImage?
     {
         get {
-            guard let imageURL = fileSystemURL else {
+            guard let data = data else {
                 return nil
             }
             
-            if imageURL.downloaded, let image = UIImage(contentsOfFile: imageURL.path) {
-                return image
-            } else {
-                guard let data = data else {
-                    return nil
-                }
-                
-                guard let image = UIImage(data: data) else {
-                    return nil
-                }
-                
-                DispatchQueue.global(qos: .background).async {
-                    queue.sync {
-                        guard !imageURL.downloaded else {
-                            return
-                        }
-                        
-                        do {
-                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-                            print("Image \(self.lastPathComponent) saved to file system")
-                        } catch let error as NSError {
-                            NSLog(error.localizedDescription)
-                            print("Image \(self.lastPathComponent) not saved to file system")
-                        }
-                    }
-                }
-
-                return image
-            }
+            return UIImage(data: data)
+            
+//            guard let imageURL = fileSystemURL else {
+//                return nil
+//            }
+//            
+//            if imageURL.downloaded, let image = UIImage(contentsOfFile: imageURL.path) {
+//                return image
+//            } else {
+//                guard let data = data else {
+//                    return nil
+//                }
+//                
+//                guard let image = UIImage(data: data) else {
+//                    return nil
+//                }
+//                
+//                DispatchQueue.global(qos: .background).async {
+//                    queue.sync {
+//                        guard !imageURL.downloaded else {
+//                            return
+//                        }
+//                        
+//                        do {
+//                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+//                            print("Image \(self.lastPathComponent) saved to file system")
+//                        } catch let error as NSError {
+//                            NSLog(error.localizedDescription)
+//                            print("Image \(self.lastPathComponent) not saved to file system")
+//                        }
+//                    }
+//                }
+//
+//                return image
+//            }
         }
     }
 }

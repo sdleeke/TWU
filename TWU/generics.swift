@@ -455,7 +455,7 @@ class ThreadSafeDictionaryOfDictionaries<T>
 
 class Fetch<T>
 {
-    init(name:String,fetch:(()->(T?))? = nil)
+    init(name:String?,fetch:(()->(T?))? = nil)
     {
         self.name = name
         self.fetch = fetch
@@ -463,13 +463,18 @@ class Fetch<T>
     
     var fetch : (()->(T?))?
     
+    var store : ((T?)->())?
+    var retrieve : (()->(T?))?
+    
     var name : String?
     
     var cache : T?
 
     func clear()
     {
-        cache = nil
+        queue.sync {
+            cache = nil
+        }
     }
     
     lazy var queue : DispatchQueue = {
@@ -482,7 +487,16 @@ class Fetch<T>
             guard cache == nil else {
                 return
             }
+
+            cache = retrieve?()
+            
+            guard cache == nil else {
+                return
+            }
+            
             self.cache = self.fetch?()
+            
+            store?(self.cache)
         }
     }
     
@@ -492,6 +506,79 @@ class Fetch<T>
             load()
             
             return cache
+        }
+    }
+}
+
+class FetchCodable<T:Codable> : Fetch<T>
+{
+    var fileSystemURL : URL?
+    {
+        get {
+            guard let name = name?.replacingOccurrences(of: " ", with: "") else {
+                return nil
+            }
+            
+            return cachesURL()?.appendingPathComponent(name)
+        }
+    }
+    
+    // name MUST be unique to ever INSTANCE, not just the class!
+    override init(name: String?, fetch: (() -> (T?))? = nil)
+    {
+        super.init(name: name, fetch: fetch)
+        
+        store = { (t:T?) in
+            guard let t = t else {
+                return
+            }
+            
+            guard let fileSystemURL = self.fileSystemURL else {
+                return
+            }
+            
+            let dict = ["value":t]
+            
+            do {
+                let data = try JSONEncoder().encode(dict)
+                print("able to encode T: \(fileSystemURL.lastPathComponent)")
+                
+                do {
+                    try data.write(to: fileSystemURL)
+                    print("able to write T to the file system: \(fileSystemURL.lastPathComponent)")
+                } catch let error {
+                    print("unable to write T to the file system: \(fileSystemURL.lastPathComponent)")
+                    NSLog(error.localizedDescription)
+                }
+            } catch let error {
+                print("unable to encode T: \(fileSystemURL.lastPathComponent)")
+                NSLog(error.localizedDescription)
+            }
+        }
+        
+        retrieve = {
+            guard let fileSystemURL = self.fileSystemURL else {
+                return nil
+            }
+            
+            do {
+                let data = try Data(contentsOf: fileSystemURL)
+                print("able to read T from storage: \(fileSystemURL.lastPathComponent)")
+                
+                do {
+                    let dict = try JSONDecoder().decode([String:T].self, from: data)
+                    print("able to decode T from storage: \(fileSystemURL.lastPathComponent)")
+                    return dict["value"]
+                } catch let error {
+                    print("unable to decode T from storage: \(fileSystemURL.lastPathComponent)")
+                    NSLog(error.localizedDescription)
+                }
+            } catch let error {
+                print("unable to read T from storage: \(fileSystemURL.lastPathComponent)")
+                NSLog(error.localizedDescription)
+            }
+            
+            return nil
         }
     }
 }
