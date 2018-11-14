@@ -83,8 +83,16 @@ extension MediaCollectionViewController : UICollectionViewDelegateFlowLayout
         var minIndex = 2
         var maxIndex = 2
         
-        let minMeasure = min(view.bounds.height,view.bounds.width)
-        let maxMeasure = max(view.bounds.height,view.bounds.width)
+        var bounds = view.bounds
+        
+        if #available(iOS 11.0, *) {
+            bounds = UIEdgeInsetsInsetRect(view.bounds, view.safeAreaInsets)
+        } else {
+            // Fallback on earlier versions
+        }
+
+        let minMeasure = min(bounds.height,bounds.width)
+        let maxMeasure = max(bounds.height,bounds.width)
         
         repeat {
             minSize = (minMeasure - CGFloat(10*(minIndex+1)))/CGFloat(minIndex)
@@ -800,7 +808,8 @@ class MediaCollectionViewController: UIViewController
         performSegue(withIdentifier: Constants.SEGUE.SHOW_ABOUT, sender: self)
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
+    {
         super.viewWillTransition(to: size, with: coordinator)
         
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in

@@ -21,7 +21,7 @@ class MediaCollectionViewCell: UICollectionViewCell
         didSet {
             if (series != oldValue) || (seriesArt.image == nil) {
                 seriesArt.image = nil
-                operationQueue?.cancelAllOperations()
+//                operationQueue?.cancelAllOperations()
                 updateUI()
             }
         }
@@ -45,28 +45,26 @@ class MediaCollectionViewCell: UICollectionViewCell
             return
         }
         
-        if let coverArt = series.coverArt.fetch.cache {
-            Thread.onMainThread {
-                self.seriesArt.image = coverArt
+        Thread.onMainThread {
+            self.activityIndicator.startAnimating()
+        }
+        
+        operationQueue.addOperation {
+            guard let image = series.coverArt.image else {
+                Thread.onMainThread {
+                    self.activityIndicator.stopAnimating()
+                    self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+                }
+                return
             }
-        } else {
+
             Thread.onMainThread {
-                self.activityIndicator.startAnimating()
-            }
-            
-            operationQueue.addOperation {
-                series.coverArt.block { (image:UIImage?) in
-                    Thread.onMainThread {
-                        if let image = image {
-                            if self.series == series {
-                                self.activityIndicator.stopAnimating()
-                                self.seriesArt.image = image
-                            }
-                        } else {
-                            self.activityIndicator.stopAnimating()
-                            self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
-                        }
-                    }
+                self.activityIndicator.stopAnimating()
+
+                if self.series == series {
+                    self.seriesArt.image = image
+                } else {
+//                    self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                 }
             }
         }

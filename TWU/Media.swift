@@ -195,7 +195,7 @@ class Media
         }).map({ (seriesDict:[String:Any]) -> Series in
             let series = Series(seriesDict: seriesDict)
             
-            DispatchQueue.global(qos: .background).async { () -> Void in
+            DispatchQueue.global(qos: .userInteractive).async { () -> Void in
                 // This blocks.
                 series.coverArt.load()
             }

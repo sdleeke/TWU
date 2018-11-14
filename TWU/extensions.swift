@@ -294,6 +294,31 @@ extension URL
         return cachesURL()?.appendingPathComponent(self.lastPathComponent)
     }
 
+    var fileSize:Int
+    {
+        var size = 0
+        
+        guard let fileSystemURL = fileSystemURL else {
+            return size
+        }
+        
+        guard fileSystemURL.downloaded else {
+            return size
+        }
+        
+        do {
+            let fileAttributes = try FileManager.default.attributesOfItem(atPath: fileSystemURL.path)
+            
+            if let num = fileAttributes[FileAttributeKey.size] as? Int {
+                size = num
+            }
+        } catch let error as NSError {
+            print("failed to get file attributes for \(fileSystemURL): \(error.localizedDescription)")
+        }
+        
+        return size
+    }
+    
     var downloaded : Bool
     {
         get {
@@ -305,6 +330,29 @@ extension URL
         }
     }
 
+    var copy : URL?
+    {
+        guard let fileSystemURL = self.fileSystemURL else {
+            return nil
+        }
+        
+        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
+            do {
+                try FileManager.default.removeItem(at: fileSystemURL)
+            } catch let error as NSError {
+                print("failed to remove download: \(error.localizedDescription)")
+            }
+        }
+        
+        do {
+            try FileManager.default.copyItem(at: self, to: fileSystemURL)
+            return fileSystemURL
+        } catch let error as NSError {
+            print("failed to copy download: \(error.localizedDescription)") // remove
+            return nil
+        }
+    }
+    
     var data : Data?
     {
         get {

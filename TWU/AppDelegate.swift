@@ -14,6 +14,19 @@ import MediaPlayer
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate // AVAudioSessionDelegate Deprecated in 12.0
 {
+    func splitViewController(_ svc: UISplitViewController, willChangeTo displayMode: UISplitViewControllerDisplayMode)
+    {
+        guard let nvc = svc.viewControllers[0] as? UINavigationController else {
+            return
+        }
+
+        guard let cvc = nvc.viewControllers[0] as? MediaCollectionViewController else {
+            return
+        }
+        
+        cvc.collectionView?.reloadData()
+    }
+    
     func splitViewController(_ splitViewController: UISplitViewController,
                              collapseSecondary secondaryViewController:UIViewController,
                              onto primaryViewController:UIViewController) -> Bool
@@ -24,6 +37,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             // Return true to indicate that we have handled the collapse by doing nothing; the secondary controller will be discarded.
             return true
         }
+        
+        
         
         return false
     }
