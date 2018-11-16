@@ -305,29 +305,27 @@ extension URL
         return self.lastPathComponent.fileSystemURL
     }
 
-    var fileSize:Int
+    var fileSize:Int?
     {
-        var size = 0
-        
         guard let fileSystemURL = fileSystemURL else {
-            return size
+            return nil
         }
         
         guard fileSystemURL.exists else {
-            return size
+            return nil
         }
         
         do {
             let fileAttributes = try FileManager.default.attributesOfItem(atPath: fileSystemURL.path)
             
             if let num = fileAttributes[FileAttributeKey.size] as? Int {
-                size = num
+                return num
             }
         } catch let error as NSError {
             print("failed to get file attributes for \(fileSystemURL): \(error.localizedDescription)")
         }
         
-        return size
+        return nil
     }
     
     var exists : Bool

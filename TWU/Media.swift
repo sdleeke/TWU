@@ -197,7 +197,7 @@ class Media
             
             DispatchQueue.global(qos: .userInteractive).async { () -> Void in
                 // This blocks.
-                series.coverArt.load()
+                series.coverArt?.load()
             }
             
             return series

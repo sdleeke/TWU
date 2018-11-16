@@ -13,8 +13,12 @@ class FetchImage
 {
     var url : URL?
     
-    init(url:URL?)
+    init?(url:URL?)
     {
+        guard let url = url else {
+            return
+        }
+        
         self.url = url
     }
     
@@ -52,13 +56,13 @@ class FetchImage
     var image : UIImage?
     {
         get {
-            return fetch.result
+            return fetch?.result
         }
     }
     
     func load()
     {
-        fetch.load()
+        fetch?.load()
     }
     
     func retrieveIt() -> UIImage?
@@ -103,7 +107,11 @@ class FetchImage
         }
     }
     
-    lazy var fetch:Fetch<UIImage> = {
+    lazy var fetch:Fetch<UIImage>? = {
+        guard let imageName = imageName else {
+            return nil
+        }
+        
         let fetch = Fetch<UIImage>(name:imageName)
         
         fetch.store = { (image:UIImage?) in

@@ -330,7 +330,11 @@ class Series : Equatable
         }
     }
 
-    lazy var coverArt = {
+    lazy var coverArt:FetchImage? = {
+        guard let coverArtURL = coverArtURL else {
+            return nil
+        }
+    
         return FetchImage(url: coverArtURL)
     }()
     

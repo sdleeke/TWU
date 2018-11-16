@@ -50,7 +50,7 @@ class MediaCollectionViewCell: UICollectionViewCell
         }
         
         operationQueue.addOperation {
-            guard let image = series.coverArt.image else {
+            guard let image = series.coverArt?.image else {
                 Thread.onMainThread {
                     self.activityIndicator.stopAnimating()
                     self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
