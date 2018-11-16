@@ -519,6 +519,26 @@ class FetchCodable<T:Codable> : Fetch<T>
         }
     }
     
+    private var _fileSize : Int?
+    
+    var fileSize : Int
+    {
+        get {
+            guard let fileSize = _fileSize else {
+                _fileSize = fileSystemURL?.fileSize
+                return _fileSize ?? 0
+            }
+            
+            return fileSize
+        }
+    }
+    
+    func delete()
+    {
+        _fileSize = nil
+        fileSystemURL?.delete()
+    }
+    
     // name MUST be unique to ever INSTANCE, not just the class!
     override init(name: String?, fetch: (() -> (T?))? = nil)
     {

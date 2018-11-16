@@ -338,20 +338,58 @@ extension URL
             }
         }
     }
+    
+//    func delete()
+//    {
+//        guard let fileSystemURL = fileSystemURL else {
+//            return
+//        }
+//        
+//        // Check if file exists and if so, delete it.
+//        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
+//            do {
+//                try FileManager.default.removeItem(at: fileSystemURL)
+//            } catch let error as NSError {
+//                print("failed to delete download: \(error.localizedDescription)")
+//            }
+//        }
+//    }
 
+    func delete()
+    {
+        // Check if file exists and if so, delete it.
+        
+        guard exists else {
+            print("item doesn't exist: \(self.absoluteString)")
+            return
+        }
+        
+        guard let fileSystemURL = fileSystemURL else {
+            print("fileSystemURL doesn't exist for: \(self.absoluteString)")
+            return
+        }
+        
+        do {
+            try FileManager.default.removeItem(at: fileSystemURL)
+        } catch let error {
+            print("failed to delete \(self.absoluteString): \(error.localizedDescription)")
+        }
+    }
+    
     var copy : URL?
     {
         guard let fileSystemURL = self.fileSystemURL else {
             return nil
         }
         
-        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
-            do {
-                try FileManager.default.removeItem(at: fileSystemURL)
-            } catch let error as NSError {
-                print("failed to remove download: \(error.localizedDescription)")
-            }
-        }
+        fileSystemURL.delete()
+//        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
+//            do {
+//                try FileManager.default.removeItem(at: fileSystemURL)
+//            } catch let error as NSError {
+//                print("failed to remove download: \(error.localizedDescription)")
+//            }
+//        }
         
         do {
             try FileManager.default.copyItem(at: self, to: fileSystemURL)
@@ -378,22 +416,6 @@ extension URL
             }
             
             return PDFDocument(data: data)
-        }
-    }
-    
-    func delete()
-    {
-        guard let fileSystemURL = fileSystemURL else {
-            return
-        }
-        
-        // Check if file exists and if so, delete it.
-        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
-            do {
-                try FileManager.default.removeItem(at: fileSystemURL)
-            } catch let error as NSError {
-                print("failed to delete download: \(error.localizedDescription)")
-            }
         }
     }
     
@@ -452,17 +474,19 @@ extension URL
 
 extension Data
 {
-    func save(to url: URL?)
+    func save(to url: URL?) -> Data?
     {
         guard let url = url else {
             NSLog("Data write error: url nil")
-            return
+            return nil
         }
         
         do {
             try self.write(to: url)
+            return self
         } catch let error {
             NSLog("Data write error: \(url.absoluteString)",error.localizedDescription)
+            return nil
         }
     }
     

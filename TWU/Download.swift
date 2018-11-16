@@ -136,20 +136,25 @@ extension Download : URLSessionDownloadDelegate
         }
         
         let fileManager = FileManager.default
+       
+        fileSystemURL?.delete()
         
-        // Check if file exist
-        if let fileSystemURL = fileSystemURL, fileManager.fileExists(atPath: fileSystemURL.path) {
-            do {
-                try fileManager.removeItem(at: fileSystemURL)
-            } catch let error as NSError {
-                NSLog(error.localizedDescription)
-            }
-        }
+//        // Check if file exist
+//        if let fileSystemURL = fileSystemURL, fileManager.fileExists(atPath: fileSystemURL.path) {
+//            do {
+//                try fileManager.removeItem(at: fileSystemURL)
+//            } catch let error as NSError {
+//                NSLog(error.localizedDescription)
+//            }
+//        }
         
         do {
             if state == .downloading, let fileSystemURL = fileSystemURL {
                 try fileManager.copyItem(at: location, to: fileSystemURL)
-                try fileManager.removeItem(at: location)
+                
+                location.delete()
+//                try fileManager.removeItem(at: location)
+                
                 state = .downloaded
             }
         } catch let error as NSError {
@@ -378,6 +383,20 @@ class Download : NSObject
         }
     }
     
+    private var _fileSize : Int?
+    
+    var fileSize : Int
+    {
+        get {
+            guard let fileSize = _fileSize else {
+                _fileSize = fileSystemURL?.fileSize
+                return _fileSize ?? 0
+            }
+            
+            return fileSize
+        }
+    }
+    
     func delete()
     {
         guard (state == .downloaded) else {
@@ -387,15 +406,18 @@ class Download : NSObject
         guard let fileSystemURL = fileSystemURL else {
             return
         }
+
+        _fileSize = nil
+        fileSystemURL.delete()
         
-        // Check if file exists and if so, delete it.
-        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
-            do {
-                try FileManager.default.removeItem(at: fileSystemURL)
-            } catch let error as NSError {
-                NSLog(error.localizedDescription)
-            }
-        }
+//        // Check if file exists and if so, delete it.
+//        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
+//            do {
+//                try FileManager.default.removeItem(at: fileSystemURL)
+//            } catch let error as NSError {
+//                NSLog(error.localizedDescription)
+//            }
+//        }
         
         totalBytesWritten = 0
         totalBytesExpectedToWrite = 0

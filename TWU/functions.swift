@@ -56,38 +56,39 @@ func shareHTML(viewController:UIViewController,htmlString:String?)
     }
 }
 
-func documentsURL() -> URL?
+var documentsURL:URL?
 {
-    let fileManager = FileManager.default
-    return fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-}
-
-func remove(_ filename:String)
-{
-    if let fileSystemURL = filename.fileSystemURL {
-        do {
-            try FileManager.default.removeItem(atPath: fileSystemURL.path)
-        } catch let error as NSError {
-            NSLog(error.localizedDescription)
-            print("failed to copy sermons.json")
-        }
+    get {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
     }
 }
 
-func save(_ filename:String)
-{
-    //Get documents directory URL
-    guard let fileSystemURL = filename.fileSystemURL else {
-        return
-    }
-    
-    let fileManager = FileManager.default
-    
-    // Check if file exist
-    if (!fileManager.fileExists(atPath: fileSystemURL.path)){
-        //            downloadJSON()
-    }
-}
+//func remove(_ filename:String)
+//{
+//    if let fileSystemURL = filename.fileSystemURL {
+//        do {
+//            try FileManager.default.removeItem(atPath: fileSystemURL.path)
+//        } catch let error as NSError {
+//            NSLog(error.localizedDescription)
+//            print("failed to copy sermons.json")
+//        }
+//    }
+//}
+
+//func save(_ filename:String)
+//{
+//    //Get documents directory URL
+//    guard let fileSystemURL = filename.fileSystemURL else {
+//        return
+//    }
+//
+//    let fileManager = FileManager.default
+//
+//    // Check if file exist
+//    if (!fileManager.fileExists(atPath: fileSystemURL.path)){
+//        //            downloadJSON()
+//    }
+//}
 
 //func fileSystemURL(_ filename:String?) -> URL?
 //{

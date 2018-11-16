@@ -64,6 +64,26 @@ class FetchImage
     {
         fetch?.load()
     }
+
+    private var _fileSize : Int?
+    
+    var fileSize : Int
+    {
+        get {
+            guard let fileSize = _fileSize else {
+                _fileSize = fileSystemURL?.fileSize
+                return _fileSize ?? 0
+            }
+            
+            return fileSize
+        }
+    }
+    
+    func delete()
+    {
+        _fileSize = nil
+        fileSystemURL?.delete()
+    }
     
     func retrieveIt() -> UIImage?
     {
