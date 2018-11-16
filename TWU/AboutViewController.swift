@@ -194,8 +194,7 @@ class AboutViewController : UIViewController
 
     fileprivate func showSendMailErrorAlert()
     {
-        let sendMailErrorAlert = UIAlertView(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.", delegate: self, cancelButtonTitle: "OK")
-        sendMailErrorAlert.show()
+        Alerts.shared.alert(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.")
     }
     
     fileprivate func email()

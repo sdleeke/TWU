@@ -10,33 +10,33 @@ import Foundation
 
 class JSON
 {
-    func get(from filename:String?) -> Any?
-    {
-        guard let filename = filename else {
-            return nil
-        }
-        
-        guard let fileSystemURL = filename.fileSystemURL else {
-            return nil
-        }
-        
-        do {
-            let data = try Data(contentsOf: fileSystemURL)
-            print("able to read json from the URL.")
-            
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
-                return json
-            } catch let error as NSError {
-                NSLog(error.localizedDescription)
-                return nil
-            }
-        } catch let error as NSError {
-            print("Network unavailable: json could not be read from the file system.")
-            NSLog(error.localizedDescription)
-            return nil
-        }
-    }
+//    func get(from filename:String?) -> Any?
+//    {
+//        guard let filename = filename else {
+//            return nil
+//        }
+//
+//        guard let fileSystemURL = filename.fileSystemURL else {
+//            return nil
+//        }
+//
+//        do {
+//            let data = try Data(contentsOf: fileSystemURL)
+//            print("able to read json from the URL.")
+//
+//            do {
+//                let json = try JSONSerialization.jsonObject(with: data, options: [])
+//                return json
+//            } catch let error as NSError {
+//                NSLog(error.localizedDescription)
+//                return nil
+//            }
+//        } catch let error as NSError {
+//            print("Network unavailable: json could not be read from the file system.")
+//            NSLog(error.localizedDescription)
+//            return nil
+//        }
+//    }
     
     var format:String?
     {
@@ -67,67 +67,43 @@ class JSON
     
     func get(from urlString:String?,filename:String?) -> Any?
     {
-        guard let urlString = urlString else {
+        guard Globals.shared.reachability.isReachable else {
             return nil
         }
         
-        guard Globals.shared.reachability.isReachable, let url = URL(string: urlString) else {
-            print("json not reachable.")
-            return get(from: filename)
-        }
+//        guard let urlString = urlString else {
+//            return nil
+//        }
+//
+//        guard let url = URL(string: urlString) else {
+//            return filename?.fileSystemURL?.data?.json
+//        }
         
-        if format == Constants.JSON.SERIES_JSON, let json = get(from: filename) {
+        func urlData() -> Any?
+        {
+            let data = urlString?.url?.data
+            
+            guard let json = data?.json else {
+                return nil
+            }
+            
             operationQueue.addOperation {
-                do {
-                    let data = try Data(contentsOf: url)
-                    print("able to read json from the URL.")
-                    
-                    do {
-                        if let fileSystemURL = filename?.fileSystemURL { // fileSystemURL(filename)
-                            try data.write(to: fileSystemURL)
-                        }
-                        self.format = Constants.JSON.SERIES_JSON
-                        print("able to write json to the file system")
-                    } catch let error as NSError {
-                        print("unable to write json to the file system.")
-                        NSLog(error.localizedDescription)
-                    }
-                } catch let error {
-                    NSLog(error.localizedDescription)
-                }
+                data?.save(to: filename?.fileSystemURL)
+                self.format = Constants.JSON.SERIES_JSON
             }
             
             return json
-        } else {
-            do {
-                let data = try Data(contentsOf: url)
-                print("able to read json from the URL.")
-                
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data, options: [])
-                    
-                    do {
-                        if let jsonFileSystemURL = filename?.fileSystemURL {
-                            try data.write(to: jsonFileSystemURL)
-                        }
-                        format = Constants.JSON.SERIES_JSON
-                        print("able to write json to the file system")
-                    } catch let error as NSError {
-                        print("unable to write json to the file system.")
-                        
-                        NSLog(error.localizedDescription)
-                    }
-                    
-                    return json
-                } catch let error as NSError {
-                    NSLog(error.localizedDescription)
-                    return get(from: filename)
-                }
-            } catch let error as NSError {
-                NSLog(error.localizedDescription)
-                return get(from: filename)
-            }
         }
+        
+        guard format == Constants.JSON.SERIES_JSON else {
+            return urlData()
+        }
+
+        guard let json = filename?.fileSystemURL?.data?.json else {
+            return urlData()
+        }
+        
+        return json
     }
 
     func load() -> [[String:Any]]?

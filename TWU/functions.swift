@@ -94,10 +94,11 @@ func save(_ filename:String)
 //    return cachesURL()?.appendingPathComponent(filename)
 //}
 
-func cachesURL() -> URL?
+var cachesURL:URL?
 {
-    let fileManager = FileManager.default
-    return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
+    get {
+        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+    }
 }
 
 func sortSeries(_ series:[Series]?,sorting:String?) -> [Series]?
@@ -220,7 +221,7 @@ func networkUnavailable(viewController:UIViewController,message:String?)
 
 func filesOfTypeInCache(_ fileType:String) -> [String]?
 {
-    guard let path = cachesURL()?.path else {
+    guard let path = cachesURL?.path else {
         return nil
     }
     

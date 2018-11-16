@@ -281,8 +281,19 @@ extension String
 
     var fileSystemURL : URL?
     {
-        return url?.fileSystemURL
+        get {
+            guard self != url?.lastPathComponent else {
+                return cachesURL?.appendingPathComponent(self.replacingOccurrences(of: " ", with: ""))
+            }
+            
+            return url?.fileSystemURL
+        }
     }
+    
+//    var fileSystemURL : URL?
+//    {
+//        return url?.fileSystemURL
+//    }
 }
 
 fileprivate var queue = DispatchQueue(label: UUID().uuidString)
@@ -291,7 +302,7 @@ extension URL
 {
     var fileSystemURL : URL?
     {
-        return cachesURL()?.appendingPathComponent(self.lastPathComponent)
+        return self.lastPathComponent.fileSystemURL
     }
 
     var fileSize:Int
@@ -302,7 +313,7 @@ extension URL
             return size
         }
         
-        guard fileSystemURL.downloaded else {
+        guard fileSystemURL.exists else {
             return size
         }
         
@@ -319,7 +330,7 @@ extension URL
         return size
     }
     
-    var downloaded : Bool
+    var exists : Bool
     {
         get {
             if let fileSystemURL = fileSystemURL {
@@ -443,25 +454,69 @@ extension URL
 
 extension Data
 {
-    var html2AttributedString: NSAttributedString? {
+    func save(to url: URL?)
+    {
+        guard let url = url else {
+            NSLog("Data write error: url nil")
+            return
+        }
+        
         do {
-            return try NSAttributedString(data: self, options: [NSAttributedString.DocumentReadingOptionKey.documentType:NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf16.rawValue], documentAttributes: nil)
-        } catch {
-            print("error:", error)
-            return  nil
+            try self.write(to: url)
+        } catch let error {
+            NSLog("Data write error: \(url.absoluteString)",error.localizedDescription)
         }
     }
-    var html2String: String? {
-        return html2AttributedString?.string
+    
+    var json : Any?
+    {
+        get {
+            do {
+                let json = try JSONSerialization.jsonObject(with: self, options: [])
+                return json
+            } catch let error {
+                NSLog("JSONSerialization error", error.localizedDescription)
+                return nil
+            }
+        }
+    }
+    
+    var html2AttributedString: NSAttributedString?
+    {
+        get {
+            do {
+                return try NSAttributedString(data: self, options: [NSAttributedString.DocumentReadingOptionKey.documentType:NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf16.rawValue], documentAttributes: nil)
+            } catch {
+                print("error:", error)
+                return  nil
+            }
+        }
+    }
+    
+    var html2String: String?
+    {
+        get {
+            return html2AttributedString?.string
+        }
+    }
+    
+    var image : UIImage?
+    {
+        get {
+            return UIImage(data: self)
+        }
     }
 }
 
 extension String
 {
-    var html2AttributedString: NSAttributedString? {
+    var html2AttributedString: NSAttributedString?
+    {
         return self.data(using: String.Encoding.utf16)?.html2AttributedString
     }
-    var html2String: String? {
+    
+    var html2String: String?
+    {
         return html2AttributedString?.string
     }
 }

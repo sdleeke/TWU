@@ -25,10 +25,10 @@ class FetchImage
         }
     }
     
-    var downloaded:Bool
+    var exists:Bool
     {
         get {
-            return fileSystemURL?.downloaded ?? false
+            return fileSystemURL?.exists ?? false
         }
     }
     
@@ -63,19 +63,21 @@ class FetchImage
     
     func retrieveIt() -> UIImage?
     {
-        guard let fileSystemURL = self.fileSystemURL else {
-            return nil
-        }
+        return fileSystemURL?.data?.image
         
-        guard fileSystemURL.downloaded else {
-            return nil
-        }
-        
-        guard let image = UIImage(contentsOfFile: fileSystemURL.path) else {
-            return nil
-        }
-        
-        return image
+//        guard let fileSystemURL = self.fileSystemURL else {
+//            return nil
+//        }
+//
+//        guard fileSystemURL.exists else {
+//            return nil
+//        }
+//
+//        guard let image = UIImage(contentsOfFile: fileSystemURL.path) else {
+//            return nil
+//        }
+//
+//        return image
     }
     
     func storeIt(image:UIImage?)
@@ -88,7 +90,7 @@ class FetchImage
             return
         }
         
-        guard !fileSystemURL.downloaded else {
+        guard !fileSystemURL.exists else {
             return
         }
         

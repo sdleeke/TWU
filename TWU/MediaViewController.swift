@@ -522,8 +522,7 @@ class MediaViewController : UIViewController
     
     fileprivate func showSendMessageErrorAlert()
     {
-        let sendMessageErrorAlert = UIAlertView(title: "Could Not Send a Message", message: "Your device could not send a text message.  Please check your configuration and try again.", delegate: self, cancelButtonTitle: Constants.Okay)
-        sendMessageErrorAlert.show()
+        Alerts.shared.alert(title: "Could Not Send a Message", message: "Your device could not send a text message.  Please check your configuration and try again.")
     }
     
     fileprivate func message()
@@ -545,8 +544,7 @@ class MediaViewController : UIViewController
     
     fileprivate func showSendMailErrorAlert()
     {
-        let sendMailErrorAlert = UIAlertView(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.", delegate: self, cancelButtonTitle: "OK")
-        sendMailErrorAlert.show()
+        Alerts.shared.alert(title: "Could Not Send Email", message: "Your device could not send e-mail.  Please check your e-mail configuration and try again.")
     }
     
     fileprivate func setupBody() -> String
