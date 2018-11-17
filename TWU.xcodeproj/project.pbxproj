@@ -16,6 +16,7 @@
 		174C433821849F7C00BF9CB4 /* SeriesSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174C433721849F7C00BF9CB4 /* SeriesSettings.swift */; };
 		174C433A2184B5F400BF9CB4 /* SermonSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174C43392184B5F400BF9CB4 /* SermonSettings.swift */; };
 		17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */; };
+		17590CCA219F991D00ED6EB1 /* CancellableOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17590CC9219F991D00ED6EB1 /* CancellableOperation.swift */; };
 		175EDA2A1BAC8BF200942E6D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175EDA291BAC8BF200942E6D /* Reachability.swift */; };
 		176703951B6D076300A8435F /* MediaTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176703941B6D076300A8435F /* MediaTableViewCell.swift */; };
 		176D4C1E1C01FD10009EC031 /* fontawesome-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 176D4C1D1C01FCFA009EC031 /* fontawesome-webfont.ttf */; };
@@ -73,6 +74,7 @@
 		174C433721849F7C00BF9CB4 /* SeriesSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeriesSettings.swift; sourceTree = "<group>"; };
 		174C43392184B5F400BF9CB4 /* SermonSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SermonSettings.swift; sourceTree = "<group>"; };
 		17523DA61C9AD219002802A4 /* PopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewController.swift; sourceTree = "<group>"; };
+		17590CC9219F991D00ED6EB1 /* CancellableOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CancellableOperation.swift; sourceTree = "<group>"; };
 		175EDA291BAC8BF200942E6D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		176703941B6D076300A8435F /* MediaTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewCell.swift; sourceTree = "<group>"; };
 		176D4C1D1C01FCFA009EC031 /* fontawesome-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontawesome-webfont.ttf"; sourceTree = "<group>"; };
@@ -191,6 +193,7 @@
 				1736F2DB2174EBAA00F2D8EC /* Download.swift */,
 				175EDA291BAC8BF200942E6D /* Reachability.swift */,
 				177FBA921C5CE1B800AFBB50 /* OBSlider.swift */,
+				17590CC9219F991D00ED6EB1 /* CancellableOperation.swift */,
 				17CDEF0B21676DAA00B21C87 /* FetchImage.swift */,
 				17B875DE2159487800BD8D28 /* generics.swift */,
 				17B875E02159489100BD8D28 /* extensions.swift */,
@@ -406,6 +409,7 @@
 				177FBA931C5CE1B800AFBB50 /* OBSlider.swift in Sources */,
 				17523DA71C9AD219002802A4 /* PopoverTableViewController.swift in Sources */,
 				17CFC25821663D7000A28F69 /* Search.swift in Sources */,
+				17590CCA219F991D00ED6EB1 /* CancellableOperation.swift in Sources */,
 				17A5711E1BEA365900C0D278 /* Series.swift in Sources */,
 				17CFC25A21663D8B00A28F69 /* Media.swift in Sources */,
 				17CFC2622166700200A28F69 /* JSON.swift in Sources */,

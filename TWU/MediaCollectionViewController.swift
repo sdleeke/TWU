@@ -442,11 +442,24 @@ class MediaCollectionViewController: UIViewController
     
     var json = JSON()
     
+    lazy var operationQueue : OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "MCVC:" + UUID().uuidString
+        operationQueue.qualityOfService = .userInitiated
+        operationQueue.maxConcurrentOperationCount = 1 // Slides and Notes
+        return operationQueue
+    }()
+    
     func loadSeries(_ completion: (() -> Void)?)
     {
         Globals.shared.isLoading = true
         
-        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+        operationQueue.cancelAllOperations()
+        
+        operationQueue.waitUntilAllOperationsAreFinished()
+        
+        let operation = CancellableOperation { (test:(()->(Bool))?) in
+//        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
                 if !Globals.shared.isRefreshing {
                     self.view.bringSubview(toFront: self.activityIndicator)
@@ -491,7 +504,9 @@ class MediaCollectionViewController: UIViewController
             }
 
             Globals.shared.isLoading = false
-        })
+        }
+        
+        operationQueue.addOperation(operation)
     }
     
     func disableToolBarButtons()
