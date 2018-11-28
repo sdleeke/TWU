@@ -139,11 +139,13 @@ class Globals //: NSObject
             }
         }
 
+        // Do include the list because we don't want to be warned at the start that there is a network connection
         if priorReachabilityStatus == .notReachable, reachability.isReachable, series.all != nil {
             Alerts.shared.alert(title: "Network Connection Restored",message: "")
         }
         
-        if priorReachabilityStatus != .notReachable, !reachability.isReachable, series.all != nil {
+        // Don't include the list because we want to be warned at th start that there is no network connection
+        if priorReachabilityStatus != .notReachable, !reachability.isReachable { // , series.all != nil
             Alerts.shared.alert(title: "No Network Connection",message: "Without a network connection only audio previously downloaded will be available.")
         }
         
