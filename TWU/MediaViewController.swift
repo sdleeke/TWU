@@ -261,7 +261,7 @@ class MediaViewController : UIViewController
         addPlayerObserver()
     }
     
-    var sliderObserver: Timer?
+    var sliderTimer: Timer?
 
     var operationQueue : OperationQueue! = {
         let operationQueue = OperationQueue()
@@ -296,7 +296,7 @@ class MediaViewController : UIViewController
 
             if let sermonSelected = sermonSelected { // sermonSelected != oldValue
                 if (sermonSelected != Globals.shared.mediaPlayer.playing) {
-                    removeSliderObserver()
+                    removeSliderTimer()
                     if let playingURL = sermonSelected.playingURL {
                         playerURL(url: playingURL)
                     }
@@ -492,13 +492,13 @@ class MediaViewController : UIViewController
         
         setupSpinner()
         setupPlayPauseButton()
-        addSliderObserver()
+        addSliderTimer()
     }
     
     @IBAction func sliderTouchDown(_ sender: UISlider)
     {
         controlView.sliding = true
-        removeSliderObserver()
+        removeSliderTimer()
     }
     
     @IBAction func sliderTouchUpOutside(_ sender: UISlider)
@@ -811,7 +811,8 @@ class MediaViewController : UIViewController
         
         tableView.reloadData()
 
-        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        // Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
                 self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
@@ -1103,7 +1104,7 @@ class MediaViewController : UIViewController
             }
         }
         
-        addSliderObserver()
+        addSliderTimer()
         
         setupActionsButton()
         setupArtAndDescription()
@@ -1146,7 +1147,7 @@ class MediaViewController : UIViewController
         }
         
         guard let playing = Globals.shared.mediaPlayer.playing else {
-            removeSliderObserver()
+            removeSliderTimer()
             
             if let url = sermonSelected?.playingURL {
                 playerURL(url: url)
@@ -1162,8 +1163,8 @@ class MediaViewController : UIViewController
         
         sermonSelected = playing
         
-        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
-        
+        // Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        // For UI
         DispatchQueue.global(qos: .background).async {
             Thread.onMainThread {
                 self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
@@ -1199,6 +1200,7 @@ class MediaViewController : UIViewController
             Globals.shared.mediaPlayer.playOnLoad = false
             
             // Purely for the delay?
+            // For UI
             DispatchQueue.global(qos: .background).async(execute: {
                 Thread.onMainThread {
                     Globals.shared.mediaPlayer.play()
@@ -1317,7 +1319,8 @@ class MediaViewController : UIViewController
         
         setupPlayPauseButton()
         
-        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        // Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
                 self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.none)
@@ -1329,7 +1332,8 @@ class MediaViewController : UIViewController
     {
         super.viewDidAppear(animated)
 
-        //Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        // Without this background/main dispatching there isn't time to scroll correctly after a reload.
+        // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
                 self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
@@ -1347,12 +1351,12 @@ class MediaViewController : UIViewController
     {
         super.viewWillDisappear(animated)
         
-        removeSliderObserver()
+        removeSliderTimer()
         removePlayerObserver()
         
         NotificationCenter.default.removeObserver(self)
         
-        sliderObserver?.invalidate()
+        sliderTimer?.invalidate()
     }
 
     override func didReceiveMemoryWarning() {
@@ -1614,7 +1618,7 @@ class MediaViewController : UIViewController
         }
     }
     
-    @objc func sliderTimer()
+    @objc func updateSlider()
     {
         guard Thread.isMainThread else {
             return
@@ -1690,22 +1694,24 @@ class MediaViewController : UIViewController
         }
     }
     
-    func removeSliderObserver()
+    func removeSliderTimer()
     {
-        sliderObserver?.invalidate()
-        sliderObserver = nil
+        sliderTimer?.invalidate()
+        sliderTimer = nil
         
-        if Globals.shared.mediaPlayer.sliderTimerReturn != nil {
-            Globals.shared.mediaPlayer.player?.removeTimeObserver(Globals.shared.mediaPlayer.sliderTimerReturn!)
-            Globals.shared.mediaPlayer.sliderTimerReturn = nil
-        }
+//        if let sliderTimerReturn = Globals.shared.mediaPlayer.sliderTimerReturn {
+//            Globals.shared.mediaPlayer.player?.removeTimeObserver(sliderTimerReturn)
+//            Globals.shared.mediaPlayer.sliderTimerReturn = nil
+//        }
     }
     
-    func addSliderObserver()
+    func addSliderTimer()
     {
-        removeSliderObserver()
+        removeSliderTimer()
         
-        self.sliderObserver = Timer.scheduledTimer(timeInterval: Constants.INTERVALS.TIMERS.SLIDER, target: self, selector: #selector(sliderTimer), userInfo: nil, repeats: true)
+        Thread.onMainThread {
+            self.sliderTimer = Timer.scheduledTimer(timeInterval: Constants.INTERVALS.TIMERS.SLIDER, target: self, selector: #selector(self.updateSlider), userInfo: nil, repeats: true)
+        }
     }
     
     func playCurrentSermon(_ sermon:Sermon?)
@@ -1759,7 +1765,7 @@ class MediaViewController : UIViewController
         //This guarantees a fresh start.
         Globals.shared.mediaPlayer.playOnLoad = true
         Globals.shared.mediaPlayer.reload(sermon)
-        addSliderObserver()
+        addSliderTimer()
         setupPlayPauseButton()
     }
     
@@ -1783,13 +1789,13 @@ class MediaViewController : UIViewController
         
         Globals.shared.mediaPlayer.playing = sermon
         
-        removeSliderObserver()
+        removeSliderTimer()
         
         //This guarantees a fresh start.
         Globals.shared.mediaPlayer.playOnLoad = true
         Globals.shared.mediaPlayer.setup(sermon)
         
-        addSliderObserver()
+        addSliderTimer()
         
         if (view.window != nil) {
             setupSliderAndTimes()

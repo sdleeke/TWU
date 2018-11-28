@@ -278,25 +278,35 @@ extension String
             return URL(string: self)
         }
     }
-
+    
     var fileSystemURL : URL?
     {
         get {
+            guard !self.isEmpty else {
+                return nil
+                
+            }
+            
+            guard url != nil else {
+                if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
+                    return cachesURL?.appendingPathComponent(lastPathComponent)
+                } else {
+                    return nil
+                }
+            }
+            
             guard self != url?.lastPathComponent else {
-                return cachesURL?.appendingPathComponent(self.replacingOccurrences(of: " ", with: ""))
+                if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
+                    return cachesURL?.appendingPathComponent(lastPathComponent)
+                } else {
+                    return nil
+                }
             }
             
             return url?.fileSystemURL
         }
     }
-    
-//    var fileSystemURL : URL?
-//    {
-//        return url?.fileSystemURL
-//    }
 }
-
-fileprivate var queue = DispatchQueue(label: UUID().uuidString)
 
 extension URL
 {
@@ -338,22 +348,6 @@ extension URL
             }
         }
     }
-    
-//    func delete()
-//    {
-//        guard let fileSystemURL = fileSystemURL else {
-//            return
-//        }
-//        
-//        // Check if file exists and if so, delete it.
-//        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
-//            do {
-//                try FileManager.default.removeItem(at: fileSystemURL)
-//            } catch let error as NSError {
-//                print("failed to delete download: \(error.localizedDescription)")
-//            }
-//        }
-//    }
 
     func delete()
     {
@@ -383,13 +377,6 @@ extension URL
         }
         
         fileSystemURL.delete()
-//        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
-//            do {
-//                try FileManager.default.removeItem(at: fileSystemURL)
-//            } catch let error as NSError {
-//                print("failed to remove download: \(error.localizedDescription)")
-//            }
-//        }
         
         do {
             try FileManager.default.copyItem(at: self, to: fileSystemURL)
@@ -403,7 +390,15 @@ extension URL
     var data : Data?
     {
         get {
-            return try? Data(contentsOf: self)
+            do {
+                let data = try Data(contentsOf: self)
+                print("Data read from \(self.absoluteString)")
+                return data
+            } catch let error {
+                NSLog(error.localizedDescription)
+                print("Data not read from \(self.absoluteString)")
+                return nil
+            }
         }
     }
     
@@ -434,40 +429,6 @@ extension URL
             }
             
             return UIImage(data: data)
-            
-//            guard let imageURL = fileSystemURL else {
-//                return nil
-//            }
-//            
-//            if imageURL.downloaded, let image = UIImage(contentsOfFile: imageURL.path) {
-//                return image
-//            } else {
-//                guard let data = data else {
-//                    return nil
-//                }
-//                
-//                guard let image = UIImage(data: data) else {
-//                    return nil
-//                }
-//                
-//                DispatchQueue.global(qos: .background).async {
-//                    queue.sync {
-//                        guard !imageURL.downloaded else {
-//                            return
-//                        }
-//                        
-//                        do {
-//                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-//                            print("Image \(self.lastPathComponent) saved to file system")
-//                        } catch let error as NSError {
-//                            NSLog(error.localizedDescription)
-//                            print("Image \(self.lastPathComponent) not saved to file system")
-//                        }
-//                    }
-//                }
-//
-//                return image
-//            }
         }
     }
 }

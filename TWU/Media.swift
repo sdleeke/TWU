@@ -97,15 +97,16 @@ class Media
         for series in series {
             if let sermons = series.sermons {
                 for sermon in sermons {
-                    if sermon.audioDownload.active {
-                        sermon.audioDownload.task?.cancel()
-                        sermon.audioDownload.task = nil
-                        
-                        sermon.audioDownload.totalBytesWritten = 0
-                        sermon.audioDownload.totalBytesExpectedToWrite = 0
-                        
-                        sermon.audioDownload.state = .none
-                    }
+                    sermon.audioDownload.cancel()
+//                    if sermon.audioDownload.active {
+//                        sermon.audioDownload.task?.cancel()
+//                        sermon.audioDownload.task = nil
+//
+//                        sermon.audioDownload.totalBytesWritten = 0
+//                        sermon.audioDownload.totalBytesExpectedToWrite = 0
+//
+//                        sermon.audioDownload.state = .none
+//                    }
                 }
             }
         }
@@ -181,9 +182,34 @@ class Media
     {
         all = from(seriesDicts: seriesDicts)
     }
+
+    // This is if we use opQueues when downloading
+
+//    lazy var operationQueue:OperationQueue! = {
+//        let operationQueue = OperationQueue()
+//        operationQueue.name = "Media"
+//        operationQueue.qualityOfService = .background
+//        operationQueue.maxConcurrentOperationCount = 1
+//        return operationQueue
+//    }()
+//
+//    lazy var mediaQueue : OperationQueue! = {
+//        let operationQueue = OperationQueue()
+//        operationQueue.name = "Media:Media" + UUID().uuidString
+//        operationQueue.qualityOfService = .background
+//        operationQueue.maxConcurrentOperationCount = 3 // Media downloads at once.
+//        return operationQueue
+//    }()
+//
+//    deinit {
+//        operationQueue.cancelAllOperations()
+//    }
     
     func from(seriesDicts:[[String:Any]]?) -> [Series]?
     {
+        // This is if we use an opQueue when downloading
+//        operationQueue.cancelAllOperations()
+
         return seriesDicts?.filter({ (seriesDict:[String:Any]) -> Bool in
 //            let series = Series(seriesDict: seriesDict)
 //            return series.sermons?.count > 0 // .show != 0
@@ -195,11 +221,9 @@ class Media
         }).map({ (seriesDict:[String:Any]) -> Series in
             let series = Series(seriesDict: seriesDict)
             
-            DispatchQueue.global(qos: .userInteractive).async { () -> Void in
-                // This blocks.
-                series.coverArt?.load()
-            }
-            
+            // This is just a way to load the artwork
+            series.coverArt?.fetch?.fill()
+
             return series
         })
     }

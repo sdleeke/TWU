@@ -67,9 +67,9 @@ class JSON
     
     func get(from urlString:String?,filename:String?) -> Any?
     {
-        guard Globals.shared.reachability.isReachable else {
-            return nil
-        }
+//        guard Globals.shared.reachability.isReachable else {
+//            return nil
+//        }
         
 //        guard let urlString = urlString else {
 //            return nil
@@ -79,22 +79,40 @@ class JSON
 //            return filename?.fileSystemURL?.data?.json
 //        }
         
+//        guard let json = filename?.fileSystemURL?.data?.json else {
+//            // BLOCKS
+//            let data = urlString?.url?.data
+//
+//            operationQueue.addOperation {
+//                _ = data?.save(to: filename?.fileSystemURL)
+//                self.format = Constants.JSON.SERIES_JSON
+//            }
+//
+//            return data?.json
+//        }
+//
+//        operationQueue.addOperation {
+//            _ = urlString?.url?.data?.save(to: filename?.fileSystemURL)
+//        }
+//
+//        return json
+
         func urlData() -> Any?
         {
             let data = urlString?.url?.data
-            
+
             guard let json = data?.json else {
                 return nil
             }
-            
+
             operationQueue.addOperation {
-                data?.save(to: filename?.fileSystemURL)
+                _ = data?.save(to: filename?.fileSystemURL)
                 self.format = Constants.JSON.SERIES_JSON
             }
-            
+
             return json
         }
-        
+
         guard format == Constants.JSON.SERIES_JSON else {
             return urlData()
         }
@@ -102,7 +120,7 @@ class JSON
         guard let json = filename?.fileSystemURL?.data?.json else {
             return urlData()
         }
-        
+
         return json
     }
 

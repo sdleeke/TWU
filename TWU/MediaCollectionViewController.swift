@@ -412,7 +412,8 @@ class MediaCollectionViewController: UIViewController
         if let index = Globals.shared.series.active?.index(of: series) {
             let indexPath = IndexPath(item: index, section: 0)
             
-            //Without this background/main dispatching there isn't time to scroll after a reload.
+            // Without this background/main dispatching there isn't time to scroll after a reload.
+            // For UI
             DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                 Thread.onMainThread {
                     self.collectionView.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition.top, animated: true)
@@ -456,7 +457,7 @@ class MediaCollectionViewController: UIViewController
         
         operationQueue.cancelAllOperations()
         
-        operationQueue.waitUntilAllOperationsAreFinished()
+//        operationQueue.waitUntilAllOperationsAreFinished()
         
         let operation = CancellableOperation { (test:(()->(Bool))?) in
 //        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in

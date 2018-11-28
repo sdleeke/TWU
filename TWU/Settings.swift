@@ -12,11 +12,24 @@ class Settings
 {
     var series = ThreadSafeDictionaryOfDictionaries<String>(name: "SeriesSettings") // [String:[String:String]]?
     var sermon = ThreadSafeDictionaryOfDictionaries<String>(name: "SermonSettings") // [String:[String:String]]?
-
+    
+    lazy var operationQueue:OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "Settings"
+        operationQueue.qualityOfService = .background
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
+    
+    deinit {
+        operationQueue.cancelAllOperations()
+    }
+    
     func saveBackground()
     {
         print("saveSermonSettingsBackground")
-        DispatchQueue.global(qos: .background).async { () -> Void in
+        
+        operationQueue.addOperation {
             self.save()
         }
     }

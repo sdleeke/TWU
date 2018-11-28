@@ -106,7 +106,7 @@ class PlayerStateTime {
 class MediaPlayer : NSObject
 {
     var playerTimerReturn:Any? = nil
-    var sliderTimerReturn:Any? = nil
+//    var sliderTimerReturn:Any? = nil
     
     var observerActive = false
     var observedItem:AVPlayerItem?
@@ -127,10 +127,10 @@ class MediaPlayer : NSObject
         }
         
         set {
-            if sliderTimerReturn != nil {
-                hiddenPlayer?.removeTimeObserver(sliderTimerReturn!)
-                sliderTimerReturn = nil
-            }
+//            if sliderTimerReturn != nil {
+//                hiddenPlayer?.removeTimeObserver(sliderTimerReturn!)
+//                sliderTimerReturn = nil
+//            }
             
             if playerTimerReturn != nil {
                 hiddenPlayer?.removeTimeObserver(playerTimerReturn!)
@@ -202,29 +202,30 @@ class MediaPlayer : NSObject
         MPNowPlayingInfoCenter.default().nowPlayingInfo = sermonInfo
     }
     
-    func updateCurrentTimeForPlaying()
+    func updateCurrentTimeForPlaying(time:CMTime)
     {
         guard loaded else {
             return
         }
 
-        guard let currentTime = currentTime else {
-            return
-        }
+//        guard let currentTime = currentTime else {
+//            return
+//        }
         
         guard let duration = duration else {
             return
         }
         
-        var timeNow = 0
+        var timeNow = 0.0
         
-        if (currentTime.seconds > 0) && (currentTime.seconds <= duration.seconds) {
-            timeNow = Int(currentTime.seconds)
+        if (time.seconds > 0) && (time.seconds <= duration.seconds) {
+            timeNow = time.seconds
         }
         
-        if ((timeNow > 0) && (timeNow % 10) == 0) {
-            if let playingCurrentTime = playing?.currentTime, let time = Float(playingCurrentTime), Int(time) != Int(currentTime.seconds) {
-                playing?.currentTime = currentTime.seconds.description
+        if ((timeNow > 0) && (Int(timeNow) % 10) == 0) {
+//            if let playingCurrentTime = playing?.currentTime, let time = Float(playingCurrentTime), Int(time) != Int(currentTime.seconds) {
+            if playing?.currentTime != timeNow.description {
+                playing?.currentTime = timeNow.description
             }
         }
     }
@@ -507,7 +508,7 @@ class MediaPlayer : NSObject
         sermon?.currentTime = Float(duration.seconds).description
     }
     
-    func playerTimer()
+    func playerTimer(time:CMTime)
     {
         guard (state != nil) else {
             return
@@ -517,7 +518,7 @@ class MediaPlayer : NSObject
             return
         }
         
-        updateCurrentTimeForPlaying()
+        updateCurrentTimeForPlaying(time:time)
     }
 
     func failedToLoad()
@@ -659,8 +660,8 @@ class MediaPlayer : NSObject
         observerActive = true
         observedItem = currentItem
         
-        playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { (time:CMTime) in // [weak globals]
-            self.playerTimer()
+        playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,Constants.CMTime_Resolution), queue: DispatchQueue.global(qos: .background), using: { (time:CMTime) in // [weak globals]
+            self.playerTimer(time:time)
         })
 
         NotificationCenter.default.addObserver(self, selector: #selector(didPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
