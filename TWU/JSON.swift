@@ -67,6 +67,7 @@ class JSON
     
     func get(from urlString:String?,filename:String?) -> Any?
     {
+        // DO NOT DO THIS AS IT STOPS LOADING FROM STORAGE AS WELL!
 //        guard Globals.shared.reachability.isReachable else {
 //            return nil
 //        }
