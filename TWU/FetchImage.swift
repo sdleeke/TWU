@@ -16,7 +16,7 @@ class FetchImage
     init?(url:URL?)
     {
         guard let url = url else {
-            return
+            return nil
         }
         
         self.url = url
@@ -66,7 +66,11 @@ class FetchImage
     }
 
     private var _fileSize : Int?
-    
+    {
+        didSet {
+            
+        }
+    }
     var fileSize : Int
     {
         get {
@@ -76,6 +80,9 @@ class FetchImage
             }
             
             return fileSize
+        }
+        set {
+            _fileSize = newValue
         }
     }
     
