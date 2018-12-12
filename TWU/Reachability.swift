@@ -117,8 +117,8 @@ public class Reachability {
         self.init(reachabilityRef: ref)
     }
     
-    public convenience init?() {
-        
+    public convenience init?()
+    {
         var zeroAddress = sockaddr()
         zeroAddress.sa_len = UInt8(MemoryLayout<sockaddr>.size)
         zeroAddress.sa_family = sa_family_t(AF_INET)
@@ -166,7 +166,8 @@ public extension Reachability {
         notifierRunning = true
     }
     
-    func stopNotifier() {
+    func stopNotifier()
+    {
         defer { notifierRunning = false }
         guard let reachabilityRef = reachabilityRef else { return }
         
@@ -228,8 +229,8 @@ public extension Reachability {
 
 fileprivate extension Reachability {
     
-    func reachabilityChanged() {
-        
+    func reachabilityChanged()
+    {
         let flags = reachabilityFlags
         
         guard previousFlags != flags else { return }

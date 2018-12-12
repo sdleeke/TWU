@@ -35,6 +35,10 @@ class MediaCollectionViewCell: UICollectionViewCell
         return operationQueue
     }()
 
+    deinit {
+        operationQueue.cancelAllOperations()
+    }
+    
     fileprivate func updateUI()
     {
         guard let series = self.series else {

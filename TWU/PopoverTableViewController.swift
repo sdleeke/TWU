@@ -95,7 +95,8 @@ class PopoverTableViewController: UITableViewController {
         self.preferredContentSize = CGSize(width: width, height: height)
     }
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
 
         guard (strings != nil) else {
@@ -187,7 +188,6 @@ class PopoverTableViewController: UITableViewController {
     {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        URLCache.shared.removeAllCachedResponses()
     }
 
     // MARK: - Table view data source
