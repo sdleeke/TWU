@@ -41,7 +41,7 @@ class PopoverTableViewController: UITableViewController {
     
     var strings:[String]?
     
-    lazy var section:Section! = {
+    lazy var section:Section! = { [weak self] in
         var section = Section()
         return section
     }()

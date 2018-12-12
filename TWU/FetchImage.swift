@@ -134,7 +134,7 @@ class FetchImage
         }
     }
     
-    lazy var fetch:Fetch<UIImage>? = { [unowned self] in // THIS IS VITAL TO PREVENT A MEMORY LEAK
+    lazy var fetch:Fetch<UIImage>? = { [weak self] in // THIS IS VITAL TO PREVENT A MEMORY LEAK
         guard let imageName = imageName else {
             return nil
         }
@@ -142,15 +142,15 @@ class FetchImage
         let fetch = Fetch<UIImage>(name:imageName)
         
         fetch.store = { (image:UIImage?) in
-            self.storeIt(image: image)
+            self?.storeIt(image: image)
         }
         
         fetch.retrieve = {
-            return self.retrieveIt()
+            return self?.retrieveIt()
         }
         
         fetch.fetch = {
-            return self.fetchIt()
+            return self?.fetchIt()
         }
         
         return fetch

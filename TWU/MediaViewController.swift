@@ -1777,7 +1777,7 @@ class MediaViewController : UIViewController
             return
         }
 
-        guard Globals.shared.reachability.isReachable || sermon.audioDownload.isDownloaded else { // let reachability = Globals.shared.reachability, 
+        guard Globals.shared.reachability.isReachable || (sermon.audioDownload?.isDownloaded == true) else { // let reachability = Globals.shared.reachability, 
             alert(viewController: self, title: "Audio Not Available", message: "Please check your network connection and try again.")
             return
         }

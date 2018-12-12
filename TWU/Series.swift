@@ -330,7 +330,7 @@ class Series : Equatable
         }
     }
 
-    lazy var coverArt:FetchImage? = {
+    lazy var coverArt:FetchImage? = { [weak self] in
         guard let coverArtURL = coverArtURL else {
             return nil
         }
@@ -391,7 +391,7 @@ class Series : Equatable
     }
     var index:[String:Sermon]?
     
-    lazy var seriesSettings:SeriesSettings? = {
+    lazy var seriesSettings:SeriesSettings? = { [weak self] in
         return SeriesSettings(series:self)
     }()
 

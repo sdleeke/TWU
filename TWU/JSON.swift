@@ -122,6 +122,10 @@ class JSON
             return urlData()
         }
 
+        operationQueue.addOperation {
+            _ = urlData()
+        }
+        
         return json
     }
 

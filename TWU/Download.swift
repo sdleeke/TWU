@@ -276,17 +276,31 @@ extension Download : URLSessionDownloadDelegate
 
 class Download : NSObject
 {
-    init(sermon:Sermon?,purpose:String?,downloadURL:URL?,fileSystemURL:URL?)
+    init?(sermon:Sermon?,purpose:String?,downloadURL:URL?,fileSystemURL:URL?)
     {
+        guard let sermon = sermon else {
+            return nil
+        }
+        
+        guard let purpose = purpose else {
+            return nil
+        }
+        
+        guard let downloadURL = downloadURL else {
+            return nil
+        }
+        
+        guard let fileSystemURL = fileSystemURL else {
+            return nil
+        }
+        
         self.sermon = sermon
         self.purpose = purpose
         self.downloadURL = downloadURL
         self.fileSystemURL = fileSystemURL
         
-        if let fileSystemURL = fileSystemURL {
-            if FileManager.default.fileExists(atPath: fileSystemURL.path) {
-                self.state = .downloaded
-            }
+        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
+            self.state = .downloaded
         }
     }
     

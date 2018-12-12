@@ -44,7 +44,7 @@ class MediaTableViewCell: UITableViewCell
             }
         }
         
-        if let state = sermon?.audioDownload.state {
+        if let state = sermon?.audioDownload?.state {
             switch state {
             case .none:
                 downloadLabel.text = Constants.Download
@@ -58,8 +58,8 @@ class MediaTableViewCell: UITableViewCell
                 
             case .downloading:
                 downloadLabel.text = Constants.Downloading
-                if  let totalBytesExpectedToWrite = sermon?.audioDownload.totalBytesExpectedToWrite, totalBytesExpectedToWrite > 0,
-                    let totalBytesWritten = sermon?.audioDownload.totalBytesWritten {
+                if  let totalBytesExpectedToWrite = sermon?.audioDownload?.totalBytesExpectedToWrite, totalBytesExpectedToWrite > 0,
+                    let totalBytesWritten = sermon?.audioDownload?.totalBytesWritten {
                     downloadProgressBar.progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
                 } else {
                     downloadProgressBar.progress = 0
@@ -85,11 +85,11 @@ class MediaTableViewCell: UITableViewCell
         case true:
             //Download the audio file and use it in future playback.
             //The file should not already exist.
-            sermon?.audioDownload.download()
+            sermon?.audioDownload?.download()
             break
             
         case false:
-            sermon?.audioDownload.cancelOrDeleteDownload()
+            sermon?.audioDownload?.cancelOrDeleteDownload()
             break
         }
     }

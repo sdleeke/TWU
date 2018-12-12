@@ -29,7 +29,7 @@ class Media
         }
     }
     
-    lazy var search:Search! = {
+    lazy var search:Search! = { [weak self] in
         return Search(media:self)
     }()
     
@@ -94,22 +94,28 @@ class Media
             return
         }
         
-        for series in series {
-            if let sermons = series.sermons {
-                for sermon in sermons {
-                    sermon.audioDownload.cancel()
-//                    if sermon.audioDownload.active {
-//                        sermon.audioDownload.task?.cancel()
-//                        sermon.audioDownload.task = nil
-//
-//                        sermon.audioDownload.totalBytesWritten = 0
-//                        sermon.audioDownload.totalBytesExpectedToWrite = 0
-//
-//                        sermon.audioDownload.state = .none
-//                    }
-                }
-            }
+        series.forEach { (series) in
+            series.sermons?.forEach({ (sermon) in
+                sermon.audioDownload?.cancel()
+            })
         }
+        
+//        for series in series {
+//            if let sermons = series.sermons {
+//                for sermon in sermons {
+//                    sermon.audioDownload?.cancel()
+////                    if sermon.audioDownload.active {
+////                        sermon.audioDownload.task?.cancel()
+////                        sermon.audioDownload.task = nil
+////
+////                        sermon.audioDownload.totalBytesWritten = 0
+////                        sermon.audioDownload.totalBytesExpectedToWrite = 0
+////
+////                        sermon.audioDownload.state = .none
+////                    }
+//                }
+//            }
+//        }
     }
 
     var all:[Series]?
