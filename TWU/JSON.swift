@@ -97,36 +97,50 @@ class JSON
 //        }
 //
 //        return json
-
-        func urlData() -> Any?
-        {
-            let data = urlString?.url?.data
-
-            guard let json = data?.json else {
-                return nil
-            }
-
-            operationQueue.addOperation {
-                _ = data?.save(to: filename?.fileSystemURL)
-                self.format = Constants.JSON.SERIES_JSON
-            }
-
-            return json
-        }
-
-        guard format == Constants.JSON.SERIES_JSON else {
-            return urlData()
-        }
-
-        guard let json = filename?.fileSystemURL?.data?.json else {
-            return urlData()
-        }
-
-        operationQueue.addOperation {
-            _ = urlData()
+        
+        guard Globals.shared.reachability.isReachable else {
+            return filename?.fileSystemURL?.data?.json
         }
         
-        return json
+        guard let data = urlString?.url?.data else {
+            return filename?.fileSystemURL?.data?.json
+        }
+        
+        operationQueue.addOperation {
+            _ = data.save(to: filename?.fileSystemURL)
+        }
+        
+        return data.json
+        
+//        func urlData() -> Any?
+//        {
+//            let data = urlString?.url?.data
+//
+//            guard let json = data?.json else {
+//                return nil
+//            }
+//
+//            operationQueue.addOperation {
+//                _ = data?.save(to: filename?.fileSystemURL)
+//                self.format = Constants.JSON.SERIES_JSON
+//            }
+//
+//            return json
+//        }
+//
+//        guard format == Constants.JSON.SERIES_JSON else {
+//            return urlData()
+//        }
+//
+//        guard let json = filename?.fileSystemURL?.data?.json else {
+//            return urlData()
+//        }
+//
+//        operationQueue.addOperation {
+//            _ = urlData()
+//        }
+//
+//        return json
     }
 
     func load() -> [[String:Any]]?

@@ -358,13 +358,17 @@ class Download : NSObject
         }
     }
     
-    func download()
+    func download(background:Bool)
     {
         guard (state == .none) else {
             return
         }
         
-        guard let fileSystemURL = fileSystemURL else {
+        guard state != .downloading else {
+            return
+        }
+        
+        guard fileSystemURL?.exists == false else {
             return
         }
         
@@ -376,24 +380,30 @@ class Download : NSObject
         
         let downloadRequest = URLRequest(url: downloadURL)
         
-        let configuration = URLSessionConfiguration.default
+        var configuration : URLSessionConfiguration?
+
+        if background, let lastPathComponent = fileSystemURL?.lastPathComponent {
+            configuration = .background(withIdentifier: Constants.IDENTIFIER.DOWNLOAD + lastPathComponent)
+            
+            // This allows the downloading to continue even if the app goes into the background or terminates.
+            configuration?.sessionSendsLaunchEvents = true
+        } else {
+            configuration = .default
+        }
         
-        // This allows the downloading to continue even if the app goes into the background or terminates.
-        //        let downloadIdentifier = Constants.IDENTIFIER.DOWNLOAD + fileSystemURL.lastPathComponent
-        //        let configuration = URLSessionConfiguration.background(withIdentifier: downloadIdentifier)
-        //        configuration.sessionSendsLaunchEvents = true
-        
-        session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-        
-        session?.sessionDescription = fileSystemURL.lastPathComponent
-        
-        task = session?.downloadTask(with: downloadRequest)
-        task?.taskDescription = fileSystemURL.lastPathComponent
-        
-        task?.resume()
-        
-        Thread.onMainThread {
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        if let configuration = configuration {
+            session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+            
+            session?.sessionDescription = fileSystemURL?.lastPathComponent
+            
+            task = session?.downloadTask(with: downloadRequest)
+            task?.taskDescription = fileSystemURL?.lastPathComponent
+            
+            task?.resume()
+            
+            Thread.onMainThread {
+                UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            }
         }
     }
     

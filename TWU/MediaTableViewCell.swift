@@ -85,7 +85,7 @@ class MediaTableViewCell: UITableViewCell
         case true:
             //Download the audio file and use it in future playback.
             //The file should not already exist.
-            sermon?.audioDownload?.download()
+            sermon?.audioDownload?.download(background: true)
             break
             
         case false:

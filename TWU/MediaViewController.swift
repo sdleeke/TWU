@@ -77,7 +77,7 @@ extension MediaViewController : PopoverTableViewControllerDelegate
             case Constants.Download_All:
                 if let sermons = seriesSelected?.sermons {
                     for sermon in sermons {
-                        sermon.audioDownload?.download()
+                        sermon.audioDownload?.download(background: true)
                     }
                 }
                 break
