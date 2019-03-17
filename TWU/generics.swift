@@ -459,7 +459,7 @@ class Fetch<T>
         let operationQueue = OperationQueue()
         operationQueue.name = "Fetch" + UUID().uuidString
         operationQueue.qualityOfService = .background
-        operationQueue.maxConcurrentOperationCount = 1
+//        operationQueue.maxConcurrentOperationCount = 1 // The sync queue controls
         return operationQueue
     }()
     

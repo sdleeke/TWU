@@ -31,7 +31,7 @@ class MediaCollectionViewCell: UICollectionViewCell
         let operationQueue = OperationQueue()
         operationQueue.name = UUID().uuidString
         operationQueue.qualityOfService = .userInteractive
-        operationQueue.maxConcurrentOperationCount = 1
+//        operationQueue.maxConcurrentOperationCount = 1
         return operationQueue
     }()
 
@@ -53,7 +53,14 @@ class MediaCollectionViewCell: UICollectionViewCell
             self.activityIndicator.startAnimating()
         }
         
+        operationQueue.cancelAllOperations()
+        
+//        print(operationQueue.operationCount)
+        
         operationQueue.addOperation {
+        
+//        DispatchQueue.global(qos: .userInteractive).async {
+            
             guard let image = series.coverArt?.image else {
                 Thread.onMainThread {
                     self.activityIndicator.stopAnimating()

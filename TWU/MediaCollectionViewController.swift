@@ -636,9 +636,20 @@ class MediaCollectionViewController: UIViewController
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(handleRefresh(_:)), for: UIControlEvents.valueChanged)
 
-        if let refreshControl = refreshControl {
-            collectionView.addSubview(refreshControl)
+        if #available(iOS 10.0, *) {
+            collectionView.refreshControl = refreshControl
+        } else {
+            // Fallback on earlier versions
+            if let refreshControl = self.refreshControl {
+                Thread.onMainThread {
+                    self.collectionView.addSubview(refreshControl)
+                }
+            }
         }
+
+//        if let refreshControl = refreshControl {
+//            collectionView.addSubview(refreshControl)
+//        }
         
         collectionView.alwaysBounceVertical = true
 

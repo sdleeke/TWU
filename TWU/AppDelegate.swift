@@ -11,6 +11,8 @@ import AVFoundation
 import AudioToolbox
 import MediaPlayer
 
+import Firebase
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate // AVAudioSessionDelegate Deprecated in 12.0
 {
@@ -50,6 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         guard let svc = window?.rootViewController as? UISplitViewController else {
             return false
         }
+        
+        FirebaseApp.configure()
         
         svc.delegate = self
         svc.preferredDisplayMode = .allVisible
@@ -124,36 +128,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         
     }
 
-//    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void)
-//    {
-//        print("application:handleEventsForBackgroundURLSession")
-//        
-//        /*
-//    In iOS, when a background transfer completes or requires credentials, if your app is no longer running, iOS automatically relaunches your app in the background and calls the application:handleEventsForBackgroundURLSession:completionHandler: method on your app’s UIApplicationDelegate object. This call provides the identifier of the session that caused your app to be launched. Your app should store that completion handler, create a background configuration object with the same identifier, and create a session with that configuration object. The new session is automatically reassociated with ongoing background activity. Later, when the session finishes the last background download task, it sends the session delegate a URLSessionDidFinishEventsForBackgroundURLSession: message. Your session delegate should then call the stored completion handler.
-//        */
-//        
-//        let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
-//        configuration.sessionSendsLaunchEvents = true
-//        
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void)
+    {
+        print("application:handleEventsForBackgroundURLSession")
+        
+        /*
+    In iOS, when a background transfer completes or requires credentials, if your app is no longer running, iOS automatically relaunches your app in the background and calls the application:handleEventsForBackgroundURLSession:completionHandler: method on your app’s UIApplicationDelegate object. This call provides the identifier of the session that caused your app to be launched. Your app should store that completion handler, create a background configuration object with the same identifier, and create a session with that configuration object. The new session is automatically reassociated with ongoing background activity. Later, when the session finishes the last background download task, it sends the session delegate a URLSessionDidFinishEventsForBackgroundURLSession: message. Your session delegate should then call the stored completion handler.
+        */
+        
+        let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
+        configuration.sessionSendsLaunchEvents = true
+        
 //        var filename = String(identifier[Constants.IDENTIFIER.DOWNLOAD.endIndex...])
-//        
-//        if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
-//            filename = String(filename[..<range.lowerBound])
-//        }
-//        
-//        if let allSeries = Globals.shared.series {
-//            for series in allSeries {
-//                if let sermons = series.sermons {
-//                    for sermon in sermons {
-//                        if sermon.id == Int(filename) {
-//                            sermon.audioDownload.session = URLSession(configuration: configuration, delegate: sermon, delegateQueue: nil)
-//                            sermon.audioDownload.completionHandler = completionHandler
-//                            //Do we need to recreate the downloadTask for this session?
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+        
+        if let range = identifier.range(of: ":") {
+            var id : String?
+            
+            let filename = String(identifier[range.upperBound...])
+            
+            if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
+                id = String(filename[..<range.lowerBound])
+            }
+            
+            if let allSeries = Globals.shared.series.all {
+                for series in allSeries {
+                    if let sermons = series.sermons {
+                        for sermon in sermons {
+                            if sermon.id == id {
+                                sermon.audioDownload?.session = URLSession(configuration: configuration, delegate: sermon.audioDownload, delegateQueue: nil)
+                                sermon.audioDownload?.completionHandler = completionHandler
+                                //Do we need to recreate the downloadTask for this session?
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 

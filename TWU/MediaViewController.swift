@@ -12,6 +12,8 @@ import MessageUI
 import MediaPlayer
 import Social
 
+//import Crashlytics
+
 extension MediaViewController : UIAdaptivePresentationControllerDelegate
 {
     // MARK: UIAdaptivePresentationControllerDelegate
@@ -1345,6 +1347,8 @@ class MediaViewController : UIViewController
                 navigationController.popToRootViewController(animated: false)
             }
         }
+        
+//        Crashlytics.sharedInstance().crash()
     }
     
     override func viewWillDisappear(_ animated: Bool)

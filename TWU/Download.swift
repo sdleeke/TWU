@@ -18,33 +18,59 @@ enum State {
 extension Download : URLSessionDownloadDelegate
 {
     // NEED TO HANDLE >400 ERRORS
-    
+
+    func downloadFailed()
+    {
+        print("DOWNLOAD ERROR: ",(task?.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
+        
+        if state != .none {
+            if let taskDescription = task?.taskDescription, let range = taskDescription.range(of: ".") {
+                let id = String(taskDescription[..<range.lowerBound])
+                
+                if let sermon = Globals.shared.series.sermon(from:id) { // let num = Int(id),
+                    Alerts.shared.alert(title: "Download Failed", message: sermon.title)
+                }
+            } else {
+                Alerts.shared.alert(title: "Download Failed", message: nil)
+            }
+        }
+        
+        cancel()
+        
+        Thread.onMainThread {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        }
+
+//        print("DOWNLOAD ERROR: ",(downloadTask.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
+//
+//        if state != .none {
+//            if let taskDescription = downloadTask.taskDescription, let range = taskDescription.range(of: ".") {
+//                let id = String(taskDescription[..<range.lowerBound])
+//
+//                if let sermon = Globals.shared.series.sermon(from:id) { // let num = Int(id),
+//                    Alerts.shared.alert(title: "Download Failed", message: sermon.title)
+//                }
+//            } else {
+//                Alerts.shared.alert(title: "Download Failed", message: nil)
+//            }
+//        }
+//
+//        cancel() // task?.
+//
+//        Thread.onMainThread {
+//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
+//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+//            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+//        }
+    }
+
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64)
     {
         guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400,
             totalBytesExpectedToWrite != -1 else {
-                print("DOWNLOAD ERROR: ",(downloadTask.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
-                
-                if state != .none {
-                    if let taskDescription = downloadTask.taskDescription, let range = taskDescription.range(of: ".") {
-                        let id = String(taskDescription[..<range.lowerBound])
-                        
-                        if let sermon = Globals.shared.series.sermon(from:id) { // let num = Int(id),
-                            Alerts.shared.alert(title: "Download Failed", message: sermon.title)
-                        }
-                    } else {
-                        Alerts.shared.alert(title: "Download Failed", message: nil)
-                    }
-                }
-                
-                cancel() // task?.
-                
-                Thread.onMainThread {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
-                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                }
-                
+                downloadFailed()
                 return
         }
         
@@ -89,29 +115,8 @@ extension Download : URLSessionDownloadDelegate
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL)
     {
-        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400,
-            totalBytesExpectedToWrite != -1  else {
-                print("DOWNLOAD ERROR: ",(downloadTask.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
-                
-                if state != .none {
-                    if let taskDescription = downloadTask.taskDescription, let range = taskDescription.range(of: ".") {
-                        let id = String(taskDescription[..<range.lowerBound])
-                        
-                        if let sermon = Globals.shared.series.sermon(from:id) { // let num = Int(id),
-                            Alerts.shared.alert(title: "Download Failed", message: sermon.title)
-                        }
-                    } else {
-                        Alerts.shared.alert(title: "Download Failed", message: nil)
-                    }
-                }
-                
-                cancel()
-                
-                Thread.onMainThread {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
-                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                }
+        guard let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode, statusCode < 400  else {
+                downloadFailed()
                 return
         }
         
@@ -172,37 +177,37 @@ extension Download : URLSessionDownloadDelegate
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
     {
         guard let statusCode = (task.response as? HTTPURLResponse)?.statusCode, statusCode < 400,
-            totalBytesExpectedToWrite != -1,
             error == nil else {
-                print("DOWNLOAD ERROR: ",(task.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
-                
-                if state != .none {
-                    if let taskDescription = task.taskDescription, let range = taskDescription.range(of: ".") {
-                        let id = String(taskDescription[..<range.lowerBound])
-                        
-                        if let title = Globals.shared.series.sermon(from:id)?.title { // let id = Int(idString),
-                            if let error = error {
-                                Alerts.shared.alert(title: "Download Failed", message: title + "\nError: " + error.localizedDescription)
-                            } else {
-                                Alerts.shared.alert(title: "Download Failed", message: title)
-                            }
-                        }
-                    } else {
-                        if let error = error {
-                            Alerts.shared.alert(title: "Download Failed", message: "Error: " + error.localizedDescription)
-                        } else {
-                            Alerts.shared.alert(title: "Download Failed", message: nil)
-                        }
-                    }
-                }
-                
-                cancel()
-                
-                Thread.onMainThread {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
-                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                }
+                downloadFailed()
+//                print("DOWNLOAD ERROR: ",(task.response as? HTTPURLResponse)?.statusCode as Any,totalBytesExpectedToWrite)
+//
+//                if state != .none {
+//                    if let taskDescription = task.taskDescription, let range = taskDescription.range(of: ".") {
+//                        let id = String(taskDescription[..<range.lowerBound])
+//
+//                        if let title = Globals.shared.series.sermon(from:id)?.title { // let id = Int(idString),
+//                            if let error = error {
+//                                Alerts.shared.alert(title: "Download Failed", message: title + "\nError: " + error.localizedDescription)
+//                            } else {
+//                                Alerts.shared.alert(title: "Download Failed", message: title)
+//                            }
+//                        }
+//                    } else {
+//                        if let error = error {
+//                            Alerts.shared.alert(title: "Download Failed", message: "Error: " + error.localizedDescription)
+//                        } else {
+//                            Alerts.shared.alert(title: "Download Failed", message: nil)
+//                        }
+//                    }
+//                }
+//
+//                cancel()
+//
+//                Thread.onMainThread {
+//                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
+//                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+//                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+//                }
                 return
         }
         
@@ -264,13 +269,20 @@ extension Download : URLSessionDownloadDelegate
         
         print("URLSessionDidFinishEventsForBackgroundURLSession")
         
-        var filename = String(identifier[Constants.IDENTIFIER.DOWNLOAD.endIndex...])
-        
-        if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
-            filename = String(filename[..<range.lowerBound])
+//        var filename = String(identifier[Constants.IDENTIFIER.DOWNLOAD.endIndex...])
+        if let range = identifier.range(of: ":") {
+            let filename = String(identifier[range.upperBound...])
+            
+//            if let range = filename.range(of: Constants.FILE_EXTENSION.MP3) {
+            
+//            filename = String(filename[..<range.lowerBound])
+            
+            if task?.taskDescription == filename {
+                completionHandler?()
+            }
         }
-        
-        completionHandler?()
+//
+//        completionHandler?()
     }
 }
 
@@ -308,7 +320,10 @@ class Download : NSObject
     
     var purpose:String?
     
+    var id:String?
+    
     var downloadURL:URL?
+    
     var fileSystemURL:URL? {
         willSet {
             
@@ -382,8 +397,12 @@ class Download : NSObject
         
         var configuration : URLSessionConfiguration?
 
-        if background, let lastPathComponent = fileSystemURL?.lastPathComponent {
-            configuration = .background(withIdentifier: Constants.IDENTIFIER.DOWNLOAD + lastPathComponent)
+        id = Constants.IDENTIFIER.DOWNLOAD + Date().timeIntervalSinceReferenceDate.description + ":"
+        
+        if background, let id = id, let lastPathComponent = fileSystemURL?.lastPathComponent {
+//            configuration = .background(withIdentifier: Constants.IDENTIFIER.DOWNLOAD + lastPathComponent)
+            
+            configuration = .background(withIdentifier: id + lastPathComponent)
             
             // This allows the downloading to continue even if the app goes into the background or terminates.
             configuration?.sessionSendsLaunchEvents = true

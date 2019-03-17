@@ -229,6 +229,10 @@ class Media
             
             // This is just a way to load the artwork
             series.coverArt?.fetch?.fill()
+            // But it seems to cause deadlocks that take a long time to clear
+            
+            // But if we don't preload the series images scrolling the collection view is what does it,
+            // which creates visual lag for the user as each image is loaded, esp. if it is coming from the internet.
 
             return series
         })
