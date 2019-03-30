@@ -26,6 +26,14 @@ class Globals //: NSObject
 {
     static var shared = Globals()
     
+//    lazy var userInteractiveQueue : OperationQueue! = {
+//        let operationQueue = OperationQueue()
+//        operationQueue.name = "Globals"
+//        operationQueue.qualityOfService = .userInteractive
+//        operationQueue.maxConcurrentOperationCount = 3
+//        return operationQueue
+//    }()
+    
     var rootViewController : UIViewController!
     {
         get {
@@ -181,7 +189,7 @@ class Globals //: NSObject
         }
     }
     
-    func motionEnded(_ motion: UIEventSubtype, event: UIEvent?)
+    func motionEnded(_ motion: UIEvent.EventSubtype, event: UIEvent?)
     {
         guard (motion == .motionShake) else {
             return

@@ -173,21 +173,21 @@ extension UIImage
 
 extension UIBarButtonItem
 {
-    func setTitleTextAttributes(_ attributes:[NSAttributedStringKey:UIFont])
+    func setTitleTextAttributes(_ attributes:[NSAttributedString.Key:UIFont])
     {
-        setTitleTextAttributes(attributes, for: UIControlState.normal)
-        setTitleTextAttributes(attributes, for: UIControlState.disabled)
-        setTitleTextAttributes(attributes, for: UIControlState.selected)
+        setTitleTextAttributes(attributes, for: UIControl.State.normal)
+        setTitleTextAttributes(attributes, for: UIControl.State.disabled)
+        setTitleTextAttributes(attributes, for: UIControl.State.selected)
     }
 }
 
 extension UISegmentedControl
 {
-    func setTitleTextAttributes(_ attributes:[String:UIFont])
+    func setTitleTextAttributes(_ attributes:[NSAttributedString.Key:UIFont])
     {
-        setTitleTextAttributes(attributes, for: UIControlState.normal)
-        setTitleTextAttributes(attributes, for: UIControlState.disabled)
-        setTitleTextAttributes(attributes, for: UIControlState.selected)
+        setTitleTextAttributes(attributes, for: UIControl.State.normal)
+        setTitleTextAttributes(attributes, for: UIControl.State.disabled)
+        setTitleTextAttributes(attributes, for: UIControl.State.selected)
     }
 }
 
@@ -195,9 +195,9 @@ extension UIButton
 {
     func setTitle(_ string:String? = nil)
     {
-        setTitle(string, for: UIControlState.normal)
-        setTitle(string, for: UIControlState.disabled)
-        setTitle(string, for: UIControlState.selected)
+        setTitle(string, for: UIControl.State.normal)
+        setTitle(string, for: UIControl.State.disabled)
+        setTitle(string, for: UIControl.State.selected)
     }
 }
 

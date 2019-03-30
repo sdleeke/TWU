@@ -459,7 +459,7 @@ class Fetch<T>
         let operationQueue = OperationQueue()
         operationQueue.name = "Fetch" + UUID().uuidString
         operationQueue.qualityOfService = .background
-//        operationQueue.maxConcurrentOperationCount = 1 // The sync queue controls
+        operationQueue.maxConcurrentOperationCount = 1 // The sync queue controls
         return operationQueue
     }()
     
@@ -512,12 +512,12 @@ class Fetch<T>
         }
     }
     
-    func fill()
-    {
-        operationQueue.addOperation {
-            self.load()
-        }
-    }
+//    func fill()
+//    {
+//        Globals.shared.userInteractiveQueue.addOperation {
+//            self.load()
+//        }
+//    }
     
     var result:T?
     {

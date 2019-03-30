@@ -70,7 +70,7 @@ class Settings
         }
         
         if let seriesPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERIES) {
-            if let index = Globals.shared.series.all?.index(where: { (series) -> Bool in
+            if let index = Globals.shared.series.all?.firstIndex(where: { (series) -> Bool in
                 return series.name == seriesPlaying
             }) {
                 let seriesPlaying = Globals.shared.series.all?[index]

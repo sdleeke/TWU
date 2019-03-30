@@ -228,7 +228,7 @@ class Media
             let series = Series(seriesDict: seriesDict)
             
             // This is just a way to load the artwork
-            series.coverArt?.fetch?.fill()
+//            series.coverArt?.fetch?.fill()
             // But it seems to cause deadlocks that take a long time to clear
             
             // But if we don't preload the series images scrolling the collection view is what does it,

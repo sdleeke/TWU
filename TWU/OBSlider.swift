@@ -60,7 +60,7 @@ class OBSlider: UISlider
 		let currentLocation = touch.location(in: view)
 		let trackingOffset = currentLocation.x - previousLocation.x // delta x
 		
-		let verticalOffset = fabs(currentLocation.y - beganTrackingLocation.y)/(view.bounds.height - beganTrackingLocation.y)
+		let verticalOffset = abs(currentLocation.y - beganTrackingLocation.y)/(view.bounds.height - beganTrackingLocation.y)
         
         var scrubbingSpeedChangePosIndex = indexOfLowerScrubbingSpeed(scrubbingSpeedChangePositions, forOffset: verticalOffset)
 		
@@ -76,12 +76,12 @@ class OBSlider: UISlider
 		
 		let valueAdjustment: Float = scrubbingSpeed * (maximumValue - minimumValue) * Float(trackingOffset / trackRect.size.width)
 		
-        let thumbAdjustment: Float = (realPositionValue - value) / Float(1 + fabs(currentLocation.y - beganTrackingLocation.y))
+        let thumbAdjustment: Float = (realPositionValue - value) / Float(1 + abs(currentLocation.y - beganTrackingLocation.y))
 
         value += valueAdjustment + thumbAdjustment
 		
 		if (isContinuous) {
-			sendActions(for: UIControlEvents.valueChanged)
+			sendActions(for: UIControl.Event.valueChanged)
 		}
 		
 		return isTracking
@@ -91,7 +91,7 @@ class OBSlider: UISlider
     {
 		if isTracking {
 			scrubbingSpeed = 1.0
-			sendActions(for: UIControlEvents.valueChanged)
+			sendActions(for: UIControl.Event.valueChanged)
 		}
 	}
 	

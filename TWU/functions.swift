@@ -15,7 +15,7 @@ func startAudio()
     let audioSession: AVAudioSession  = AVAudioSession.sharedInstance()
     
     do {
-        try audioSession.setCategory(AVAudioSessionCategoryPlayback)
+        try audioSession.setCategory(AVAudioSession.Category(rawValue: convertFromAVAudioSessionCategory(AVAudioSession.Category.playback)))
     } catch let error as NSError {
         NSLog(error.localizedDescription)
     }
@@ -168,11 +168,11 @@ func bookNumberInBible(_ book:String?) -> Int?
         return nil
     }
     
-    if let index = Constants.TESTAMENT.OLD.index(of: book) {
+    if let index = Constants.TESTAMENT.OLD.firstIndex(of: book) {
         return index
     }
     
-    if let index = Constants.TESTAMENT.NEW.index(of: book) {
+    if let index = Constants.TESTAMENT.NEW.firstIndex(of: book) {
         return Constants.TESTAMENT.OLD.count + index
     }
     
@@ -209,9 +209,9 @@ func networkUnavailable(viewController:UIViewController,message:String?)
 {
     let alert = UIAlertController(title:Constants.Network_Error,
         message: message,
-        preferredStyle: UIAlertControllerStyle.alert)
+        preferredStyle: UIAlertController.Style.alert)
     
-    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
     })
     alert.addAction(action)
 
@@ -250,15 +250,15 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
 
 func alert(viewController:UIViewController,title:String?,message:String?)
 {
-    guard UIApplication.shared.applicationState == UIApplicationState.active else {
+    guard UIApplication.shared.applicationState == UIApplication.State.active else {
         return
     }
     
     let alert = UIAlertController(title:title,
                                   message: message,
-                                  preferredStyle: UIAlertControllerStyle.alert)
+                                  preferredStyle: UIAlertController.Style.alert)
     
-    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
     })
     alert.addAction(action)
     
@@ -295,12 +295,12 @@ func alert(viewController:UIViewController,title:String?,message:String?)
 
 func userAlert(title:String?,message:String?)
 {
-    if (UIApplication.shared.applicationState == UIApplicationState.active) {
+    if (UIApplication.shared.applicationState == UIApplication.State.active) {
         let alert = UIAlertController(title: title,
                                       message: message,
-                                      preferredStyle: UIAlertControllerStyle.alert)
+                                      preferredStyle: UIAlertController.Style.alert)
         
-        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
             
         })
         alert.addAction(action)
@@ -312,3 +312,8 @@ func userAlert(title:String?,message:String?)
 }
 
 
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVAudioSessionCategory(_ input: AVAudioSession.Category) -> String {
+	return input.rawValue
+}

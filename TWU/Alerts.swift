@@ -22,7 +22,7 @@ class Alerts
     
     @objc func alertViewer()
     {
-        guard UIApplication.shared.applicationState == UIApplicationState.active else {
+        guard UIApplication.shared.applicationState == UIApplication.State.active else {
             return
         }
         
@@ -32,9 +32,9 @@ class Alerts
         
         let alertVC = UIAlertController(title:alert.title,
                                         message:alert.message,
-                                        preferredStyle: UIAlertControllerStyle.alert)
+                                        preferredStyle: UIAlertController.Style.alert)
         
-        let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+        let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
             
         })
         alertVC.addAction(action)

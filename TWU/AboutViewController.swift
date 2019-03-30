@@ -141,7 +141,7 @@ class AboutViewController : UIViewController
         return true
     }
     
-    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?)
     {
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             Globals.shared.motionEnded(motion, event: event)
@@ -150,14 +150,14 @@ class AboutViewController : UIViewController
     
     fileprivate func networkUnavailable(_ message:String?)
     {
-        if (UIApplication.shared.applicationState == UIApplicationState.active) {
+        if (UIApplication.shared.applicationState == UIApplication.State.active) {
             dismiss(animated: true, completion: nil)
             
             let alert = UIAlertController(title: Constants.Network_Error,
                 message: message,
-                preferredStyle: UIAlertControllerStyle.alert)
+                preferredStyle: UIAlertController.Style.alert)
             
-            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
                 
             })
             alert.addAction(action)
@@ -267,10 +267,10 @@ class AboutViewController : UIViewController
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(actions))
+        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItem.Style.plain, target: self, action: #selector(actions))
         
         if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
-            actionButton?.setTitleTextAttributes([NSAttributedStringKey.font : font])
+            actionButton?.setTitleTextAttributes([NSAttributedString.Key.font : font])
         }
         
         self.navigationItem.rightBarButtonItem = actionButton

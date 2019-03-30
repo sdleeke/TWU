@@ -371,7 +371,7 @@ class MediaViewController : UIViewController
         return true
     }
 
-    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?)
     {
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             Globals.shared.motionEnded(motion, event: event)
@@ -392,11 +392,11 @@ class MediaViewController : UIViewController
             if let state = Globals.shared.mediaPlayer.state {
                 switch state {
                 case .playing:
-                    playPauseButton.setTitle(Constants.FA.PAUSE, for: UIControlState())
+                    playPauseButton.setTitle(Constants.FA.PAUSE, for: UIControl.State())
                     break
                     
                 case .paused:
-                    playPauseButton.setTitle(Constants.FA.PLAY, for: UIControlState())
+                    playPauseButton.setTitle(Constants.FA.PLAY, for: UIControl.State())
                     break
                     
                 default:
@@ -405,7 +405,7 @@ class MediaViewController : UIViewController
             }
         } else {
             playPauseButton.isEnabled = true
-            playPauseButton.setTitle(Constants.FA.PLAY, for: UIControlState())
+            playPauseButton.setTitle(Constants.FA.PLAY, for: UIControl.State())
         }
         
         playPauseButton.isHidden = false
@@ -695,8 +695,8 @@ class MediaViewController : UIViewController
             twitterSheet.setInitialText(bodyString)
             self.present(twitterSheet, animated: true, completion: nil)
         } else {
-            let alert = UIAlertController(title: "Accounts", message: "Please login to a Twitter account to share.", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.default, handler: nil))
+            let alert = UIAlertController(title: "Accounts", message: "Please login to a Twitter account to share.", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
     }
@@ -718,8 +718,8 @@ class MediaViewController : UIViewController
             facebookSheet.setInitialText(bodyString)
             self.present(facebookSheet, animated: true, completion: nil)
         } else {
-            let alert = UIAlertController(title: "Accounts", message: "Please login to a Facebook account to share.", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.default, handler: nil))
+            let alert = UIAlertController(title: "Accounts", message: "Please login to a Facebook account to share.", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         }
     }
@@ -804,6 +804,10 @@ class MediaViewController : UIViewController
 
     @objc func updateView()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -817,7 +821,7 @@ class MediaViewController : UIViewController
         // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
             }
         })
 
@@ -826,6 +830,10 @@ class MediaViewController : UIViewController
     
     @objc func clearView()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -857,7 +865,7 @@ class MediaViewController : UIViewController
         super.viewWillTransition(to: size, with: coordinator)
         
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
-            self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
+            self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
         }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
             if let view = self.seriesArtAndDescription.subviews[1] as? UITextView {
                 view.scrollRangeToVisible(NSMakeRange(0, 0))
@@ -889,10 +897,10 @@ class MediaViewController : UIViewController
             return
         }
         
-        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItemStyle.plain, target: self, action: #selector(actions))
+        actionButton = UIBarButtonItem(title: Constants.FA.ACTION, style: UIBarButtonItem.Style.plain, target: self, action: #selector(actions))
         
         if let font = UIFont(name: Constants.FA.name, size: Constants.FA.FONT_SIZE) {
-            actionButton?.setTitleTextAttributes([NSAttributedStringKey.font : font])
+            actionButton?.setTitleTextAttributes([NSAttributedString.Key.font : font])
         }
 
         self.navigationItem.rightBarButtonItem = actionButton
@@ -911,6 +919,10 @@ class MediaViewController : UIViewController
     
     fileprivate func setupArtAndDescription()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -941,7 +953,7 @@ class MediaViewController : UIViewController
                                                                       // DocumentAttributeKey.documentType
                                                                       options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
                                                                       documentAttributes: nil) {
-                attributedString.addAttributes([NSAttributedStringKey.font:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
+                attributedString.addAttributes([NSAttributedString.Key.font:UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)],
                                                range: NSMakeRange(0, attributedString.length))
 
                 seriesAttrbutedString = attributedString
@@ -958,7 +970,7 @@ class MediaViewController : UIViewController
                                                                               // DocumentAttributeKey.documentType
                             options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
                             documentAttributes: nil) {
-                        attributedString.addAttributes([NSAttributedStringKey.font:UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)],
+                        attributedString.addAttributes([NSAttributedString.Key.font:UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)],
                                                        range: NSMakeRange(0, attributedString.length))
 
                         if let partNumber = sermon.partNumber {
@@ -1030,6 +1042,10 @@ class MediaViewController : UIViewController
     
     fileprivate func setupTitle()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -1039,6 +1055,10 @@ class MediaViewController : UIViewController
     
     func setupSpinner()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -1117,8 +1137,12 @@ class MediaViewController : UIViewController
         setupPlayPauseButton()
     }
 
-    func scrollToSermon(_ sermon:Sermon?,select:Bool,position:UITableViewScrollPosition)
+    func scrollToSermon(_ sermon:Sermon?,select:Bool,position:UITableView.ScrollPosition)
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -1130,7 +1154,7 @@ class MediaViewController : UIViewController
         var indexPath = IndexPath(row: 0, section: 0)
         
         if (seriesSelected?.sermons?.count > 1) {
-            if let sermonIndex = seriesSelected?.sermons?.index(of: sermon) {
+            if let sermonIndex = seriesSelected?.sermons?.firstIndex(of: sermon) {
                 indexPath = IndexPath(row: sermonIndex, section: 0)
             }
         }
@@ -1144,6 +1168,10 @@ class MediaViewController : UIViewController
 
     @objc func showPlaying()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -1159,7 +1187,7 @@ class MediaViewController : UIViewController
             return
         }
         
-        guard (sermonSelected?.series?.sermons?.index(of: playing) != nil) else {
+        guard (sermonSelected?.series?.sermons?.firstIndex(of: playing) != nil) else {
             return
         }
         
@@ -1169,7 +1197,7 @@ class MediaViewController : UIViewController
         // For UI
         DispatchQueue.global(qos: .background).async {
             Thread.onMainThread {
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
             }
         }
         
@@ -1178,6 +1206,10 @@ class MediaViewController : UIViewController
     
     @objc func readyToPlay()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -1263,7 +1295,7 @@ class MediaViewController : UIViewController
 
     func setupNotifications()
     {
-        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(reachableTransition), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(reachableTransition), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
@@ -1325,7 +1357,7 @@ class MediaViewController : UIViewController
         // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
-                self.scrollToSermon(sermon, select: true, position: UITableViewScrollPosition.none)
+                self.scrollToSermon(sermon, select: true, position: UITableView.ScrollPosition.none)
             }
         })
     }
@@ -1338,7 +1370,7 @@ class MediaViewController : UIViewController
         // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableViewScrollPosition.none)
+                self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
             }
         })
         
@@ -1386,7 +1418,7 @@ class MediaViewController : UIViewController
         }
 
         frontView.isHidden = false
-        self.seriesArtAndDescription.bringSubview(toFront: frontView)
+        self.seriesArtAndDescription.bringSubviewToFront(frontView)
         backView.isHidden = true
 
         if frontView == self.seriesArt {
@@ -1419,6 +1451,10 @@ class MediaViewController : UIViewController
     
     fileprivate func setTimes(timeNow:Double, length:Double)
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             userAlert(title: "Not Main Thread", message: "MediaViewController:setTimes")
             return
@@ -1462,6 +1498,10 @@ class MediaViewController : UIViewController
     
     fileprivate func setSliderAndTimesToAudio()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -1571,6 +1611,10 @@ class MediaViewController : UIViewController
     
     fileprivate func setupSliderAndTimes()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             userAlert(title: "Not Main Thread", message: "MediaViewController:setupSliderAndTimes")
             return
@@ -1624,6 +1668,10 @@ class MediaViewController : UIViewController
     
     @objc func updateSlider()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -1730,17 +1778,17 @@ class MediaViewController : UIViewController
             if sermon.atEnd {
                 NSLog("playPause Globals.shared.mediaPlayer.currentTime and Globals.shared.player.playing!.currentTime reset to 0!")
                 Globals.shared.mediaPlayer.playing?.currentTime = Constants.ZERO
-                seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
+                seekToTime = CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution)
                 sermon.atEnd = false
             } else {
                 if let currentTime = sermon.currentTime, let seconds = Double(currentTime) {
-                    seekToTime = CMTimeMakeWithSeconds(seconds,Constants.CMTime_Resolution)
+                    seekToTime = CMTimeMakeWithSeconds(seconds,preferredTimescale: Constants.CMTime_Resolution)
                 }
             }
         } else {
             NSLog("playPause selectedMediaItem has NO currentTime!")
             sermon.currentTime = Constants.ZERO
-            seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
+            seekToTime = CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution)
         }
         
         if let seekToTime = seekToTime {

@@ -86,7 +86,7 @@ extension MediaCollectionViewController : UICollectionViewDelegateFlowLayout
         var bounds = view.bounds
         
         if #available(iOS 11.0, *) {
-            bounds = UIEdgeInsetsInsetRect(view.bounds, view.safeAreaInsets)
+            bounds = view.bounds.inset(by: view.safeAreaInsets)
         } else {
             // Fallback on earlier versions
         }
@@ -184,6 +184,10 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
 
     func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose)
     {
+        guard isViewLoaded else {
+            return
+        }
+
         guard Thread.isMainThread else {
             return
         }
@@ -212,7 +216,7 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
                 
                 if Globals.shared.series.active != nil {
                     let indexPath = IndexPath(item:0,section:0)
-                    collectionView.scrollToItem(at: indexPath,at:UICollectionViewScrollPosition.centeredVertically, animated: true)
+                    collectionView.scrollToItem(at: indexPath,at:UICollectionView.ScrollPosition.centeredVertically, animated: true)
                 }
             }
             break
@@ -267,7 +271,7 @@ class MediaCollectionViewController: UIViewController
         return true
     }
     
-    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?)
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?)
     {
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             Globals.shared.motionEnded(motion, event: event)
@@ -343,13 +347,13 @@ class MediaCollectionViewController: UIViewController
     
     fileprivate func setupSortingAndGroupingOptions()
     {
-        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItemStyle.plain, target: self, action: #selector(sorting(_:)))
+        let sortingButton = UIBarButtonItem(title: Constants.Sort, style: UIBarButtonItem.Style.plain, target: self, action: #selector(sorting(_:)))
         
-        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItemStyle.plain, target: self, action: #selector(filtering(_:)))
+        let filterButton = UIBarButtonItem(title: Constants.Filter, style: UIBarButtonItem.Style.plain, target: self, action: #selector(filtering(_:)))
         
-        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItemStyle.plain, target: self, action: #selector(settings(_:)))
+        let settingsButton = UIBarButtonItem(title: Constants.Settings, style: UIBarButtonItem.Style.plain, target: self, action: #selector(settings(_:)))
         
-        let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil)
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         
         var barButtons = [UIBarButtonItem]()
         
@@ -390,6 +394,10 @@ class MediaCollectionViewController: UIViewController
     
     func setupTitle()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -409,14 +417,14 @@ class MediaCollectionViewController: UIViewController
             return
         }
         
-        if let index = Globals.shared.series.active?.index(of: series) {
+        if let index = Globals.shared.series.active?.firstIndex(of: series) {
             let indexPath = IndexPath(item: index, section: 0)
             
             // Without this background/main dispatching there isn't time to scroll after a reload.
             // For UI
             DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                 Thread.onMainThread {
-                    self.collectionView.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition.top, animated: true)
+                    self.collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.top, animated: true)
                 }
             })
         }
@@ -463,7 +471,7 @@ class MediaCollectionViewController: UIViewController
 //        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
                 if !Globals.shared.isRefreshing {
-                    self.view.bringSubview(toFront: self.activityIndicator)
+                    self.view.bringSubviewToFront(self.activityIndicator)
                     self.activityIndicator.isHidden = false
                     self.activityIndicator.startAnimating()
                 }
@@ -549,6 +557,10 @@ class MediaCollectionViewController: UIViewController
     
     @objc func handleRefresh(_ refreshControl: UIRefreshControl)
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         guard Thread.isMainThread else {
             return
         }
@@ -576,7 +588,7 @@ class MediaCollectionViewController: UIViewController
         
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             logo.isHidden = false
-            view.bringSubview(toFront: logo)
+            view.bringSubviewToFront(logo)
         }
         
         Globals.shared.isRefreshing = true
@@ -593,9 +605,9 @@ class MediaCollectionViewController: UIViewController
 
             let alert = UIAlertController(title: "No media available.",
                                           message: "Please check your network connection and try again.",
-                                          preferredStyle: UIAlertControllerStyle.alert)
+                                          preferredStyle: UIAlertController.Style.alert)
             
-            let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+            let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
 
             })
             alert.addAction(action)
@@ -612,12 +624,12 @@ class MediaCollectionViewController: UIViewController
     
     func addNotifications()
     {
-        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(showingAboutDidChange), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(setupPlayingPausedButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
@@ -631,10 +643,10 @@ class MediaCollectionViewController: UIViewController
 
         addNotifications()
         
-        splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
+        splitViewController?.preferredDisplayMode = UISplitViewController.DisplayMode.allVisible //iPad only
         
         refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(handleRefresh(_:)), for: UIControlEvents.valueChanged)
+        refreshControl?.addTarget(self, action: #selector(handleRefresh(_:)), for: UIControl.Event.valueChanged)
 
         if #available(iOS 10.0, *) {
             collectionView.refreshControl = refreshControl
@@ -694,7 +706,7 @@ class MediaCollectionViewController: UIViewController
         var playingPausedButton = navigationItem.rightBarButtonItem
         
         if (playingPausedButton == nil) {
-            playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItemStyle.plain, target: self, action: #selector(gotoNowPlaying))
+            playingPausedButton = UIBarButtonItem(title: nil, style: UIBarButtonItem.Style.plain, target: self, action: #selector(gotoNowPlaying))
         }
         
         playingPausedButton?.title = title
@@ -769,7 +781,7 @@ class MediaCollectionViewController: UIViewController
         
         if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
             logo.isHidden = false
-            view.bringSubview(toFront: logo)
+            view.bringSubviewToFront(logo)
         }
         
         loadSeries()
@@ -783,9 +795,9 @@ class MediaCollectionViewController: UIViewController
             
             let alert = UIAlertController(title: "No media available.",
                                           message: "Please check your network connection and try again.",
-                                          preferredStyle: UIAlertControllerStyle.alert)
+                                          preferredStyle: UIAlertController.Style.alert)
             
-            let action = UIAlertAction(title: Constants.Okay, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+            let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
                 
             })
             alert.addAction(action)
@@ -806,7 +818,7 @@ class MediaCollectionViewController: UIViewController
 
             if let isCollapsed = splitViewController?.isCollapsed, isCollapsed {
                 logo.isHidden = false
-                view.bringSubview(toFront: logo)
+                view.bringSubviewToFront(logo)
             }
         }
 
@@ -818,7 +830,7 @@ class MediaCollectionViewController: UIViewController
         
         addNotifications()
         
-        splitViewController?.preferredDisplayMode = UISplitViewControllerDisplayMode.allVisible //iPad only
+        splitViewController?.preferredDisplayMode = UISplitViewController.DisplayMode.allVisible //iPad only
 
         setupPlayingPausedButton()
         

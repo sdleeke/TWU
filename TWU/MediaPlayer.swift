@@ -256,7 +256,7 @@ class MediaPlayer : NSObject
         if #available(iOS 10.0, *) {
             if keyPath == #keyPath(AVPlayer.timeControlStatus) {
                 if  let statusNumber = change?[.newKey] as? NSNumber,
-                    let status = AVPlayerTimeControlStatus(rawValue: statusNumber.intValue) {
+                    let status = AVPlayer.TimeControlStatus(rawValue: statusNumber.intValue) {
                     switch status {
                     case .waitingToPlayAtSpecifiedRate:
                         if let reason = player?.reasonForWaitingToPlay {
@@ -322,6 +322,9 @@ class MediaPlayer : NSObject
                             }
                         }
                         break
+                        
+                    @unknown default:
+                        break
                     }
                 }
             }
@@ -330,10 +333,10 @@ class MediaPlayer : NSObject
         }
 
         if keyPath == #keyPath(AVPlayerItem.status) {
-            let status: AVPlayerItemStatus
+            let status: AVPlayerItem.Status
             
             // Get the status change from the change dictionary
-            if let statusNumber = change?[.newKey] as? NSNumber, let playerItemStatus = AVPlayerItemStatus(rawValue: statusNumber.intValue) {
+            if let statusNumber = change?[.newKey] as? NSNumber, let playerItemStatus = AVPlayerItem.Status(rawValue: statusNumber.intValue) {
                 status = playerItemStatus
             } else {
                 status = .unknown
@@ -395,6 +398,9 @@ class MediaPlayer : NSObject
                     // Fallback on earlier versions
                 }
                 break
+                
+            @unknown default:
+                break
             }
         }
     }
@@ -418,7 +424,7 @@ class MediaPlayer : NSObject
         
         if Globals.shared.settings.autoAdvance, let playing = playing, playing.atEnd,
             let mediaItems = playing.series?.sermons,
-            let index = mediaItems.index(of: playing), index < (mediaItems.count - 1) {
+            let index = mediaItems.firstIndex(of: playing), index < (mediaItems.count - 1) {
             let nextMediaItem = mediaItems[index + 1]
             
             nextMediaItem.currentTime = Constants.ZERO
@@ -540,7 +546,7 @@ class MediaPlayer : NSObject
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
         }
         
-        if (UIApplication.shared.applicationState == UIApplicationState.active) {
+        if (UIApplication.shared.applicationState == UIApplication.State.active) {
             Alerts.shared.alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
         }
     }
@@ -660,7 +666,7 @@ class MediaPlayer : NSObject
         observerActive = true
         observedItem = currentItem
         
-        playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,Constants.CMTime_Resolution), queue: DispatchQueue.global(qos: .background), using: { (time:CMTime) in // [weak globals]
+        playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,preferredTimescale: Constants.CMTime_Resolution), queue: DispatchQueue.global(qos: .background), using: { (time:CMTime) in // [weak globals]
             self.playerTimer(time:time)
         })
 
@@ -837,7 +843,7 @@ class MediaPlayer : NSObject
             seek = 0
         }
         
-        player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution),
+        player?.seek(to: CMTimeMakeWithSeconds(seek,preferredTimescale: Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution),
                      completionHandler: { (finished:Bool) in
                         if finished {
                             Thread.onMainThread {

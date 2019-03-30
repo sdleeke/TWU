@@ -144,26 +144,26 @@ enum Constants {
     }
     
     enum Fonts {
-        static let body = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
+        static let body = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)
         
-        static let bold = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
+        static let bold = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.headline)
         
         enum Attributes {
-            static let normal = [ NSAttributedStringKey.font: Fonts.body ]
+            static let normal = [ NSAttributedString.Key.font: Fonts.body ]
             
-            static let bold = [ NSAttributedStringKey.font: Fonts.bold ]
+            static let bold = [ NSAttributedString.Key.font: Fonts.bold ]
             
-            static let marked = [ NSAttributedStringKey.backgroundColor: UIColor.lightGray,
-                                  NSAttributedStringKey.font: Fonts.body ]
+            static let marked = [ NSAttributedString.Key.backgroundColor: UIColor.lightGray,
+                                  NSAttributedString.Key.font: Fonts.body ]
             
-            static let highlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                       NSAttributedStringKey.font: Fonts.body ]
+            static let highlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                       NSAttributedString.Key.font: Fonts.body ]
             
-            static let destructive = [ NSAttributedStringKey.foregroundColor: UIColor.red,
-                                       NSAttributedStringKey.font: Fonts.body ]
+            static let destructive = [ NSAttributedString.Key.foregroundColor: UIColor.red,
+                                       NSAttributedString.Key.font: Fonts.body ]
             
-            static let boldHighlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                           NSAttributedStringKey.font: Fonts.bold ]
+            static let boldHighlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                           NSAttributedString.Key.font: Fonts.bold ]
         }
     }
 

@@ -59,10 +59,10 @@ class PopoverTableViewController: UITableViewController {
         
         for string in strings {
             let widthSize: CGSize = CGSize(width: .greatestFiniteMagnitude, height: 44.0)
-            let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 16.0)], context: nil)
+            let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16.0)], context: nil)
             
             let heightSize: CGSize = CGSize(width: view.bounds.width - 30, height: .greatestFiniteMagnitude)
-            let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 16.0)], context: nil)
+            let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16.0)], context: nil)
             
             if maxWidth.width > width {
                 width = maxWidth.width
@@ -106,7 +106,7 @@ class PopoverTableViewController: UITableViewController {
         //This makes accurate scrolling to sections impossible but since we don't use scrollToRowAtIndexPath with
         //the popover, this makes multi-line rows possible.
         tableView.estimatedRowHeight = tableView.rowHeight
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
 
         tableView.allowsSelection = allowsSelection
         tableView.allowsMultipleSelection = allowsMultipleSelection
@@ -169,7 +169,7 @@ class PopoverTableViewController: UITableViewController {
     {
         super.viewWillAppear(animated)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
 
         setupIndex()
         
@@ -260,38 +260,38 @@ class PopoverTableViewController: UITableViewController {
         // Configure the cell...
         switch purpose {
         case .selectingAction:
-            cell.accessoryType = UITableViewCellAccessoryType.none
+            cell.accessoryType = UITableViewCell.AccessoryType.none
             break
             
         case .selectingFiltering:
             switch Globals.shared.series.showing {
             case .all:
                 if strings?[index] == Constants.All {
-                    cell.accessoryType = UITableViewCellAccessoryType.checkmark
+                    cell.accessoryType = UITableViewCell.AccessoryType.checkmark
                 } else {
-                    cell.accessoryType = UITableViewCellAccessoryType.none
+                    cell.accessoryType = UITableViewCell.AccessoryType.none
                 }
                 break
             
             case .filtered:
                 if strings?[index] == Globals.shared.series.filter {
-                    cell.accessoryType = UITableViewCellAccessoryType.checkmark
+                    cell.accessoryType = UITableViewCell.AccessoryType.checkmark
                 } else {
-                    cell.accessoryType = UITableViewCellAccessoryType.none
+                    cell.accessoryType = UITableViewCell.AccessoryType.none
                 }
                 break
             }
             
         case .selectingSorting:
             if (strings?[index].lowercased() == Globals.shared.series.sorting?.lowercased()) {
-                cell.accessoryType = UITableViewCellAccessoryType.checkmark
+                cell.accessoryType = UITableViewCell.AccessoryType.checkmark
             } else {
-                cell.accessoryType = UITableViewCellAccessoryType.none
+                cell.accessoryType = UITableViewCell.AccessoryType.none
             }
             break
             
         case .selectingShow:
-            cell.accessoryType = UITableViewCellAccessoryType.none
+            cell.accessoryType = UITableViewCell.AccessoryType.none
             break
         }
 
