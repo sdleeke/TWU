@@ -311,6 +311,24 @@ class Globals //: NSObject
         MPRemoteCommandCenter.shared().dislikeCommand.isEnabled = false
         MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
     }
+
+    func userAlert(title:String?,message:String?)
+    {
+        if (UIApplication.shared.applicationState == UIApplication.State.active) {
+            let alert = UIAlertController(title: title,
+                                          message: message,
+                                          preferredStyle: UIAlertController.Style.alert)
+            
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
+                
+            })
+            alert.addAction(action)
+            
+            Thread.onMainThread {
+                self.rootViewController?.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
 }
 
 

@@ -158,9 +158,9 @@ class Media
     {
         get {
             if search.active {
-                return sortSeries(search.results,sorting: sorting)
+                return search.results?.sort(sorting: sorting)
             } else {
-                return sortSeries(toSearch,sorting: sorting)
+                return toSearch?.sort(sorting: sorting)
             }
         }
     }

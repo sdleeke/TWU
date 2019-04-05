@@ -10,6 +10,123 @@ import Foundation
 import UIKit
 import PDFKit
 
+extension Set
+{
+    var array: [Element]
+    {
+        return Array(self)
+    }
+}
+
+extension Array where Element : Hashable
+{
+    var set: Set<Element>
+    {
+        return Set(self)
+    }
+}
+
+extension FileManager
+{
+    var documentsURL : URL?
+    {
+        get {
+            return self.urls(for: .documentDirectory, in: .userDomainMask).first
+        }
+    }
+    
+    var cachesURL : URL?
+    {
+        get {
+            return self.urls(for: .cachesDirectory, in: .userDomainMask).first
+        }
+    }
+}
+
+extension UIViewController
+{
+    func share(htmlString:String?)
+    {
+        guard htmlString != nil else {
+            return
+        }
+        
+        let activityItems = [htmlString as Any]
+        
+        let activityViewController = UIActivityViewController(activityItems:activityItems, applicationActivities: nil)
+        
+        // exclude some activity types from the list (optional)
+        
+        activityViewController.excludedActivityTypes = [ .addToReadingList ] // UIActivityType.addToReadingList doesn't work for third party apps - iOS bug.
+        
+        activityViewController.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
+        
+        // present the view controller
+        Thread.onMainThread {
+            self.present(activityViewController, animated: false, completion: nil)
+        }
+    }
+
+    func networkUnavailable(message:String?)
+    {
+        let alert = UIAlertController(title:Constants.Network_Error,
+                                      message: message,
+                                      preferredStyle: UIAlertController.Style.alert)
+        
+        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
+        })
+        alert.addAction(action)
+        
+        Thread.onMainThread {
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+
+    func alert(title:String?,message:String?)
+    {
+        guard UIApplication.shared.applicationState == UIApplication.State.active else {
+            return
+        }
+        
+        let alert = UIAlertController(title:title,
+                                      message: message,
+                                      preferredStyle: UIAlertController.Style.alert)
+        
+        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
+        })
+        alert.addAction(action)
+        
+        Thread.onMainThread {
+            Globals.shared.rootViewController?.dismiss(animated: true, completion: nil)
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+}
+
+extension UITableView
+{
+    func isValid(_ indexPath:IndexPath) -> Bool
+    {
+        guard indexPath.section >= 0 else {
+            return false
+        }
+        
+        guard indexPath.section < self.numberOfSections else {
+            return false
+        }
+        
+        guard indexPath.row >= 0 else {
+            return false
+        }
+        
+        guard indexPath.row < self.numberOfRows(inSection: indexPath.section) else {
+            return false
+        }
+        
+        return true
+    }
+}
+
 extension Double
 {
     var secondsToHMS : String?
@@ -289,7 +406,7 @@ extension String
             
             guard url != nil else {
                 if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
-                    return cachesURL?.appendingPathComponent(lastPathComponent)
+                    return FileManager.default.cachesURL?.appendingPathComponent(lastPathComponent)
                 } else {
                     return nil
                 }
@@ -297,7 +414,7 @@ extension String
             
             guard self != url?.lastPathComponent else {
                 if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
-                    return cachesURL?.appendingPathComponent(lastPathComponent)
+                    return FileManager.default.cachesURL?.appendingPathComponent(lastPathComponent)
                 } else {
                     return nil
                 }
@@ -661,6 +778,119 @@ extension Date
         
         //Return Result
         return dateWithHoursAdded
+    }
+}
+
+extension String
+{
+    var bookNumberInBible : Int?
+    {
+//        guard let book = book else {
+//            return nil
+//        }
+
+        let book = self
+        
+        if let index = Constants.TESTAMENT.OLD.firstIndex(of: book) {
+            return index
+        }
+        
+        if let index = Constants.TESTAMENT.NEW.firstIndex(of: book) {
+            return Constants.TESTAMENT.OLD.count + index
+        }
+        
+        return Constants.TESTAMENT.OLD.count + Constants.TESTAMENT.NEW.count+1 // Not in the Bible.  E.g. Selected Scriptures
+    }
+    
+    var lastName : String?
+    {
+        var lastname = self
+    
+        while (lastname.range(of: Constants.SINGLE_SPACE) != nil) {
+            if let range = lastname.range(of: Constants.SINGLE_SPACE) {
+                lastname = String(lastname[range.upperBound...])
+            }
+        }
+        
+        return lastname
+    }
+}
+
+extension Array where Element == Series
+{
+    func sort(sorting:String?) -> [Series]?
+    {
+//        guard let series = series else {
+//            return nil
+//        }
+        
+        let series = self
+        
+        guard let sorting = sorting else {
+            return nil
+        }
+        
+        var results:[Series]?
+        
+        switch sorting {
+        case Constants.Sorting.Title_AZ:
+            results = series.sorted() { $0.titleSort < $1.titleSort }
+            break
+        case Constants.Sorting.Title_ZA:
+            results = series.sorted() { $0.titleSort > $1.titleSort }
+            break
+        case Constants.Sorting.Newest_to_Oldest:
+            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
+            
+            //        switch Constants.JSON.URL {
+            //        case Constants.JSON.URLS.MEDIALIST_PHP:
+            //            results = series.sorted() { $0.id > $1.id }
+            //
+            //        case Constants.JSON.URLS.MEDIALIST_JSON:
+            //            fallthrough
+            //
+            //        case Constants.JSON.URLS.SERIES_JSON:
+            //            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
+            //
+            //        default:
+            //            return nil
+            //        }
+            break
+        case Constants.Sorting.Oldest_to_Newest:
+            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
+            
+            //        switch Constants.JSON.URL {
+            //        case Constants.JSON.URLS.MEDIALIST_PHP:
+            //            results = series.sorted() { $0.id < $1.id }
+            //
+            //        case Constants.JSON.URLS.MEDIALIST_JSON:
+            //            fallthrough
+            //
+            //        case Constants.JSON.URLS.SERIES_JSON:
+            //            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
+            //
+            //        default:
+            //            return nil
+            //        }
+            break
+        default:
+            break
+        }
+        
+        return results
+    }
+
+    var books : [String]?
+    {
+//        guard let series = series else {
+//            return nil
+//        }
+        
+        return self.filter({ (series:Series) -> Bool in
+            return series.book != nil
+        }).map({ (series:Series) -> String in
+            return series.book!
+        }).set.array.sorted(by: { $0.bookNumberInBible < $1.bookNumberInBible })
     }
 }
 

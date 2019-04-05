@@ -333,7 +333,7 @@ class MediaCollectionViewController: UIViewController
         popover.delegate = self
         
         popover.purpose = .selectingFiltering
-        popover.strings = booksFromSeries(Globals.shared.series.all)
+        popover.strings = Globals.shared.series.all?.books
         popover.strings?.insert(Constants.All, at: 0)
         
         present(navigationController, animated: true, completion: nil)

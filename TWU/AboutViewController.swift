@@ -70,7 +70,7 @@ extension AboutViewController : PopoverTableViewControllerDelegate
                 break
                 
             case Constants.Share_This_App:
-                shareHTML(viewController: self,htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
+                self.share(htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
                 break
                 
             default:

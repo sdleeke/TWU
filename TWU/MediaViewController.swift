@@ -102,7 +102,7 @@ extension MediaViewController : PopoverTableViewControllerDelegate
                 
             case Constants.Share:
                 if let title = seriesSelected?.title, let url = seriesSelected?.url {
-                    shareHTML(viewController: self, htmlString: "\(title) by Tom Pennington from The Word Unleashed\n\n\(url.absoluteString)")
+                    self.share(htmlString: "\(title) by Tom Pennington from The Word Unleashed\n\n\(url.absoluteString)")
                 }
                 break
                 
@@ -294,23 +294,23 @@ class MediaViewController : UIViewController
             
         }
         didSet {
+            guard let sermonSelected = sermonSelected else { // sermonSelected != oldValue
+                return
+            }
+            
             seriesSelected?.sermonSelected = sermonSelected
-
-            if let sermonSelected = sermonSelected { // sermonSelected != oldValue
-                if (sermonSelected != Globals.shared.mediaPlayer.playing) {
-                    removeSliderTimer()
-                    if let playingURL = sermonSelected.playingURL {
-                        playerURL(url: playingURL)
-                    }
-                } else {
-                    removePlayerObserver()
-                }
-
-                Thread.onMainThread {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
+            
+            if (sermonSelected != Globals.shared.mediaPlayer.playing) {
+                removeSliderTimer()
+                if let playingURL = sermonSelected.playingURL {
+                    playerURL(url: playingURL)
                 }
             } else {
-
+                removePlayerObserver()
+            }
+            
+            Thread.onMainThread {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
             }
         }
     }
@@ -631,7 +631,7 @@ class MediaViewController : UIViewController
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.openURL(url)
             } else {
-                alert(viewController: self,title: "Network Error", message: "Unable to open url: \(url)")
+                self.alert(title: "Network Error", message: "Unable to open url: \(url)")
             }
         }
     }
@@ -642,7 +642,7 @@ class MediaViewController : UIViewController
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.openURL(url)
             } else {
-                alert(viewController: self,title: "Network Error", message: "Unable to open url: \(url)")
+                self.alert(title: "Network Error", message: "Unable to open url: \(url)")
             }
         }
     }
@@ -675,7 +675,7 @@ class MediaViewController : UIViewController
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.openURL(url)
             } else {
-                networkUnavailable(viewController: self,message: "Unable to open url: \(url)")
+                self.networkUnavailable(message: "Unable to open url: \(url)")
             }
         }
     }
@@ -1109,6 +1109,10 @@ class MediaViewController : UIViewController
 
     @objc func updateUI()
     {
+        guard isViewLoaded else {
+            return
+        }
+        
         //These are being added here for the case when this view is opened and the sermon selected is playing already
         if self.navigationController?.visibleViewController == self {
             self.navigationController?.isToolbarHidden = true
@@ -1456,7 +1460,7 @@ class MediaViewController : UIViewController
         }
         
         guard Thread.isMainThread else {
-            userAlert(title: "Not Main Thread", message: "MediaViewController:setTimes")
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaViewController:setTimes")
             return
         }
         
@@ -1616,7 +1620,7 @@ class MediaViewController : UIViewController
         }
         
         guard Thread.isMainThread else {
-            userAlert(title: "Not Main Thread", message: "MediaViewController:setupSliderAndTimes")
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaViewController:setupSliderAndTimes")
             return
         }
         
@@ -1830,7 +1834,7 @@ class MediaViewController : UIViewController
         }
 
         guard Globals.shared.reachability.isReachable || (sermon.audioDownload?.isDownloaded == true) else { // let reachability = Globals.shared.reachability, 
-            alert(viewController: self, title: "Audio Not Available", message: "Please check your network connection and try again.")
+            self.alert(title: "Audio Not Available", message: "Please check your network connection and try again.")
             return
         }
         
