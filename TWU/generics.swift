@@ -529,7 +529,13 @@ class Fetch<T>
     }
 }
 
-class FetchCodable<T:Codable> : Fetch<T>
+protocol Size
+{
+    var _fileSize : Int? { get set }
+    var fileSize : Int { get }
+}
+
+class FetchCodable<T:Codable> : Fetch<T>, Size
 {
     var fileSystemURL : URL?
     {
@@ -538,8 +544,8 @@ class FetchCodable<T:Codable> : Fetch<T>
         }
     }
     
-    private var _fileSize : Int?
-    
+    // Replacing these two w/ a Shadow class is a big performance hit
+    internal var _fileSize : Int?
     var fileSize : Int
     {
         get {

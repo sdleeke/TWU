@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class FetchImage
+class FetchImage : Size
 {
     var url : URL?
     
@@ -65,12 +65,8 @@ class FetchImage
         fetch?.load()
     }
 
-    private var _fileSize : Int?
-    {
-        didSet {
-            
-        }
-    }
+    // Replacing these two w/ a Shadow class is a big performance hit
+    internal var _fileSize : Int?
     var fileSize : Int
     {
         get {
@@ -81,9 +77,9 @@ class FetchImage
             
             return fileSize
         }
-        set {
-            _fileSize = newValue
-        }
+//        set {
+//            _fileSize = newValue
+//        }
     }
     
     func delete()

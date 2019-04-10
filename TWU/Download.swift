@@ -286,7 +286,7 @@ extension Download : URLSessionDownloadDelegate
     }
 }
 
-class Download : NSObject
+class Download : NSObject, Size
 {
     init?(sermon:Sermon?,purpose:String?,downloadURL:URL?,fileSystemURL:URL?)
     {
@@ -426,8 +426,8 @@ class Download : NSObject
         }
     }
     
-    private var _fileSize : Int?
-    
+    // Replacing these two w/ a Shadow class is a big performance hit
+    internal var _fileSize : Int?
     var fileSize : Int
     {
         get {
