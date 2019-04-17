@@ -13,6 +13,10 @@ class Alerts
 {
     static var shared = Alerts()
  
+    deinit {
+        print(self)
+    }
+    
     init()
     {
         Thread.onMainThread {

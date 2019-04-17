@@ -127,6 +127,30 @@ extension UITableView
     }
 }
 
+extension UICollectionView
+{
+    func isValid(_ indexPath:IndexPath) -> Bool
+    {
+        guard indexPath.section >= 0 else {
+            return false
+        }
+        
+        guard indexPath.section < self.numberOfSections else {
+            return false
+        }
+        
+        guard indexPath.row >= 0 else {
+            return false
+        }
+        
+        guard indexPath.row < self.numberOfItems(inSection: indexPath.section) else {
+            return false
+        }
+        
+        return true
+    }
+}
+
 extension Double
 {
     var secondsToHMS : String?

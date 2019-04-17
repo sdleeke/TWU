@@ -10,6 +10,10 @@ import Foundation
 
 class SermonSettings
 {
+    deinit {
+        print(self)
+    }
+    
     weak var sermon:Sermon?
     
     init(sermon:Sermon?) {

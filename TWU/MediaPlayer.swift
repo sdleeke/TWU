@@ -20,8 +20,14 @@ enum PlayerState {
     case seekingBackward
 }
 
-class PlayerStateTime {
-    var sermon:Sermon? {
+class PlayerStateTime
+{
+    deinit {
+        print(self)
+    }
+    
+    var sermon:Sermon?
+    {
         willSet {
             
         }
@@ -105,6 +111,10 @@ class PlayerStateTime {
 
 class MediaPlayer : NSObject
 {
+    deinit {
+        print(self)
+    }
+    
     var playerTimerReturn:Any? = nil
 //    var sliderTimerReturn:Any? = nil
     

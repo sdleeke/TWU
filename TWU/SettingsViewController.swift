@@ -8,8 +8,12 @@
 
 import UIKit
 
-class SettingsViewController: UIViewController {
-
+class SettingsViewController: UIViewController
+{
+    deinit {
+        print(self)
+    }
+    
     @IBOutlet weak var autoAdvanceSwitch: UISwitch!
     
     @IBAction func autoAdvanceAction(_ sender: UISwitch) {

@@ -288,6 +288,10 @@ extension Download : URLSessionDownloadDelegate
 
 class Download : NSObject, Size
 {
+    deinit {
+        print(self)
+    }
+    
     init?(sermon:Sermon?,purpose:String?,downloadURL:URL?,fileSystemURL:URL?)
     {
         guard let sermon = sermon else {

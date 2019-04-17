@@ -24,6 +24,10 @@ struct Alert
 
 class Globals //: NSObject
 {
+    deinit {
+        print(self)
+    }
+    
     static var shared = Globals()
     
 //    lazy var userInteractiveQueue : OperationQueue! = {

@@ -27,7 +27,7 @@ class CancellableOperation : Operation
     }
     
     deinit {
-        
+        print(self)
     }
     
     override func main()

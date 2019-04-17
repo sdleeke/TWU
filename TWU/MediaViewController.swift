@@ -119,6 +119,10 @@ extension MediaViewController : PopoverTableViewControllerDelegate
 
 class ControlView : UIView
 {
+    deinit {
+        print(self)
+    }
+    
     var sliding = false
     
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
@@ -170,6 +174,10 @@ extension MediaViewController : UITableViewDataSource
 
 class MediaViewController : UIViewController
 {
+    deinit {
+        print(self)
+    }
+    
     var observerActive = false
     var observedItem:AVPlayerItem?
 

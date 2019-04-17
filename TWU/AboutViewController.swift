@@ -86,6 +86,10 @@ extension AboutViewController : PopoverTableViewControllerDelegate
 
 class AboutViewController : UIViewController
 {
+    deinit {
+        print(self)
+    }
+    
     @IBOutlet weak var versionLabel: UILabel!
     
     @IBOutlet weak var scrollView: UIScrollView!

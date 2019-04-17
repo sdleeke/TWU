@@ -14,7 +14,8 @@ class MediaCollectionViewCell: UICollectionViewCell
 
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    var series:Series? {
+    var series:Series?
+    {
         willSet {
             
         }
@@ -63,16 +64,19 @@ class MediaCollectionViewCell: UICollectionViewCell
             
             guard let image = series.coverArt?.image else {
                 Thread.onMainThread {
-                    self.activityIndicator.stopAnimating()
-                    self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+                    if self.series == series {
+                        self.activityIndicator.stopAnimating()
+                        self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+                    } else {
+
+                    }
                 }
                 return
             }
 
             Thread.onMainThread {
-                self.activityIndicator.stopAnimating()
-
                 if self.series == series {
+                    self.activityIndicator.stopAnimating()
                     self.seriesArt.image = image
                 } else {
 //                    self.seriesArt.image = UIImage(named: "twu_logo_circle_r")

@@ -11,7 +11,7 @@ import Foundation
 struct Meta
 {
     // From NEW JSON
-    private var storage = ThreadSafeDictionary<Any>(name: "META") // [String:Any]?
+    private var storage = ThreadSafeDN<Any>(name: "META") // [String:Any]? // ictionary
     
     func update(contents:[String:Any]?)
     {

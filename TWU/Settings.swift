@@ -10,8 +10,8 @@ import Foundation
 
 class Settings
 {
-    var series = ThreadSafeDictionaryOfDictionaries<String>(name: "SeriesSettings") // [String:[String:String]]?
-    var sermon = ThreadSafeDictionaryOfDictionaries<String>(name: "SermonSettings") // [String:[String:String]]?
+    var series = ThreadSafeDN<String>(name: "SeriesSettings") // [String:[String:String]]? // ictionaryOfDictionaries
+    var sermon = ThreadSafeDN<String>(name: "SermonSettings") // [String:[String:String]]? // ictionaryOfDictionaries
     
     lazy var operationQueue:OperationQueue! = {
         let operationQueue = OperationQueue()

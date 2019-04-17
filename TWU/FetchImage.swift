@@ -11,6 +11,10 @@ import UIKit
 
 class FetchImage : Size
 {
+    deinit {
+        print(self)
+    }
+    
     var url : URL?
     
     init?(url:URL?)
@@ -155,8 +159,12 @@ class FetchImage : Size
 
 class FetchCachedImage : FetchImage
 {
-    private static var cache : ThreadSafeDictionary<UIImage>! = {
-        return ThreadSafeDictionary<UIImage>(name:"FetchImageCache")
+    deinit {
+        print(self)
+    }
+    
+    private static var cache : ThreadSafeDN<UIImage>! = { // ictionary
+        return ThreadSafeDN<UIImage>(name:"FetchImageCache") // ictionary
     }()
     
     private static var queue : DispatchQueue = {
@@ -210,10 +218,18 @@ class FetchCachedImage : FetchImage
     var cachedImage : UIImage?
     {
         get {
-            return FetchCachedImage.cache[self.imageName]
+            guard let imageName = self.imageName else {
+                return nil
+            }
+            
+            return FetchCachedImage.cache?[imageName]
         }
         set {
-            FetchCachedImage.cache[self.imageName] = newValue
+            guard let imageName = self.imageName else {
+                return
+            }
+            
+            FetchCachedImage.cache?[imageName] = newValue
         }
     }
 }

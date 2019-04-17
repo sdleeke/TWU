@@ -21,6 +21,10 @@ func != (lhs:Series,rhs:Series) -> Bool
 
 class Series : Equatable
 {
+    deinit {
+        print(self)
+    }
+    
     var dict:[String:Any]?
     
     init(seriesDict:[String:Any]?)

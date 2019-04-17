@@ -48,7 +48,7 @@ extension MediaCollectionViewController : UICollectionViewDataSource
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as? MediaCollectionViewCell {
             // Configure the cell
             cell.series = Globals.shared.series.active?[indexPath.row]
-            
+
             return cell
         } else {
             return UICollectionViewCell()
@@ -216,7 +216,9 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
                 
                 if Globals.shared.series.active != nil {
                     let indexPath = IndexPath(item:0,section:0)
-                    collectionView.scrollToItem(at: indexPath,at:UICollectionView.ScrollPosition.centeredVertically, animated: true)
+                    if collectionView.isValid(indexPath) {
+                        collectionView.scrollToItem(at: indexPath,at:UICollectionView.ScrollPosition.centeredVertically, animated: true)
+                    }
                 }
             }
             break
@@ -232,6 +234,10 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
 
 class MediaCollectionViewController: UIViewController
 {
+    deinit {
+        print(self)
+    }
+    
     var refreshControl:UIRefreshControl?
 
     @IBOutlet weak var logo: UIImageView!
@@ -422,11 +428,14 @@ class MediaCollectionViewController: UIViewController
             
             // Without this background/main dispatching there isn't time to scroll after a reload.
             // For UI
-            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                Thread.onMainThread {
-                    self.collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.top, animated: true)
-                }
-            })
+            
+            if collectionView.isValid(indexPath) {
+                DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+                    Thread.onMainThread {
+                        self.collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.top, animated: true)
+                    }
+                })
+            }
         }
     }
     

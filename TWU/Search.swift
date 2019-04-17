@@ -12,6 +12,10 @@ class Search
 {
     weak var media : Media?
     
+    deinit {
+        print(self)
+    }
+    
     init(media:Media?)
     {
         self.media = media

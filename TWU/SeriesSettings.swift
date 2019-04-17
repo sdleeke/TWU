@@ -10,6 +10,10 @@ import Foundation
 
 class SeriesSettings
 {
+    deinit {
+        print(self)
+    }
+    
     weak var series:Series?
     
     init(series:Series?) {

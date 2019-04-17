@@ -22,13 +22,18 @@ protocol PopoverTableViewControllerDelegate
     func rowClickedAtIndex(_ index:Int, strings:[String], purpose:PopoverPurpose)
 }
 
-struct Section {
+struct Section
+{
     var titles:[String]?
     var counts:[Int]?
     var indexes:[Int]?
 }
 
-class PopoverTableViewController: UITableViewController {
+class PopoverTableViewController: UITableViewController
+{
+    deinit {
+        print(self)
+    }
     
     var delegate : PopoverTableViewControllerDelegate?
     var purpose : PopoverPurpose?

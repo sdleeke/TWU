@@ -13,6 +13,10 @@ class Media
 {
     let meta = Meta()
     
+    deinit {
+        print(self)
+    }
+    
     var showing:Showing = .all
     
     var selected:Series?
@@ -77,7 +81,7 @@ class Media
         }
     }
     
-    var index = ThreadSafeDictionary<Series>(name: "SERIES_INDEX") // [String:Series]?
+    var index = ThreadSafeDN<Series>(name: "SERIES_INDEX") // [String:Series]? // ictionary
     
     var filtered:[Series]?
     {
@@ -171,8 +175,14 @@ class Media
             return nil
         }
         
-        for (_,value) in index {
-            if let sermons = value.sermons {
+        let values = Array(index.values)
+        
+        for value in values {
+            guard let series = value as? Series else {
+                continue
+            }
+            
+            if let sermons = series.sermons {
                 for sermon in sermons {
                     if sermon.id == id {
                         return sermon

@@ -38,6 +38,10 @@ class JSON
 //        }
 //    }
     
+    deinit {
+        print(self)
+    }
+    
     var format:String?
     {
         get {
