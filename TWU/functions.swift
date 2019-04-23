@@ -11,6 +11,11 @@ import AVFoundation
 import MediaPlayer
 
 
+func debug(_ any:Any...)
+{
+    //    print(any)
+}
+
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertFromAVAudioSessionCategory(_ input: AVAudioSession.Category) -> String {
     return input.rawValue

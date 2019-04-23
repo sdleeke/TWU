@@ -32,7 +32,7 @@ struct Section
 class PopoverTableViewController: UITableViewController
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var delegate : PopoverTableViewControllerDelegate?

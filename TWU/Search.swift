@@ -13,7 +13,7 @@ class Search
     weak var media : Media?
     
     deinit {
-        print(self)
+        debug(self)
     }
     
     init(media:Media?)

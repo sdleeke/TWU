@@ -50,7 +50,7 @@ func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 class BoundsCheckedArray<T>
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     private var storage = [T]()
@@ -138,7 +138,7 @@ class BoundsCheckedArray<T>
 class ThreadSafe<T>
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     // Make it thread safe
@@ -171,7 +171,7 @@ class ThreadSafe<T>
 class ThreadSafeArray<T>
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     private var storage = [T]()
@@ -266,7 +266,7 @@ class ThreadSafeArray<T>
 class ThreadSafeDN<T>
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     // Make it thread safe
@@ -859,7 +859,7 @@ protocol Size
 class FetchCodable<T:Codable> : Fetch<T>, Size
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var fileSystemURL : URL?

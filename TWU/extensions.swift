@@ -248,7 +248,7 @@ extension String
     var secondsToHMS : String?
     {
         get {
-            guard let timeNow = Double(self) else {
+            guard let timeNow = Double(self), !timeNow.isNaN, !timeNow.isInfinite else {
                 return nil
             }
             

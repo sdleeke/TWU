@@ -23,7 +23,7 @@ enum PlayerState {
 class PlayerStateTime
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var sermon:Sermon?
@@ -112,7 +112,7 @@ class PlayerStateTime
 class MediaPlayer : NSObject
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var playerTimerReturn:Any? = nil
@@ -243,8 +243,8 @@ class MediaPlayer : NSObject
     func checkPlayToEnd()
     {
         // didPlayToEnd observer doesn't always work.  This seemds to catch the cases where it doesn't.
-        if let currentTime = currentTime?.seconds,
-            let duration = duration?.seconds,
+        if let currentTime = currentTime?.seconds,!currentTime.isNaN,
+            let duration = duration?.seconds,!duration.isNaN,
             Int(currentTime) >= Int(duration) {
             didPlayToEnd()
         }
@@ -366,7 +366,7 @@ class MediaPlayer : NSObject
                                 seek(to: duration.seconds)
                             }
                         } else {
-                            if let currentTime = playing.currentTime, let time = Double(currentTime) {
+                            if let currentTime = playing.currentTime, let time = Double(currentTime), !time.isNaN, !time.isInfinite {
                                 seek(to: time)
                             }
                         }
@@ -568,9 +568,9 @@ class MediaPlayer : NSObject
         
         guard let state = state,
             let startTime = stateTime?.startTime,
-            let start = Double(startTime),
+            let start = Double(startTime),!start.isNaN,!start.isInfinite,
             let timeElapsed = stateTime?.timeElapsed,
-            let currentTime = currentTime?.seconds else {
+            let currentTime = currentTime?.seconds, !currentTime.isNaN, !currentTime.isInfinite else {
                 return
         }
         
@@ -825,7 +825,7 @@ class MediaPlayer : NSObject
         print("DONE SEEKING")
         
         if isPlaying {
-            Globals.shared.mediaPlayer.checkPlayToEnd()
+            checkPlayToEnd()
         }
     }
 

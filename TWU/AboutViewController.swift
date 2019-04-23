@@ -87,7 +87,7 @@ extension AboutViewController : PopoverTableViewControllerDelegate
 class AboutViewController : UIViewController
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     @IBOutlet weak var versionLabel: UILabel!

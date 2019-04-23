@@ -11,7 +11,7 @@ import Foundation
 class SermonSettings
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     weak var sermon:Sermon?

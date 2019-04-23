@@ -14,7 +14,7 @@ class Media
     let meta = Meta()
     
     deinit {
-        print(self)
+        debug(self)
     }
     
     var showing:Showing = .all

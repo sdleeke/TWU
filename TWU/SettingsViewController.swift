@@ -11,7 +11,7 @@ import UIKit
 class SettingsViewController: UIViewController
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     @IBOutlet weak var autoAdvanceSwitch: UISwitch!

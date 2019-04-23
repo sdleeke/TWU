@@ -37,6 +37,7 @@ class MediaCollectionViewCell: UICollectionViewCell
     }()
 
     deinit {
+        debug(self)
         operationQueue.cancelAllOperations()
     }
     

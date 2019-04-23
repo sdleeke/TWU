@@ -25,7 +25,7 @@ struct Alert
 class Globals //: NSObject
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     static var shared = Globals()

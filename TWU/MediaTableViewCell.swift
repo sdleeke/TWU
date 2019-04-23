@@ -11,7 +11,7 @@ import UIKit
 class MediaTableViewCell: UITableViewCell
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var sermon:Sermon?

@@ -39,7 +39,7 @@ class JSON
 //    }
     
     deinit {
-        print(self)
+        debug(self)
     }
     
     var format:String?

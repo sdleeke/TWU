@@ -289,7 +289,7 @@ extension Download : URLSessionDownloadDelegate
 class Download : NSObject, Size
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     init?(sermon:Sermon?,purpose:String?,downloadURL:URL?,fileSystemURL:URL?)

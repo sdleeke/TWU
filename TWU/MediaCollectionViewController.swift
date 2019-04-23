@@ -235,7 +235,7 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
 class MediaCollectionViewController: UIViewController
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var refreshControl:UIRefreshControl?

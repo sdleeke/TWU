@@ -11,7 +11,7 @@ import Foundation
 class SeriesSettings
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     weak var series:Series?

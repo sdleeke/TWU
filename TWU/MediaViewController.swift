@@ -120,7 +120,7 @@ extension MediaViewController : PopoverTableViewControllerDelegate
 class ControlView : UIView
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var sliding = false
@@ -175,7 +175,7 @@ extension MediaViewController : UITableViewDataSource
 class MediaViewController : UIViewController
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     var observerActive = false
@@ -471,19 +471,29 @@ class MediaViewController : UIViewController
         guard let length = Globals.shared.mediaPlayer.duration?.seconds else {
             return
         }
-
-        if (slider.value < 1.0) {
-            let seekToTime = Double(slider.value) * length
+        
+        if slider.value < 0 {
+            Globals.shared.mediaPlayer.pause()
             
-            Globals.shared.mediaPlayer.seek(to: seekToTime)
+            Globals.shared.mediaPlayer.seek(to: 0)
             
-            Globals.shared.mediaPlayer.playing?.currentTime = seekToTime.description
-        } else {
+            Globals.shared.mediaPlayer.playing?.currentTime = 0.description
+        } else
+            
+        if slider.value >= 1.0 {
             Globals.shared.mediaPlayer.pause()
             
             Globals.shared.mediaPlayer.seek(to: length)
             
             Globals.shared.mediaPlayer.playing?.currentTime = length.description
+        } else
+                
+        if slider.value >= 0, slider.value < 1.0 {
+            let seekToTime = Double(slider.value) * length
+            
+            Globals.shared.mediaPlayer.seek(to: seekToTime)
+            
+            Globals.shared.mediaPlayer.playing?.currentTime = seekToTime.description
         }
         
         switch state {
@@ -1095,8 +1105,8 @@ class MediaViewController : UIViewController
         } else {
             if Globals.shared.mediaPlayer.isPlaying {
                 if  !controlView.sliding,
-                    let currentTime = Globals.shared.mediaPlayer.currentTime?.seconds,
-                    let playingCurrentTime = Globals.shared.mediaPlayer.playing?.currentTime, let playing = Double(playingCurrentTime),
+                    let currentTime = Globals.shared.mediaPlayer.currentTime?.seconds,!currentTime.isNaN,!currentTime.isInfinite,
+                    let playingCurrentTime = Globals.shared.mediaPlayer.playing?.currentTime, let playing = Double(playingCurrentTime),!playing.isNaN,!playing.isInfinite,
                     currentTime > playing {
                     spinner.isHidden = true
                     spinner.stopAnimating()
@@ -1472,6 +1482,14 @@ class MediaViewController : UIViewController
             return
         }
         
+        guard !timeNow.isNaN,!timeNow.isInfinite else {
+            return
+        }
+        
+        guard !length.isNaN,!length.isInfinite else {
+            return
+        }
+
 //        let elapsedHours = max(Int(timeNow / (60*60)),0)
 //        let elapsedMins = max(Int((timeNow - (Double(elapsedHours) * 60*60)) / 60),0)
 //        let elapsedSec = max(Int(timeNow.truncatingRemainder(dividingBy: 60)),0)
@@ -1534,7 +1552,7 @@ class MediaViewController : UIViewController
             return
         }
         
-        guard let currentTime = Globals.shared.mediaPlayer.playing?.currentTime, let playingCurrentTime = Double(currentTime), playingCurrentTime >= 0, Int(playingCurrentTime) <= Int(length) else {
+        guard let currentTime = Globals.shared.mediaPlayer.playing?.currentTime, let playingCurrentTime = Double(currentTime), !playingCurrentTime.isNaN, !playingCurrentTime.isInfinite, playingCurrentTime >= 0, Int(playingCurrentTime) <= Int(length) else {
             return
         }
 
@@ -1616,6 +1634,14 @@ class MediaViewController : UIViewController
             return
         }
         
+        guard !self.slider.value.isNaN,!self.slider.value.isInfinite else {
+            return
+        }
+        
+        guard self.slider.value >= 0, self.slider.value <= 1.0 else {
+            return
+        }
+        
         let timeNow = self.slider.value * Float(length)
         
         setTimes(timeNow: Double(timeNow),length: Double(length))
@@ -1649,9 +1675,9 @@ class MediaViewController : UIViewController
             }
         } else {
             if (player?.currentItem?.status == .readyToPlay) {
-                if  let length = player?.currentItem?.duration.seconds,
+                if  let length = player?.currentItem?.duration.seconds, !length.isNaN, !length.isInfinite,
                     let currentTime = sermonSelected?.currentTime,
-                    let timeNow = Double(currentTime) {
+                    let timeNow = Double(currentTime), !timeNow.isNaN, !timeNow.isInfinite {
                     let progress = timeNow / length
                     
                     if !controlView.sliding {
@@ -1793,7 +1819,7 @@ class MediaViewController : UIViewController
                 seekToTime = CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution)
                 sermon.atEnd = false
             } else {
-                if let currentTime = sermon.currentTime, let seconds = Double(currentTime) {
+                if let currentTime = sermon.currentTime, let seconds = Double(currentTime), !seconds.isNaN, !seconds.isInfinite {
                     seekToTime = CMTimeMakeWithSeconds(seconds,preferredTimescale: Constants.CMTime_Resolution)
                 }
             }

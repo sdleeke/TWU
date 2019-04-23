@@ -14,7 +14,7 @@ var debug = false
 class Sermon : NSObject
 {
     deinit {
-        print(self)
+        debug(self)
     }
     
     weak var series:Series?
