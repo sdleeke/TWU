@@ -44,7 +44,7 @@ class Alerts
         alertVC.addAction(action)
         
         Thread.onMainThread {
-            Globals.shared.splitViewController.present(alertVC, animated: true, completion: {
+            Globals.shared.splitViewController?.present(alertVC, animated: true, completion: {
                 self.alerts.remove(at: 0)
             })
         }

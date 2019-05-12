@@ -40,8 +40,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             return true
         }
         
-        
-        
         return false
     }
     

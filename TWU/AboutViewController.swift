@@ -305,6 +305,8 @@ class AboutViewController : UIViewController
     {
         super.viewDidAppear(animated)
         
+        Globals.shared.showingAbout = true
+
         scrollView.flashScrollIndicators()
     }
     
