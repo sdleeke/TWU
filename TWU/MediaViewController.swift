@@ -291,9 +291,7 @@ class MediaViewController : UIViewController
             
             operationQueue.cancelAllOperations()
             
-            if isViewLoaded {
-                updateUI()
-            }
+            updateUI()
         }
     }
     var sermonSelected:Sermon?
@@ -388,6 +386,14 @@ class MediaViewController : UIViewController
 
     @objc func setupPlayPauseButton()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
+        guard isViewLoaded else {
+            return
+        }
+        
         guard sermonSelected != nil else {
             playPauseButton.isEnabled = false
             playPauseButton.isHidden = true
@@ -822,11 +828,11 @@ class MediaViewController : UIViewController
 
     @objc func updateView()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -848,11 +854,11 @@ class MediaViewController : UIViewController
     
     @objc func clearView()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -909,6 +915,14 @@ class MediaViewController : UIViewController
     
     fileprivate func setupActionsButton()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
+        guard isViewLoaded else {
+            return
+        }
+        
         guard (seriesSelected != nil) else {
             self.navigationItem.rightBarButtonItem = nil
             actionButton = nil
@@ -926,6 +940,14 @@ class MediaViewController : UIViewController
     
     func setupPageControl()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
+        guard isViewLoaded else {
+            return
+        }
+        
         if (seriesSelected?.text == nil) || (seriesArt.image == nil) {
             pageControl.isEnabled = false
             pageControl.isHidden = true
@@ -937,11 +959,11 @@ class MediaViewController : UIViewController
     
     fileprivate func setupArtAndDescription()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -966,7 +988,7 @@ class MediaViewController : UIViewController
         var seriesAttrbutedString : NSMutableAttributedString?
         
         if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
-            if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
+            if  let data = text.data(using: String.Encoding.utf16, allowLossyConversion: false),
                 let attributedString = try? NSMutableAttributedString(data: data,
                                                                       // DocumentAttributeKey.documentType
                                                                       options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
@@ -983,7 +1005,7 @@ class MediaViewController : UIViewController
         if let sermons = seriesSelected.sermons {
             for sermon in sermons {
                 if let text = sermon.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
-                    if  let data = text.data(using: String.Encoding.utf8, allowLossyConversion: false),
+                    if  let data = text.data(using: String.Encoding.utf16, allowLossyConversion: false),
                         let attributedString = try? NSMutableAttributedString(data: data,
                                                                               // DocumentAttributeKey.documentType
                             options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
@@ -1060,11 +1082,11 @@ class MediaViewController : UIViewController
     
     fileprivate func setupTitle()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -1073,11 +1095,11 @@ class MediaViewController : UIViewController
     
     func setupSpinner()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -1127,6 +1149,10 @@ class MediaViewController : UIViewController
 
     @objc func updateUI()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard isViewLoaded else {
             return
         }
@@ -1161,11 +1187,11 @@ class MediaViewController : UIViewController
 
     func scrollToSermon(_ sermon:Sermon?,select:Bool,position:UITableView.ScrollPosition)
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -1190,11 +1216,11 @@ class MediaViewController : UIViewController
 
     @objc func showPlaying()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -1228,11 +1254,11 @@ class MediaViewController : UIViewController
     
     @objc func readyToPlay()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         
@@ -1271,7 +1297,7 @@ class MediaViewController : UIViewController
     
     @objc func doneSeeking()
     {
-        controlView.sliding = false
+        controlView?.sliding = false
         print("DONE SEEKING")
     }
     
@@ -1315,7 +1341,7 @@ class MediaViewController : UIViewController
         updateUI()
     }
 
-    func setupNotifications()
+    func addNotifications()
     {
         NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
         
@@ -1341,7 +1367,7 @@ class MediaViewController : UIViewController
     {
         super.viewWillAppear(animated)
         
-        setupNotifications()
+        addNotifications()
         
         views = (seriesArt: self.seriesArt, seriesDescription: self.seriesDescription)
         
@@ -1473,12 +1499,12 @@ class MediaViewController : UIViewController
     
     fileprivate func setTimes(timeNow:Double, length:Double)
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaViewController:setTimes")
             return
         }
         
-        guard Thread.isMainThread else {
-            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaViewController:setTimes")
+        guard isViewLoaded else {
             return
         }
         
@@ -1528,14 +1554,14 @@ class MediaViewController : UIViewController
     
     fileprivate func setSliderAndTimesToAudio()
     {
-        guard isViewLoaded else {
-            return
-        }
-        
         guard Thread.isMainThread else {
             return
         }
 
+        guard isViewLoaded else {
+            return
+        }
+        
         guard let state = Globals.shared.mediaPlayer.state else {
             return
         }
@@ -1630,6 +1656,14 @@ class MediaViewController : UIViewController
     
     fileprivate func setTimesToSlider()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
+        guard isViewLoaded else {
+            return
+        }
+        
         guard let length = Globals.shared.mediaPlayer.duration?.seconds else {
             return
         }
@@ -1649,12 +1683,12 @@ class MediaViewController : UIViewController
     
     fileprivate func setupSliderAndTimes()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaViewController:setupSliderAndTimes")
             return
         }
         
-        guard Thread.isMainThread else {
-            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaViewController:setupSliderAndTimes")
+        guard isViewLoaded else {
             return
         }
         
@@ -1706,11 +1740,11 @@ class MediaViewController : UIViewController
     
     @objc func updateSlider()
     {
-        guard isViewLoaded else {
+        guard Thread.isMainThread else {
             return
         }
         
-        guard Thread.isMainThread else {
+        guard isViewLoaded else {
             return
         }
         

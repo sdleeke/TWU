@@ -689,6 +689,10 @@ class MediaCollectionViewController: UIViewController
     
     func setPlayingPausedButton()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard Globals.shared.mediaPlayer.playing != nil else {
             navigationItem.setRightBarButton(nil, animated: true)
             return
@@ -725,6 +729,10 @@ class MediaCollectionViewController: UIViewController
 
     @objc func setupPlayingPausedButton()
     {
+        guard Thread.isMainThread else {
+            return
+        }
+        
         guard (Globals.shared.mediaPlayer.player != nil) && (Globals.shared.mediaPlayer.playing != nil) else {
             if (navigationItem.rightBarButtonItem != nil) {
                 navigationItem.setRightBarButton(nil, animated: true)
@@ -774,7 +782,12 @@ class MediaCollectionViewController: UIViewController
     
     @objc func showingAboutDidChange()
     {
-        aboutButton.isEnabled = !Globals.shared.showingAbout
+        guard Thread.isMainThread else {
+            return
+        }
+        
+        aboutButton?.isEnabled = !Globals.shared.showingAbout
+        setupPlayingPausedButton()
     }
     
     @objc func willEnterForeground()
@@ -921,8 +934,8 @@ class MediaCollectionViewController: UIViewController
                 
             case Constants.SEGUE.SHOW_ABOUT:
                 //The block below only matters on an iPad
-                Globals.shared.showingAbout = true
-                setupPlayingPausedButton()
+//                Globals.shared.showingAbout = true
+//                setupPlayingPausedButton()
                 break
                 
             case Constants.SEGUE.SHOW_SERIES:
