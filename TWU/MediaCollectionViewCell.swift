@@ -60,9 +60,6 @@ class MediaCollectionViewCell: UICollectionViewCell
 //        print(operationQueue.operationCount)
         
         operationQueue.addOperation {
-        
-//        DispatchQueue.global(qos: .userInteractive).async {
-            
             guard let image = series.coverArt?.image else {
                 Thread.onMainThread {
                     if self.series == series {

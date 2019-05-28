@@ -477,7 +477,6 @@ class MediaCollectionViewController: UIViewController
 //        operationQueue.waitUntilAllOperationsAreFinished()
         
         let operation = CancellableOperation { (test:(()->(Bool))?) in
-//        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
                 if !Globals.shared.isRefreshing {
                     self.view.bringSubviewToFront(self.activityIndicator)

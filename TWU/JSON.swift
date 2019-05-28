@@ -39,6 +39,7 @@ class JSON
 //    }
     
     deinit {
+        operationQueue.cancelAllOperations()
         debug(self)
     }
     
@@ -158,32 +159,34 @@ class JSON
             Globals.shared.series.meta.update(contents:meta)
         }
         
-        var seriesDicts = [[String:Any]]()
+        return json[Constants.JSON.KEYS.DATA] as? [[String:Any]]
         
-        let key = Constants.JSON.KEYS.DATA
-        
-//        switch Constants.JSON.URL {
-//        case Constants.JSON.URLS.MEDIALIST_PHP:
-//            key = Constants.JSON.KEYS.SERIES
-//            break
-//            
-//        default:
-//            key = Constants.JSON.KEYS.DATA
-//            break
+//        var seriesDicts = [[String:Any]]()
+//
+//        let key = Constants.JSON.KEYS.DATA
+//
+////        switch Constants.JSON.URL {
+////        case Constants.JSON.URLS.MEDIALIST_PHP:
+////            key = Constants.JSON.KEYS.SERIES
+////            break
+////
+////        default:
+////            key = Constants.JSON.KEYS.DATA
+////            break
+////        }
+//
+//        if let series = json[key] as? [[String:Any]] {
+//            for i in 0..<series.count {
+//                var dict = [String:Any]()
+//
+//                for (key,value) in series[i] {
+//                    dict[key] = value
+//                }
+//
+//                seriesDicts.append(dict)
+//            }
 //        }
-        
-        if let series = json[key] as? [[String:Any]] {
-            for i in 0..<series.count {
-                var dict = [String:Any]()
-                
-                for (key,value) in series[i] {
-                    dict[key] = value
-                }
-                
-                seriesDicts.append(dict)
-            }
-        }
-        
-        return seriesDicts.count > 0 ? seriesDicts : nil
+//
+//        return seriesDicts.count > 0 ? seriesDicts : nil
     }
 }
