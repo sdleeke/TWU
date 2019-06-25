@@ -477,6 +477,33 @@ class MediaCollectionViewController: UIViewController
 //        operationQueue.waitUntilAllOperationsAreFinished()
         
         let operation = CancellableOperation { (test:(()->(Bool))?) in
+            defer {
+                Thread.sleep(forTimeInterval: 1.0)
+                
+                Thread.onMainThread {
+                    self.navigationItem.title = Constants.Titles.Setting_up_Player
+                    if (Globals.shared.mediaPlayer.playing != nil) {
+                        Globals.shared.mediaPlayer.playOnLoad = false
+                        Globals.shared.mediaPlayer.setup(Globals.shared.mediaPlayer.playing)
+                    }
+                    
+                    self.navigationItem.title = Constants.TWU.LONG
+                    self.setupViews()
+                    
+                    if Globals.shared.isRefreshing {
+                        self.refreshControl?.endRefreshing()
+                        Globals.shared.isRefreshing = false
+                    } else {
+                        self.activityIndicator.stopAnimating()
+                        self.activityIndicator.isHidden = true
+                    }
+                    
+                    completion?()
+                }
+                
+                Globals.shared.isLoading = false
+            }
+        
             Thread.onMainThread {
                 if !Globals.shared.isRefreshing {
                     self.view.bringSubviewToFront(self.activityIndicator)
@@ -486,41 +513,59 @@ class MediaCollectionViewController: UIViewController
                 self.navigationItem.title = Constants.Titles.Loading_Series
             }
             
-            if let seriesDicts = self.json.load() {
-                Globals.shared.series.load(seriesDicts:seriesDicts)
+            guard let json = self.json.load() else {
+                return
             }
             
+            if let meta = json[Constants.JSON.KEYS.META] as? [String:Any] {
+                Globals.shared.series.meta.update(contents:meta)
+            }
+            
+            guard let seriesDicts = json[Constants.JSON.KEYS.DATA] as? [[String:Any]] else {
+                return
+            }
+
+            Globals.shared.series.all = seriesDicts.filter({ (seriesDict:[String:Any]) -> Bool in
+                if let programs = seriesDict["programs"] as? [[String:Any]] {
+                    return programs.count > 0
+                } else {
+                    return false
+                }
+            }).map({ (seriesDict:[String:Any]) -> Series in
+                return Series(seriesDict: seriesDict)
+            })
+
             self.seriesSelected = Globals.shared.series.selected
 
-            Thread.onMainThread {
-                self.navigationItem.title = Constants.Titles.Loading_Settings
-            }
-            Globals.shared.settings.load()
-            
-            Thread.sleep(forTimeInterval: 1.0)
-            
-            Thread.onMainThread {
-                self.navigationItem.title = Constants.Titles.Setting_up_Player
-                if (Globals.shared.mediaPlayer.playing != nil) {
-                    Globals.shared.mediaPlayer.playOnLoad = false
-                    Globals.shared.mediaPlayer.setup(Globals.shared.mediaPlayer.playing)
-                }
-
-                self.navigationItem.title = Constants.TWU.LONG
-                self.setupViews()
-
-                if Globals.shared.isRefreshing {
-                    self.refreshControl?.endRefreshing()
-                    Globals.shared.isRefreshing = false
-                } else {
-                    self.activityIndicator.stopAnimating()
-                    self.activityIndicator.isHidden = true
-                }
-
-                completion?()
-            }
-
-            Globals.shared.isLoading = false
+//            Thread.onMainThread {
+//                self.navigationItem.title = Constants.Titles.Loading_Settings
+//            }
+//            Globals.shared.settings.load()
+//
+//            Thread.sleep(forTimeInterval: 1.0)
+//
+//            Thread.onMainThread {
+//                self.navigationItem.title = Constants.Titles.Setting_up_Player
+//                if (Globals.shared.mediaPlayer.playing != nil) {
+//                    Globals.shared.mediaPlayer.playOnLoad = false
+//                    Globals.shared.mediaPlayer.setup(Globals.shared.mediaPlayer.playing)
+//                }
+//
+//                self.navigationItem.title = Constants.TWU.LONG
+//                self.setupViews()
+//
+//                if Globals.shared.isRefreshing {
+//                    self.refreshControl?.endRefreshing()
+//                    Globals.shared.isRefreshing = false
+//                } else {
+//                    self.activityIndicator.stopAnimating()
+//                    self.activityIndicator.isHidden = true
+//                }
+//
+//                completion?()
+//            }
+//
+//            Globals.shared.isLoading = false
         }
         
         operationQueue.addOperation(operation)

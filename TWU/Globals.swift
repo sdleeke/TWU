@@ -77,7 +77,25 @@ class Globals //: NSObject
     
     var mediaPlayer = MediaPlayer()
     
-    var series = Media()
+    lazy var series:Media! = {
+        let series = Media()
+        
+        if let sorting = UserDefaults.standard.string(forKey: Constants.SORTING) {
+            series.sorting = sorting
+        }
+        
+        if let filter = UserDefaults.standard.string(forKey: Constants.FILTER) {
+            if (filter == Constants.All) {
+                series.filter = nil
+                series.showing = .all
+            } else {
+                series.filter = filter
+                series.showing = .filtered
+            }
+        }
+        
+        return series
+    }()
     
     let reachability = Reachability(hostname: "www.thewordunleashed.org")!
     

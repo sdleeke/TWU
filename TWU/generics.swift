@@ -853,7 +853,7 @@ class Fetch<T>
 protocol Size
 {
     var _fileSize : Int? { get set }
-    var fileSize : Int { get }
+    var fileSize : Int? { get }
 }
 
 class FetchCodable<T:Codable> : Fetch<T>, Size
@@ -871,12 +871,12 @@ class FetchCodable<T:Codable> : Fetch<T>, Size
     
     // Replacing these two w/ a Shadow class is a big performance hit
     internal var _fileSize : Int?
-    var fileSize : Int
+    var fileSize : Int?
     {
         get {
             guard let fileSize = _fileSize else {
                 _fileSize = fileSystemURL?.fileSize
-                return _fileSize ?? 0
+                return _fileSize
             }
             
             return fileSize

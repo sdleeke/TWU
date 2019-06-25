@@ -432,12 +432,12 @@ class Download : NSObject, Size
     
     // Replacing these two w/ a Shadow class is a big performance hit
     internal var _fileSize : Int?
-    var fileSize : Int
+    var fileSize : Int?
     {
         get {
             guard let fileSize = _fileSize else {
                 _fileSize = fileSystemURL?.fileSize
-                return _fileSize ?? 0
+                return _fileSize
             }
             
             return fileSize

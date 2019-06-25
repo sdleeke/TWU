@@ -10,8 +10,27 @@ import Foundation
 
 class Settings
 {
-    var series = ThreadSafeDN<String>(name: "SeriesSettings") // [String:[String:String]]? // ictionaryOfDictionaries
-    var sermon = ThreadSafeDN<String>(name: "SermonSettings") // [String:[String:String]]? // ictionaryOfDictionaries
+    lazy var series:ThreadSafeDN<String>! = // [String:[String:String]]? // ictionaryOfDictionaries
+    {
+        let series = ThreadSafeDN<String>(name: "SeriesSettings")
+        
+        if let settingsDictionary = UserDefaults.standard.dictionary(forKey: Constants.SETTINGS.KEY.SERIES) {
+            series.update(storage: settingsDictionary)
+        }
+
+        return series
+    }()
+    
+    lazy var sermon:ThreadSafeDN<String>! = // [String:[String:String]]? // ictionaryOfDictionaries
+    {
+        let sermon = ThreadSafeDN<String>(name: "SermonSettings")
+        
+        if let settingsDictionary = UserDefaults.standard.dictionary(forKey: Constants.SETTINGS.KEY.SERMON) {
+            sermon.update(storage: settingsDictionary)
+        }
+
+        return sermon
+    }()
     
     lazy var operationQueue:OperationQueue! = {
         let operationQueue = OperationQueue()
@@ -43,48 +62,48 @@ class Settings
         defaults.synchronize()
     }
     
-    func load()
-    {
-        let defaults = UserDefaults.standard
-        
-        if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERIES) {
-            series.update(storage: settingsDictionary)
-        }
-        
-        if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERMON) {
-            sermon.update(storage: settingsDictionary)
-        }
-        
-        if let sorting = defaults.string(forKey: Constants.SORTING) {
-            Globals.shared.series.sorting = sorting
-        }
-        
-        if let filter = defaults.string(forKey: Constants.FILTER) {
-            if (filter == Constants.All) {
-                Globals.shared.series.filter = nil
-                Globals.shared.series.showing = .all
-            } else {
-                Globals.shared.series.filter = filter
-                Globals.shared.series.showing = .filtered
-            }
-        }
-        
-        if let seriesPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERIES) {
-            if let index = Globals.shared.series.all?.firstIndex(where: { (series) -> Bool in
-                return series.name == seriesPlaying
-            }) {
-                let seriesPlaying = Globals.shared.series.all?[index]
-                
-                if let sermonPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERMON) {
-                    Globals.shared.mediaPlayer.playing = seriesPlaying?.sermons?.filter({ (sermon) -> Bool in
-                        return sermon.id == sermonPlaying
-                    }).first
-                }
-            } else {
-                defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
-            }
-        }
-    }
+//    func load()
+//    {
+//        let defaults = UserDefaults.standard
+//        
+////        if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERIES) {
+////            series.update(storage: settingsDictionary)
+////        }
+//        
+////        if let settingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.SERMON) {
+////            sermon.update(storage: settingsDictionary)
+////        }
+//        
+////        if let sorting = defaults.string(forKey: Constants.SORTING) {
+////            Globals.shared.series.sorting = sorting
+////        }
+//        
+////        if let filter = defaults.string(forKey: Constants.FILTER) {
+////            if (filter == Constants.All) {
+////                Globals.shared.series.filter = nil
+////                Globals.shared.series.showing = .all
+////            } else {
+////                Globals.shared.series.filter = filter
+////                Globals.shared.series.showing = .filtered
+////            }
+////        }
+//        
+////        if let seriesPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERIES) {
+////            if let index = Globals.shared.series.all?.firstIndex(where: { (series) -> Bool in
+////                return series.name == seriesPlaying
+////            }) {
+////                let seriesPlaying = Globals.shared.series.all?[index]
+////                
+////                if let sermonPlaying = defaults.string(forKey: Constants.SETTINGS.PLAYING.SERMON) {
+////                    Globals.shared.mediaPlayer.playing = seriesPlaying?.sermons?.filter({ (sermon) -> Bool in
+////                        return sermon.id == sermonPlaying
+////                    }).first
+////                }
+////            } else {
+////                defaults.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
+////            }
+////        }
+//    }
     
     var autoAdvance:Bool
     {

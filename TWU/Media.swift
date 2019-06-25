@@ -142,6 +142,22 @@ class Media
                     }
                 }
             }
+            
+            if let seriesPlaying = UserDefaults.standard.string(forKey: Constants.SETTINGS.PLAYING.SERIES) {
+                if let index = all?.firstIndex(where: { (series) -> Bool in
+                    return series.name == seriesPlaying
+                }) {
+                    let seriesPlaying = all?[index]
+                    
+                    if let sermonPlaying = UserDefaults.standard.string(forKey: Constants.SETTINGS.PLAYING.SERMON) {
+                        Globals.shared.mediaPlayer.playing = seriesPlaying?.sermons?.filter({ (sermon) -> Bool in
+                            return sermon.id == sermonPlaying
+                        }).first
+                    }
+                } else {
+                    UserDefaults.standard.removeObject(forKey: Constants.SETTINGS.PLAYING.SERIES)
+                }
+            }
         }
     }
     
@@ -194,10 +210,10 @@ class Media
         return nil
     }
 
-    func load(seriesDicts:[[String:Any]]?)
-    {
-        all = from(seriesDicts: seriesDicts)
-    }
+//    func load(seriesDicts:[[String:Any]]?)
+//    {
+//        all = from(seriesDicts: seriesDicts)
+//    }
 
     // This is if we use opQueues when downloading
 
@@ -221,30 +237,30 @@ class Media
 //        operationQueue.cancelAllOperations()
 //    }
     
-    func from(seriesDicts:[[String:Any]]?) -> [Series]?
-    {
-        // This is if we use an opQueue when downloading
-//        operationQueue.cancelAllOperations()
-
-        return seriesDicts?.filter({ (seriesDict:[String:Any]) -> Bool in
+//    func from(seriesDicts:[[String:Any]]?) -> [Series]?
+//    {
+//        // This is if we use an opQueue when downloading
+////        operationQueue.cancelAllOperations()
+//
+//        return seriesDicts?.filter({ (seriesDict:[String:Any]) -> Bool in
+////            let series = Series(seriesDict: seriesDict)
+////            return series.sermons?.count > 0 // .show != 0
+//            if let programs = seriesDict["programs"] as? [[String:Any]] {
+//                return programs.count > 0
+//            } else {
+//                return false
+//            }
+//        }).map({ (seriesDict:[String:Any]) -> Series in
 //            let series = Series(seriesDict: seriesDict)
-//            return series.sermons?.count > 0 // .show != 0
-            if let programs = seriesDict["programs"] as? [[String:Any]] {
-                return programs.count > 0
-            } else {
-                return false
-            }
-        }).map({ (seriesDict:[String:Any]) -> Series in
-            let series = Series(seriesDict: seriesDict)
-            
-            // This is just a way to load the artwork
-//            series.coverArt?.fetch?.fill()
-            // But it seems to cause deadlocks that take a long time to clear
-            
-            // But if we don't preload the series images scrolling the collection view is what does it,
-            // which creates visual lag for the user as each image is loaded, esp. if it is coming from the internet.
-
-            return series
-        })
-    }
+//
+//            // This is just a way to load the artwork
+////            series.coverArt?.fetch?.fill()
+//            // But it seems to cause deadlocks that take a long time to clear
+//
+//            // But if we don't preload the series images scrolling the collection view is what does it,
+//            // which creates visual lag for the user as each image is loaded, esp. if it is coming from the internet.
+//
+//            return series
+//        })
+//    }
 }

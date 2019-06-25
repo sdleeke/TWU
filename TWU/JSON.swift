@@ -148,18 +148,20 @@ class JSON
 //        return json
     }
 
-    func load() -> [[String:Any]]?
+    func load() -> [String:Any]?
     {
-        guard let json = get(from: Constants.JSON.SERIES_JSON,filename: Constants.JSON.SERIES_JSON.url?.lastPathComponent) as? [String:Any] else {
-            print("could not get json from file, make sure that file contains valid json.")
-            return nil
-        }
+        return get(from: Constants.JSON.SERIES_JSON,filename: Constants.JSON.SERIES_JSON.url?.lastPathComponent) as? [String:Any]
         
-        if let meta = json[Constants.JSON.KEYS.META] as? [String:Any] {
-            Globals.shared.series.meta.update(contents:meta)
-        }
+//        guard let json = get(from: Constants.JSON.SERIES_JSON,filename: Constants.JSON.SERIES_JSON.url?.lastPathComponent) as? [String:Any] else {
+//            print("could not get json from file, make sure that file contains valid json.")
+//            return nil
+//        }
         
-        return json[Constants.JSON.KEYS.DATA] as? [[String:Any]]
+//        if let meta = json[Constants.JSON.KEYS.META] as? [String:Any] {
+//            Globals.shared.series.meta.update(contents:meta)
+//        }
+//
+//        return json[Constants.JSON.KEYS.DATA] as? [[String:Any]]
         
 //        var seriesDicts = [[String:Any]]()
 //

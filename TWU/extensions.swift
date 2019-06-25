@@ -489,27 +489,62 @@ extension URL
             }
         }
     }
-
-    func delete()
+    
+    /**
+     Extension of URL to delete file.
+     */
+    func delete(_ block:Bool = true)
     {
-        // Check if file exists and if so, delete it.
-        
-        guard exists else {
-            print("item doesn't exist: \(self.absoluteString)")
-            return
+        let op = {
+            // Check if file exists and if so, delete it.
+            
+            guard let fileSystemURL = self.fileSystemURL else {
+                print("fileSystemURL doesn't exist for: \(self.absoluteString)")
+                return
+            }
+            
+            guard fileSystemURL.exists else {
+                print("item doesn't exist: \(self.absoluteString)")
+                return
+            }
+            
+            do {
+                try FileManager.default.removeItem(at: fileSystemURL)
+            } catch let error {
+                print("failed to delete \(self.absoluteString): \(error.localizedDescription)")
+            }
         }
         
-        guard let fileSystemURL = fileSystemURL else {
-            print("fileSystemURL doesn't exist for: \(self.absoluteString)")
-            return
-        }
-        
-        do {
-            try FileManager.default.removeItem(at: fileSystemURL)
-        } catch let error {
-            print("failed to delete \(self.absoluteString): \(error.localizedDescription)")
+        if block {
+            op()
+        } else {
+            // As an extension, no way to put this in an OpQueue
+            DispatchQueue.global(qos: .background).async {
+                op()
+            }
         }
     }
+    
+//    func delete()
+//    {
+//        // Check if file exists and if so, delete it.
+//
+//        guard exists else {
+//            print("item doesn't exist: \(self.absoluteString)")
+//            return
+//        }
+//
+//        guard let fileSystemURL = fileSystemURL else {
+//            print("fileSystemURL doesn't exist for: \(self.absoluteString)")
+//            return
+//        }
+//
+//        do {
+//            try FileManager.default.removeItem(at: fileSystemURL)
+//        } catch let error {
+//            print("failed to delete \(self.absoluteString): \(error.localizedDescription)")
+//        }
+//    }
     
     var copy : URL?
     {
@@ -536,7 +571,7 @@ extension URL
                 print("Data read from \(self.absoluteString)")
                 return data
             } catch let error {
-                NSLog(error.localizedDescription)
+                print(error.localizedDescription)
                 print("Data not read from \(self.absoluteString)")
                 return nil
             }

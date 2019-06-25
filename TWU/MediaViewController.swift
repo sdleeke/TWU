@@ -1050,7 +1050,7 @@ class MediaViewController : UIViewController
         }
         
 
-        if let image = seriesSelected.coverArt?.fetch?.cache {
+        if let image = seriesSelected.coverArt?.cache {
             Thread.onMainThread {
                 if self.seriesSelected == seriesSelected {
                     self.seriesArt.image = image

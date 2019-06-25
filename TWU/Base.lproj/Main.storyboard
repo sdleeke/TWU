@@ -158,13 +158,13 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OSQ-vd-yF8">
-                                                    <rect key="frame" x="20" y="4" width="367.5" height="81.5"/>
+                                                    <rect key="frame" x="20" y="4" width="648" height="81.5"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FMq-R9-bb8">
-                                                    <rect key="frame" x="387.5" y="0.0" width="100" height="89.5"/>
+                                                    <rect key="frame" x="668" y="0.0" width="100" height="89.5"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Download" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EB1-H4-zdg">
                                                             <rect key="frame" x="20" y="12" width="60.5" height="16"/>
@@ -231,7 +231,7 @@
                                 </connections>
                             </tableView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="twu_logo_circle_r" translatesAutoresizingMaskIntoConstraints="NO" id="PgQ-UT-9Es">
-                                <rect key="frame" x="0.0" y="128" width="768" height="768"/>
+                                <rect key="frame" x="376" y="504" width="16" height="16"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="PgQ-UT-9Es" secondAttribute="height" multiplier="1:1" id="uMs-y1-g9c"/>
                                 </constraints>
@@ -544,12 +544,12 @@
                         <viewLayoutGuide key="safeArea" id="Tzh-Lk-26T"/>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="KUU-OH-fz5"/>
                                 <exclude reference="0rg-zA-o5M"/>
                                 <exclude reference="Hhm-ll-KXg"/>
                                 <exclude reference="auA-Ya-22K"/>
                                 <exclude reference="cSV-on-bds"/>
                                 <exclude reference="kyc-Dh-U1M"/>
+                                <exclude reference="KUU-OH-fz5"/>
                                 <exclude reference="N2w-88-Whv"/>
                                 <exclude reference="nQq-Fe-40s"/>
                                 <exclude reference="UgF-Yv-Usx"/>
@@ -757,7 +757,6 @@ Southlake, Texas 76092
                                 <viewLayoutGuide key="safeArea" id="r1M-0i-fCN"/>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="ytv-g6-Rv9"/>
                                         <exclude reference="C80-EX-6Ez"/>
                                         <exclude reference="HFc-HK-D36"/>
                                         <exclude reference="Xde-I1-Pn6"/>
@@ -765,6 +764,7 @@ Southlake, Texas 76092
                                         <exclude reference="giN-hC-QpH"/>
                                         <exclude reference="gpG-ea-HNt"/>
                                         <exclude reference="Tl2-z3-xHg"/>
+                                        <exclude reference="ytv-g6-Rv9"/>
                                         <exclude reference="w2u-jH-F0u"/>
                                         <exclude reference="4BB-no-N3S"/>
                                         <exclude reference="fpp-Fi-abs"/>
