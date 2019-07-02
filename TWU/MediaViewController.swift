@@ -33,7 +33,8 @@ extension MediaViewController : MFMailComposeViewControllerDelegate
 {
     // MARK: MFMailComposeViewControllerDelegate
 
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?)
+    {
         controller.dismiss(animated: true, completion: nil)
     }
 }
@@ -42,7 +43,8 @@ extension MediaViewController : MFMessageComposeViewControllerDelegate
 {
     // MARK: MFMessageComposeViewControllerDelegate
 
-    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult)
+    {
         controller.dismiss(animated: true, completion: nil)
     }
 }
@@ -53,67 +55,134 @@ extension MediaViewController : UIPopoverPresentationControllerDelegate
     
 }
 
+extension MediaViewController : UIActivityItemSource
+{
+    func share()
+    {
+//        let html = "\(title) by Tom Pennington from The Word Unleashed\n\n\(url.absoluteString)"
+        guard let fullText = seriesSelected?.fullText else {
+            return
+        }
+
+        let print = UIMarkupTextPrintFormatter(markupText: fullText.replacingOccurrences(of: "\n", with: "<br/>"))
+        let margin:CGFloat = 0.5 * 72
+        print.perPageContentInsets = UIEdgeInsets(top: margin, left: margin, bottom: margin, right: margin)
+        
+        let activityViewController = UIActivityViewController(activityItems:[self,print,fullText,seriesSelected?.coverArt?.image] , applicationActivities: nil)
+        
+        // exclude some activity types from the list (optional)
+        
+        activityViewController.excludedActivityTypes = [ .addToReadingList,.airDrop ] // UIActivityType.addToReadingList doesn't work for third party apps - iOS bug.
+        
+        activityViewController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        
+        // present the view controller
+        present(activityViewController, animated: true)
+    }
+    
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any
+    {
+        return ""
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any?
+    {
+        switch activityType {
+        case UIActivity.ActivityType.mail:
+            break
+            
+        case UIActivity.ActivityType.print:
+            break
+            
+        default:
+            break
+        }
+
+        return self.seriesSelected?.fullText
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String
+    {
+        guard let title = self.seriesSelected?.title else {
+            return "By Tom Pennington from The Word Unleashed"
+        }
+
+        let text = "\(title) by Tom Pennington from The Word Unleashed"
+
+        return text
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String
+    {
+        if activityType == UIActivity.ActivityType.mail {
+            return "public.text"
+        } else if activityType == UIActivity.ActivityType.print {
+            return "public.text"
+        }
+        
+        return "public.plain-text"
+    }
+}
+
 extension MediaViewController : PopoverTableViewControllerDelegate
 {
     // MARK: PopoverTableViewControllerDelegate
     
-    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose) { // , sermon:Sermon?
-        dismiss(animated: true, completion: nil)
-        
-        switch purpose {
-            
-        case .selectingAction:
-            switch strings[index] {
-            case Constants.Open_Scripture:
-                openScripture(seriesSelected)
-                break
-                
-            case Constants.Open_Series:
-                openSeriesOnWeb(seriesSelected)
-                break
-                
-            case Constants.Open_Sermon:
-                openSermonOnCBC(sermonSelected)
-                break
-                
-            case Constants.Download_All:
-                if let sermons = seriesSelected?.sermons {
-                    for sermon in sermons {
-                        sermon.audioDownload?.download(background: true)
+    func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose)
+    { // , sermon:Sermon?
+        dismiss(animated: true, completion: {
+            switch purpose {
+            case .selectingAction:
+                switch strings[index] {
+                case Constants.Open_Scripture:
+                    self.openScripture(self.seriesSelected)
+                    break
+                    
+                case Constants.Open_Series:
+                    self.openSeriesOnWeb(self.seriesSelected)
+                    break
+                    
+                case Constants.Open_Sermon:
+                    self.openSermonOnCBC(self.sermonSelected)
+                    break
+                    
+                case Constants.Download_All:
+                    if let sermons = self.seriesSelected?.sermons {
+                        for sermon in sermons {
+                            sermon.audioDownload?.download(background: true)
+                        }
                     }
-                }
-                break
-                
-            case Constants.Cancel_All_Downloads:
-                if let sermons = seriesSelected?.sermons {
-                    for sermon in sermons {
-                        sermon.audioDownload?.cancel()
+                    break
+                    
+                case Constants.Cancel_All_Downloads:
+                    if let sermons = self.seriesSelected?.sermons {
+                        for sermon in sermons {
+                            sermon.audioDownload?.cancel()
+                        }
                     }
-                }
-                break
-                
-            case Constants.Delete_All_Downloads:
-                if let sermons = seriesSelected?.sermons {
-                    for sermon in sermons {
-                        sermon.audioDownload?.delete()
+                    break
+                    
+                case Constants.Delete_All_Downloads:
+                    if let sermons = self.seriesSelected?.sermons {
+                        for sermon in sermons {
+                            sermon.audioDownload?.delete()
+                        }
                     }
-                }
-                break
-                
-            case Constants.Share:
-                if let title = seriesSelected?.title, let url = seriesSelected?.url {
-                    self.share(htmlString: "\(title) by Tom Pennington from The Word Unleashed\n\n\(url.absoluteString)")
+                    break
+                    
+                case Constants.Share:
+                    self.share()
+                    break
+                    
+                default:
+                    break
                 }
                 break
                 
             default:
                 break
             }
-            break
-            
-        default:
-            break
-        }
+        })
     }
 }
 
@@ -1048,7 +1117,6 @@ class MediaViewController : UIViewController
                 seriesDescription.attributedText = NSAttributedString(string: "Description not found.", attributes:Constants.Fonts.Attributes.bold)
             }
         }
-        
 
         if let image = seriesSelected.coverArt?.cache {
             Thread.onMainThread {

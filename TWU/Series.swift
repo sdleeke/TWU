@@ -25,6 +25,52 @@ class Series : Equatable
         debug(self)
     }
     
+    var fullText : String?
+    {
+        get {
+            guard let title = title, let url = url else {
+                return nil
+            }
+            
+            var string = "\(title) by Tom Pennington from The Word Unleashed"
+            
+            // .replacingOccurrences(of: "\n\n", with: "\n")
+            if let description = text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n\n", with: "\n\n").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+                string += "\n\n\(description)"
+            }
+            
+            if let sermons = sermons {
+                var sermonDescriptions = [String:String]()
+                
+                for sermon in sermons {
+                    if let string = sermon.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n\n", with: "\n\n").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+                        if let partNumber = sermon.partNumber {
+                            sermonDescriptions[partNumber] = string
+                        }
+                    }
+                }
+
+                if sermonDescriptions.count > 0 {
+                    for sermonDescriptionKey in sermonDescriptions.keys.sorted(by: { (first,second) -> Bool in
+                        return Int(first) < Int(second)
+                    }) {
+                        if let sermonDescription = sermonDescriptions[sermonDescriptionKey] {
+                            string += "\n"
+                            string += "\n"
+                            string += "Part \(sermonDescriptionKey) of \(sermonDescriptions.keys.count)"
+                            string += "\n"
+                            string += sermonDescription
+                        }
+                    }
+                }
+            }
+            
+            string += "\n\n\(url.absoluteString)"
+
+            return string
+        }
+    }
+    
     var dict:[String:Any]?
     
     init(seriesDict:[String:Any]?)

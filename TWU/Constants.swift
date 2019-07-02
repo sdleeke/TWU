@@ -58,6 +58,8 @@ enum Constants {
         static let UPDATE_PLAY_PAUSE        = "UPDATE PLAY PAUSE"
         static let UPDATE_PLAYING_PAUSED    = "UPDATE PLAYING PAUSED"
         
+        static let UPDATE_IMAGE             = "UPDATE IMAGE"
+        
         static let REACHABLE                = "REACHABLE"
         static let NOT_REACHABLE            = "NOT REACHABLE"
         

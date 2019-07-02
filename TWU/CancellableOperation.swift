@@ -12,6 +12,8 @@ class CancellableOperation : Operation
 {
     var block : (((()->(Bool))?)->())?
     
+    var tag : String?
+    
     override var description: String
         {
         get {
@@ -19,10 +21,11 @@ class CancellableOperation : Operation
         }
     }
     
-    init(block:(((()->(Bool))?)->())?)
+    init(tag:String? = nil, block:(((()->(Bool))?)->())?)
     {
         super.init()
         
+        self.tag = tag
         self.block = block
     }
     

@@ -20,7 +20,8 @@ class SettingsViewController: UIViewController
         UserDefaults.standard.set(sender.isOn, forKey: Constants.AUTO_ADVANCE)
     }
     
-    @IBAction func doneAction(_ sender: UIButton) {
+    @IBAction func doneAction(_ sender: UIButton)
+    {
         dismiss(animated: true, completion: nil)
     }
     
@@ -29,7 +30,8 @@ class SettingsViewController: UIViewController
         dismiss(animated: true, completion: nil)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool)
+    {
         super.viewWillAppear(animated)
         
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)

@@ -54,11 +54,6 @@ class FetchImage : Fetch<UIImage>, Size
         }
     }
     
-    func fetchIt() -> UIImage?
-    {
-        return self.url?.image
-    }
-    
     func block(_ block:((UIImage?)->()))
     {
         if let image = image {
@@ -99,6 +94,11 @@ class FetchImage : Fetch<UIImage>, Size
         clear()
         fileSize = nil
         fileSystemURL?.delete(block)
+    }
+
+    func fetchIt() -> UIImage?
+    {
+        return self.url?.image
     }
     
     func retrieveIt() -> UIImage?

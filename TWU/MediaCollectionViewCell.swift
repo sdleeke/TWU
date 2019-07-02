@@ -22,23 +22,21 @@ class MediaCollectionViewCell: UICollectionViewCell
         didSet {
             if (series != oldValue) || (seriesArt.image == nil) {
                 seriesArt.image = nil
-//                operationQueue?.cancelAllOperations()
                 updateUI()
             }
         }
     }
     
-    var operationQueue : OperationQueue! = {
+    static var operationQueue : OperationQueue! = {
         let operationQueue = OperationQueue()
         operationQueue.name = UUID().uuidString
         operationQueue.qualityOfService = .userInteractive
-        operationQueue.maxConcurrentOperationCount = 1
+        operationQueue.maxConcurrentOperationCount = 3
         return operationQueue
     }()
-
+    
     deinit {
         debug(self)
-        operationQueue.cancelAllOperations()
     }
     
     fileprivate func updateUI()
@@ -51,34 +49,38 @@ class MediaCollectionViewCell: UICollectionViewCell
             return
         }
         
+        guard series.coverArt?.cache == nil else {
+            self.seriesArt.image = series.coverArt?.cache
+            self.activityIndicator.stopAnimating()
+            return
+        }
+        
         Thread.onMainThread {
             self.activityIndicator.startAnimating()
         }
+
+//        print(MediaCollectionViewCell.operationQueue.operationCount)
         
-        operationQueue.cancelAllOperations()
-        
-//        print(operationQueue.operationCount)
-        
-        operationQueue.addOperation {
+        MediaCollectionViewCell.operationQueue.addOperation {
             guard let image = series.coverArt?.image else {
                 Thread.onMainThread {
                     if self.series == series {
                         self.activityIndicator.stopAnimating()
                         self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                     } else {
-
+                        
                     }
                 }
                 return
             }
-
-            Thread.onMainThread {
-                if self.series == series {
+            
+            if self.series == series {
+                Thread.onMainThread {
                     self.activityIndicator.stopAnimating()
                     self.seriesArt.image = image
-                } else {
-//                    self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                 }
+            } else {
+                //                self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
             }
         }
     }

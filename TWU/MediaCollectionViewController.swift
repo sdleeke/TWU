@@ -192,43 +192,44 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
             return
         }
         
-        dismiss(animated: true, completion: nil)
-        
-        switch purpose {
-        case .selectingSorting:
-            Globals.shared.series.sorting = strings[index]
-            collectionView.reloadData()
-            break
-            
-        case .selectingFiltering:
-            if (Globals.shared.series.filter != strings[index]) {
-                searchBar.placeholder = strings[index]
-                
-                if (strings[index] == Constants.All) {
-                    Globals.shared.series.showing = .all
-                    Globals.shared.series.filter = nil
-                } else {
-                    Globals.shared.series.showing = .filtered
-                    Globals.shared.series.filter = strings[index]
-                }
-                
+        dismiss(animated: true, completion: {
+            switch purpose {
+            case .selectingSorting:
+                Globals.shared.series.sorting = strings[index]
                 self.collectionView.reloadData()
+                break
                 
-                if Globals.shared.series.active != nil {
-                    let indexPath = IndexPath(item:0,section:0)
-                    if collectionView.isValid(indexPath) {
-                        collectionView.scrollToItem(at: indexPath,at:UICollectionView.ScrollPosition.centeredVertically, animated: true)
+            case .selectingFiltering:
+                if (Globals.shared.series.filter != strings[index]) {
+                    self.searchBar.placeholder = strings[index]
+                    
+                    if (strings[index] == Constants.All) {
+                        Globals.shared.series.showing = .all
+                        Globals.shared.series.filter = nil
+                    } else {
+                        Globals.shared.series.showing = .filtered
+                        Globals.shared.series.filter = strings[index]
+                    }
+                    
+                    self.collectionView.reloadData()
+                    
+                    if Globals.shared.series.active != nil {
+                        let indexPath = IndexPath(item:0,section:0)
+                        if self.collectionView.isValid(indexPath) {
+                            self.collectionView.scrollToItem(at: indexPath,at:UICollectionView.ScrollPosition.centeredVertically, animated: true)
+                        }
                     }
                 }
+                break
+                
+            case .selectingShow:
+                break
+                
+            default:
+                break
             }
-            break
-            
-        case .selectingShow:
-            break
-            
-        default:
-            break
-        }
+        })
+        
     }
 }
 
@@ -347,8 +348,8 @@ class MediaCollectionViewController: UIViewController
     
     @objc func settings(_ button:UIBarButtonItem?)
     {
-        dismiss(animated: true, completion: nil)
-        performSegue(withIdentifier: Constants.SEGUE.SHOW_SETTINGS, sender: nil)
+        dismiss(animated: true, completion: nil) // In case there is one
+        self.performSegue(withIdentifier: Constants.SEGUE.SHOW_SETTINGS, sender: nil)
     }
     
     fileprivate func setupSortingAndGroupingOptions()

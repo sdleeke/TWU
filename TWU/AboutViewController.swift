@@ -27,7 +27,8 @@ extension AboutViewController : UIAdaptivePresentationControllerDelegate
 extension AboutViewController : MFMailComposeViewControllerDelegate
 {
     // MARK: MFMailComposeViewControllerDelegate Method
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?)
+    {
         controller.dismiss(animated: true, completion: nil)
     }
 }
@@ -41,46 +42,46 @@ extension AboutViewController : PopoverTableViewControllerDelegate
 {
     func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose) // , sermon:Sermon?
     {
-        dismiss(animated: true, completion: nil)
-        
-        switch purpose {
-        case .selectingAction:
-            switch strings[index] {
-                
-            case Constants.Email_TWU:
-                email()
-                break
-                
-            case Constants.TWU_Website:
-                openWebSite(Constants.TWU.WEBSITE)
-                break
-                
-            case "Tom's Archives":
-                openArchives()
-                break
-                
-            case "CBC Media App":
-                guard let url = URL(string:Constants.CBC.APP_URL) else {
+        dismiss(animated: true, completion: {
+            switch purpose {
+            case .selectingAction:
+                switch strings[index] {
+                    
+                case Constants.Email_TWU:
+                    self.email()
+                    break
+                    
+                case Constants.TWU_Website:
+                    self.openWebSite(Constants.TWU.WEBSITE)
+                    break
+                    
+                case "Tom's Archives":
+                    self.openArchives()
+                    break
+                    
+                case "CBC Media App":
+                    guard let url = URL(string:Constants.CBC.APP_URL) else {
+                        break
+                    }
+                    
+                    if (UIApplication.shared.canOpenURL(url)) {
+                        UIApplication.shared.openURL(url)
+                    }
+                    break
+                    
+                case Constants.Share_This_App:
+                    self.share(htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
+                    break
+                    
+                default:
                     break
                 }
-                
-                if (UIApplication.shared.canOpenURL(url)) {
-                    UIApplication.shared.openURL(url)
-                }
-                break
-                
-            case Constants.Share_This_App:
-                self.share(htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
                 break
                 
             default:
                 break
             }
-            break
-            
-        default:
-            break
-        }
+        })
     }
 }
 
@@ -155,7 +156,7 @@ class AboutViewController : UIViewController
     fileprivate func networkUnavailable(_ message:String?)
     {
         if (UIApplication.shared.applicationState == UIApplication.State.active) {
-            dismiss(animated: true, completion: nil)
+            dismiss(animated: true, completion: nil) // In case one is active
             
             let alert = UIAlertController(title: Constants.Network_Error,
                 message: message,
