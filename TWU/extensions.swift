@@ -413,6 +413,24 @@ extension NSLayoutConstraint {
 
 extension String
 {
+    /**
+     Extension of String that looks for a string pattern at the end of the string, i.e. a fileType (in the old model) if the string is a filename.
+     */
+    func isFileType(_ fileType:String) -> Bool
+    {
+        guard !self.isEmpty else {
+            return false
+        }
+        
+        let file = self
+        
+        if let range = file.range(of: fileType), file[range.lowerBound...] == fileType {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     var url : URL?
     {
         get {

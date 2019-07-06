@@ -368,6 +368,14 @@ class Series : NSObject
                 return nil
             }
             
+            guard let imageTransformDir = Globals.shared.series.meta.imageTransformDir else {
+                return nil
+            }
+            
+            guard let imageDir = imageTransformDir["1x1md"] else {
+                return nil
+            }
+            
             guard let imageName = name else {
                 return nil
             }
@@ -376,7 +384,7 @@ class Series : NSObject
                 return nil
             }
             
-            let coverArtURL = imageURL + imageName + squareSuffix
+            let coverArtURL = imageURL + imageDir + imageName + squareSuffix
             
             return coverArtURL.url
         }

@@ -537,11 +537,19 @@ class MediaCollectionViewController: UIViewController
                     return false
                 }
             }).map({ (seriesDict:[String:Any]) -> Series in
-//                let series = Series(seriesDict: seriesDict)
+                let series = Series(seriesDict: seriesDict)
+                
+                if !UserDefaults.standard.bool(forKey: "UPGRADED IMAGES") {
+                    series.coverArt?.fileSystemURL?.delete()
+                }
+
 //                series.coverArt?.fill()
-//                return series
-                return Series(seriesDict: seriesDict)
+                
+                return series
+//                return Series(seriesDict: seriesDict)
             })
+
+            UserDefaults.standard.set(true, forKey: "UPGRADED IMAGES")
 
             self.seriesSelected = Globals.shared.series.selected
 

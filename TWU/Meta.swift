@@ -41,6 +41,11 @@ struct Meta
         return (storage["imageSuffix"] as? [String:String])?["1x1"]
     }
     
+    var imageTransformDir : [String:String]?
+    {
+        return storage["imageTransformDir"] as? [String:String]
+    }
+    
     var wideSuffix : String?
     {
         return (storage["imageSuffix"] as? [String:String])?["16x9"]
