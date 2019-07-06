@@ -62,8 +62,8 @@ extension UIViewController
         activityViewController.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
         
         // present the view controller
-        Thread.onMainThread {
-            self.present(activityViewController, animated: false, completion: nil)
+        Thread.onMain { [weak self] in
+            self?.present(activityViewController, animated: false, completion: nil)
         }
     }
 
@@ -77,8 +77,8 @@ extension UIViewController
         })
         alert.addAction(action)
         
-        Thread.onMainThread {
-            self.present(alert, animated: true, completion: nil)
+        Thread.onMain { [weak self] in
+            self?.present(alert, animated: true, completion: nil)
         }
     }
 
@@ -96,9 +96,9 @@ extension UIViewController
         })
         alert.addAction(action)
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             Globals.shared.rootViewController?.dismiss(animated: true, completion: nil)
-            self.present(alert, animated: true, completion: nil)
+            self?.present(alert, animated: true, completion: nil)
         }
     }
 }
@@ -344,7 +344,7 @@ extension UIButton
 
 extension Thread
 {
-    static func onMainThread(block:(()->(Void))?)
+    static func onMain(block:(()->(Void))?)
     {
         if Thread.isMainThread {
             block?()
@@ -355,7 +355,7 @@ extension Thread
         }
     }
 
-    static func onMainThreadSync(block:(()->(Void))?)
+    static func onMainSync(block:(()->(Void))?)
     {
         if Thread.isMainThread {
             block?()

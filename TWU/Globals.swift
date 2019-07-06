@@ -67,7 +67,7 @@ class Globals //: NSObject
     var showingAbout:Bool = false
     {
         didSet {
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOWING_ABOUT_CHANGED), object: nil)
             }
         }
@@ -189,7 +189,7 @@ class Globals //: NSObject
             // be on the main thread, like this:
             self.reachabilityTransition()
             
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.REACHABLE), object: nil)
             }
         }
@@ -199,7 +199,7 @@ class Globals //: NSObject
             // be on the main thread, like this:
             self.reachabilityTransition()
             
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.NOT_REACHABLE), object: nil)
             }
         }
@@ -233,7 +233,7 @@ class Globals //: NSObject
             }
         }
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
         }
@@ -346,8 +346,8 @@ class Globals //: NSObject
             })
             alert.addAction(action)
             
-            Thread.onMainThread {
-                self.rootViewController?.present(alert, animated: true, completion: nil)
+            Thread.onMain { [weak self] in
+                self?.rootViewController?.present(alert, animated: true, completion: nil)
             }
         }
     }

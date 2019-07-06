@@ -62,7 +62,7 @@ func stopAudio()
 //    activityViewController.popoverPresentationController?.barButtonItem = viewController.navigationItem.rightBarButtonItem
 //    
 //    // present the view controller
-//    Thread.onMainThread {
+//    Thread.onMain { [weak self] in
 //        viewController.present(activityViewController, animated: false, completion: nil)
 //    }
 //}
@@ -226,7 +226,7 @@ func stopAudio()
 //    })
 //    alert.addAction(action)
 //
-//    Thread.onMainThread {
+//    Thread.onMain { [weak self] in
 //        viewController.present(alert, animated: true, completion: nil)
 //    }
 //}
@@ -273,7 +273,7 @@ func stopAudio()
 //    })
 //    alert.addAction(action)
 //    
-//    Thread.onMainThread {
+//    Thread.onMain { [weak self] in
 //        Globals.shared.rootViewController?.dismiss(animated: true, completion: nil)
 //        viewController.present(alert, animated: true, completion: nil)
 //    }
@@ -316,7 +316,7 @@ func stopAudio()
 //        })
 //        alert.addAction(action)
 //        
-//        Thread.onMainThread {
+//        Thread.onMain { [weak self] in
 //            Globals.shared.rootViewController?.present(alert, animated: true, completion: nil)
 //        }
 //    }

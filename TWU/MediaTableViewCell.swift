@@ -20,9 +20,9 @@ class MediaTableViewCell: UITableViewCell
             
         }
         didSet {
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: oldValue)
-                NotificationCenter.default.addObserver(self, selector: #selector(self.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+                NotificationCenter.default.addObserver(self, selector: #selector(self?.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self?.sermon)
             }
             
             updateUI()

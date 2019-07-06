@@ -19,8 +19,8 @@ class Alerts
     
     init()
     {
-        Thread.onMainThread {
-            self.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.alertViewer), userInfo: nil, repeats: true)
+        Thread.onMain { [weak self] in
+            self?.alertTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self?.alertViewer), userInfo: nil, repeats: true)
         }
     }
     
@@ -43,9 +43,9 @@ class Alerts
         })
         alertVC.addAction(action)
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             Globals.shared.splitViewController?.present(alertVC, animated: true, completion: {
-                self.alerts.remove(at: 0)
+                self?.alerts.remove(at: 0)
             })
         }
     }

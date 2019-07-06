@@ -106,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         
         Globals.shared.mediaPlayer.setupPlayingInfoCenter()
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERIES_UPDATE_UI), object: nil)
 
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)

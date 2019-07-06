@@ -60,15 +60,15 @@ class MediaCollectionViewCell: UICollectionViewCell
             return
         }
         
-        Thread.onMainThread {
-            self.activityIndicator.startAnimating()
+        Thread.onMain { [weak self] in
+            self?.activityIndicator.startAnimating()
         }
         
         operationQueue.addOperation {
 //            // Check to see if it is downlaoded before downloading.
 //            guard series.coverArt?.retrieveIt() == nil else {
 //                series.coverArt?.cache = series.coverArt?.retrieveIt()
-//                Thread.onMainThread {
+//                Thread.onMain { [weak self] in
 //                    self.seriesArt.image = series.coverArt?.cache
 //                    self.activityIndicator.stopAnimating()
 //                }
@@ -79,10 +79,10 @@ class MediaCollectionViewCell: UICollectionViewCell
 //            // Because the operations clear quick since all that happens is that a download is started.
 //            series.coverArt?.downloadIt() {
                 guard let image = series.coverArt?.image else {
-                    Thread.onMainThread {
-                        if self.series == series {
-                            self.activityIndicator.stopAnimating()
-                            self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+                    Thread.onMain { [weak self] in
+                        if self?.series == series {
+                            self?.activityIndicator.stopAnimating()
+                            self?.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                         } else {
 
                         }
@@ -91,9 +91,9 @@ class MediaCollectionViewCell: UICollectionViewCell
                 }
 
                 if self.series == series {
-                    Thread.onMainThread {
-                        self.activityIndicator.stopAnimating()
-                        self.seriesArt.image = image
+                    Thread.onMain { [weak self] in
+                        self?.activityIndicator.stopAnimating()
+                        self?.seriesArt.image = image
                     }
                 } else {
                     //                self.seriesArt.image = UIImage(named: "twu_logo_circle_r")

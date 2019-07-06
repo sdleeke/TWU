@@ -384,7 +384,7 @@ class MediaViewController : UIViewController
                 removePlayerObserver()
             }
             
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
             }
         }
@@ -913,8 +913,8 @@ class MediaViewController : UIViewController
         // Without this background/main dispatching there isn't time to scroll correctly after a reload.
         // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            Thread.onMainThread {
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
+            Thread.onMain { [weak self] in
+                self?.scrollToSermon(self?.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
             }
         })
 
@@ -1119,7 +1119,7 @@ class MediaViewController : UIViewController
         }
 
 //        if let image = seriesSelected.coverArt?.cache {
-//            Thread.onMainThread {
+//            Thread.onMain { [weak self] in
 //                if self.seriesSelected == seriesSelected {
 //                    self.seriesArt.image = image
 //                    self.setupPageControl()
@@ -1131,12 +1131,12 @@ class MediaViewController : UIViewController
 
             operationQueue.addOperation {
                 seriesSelected.coverArt?.block { (image:UIImage?) in
-                    Thread.onMainThread {
-                        if self.seriesSelected == seriesSelected {
-                            self.seriesArtSpinner.stopAnimating()
-                            self.seriesArtSpinner.isHidden = true
-                            self.seriesArt.image = image
-                            self.setupPageControl()
+                    Thread.onMain { [weak self] in
+                        if self?.seriesSelected == seriesSelected {
+                            self?.seriesArtSpinner.stopAnimating()
+                            self?.seriesArtSpinner.isHidden = true
+                            self?.seriesArt.image = image
+                            self?.setupPageControl()
                         }
                     }
                 }
@@ -1312,8 +1312,8 @@ class MediaViewController : UIViewController
         // Without this background/main dispatching there isn't time to scroll correctly after a reload.
         // For UI
         DispatchQueue.global(qos: .background).async {
-            Thread.onMainThread {
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
+            Thread.onMain { [weak self] in
+                self?.scrollToSermon(self?.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
             }
         }
         
@@ -1352,7 +1352,7 @@ class MediaViewController : UIViewController
             // Purely for the delay?
             // For UI
             DispatchQueue.global(qos: .background).async(execute: {
-                Thread.onMainThread {
+                Thread.onMain { [weak self] in
                     Globals.shared.mediaPlayer.play()
                 }
             })
@@ -1472,8 +1472,8 @@ class MediaViewController : UIViewController
         // Without this background/main dispatching there isn't time to scroll correctly after a reload.
         // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            Thread.onMainThread {
-                self.scrollToSermon(sermon, select: true, position: UITableView.ScrollPosition.none)
+            Thread.onMain { [weak self] in
+                self?.scrollToSermon(sermon, select: true, position: UITableView.ScrollPosition.none)
             }
         })
     }
@@ -1485,8 +1485,8 @@ class MediaViewController : UIViewController
         // Without this background/main dispatching there isn't time to scroll correctly after a reload.
         // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-            Thread.onMainThread {
-                self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
+            Thread.onMain { [weak self] in
+                self?.scrollToSermon(self?.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
             }
         })
         
@@ -1901,8 +1901,8 @@ class MediaViewController : UIViewController
     {
         removeSliderTimer()
         
-        Thread.onMainThread {
-            self.sliderTimer = Timer.scheduledTimer(timeInterval: Constants.INTERVALS.TIMERS.SLIDER, target: self, selector: #selector(self.updateSlider), userInfo: nil, repeats: true)
+        Thread.onMain { [weak self] in
+            self?.sliderTimer = Timer.scheduledTimer(timeInterval: Constants.INTERVALS.TIMERS.SLIDER, target: self, selector: #selector(self?.updateSlider), userInfo: nil, repeats: true)
         }
     }
     

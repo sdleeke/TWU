@@ -121,16 +121,16 @@ class FetchImage : Fetch<UIImage>, Size
             }
             
             if oldValue != nil {
-                Thread.onMainThread {
+                Thread.onMain { [weak self] in
                     NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: oldValue)
                     NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: oldValue)
                 }
             }
 
             if download != nil {
-                Thread.onMainThread {
-                    NotificationCenter.default.addObserver(self, selector: #selector(self.downloadFailed), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.download)
-                    NotificationCenter.default.addObserver(self, selector: #selector(self.downloaded), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self.download)
+                Thread.onMain { [weak self] in
+                    NotificationCenter.default.addObserver(self, selector: #selector(self?.downloadFailed), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self?.download)
+                    NotificationCenter.default.addObserver(self, selector: #selector(self?.downloaded), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self?.download)
                 }
             }
         }

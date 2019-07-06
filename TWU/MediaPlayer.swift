@@ -385,7 +385,7 @@ class MediaPlayer : NSObject
                         play()
                     }
                     
-                    Thread.onMainThread {
+                    Thread.onMain { [weak self] in
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
                     }
                 }
@@ -419,7 +419,7 @@ class MediaPlayer : NSObject
     {
         pause()
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
         }
         
@@ -447,7 +447,7 @@ class MediaPlayer : NSObject
             stop()
         }
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
         }
     }
@@ -541,7 +541,7 @@ class MediaPlayer : NSObject
     {
         loadFailed = true
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
         }
 
@@ -552,7 +552,7 @@ class MediaPlayer : NSObject
     {
         loadFailed = true
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
         }
         
@@ -780,7 +780,7 @@ class MediaPlayer : NSObject
         
         stateTime = PlayerStateTime(sermon: playing,state:.playing)
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
         }
@@ -798,7 +798,7 @@ class MediaPlayer : NSObject
         
         player?.pause()
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
         }
@@ -856,7 +856,7 @@ class MediaPlayer : NSObject
         player?.seek(to: CMTimeMakeWithSeconds(seek,preferredTimescale: Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution),
                      completionHandler: { (finished:Bool) in
                         if finished {
-                            Thread.onMainThread {
+                            Thread.onMain { [weak self] in
                                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
                             }
                         }
@@ -936,7 +936,7 @@ class MediaPlayer : NSObject
             if playing == nil {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
             } else {
-                Thread.onMainThread {
+                Thread.onMain { [weak self] in
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
                 }
             }

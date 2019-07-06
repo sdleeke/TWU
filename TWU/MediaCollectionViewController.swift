@@ -261,7 +261,7 @@ class MediaCollectionViewController: UIViewController
             defaults.set(seriesSelected.name, forKey: Constants.SETTINGS.SELECTED.SERIES)
             defaults.synchronize()
             
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAYING_PAUSED), object: nil)
             }
         }
@@ -434,8 +434,8 @@ class MediaCollectionViewController: UIViewController
             
             if collectionView.isValid(indexPath) {
                 DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                    Thread.onMainThread {
-                        self.collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.top, animated: true)
+                    Thread.onMain { [weak self] in
+                        self?.collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.top, animated: true)
                     }
                 })
             }
@@ -455,7 +455,7 @@ class MediaCollectionViewController: UIViewController
         setupPlayingPausedButton()
 
         if let isCollapsed = splitViewController?.isCollapsed, !isCollapsed {
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
             }
         }
@@ -483,22 +483,22 @@ class MediaCollectionViewController: UIViewController
             defer {
                 Thread.sleep(forTimeInterval: 1.0)
                 
-                Thread.onMainThread {
-                    self.navigationItem.title = Constants.Titles.Setting_up_Player
+                Thread.onMain { [weak self] in
+                    self?.navigationItem.title = Constants.Titles.Setting_up_Player
                     if (Globals.shared.mediaPlayer.playing != nil) {
                         Globals.shared.mediaPlayer.playOnLoad = false
                         Globals.shared.mediaPlayer.setup(Globals.shared.mediaPlayer.playing)
                     }
                     
-                    self.navigationItem.title = Constants.TWU.LONG
-                    self.setupViews()
+                    self?.navigationItem.title = Constants.TWU.LONG
+                    self?.setupViews()
                     
                     if Globals.shared.isRefreshing {
-                        self.refreshControl?.endRefreshing()
+                        self?.refreshControl?.endRefreshing()
                         Globals.shared.isRefreshing = false
                     } else {
-                        self.activityIndicator.stopAnimating()
-                        self.activityIndicator.isHidden = true
+                        self?.activityIndicator.stopAnimating()
+                        self?.activityIndicator.isHidden = true
                     }
                     
                     completion?()
@@ -507,13 +507,15 @@ class MediaCollectionViewController: UIViewController
                 Globals.shared.isLoading = false
             }
         
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 if !Globals.shared.isRefreshing {
-                    self.view.bringSubviewToFront(self.activityIndicator)
-                    self.activityIndicator.isHidden = false
-                    self.activityIndicator.startAnimating()
+                    if let activityIndicator = self?.activityIndicator {
+                        self?.view.bringSubviewToFront(activityIndicator)
+                    }
+                    self?.activityIndicator.isHidden = false
+                    self?.activityIndicator.startAnimating()
                 }
-                self.navigationItem.title = Constants.Titles.Loading_Series
+                self?.navigationItem.title = Constants.Titles.Loading_Series
             }
             
             guard let json = self.json.load() else {
@@ -543,14 +545,14 @@ class MediaCollectionViewController: UIViewController
 
             self.seriesSelected = Globals.shared.series.selected
 
-//            Thread.onMainThread {
+//            Thread.onMain { [weak self] in
 //                self.navigationItem.title = Constants.Titles.Loading_Settings
 //            }
 //            Globals.shared.settings.load()
 //
 //            Thread.sleep(forTimeInterval: 1.0)
 //
-//            Thread.onMainThread {
+//            Thread.onMain { [weak self] in
 //                self.navigationItem.title = Constants.Titles.Setting_up_Player
 //                if (Globals.shared.mediaPlayer.playing != nil) {
 //                    Globals.shared.mediaPlayer.playOnLoad = false
@@ -712,8 +714,8 @@ class MediaCollectionViewController: UIViewController
         } else {
             // Fallback on earlier versions
             if let refreshControl = self.refreshControl {
-                Thread.onMainThread {
-                    self.collectionView.addSubview(refreshControl)
+                Thread.onMain { [weak self] in
+                    self?.collectionView.addSubview(refreshControl)
                 }
             }
         }

@@ -37,9 +37,9 @@ extension Download : URLSessionDownloadDelegate
         
         cancel()
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self?.sermon)
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
 
@@ -59,7 +59,7 @@ extension Download : URLSessionDownloadDelegate
 //
 //        cancel() // task?.
 //
-//        Thread.onMainThread {
+//        Thread.onMain { [weak self] in
 //            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
 //            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
 //            UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -100,8 +100,8 @@ extension Download : URLSessionDownloadDelegate
             self.totalBytesWritten = totalBytesWritten
             self.totalBytesExpectedToWrite = totalBytesExpectedToWrite
             
-            Thread.onMainThread {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object:self.sermon)
+            Thread.onMain { [weak self] in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object:self?.sermon)
                 UIApplication.shared.isNetworkActivityIndicatorVisible = true
             }
             
@@ -171,7 +171,7 @@ extension Download : URLSessionDownloadDelegate
             state = .none
         }
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
@@ -205,7 +205,7 @@ extension Download : URLSessionDownloadDelegate
 //
 //                cancel()
 //
-//                Thread.onMainThread {
+//                Thread.onMain { [weak self] in
 //                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self)
 //                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
 //                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -235,7 +235,7 @@ extension Download : URLSessionDownloadDelegate
         
         session.invalidateAndCancel()
         
-        Thread.onMainThread {
+        Thread.onMain { [weak self] in
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
@@ -382,13 +382,13 @@ class Download : NSObject, Size
             }
             
             if self.sermon != nil {
-                Thread.onMainThread {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+                Thread.onMain { [weak self] in
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self?.sermon)
                 }
             }
             
             if state == .downloaded {
-                Thread.onMainThread {
+                Thread.onMain { [weak self] in
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self)
                 }
             }
@@ -455,7 +455,7 @@ class Download : NSObject, Size
             
             task?.resume()
             
-            Thread.onMainThread {
+            Thread.onMain { [weak self] in
                 UIApplication.shared.isNetworkActivityIndicatorVisible = true
             }
         }
