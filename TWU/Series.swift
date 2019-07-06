@@ -19,7 +19,7 @@ func != (lhs:Series,rhs:Series) -> Bool
     return (lhs.name != rhs.name)
 }
 
-class Series : Equatable
+class Series : NSObject
 {
     deinit {
         debug(self)
@@ -75,6 +75,8 @@ class Series : Equatable
     
     init(seriesDict:[String:Any]?)
     {
+        super.init()
+        
         dict = seriesDict
 
         if let programs = dict?["programs"] as? [[String:Any]] {
@@ -472,7 +474,7 @@ class Series : Equatable
         }
     }
     
-    var description : String
+    override var description : String
     {
         //This requires that date, service, title, and speaker fields all be non-nil
         
@@ -496,9 +498,9 @@ class Series : Equatable
             seriesString = "\(seriesString) \(numberOfSermons)"
         }
         
-        if let text = text, !text.isEmpty {
-            seriesString = "\(seriesString)\n\(text)"
-        }
+//        if let text = text, !text.isEmpty {
+//            seriesString = "\(seriesString)\n\(text)"
+//        }
         
         return seriesString
     }

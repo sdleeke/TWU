@@ -162,6 +162,8 @@ extension Download : URLSessionDownloadDelegate
                 
                 state = .downloaded
             }
+            
+            completion?()
         } catch let error as NSError {
             NSLog(error.localizedDescription)
             print("failed to copy temp audio download file")
@@ -278,7 +280,7 @@ extension Download : URLSessionDownloadDelegate
 //            filename = String(filename[..<range.lowerBound])
             
             if task?.taskDescription == filename {
-                completionHandler?()
+                completion?()
             }
         }
 //
@@ -292,6 +294,24 @@ class Download : NSObject, Size
         debug(self)
     }
     
+    init?(downloadURL:URL?, fileSystemURL:URL?)
+    {
+        guard let downloadURL = downloadURL else {
+            return nil
+        }
+        
+        guard let fileSystemURL = fileSystemURL else {
+            return nil
+        }
+        
+        self.downloadURL = downloadURL
+        self.fileSystemURL = fileSystemURL
+        
+        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
+            self.state = .downloaded
+        }
+    }
+    
     init?(sermon:Sermon?,purpose:String?,downloadURL:URL?,fileSystemURL:URL?)
     {
         guard let sermon = sermon else {
@@ -301,7 +321,7 @@ class Download : NSObject, Size
         guard let purpose = purpose else {
             return nil
         }
-        
+
         guard let downloadURL = downloadURL else {
             return nil
         }
@@ -312,6 +332,7 @@ class Download : NSObject, Size
         
         self.sermon = sermon
         self.purpose = purpose
+        
         self.downloadURL = downloadURL
         self.fileSystemURL = fileSystemURL
         
@@ -349,7 +370,9 @@ class Download : NSObject, Size
             return state == .downloading
         }
     }
-    var state:State = .none {
+    
+    var state:State = .none
+    {
         willSet {
             
         }
@@ -358,13 +381,21 @@ class Download : NSObject, Size
                 return
             }
             
-            Thread.onMainThread {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+            if self.sermon != nil {
+                Thread.onMainThread {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self.sermon)
+                }
+            }
+            
+            if state == .downloaded {
+                Thread.onMainThread {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self)
+                }
             }
         }
     }
     
-    var completionHandler: (() -> (Void))?
+    var completion: (() -> (Void))?
     
     var isDownloaded : Bool
     {

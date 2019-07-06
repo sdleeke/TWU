@@ -1118,14 +1118,14 @@ class MediaViewController : UIViewController
             }
         }
 
-        if let image = seriesSelected.coverArt?.cache {
-            Thread.onMainThread {
-                if self.seriesSelected == seriesSelected {
-                    self.seriesArt.image = image
-                    self.setupPageControl()
-                }
-            }
-        } else {
+//        if let image = seriesSelected.coverArt?.cache {
+//            Thread.onMainThread {
+//                if self.seriesSelected == seriesSelected {
+//                    self.seriesArt.image = image
+//                    self.setupPageControl()
+//                }
+//            }
+//        } else {
             seriesArtSpinner.isHidden = false
             seriesArtSpinner.startAnimating()
 
@@ -1142,7 +1142,7 @@ class MediaViewController : UIViewController
                 }
 
             }
-        }
+//        }
 
         seriesArt.isHidden = pageControl.currentPage == 1
         seriesDescription.isHidden = pageControl.currentPage == 0
@@ -1842,7 +1842,7 @@ class MediaViewController : UIViewController
         
         func showState(_ state:String)
         {
-            //            print(state)
+            //            print("State: ", state)
         }
         
         switch state {

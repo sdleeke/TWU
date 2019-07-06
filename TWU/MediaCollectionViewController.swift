@@ -47,7 +47,7 @@ extension MediaCollectionViewController : UICollectionViewDataSource
     {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.IDENTIFIER.SERIES_CELL, for: indexPath) as? MediaCollectionViewCell {
             // Configure the cell
-            cell.series = Globals.shared.series.active?[indexPath.row]
+            cell.series = Globals.shared.series.active?[indexPath.item]
 
             return cell
         } else {
@@ -64,7 +64,7 @@ extension MediaCollectionViewController : UICollectionViewDelegate
     {
         if let cell: MediaCollectionViewCell = collectionView.cellForItem(at: indexPath) as? MediaCollectionViewCell {
             seriesSelected = cell.series
-            collectionView.reloadData()
+//            collectionView.reloadData()
         } else {
             
         }
@@ -202,14 +202,16 @@ extension MediaCollectionViewController : PopoverTableViewControllerDelegate
             case .selectingFiltering:
                 if (Globals.shared.series.filter != strings[index]) {
                     self.searchBar.placeholder = strings[index]
-                    
-                    if (strings[index] == Constants.All) {
-                        Globals.shared.series.showing = .all
-                        Globals.shared.series.filter = nil
-                    } else {
-                        Globals.shared.series.showing = .filtered
-                        Globals.shared.series.filter = strings[index]
-                    }
+
+                    Globals.shared.series.filter = strings[index]
+
+//                    if (strings[index] == Constants.All) {
+//                        Globals.shared.series.showing = .all
+//                        Globals.shared.series.filter = nil
+//                    } else {
+//                        Globals.shared.series.showing = .filtered
+//                        Globals.shared.series.filter = strings[index]
+//                    }
                     
                     self.collectionView.reloadData()
                     
@@ -533,6 +535,9 @@ class MediaCollectionViewController: UIViewController
                     return false
                 }
             }).map({ (seriesDict:[String:Any]) -> Series in
+//                let series = Series(seriesDict: seriesDict)
+//                series.coverArt?.fill()
+//                return series
                 return Series(seriesDict: seriesDict)
             })
 

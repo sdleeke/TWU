@@ -889,54 +889,52 @@ extension Array where Element == Series
             return nil
         }
         
-        var results:[Series]?
-        
-        switch sorting {
-        case Constants.Sorting.Title_AZ:
-            results = series.sorted() { $0.titleSort < $1.titleSort }
-            break
-        case Constants.Sorting.Title_ZA:
-            results = series.sorted() { $0.titleSort > $1.titleSort }
-            break
-        case Constants.Sorting.Newest_to_Oldest:
-            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
-            
-            //        switch Constants.JSON.URL {
-            //        case Constants.JSON.URLS.MEDIALIST_PHP:
-            //            results = series.sorted() { $0.id > $1.id }
-            //
-            //        case Constants.JSON.URLS.MEDIALIST_JSON:
-            //            fallthrough
-            //
-            //        case Constants.JSON.URLS.SERIES_JSON:
-            //            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
-            //
-            //        default:
-            //            return nil
-            //        }
-            break
-        case Constants.Sorting.Oldest_to_Newest:
-            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
-            
-            //        switch Constants.JSON.URL {
-            //        case Constants.JSON.URLS.MEDIALIST_PHP:
-            //            results = series.sorted() { $0.id < $1.id }
-            //
-            //        case Constants.JSON.URLS.MEDIALIST_JSON:
-            //            fallthrough
-            //
-            //        case Constants.JSON.URLS.SERIES_JSON:
-            //            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
-            //
-            //        default:
-            //            return nil
-            //        }
-            break
-        default:
-            break
+        return series.sorted() {
+            switch sorting {
+            case Constants.Sorting.Title_AZ:
+                return $0.titleSort < $1.titleSort
+
+            case Constants.Sorting.Title_ZA:
+                return $0.titleSort > $1.titleSort
+
+            case Constants.Sorting.Newest_to_Oldest:
+                return $0.featuredStartDate > $1.featuredStartDate
+                
+                //        switch Constants.JSON.URL {
+                //        case Constants.JSON.URLS.MEDIALIST_PHP:
+                //            results = series.sorted() { $0.id > $1.id }
+                //
+                //        case Constants.JSON.URLS.MEDIALIST_JSON:
+                //            fallthrough
+                //
+                //        case Constants.JSON.URLS.SERIES_JSON:
+                //            results = series.sorted() { $0.featuredStartDate > $1.featuredStartDate }
+                //
+                //        default:
+                //            return nil
+                //        }
+
+            case Constants.Sorting.Oldest_to_Newest:
+                return $0.featuredStartDate < $1.featuredStartDate
+                
+                //        switch Constants.JSON.URL {
+                //        case Constants.JSON.URLS.MEDIALIST_PHP:
+                //            results = series.sorted() { $0.id < $1.id }
+                //
+                //        case Constants.JSON.URLS.MEDIALIST_JSON:
+                //            fallthrough
+                //
+                //        case Constants.JSON.URLS.SERIES_JSON:
+                //            results = series.sorted() { $0.featuredStartDate < $1.featuredStartDate }
+                //
+                //        default:
+                //            return nil
+                //        }
+
+            default:
+                return false
+            }
         }
-        
-        return results
     }
 
     var books : [String]?

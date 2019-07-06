@@ -130,6 +130,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     {
         print("application:handleEventsForBackgroundURLSession")
         
+        // If we're going to do general background downloading of images we need to update this for callbacks that do not reference a sermon or series.
+        
         /*
     In iOS, when a background transfer completes or requires credentials, if your app is no longer running, iOS automatically relaunches your app in the background and calls the application:handleEventsForBackgroundURLSession:completionHandler: method on your app’s UIApplicationDelegate object. This call provides the identifier of the session that caused your app to be launched. Your app should store that completion handler, create a background configuration object with the same identifier, and create a session with that configuration object. The new session is automatically reassociated with ongoing background activity. Later, when the session finishes the last background download task, it sends the session delegate a URLSessionDidFinishEventsForBackgroundURLSession: message. Your session delegate should then call the stored completion handler.
         */
@@ -154,7 +156,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                         for sermon in sermons {
                             if sermon.id == id {
                                 sermon.audioDownload?.session = URLSession(configuration: configuration, delegate: sermon.audioDownload, delegateQueue: nil)
-                                sermon.audioDownload?.completionHandler = completionHandler
+                                sermon.audioDownload?.completion = completionHandler
                                 //Do we need to recreate the downloadTask for this session?
                                 break
                             }

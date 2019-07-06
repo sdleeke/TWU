@@ -81,7 +81,8 @@ enum Constants {
         static let SERMON_UPDATE_UI         = "SERMON UPDATE UI"
         
         static let MEDIA_DOWNLOAD_FAILED    = "MEDIA DOWNLOAD FAILED"
-        
+        static let MEDIA_DOWNLOADED         = "MEDIA DOWNLOADED"
+
         static let SHOWING_ABOUT_CHANGED    = "SHOWING ABOUT CHANGED"
     }
     

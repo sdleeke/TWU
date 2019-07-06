@@ -17,7 +17,18 @@ class Media
         debug(self)
     }
     
-    var showing:Showing = .all
+    var showing:Showing
+    {
+        get {
+            switch filter {
+            case Constants.All:
+                return .all
+                
+            default:
+                return .filtered
+            }
+        }
+    }
     
     var selected:Series?
     {
@@ -37,25 +48,42 @@ class Media
         return Search(media:self)
     }()
     
-    var sorting:String? = Constants.Sorting.Newest_to_Oldest
+    var _sorting:String?
     {
         willSet {
             
         }
         didSet {
-            if sorting != oldValue {
-                let defaults = UserDefaults.standard
-                if (sorting != nil) {
-                    defaults.set(sorting,forKey: Constants.SORTING)
-                } else {
-                    defaults.removeObject(forKey: Constants.SORTING)
-                }
-                defaults.synchronize()
+//            if sorting != oldValue {
+//            }
+            let defaults = UserDefaults.standard
+            if (sorting != nil) {
+                defaults.set(sorting,forKey: Constants.SORTING)
+            } else {
+                defaults.removeObject(forKey: Constants.SORTING)
             }
+            defaults.synchronize()
+        }
+    }
+    var sorting:String?
+    {
+        get {
+            if _sorting == nil {
+                if let sortingString = UserDefaults.standard.string(forKey: Constants.SORTING) {
+                    _sorting = Constants.Sorting.Options.contains(sortingString) ? sortingString : Constants.Sorting.Newest_to_Oldest
+                } else {
+                    _sorting = Constants.Sorting.Newest_to_Oldest
+                }
+            }
+            
+            return _sorting
+        }
+        set {
+            _sorting = newValue
         }
     }
     
-    var filter:String?
+    var _filter:String?
     {
         willSet {
             
@@ -65,11 +93,11 @@ class Media
                 return
             }
             
-            if (filter != nil) {
-                showing = .filtered
-            } else {
-                showing = .all
-            }
+//            if (filter != nil) {
+//                showing = .filtered
+//            } else {
+//                showing = .all
+//            }
             
             let defaults = UserDefaults.standard
             if (filter != nil) {
@@ -80,7 +108,24 @@ class Media
             defaults.synchronize()
         }
     }
-    
+    var filter:String?
+    {
+        get {
+            if _filter == nil {
+                if let filterString = UserDefaults.standard.string(forKey: Constants.FILTER) {
+                    _filter = filterString
+                } else {
+                    _filter = Constants.All
+                }
+            }
+            
+            return _filter
+        }
+        set {
+            _filter = newValue
+        }
+    }
+
     var index = ThreadSafeDN<Series>(name: "SERIES_INDEX") // [String:Series]? // ictionary
     
     var filtered:[Series]?
