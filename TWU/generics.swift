@@ -788,14 +788,14 @@ class Fetch<T>
         operationQueue.cancelAllOperations()
     }
     
-    init(name:String?, useCache:Bool = true, fetch:(()->(T?))? = nil)
+    init(name:String? = nil, useCache:Bool = false, fetch:(()->(T?))? = nil)
     {
         self.name = name
         self.fetch = fetch
         self.useCache = useCache
     }
     
-    var useCache = true
+    var useCache = false
     
     var fetch : (()->(T?))?
     
@@ -866,7 +866,11 @@ class Fetch<T>
                 }
                 
                 result = self.fetch?()
-                
+
+                guard result != nil else {
+                    return result
+                }
+
                 operationQueue.addOperation {
                     self.store?(result)
                 }
@@ -921,7 +925,7 @@ class FetchCodable<T:Codable> : Fetch<T>, Size
     }
     
     // name MUST be unique to ever INSTANCE, not just the class!
-    override init(name: String?, useCache:Bool = true, fetch: (() -> (T?))? = nil)
+    override init(name: String?, useCache:Bool = false, fetch: (() -> (T?))? = nil)
     {
         super.init(name:name, useCache:useCache, fetch:fetch)
         

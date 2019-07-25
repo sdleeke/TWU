@@ -17,13 +17,13 @@ class FetchImage : Fetch<UIImage>, Size
     
     var url : URL?
     
-    init?(name:String? = nil, url:URL?)
+    init?(name:String? = nil, useCache:Bool = true, url:URL?)
     {
         guard let url = url else {
             return nil
         }
         
-        super.init(name: name)
+        super.init(name:name, useCache:useCache)
         
         fetch = { [weak self] () -> (UIImage?) in
             return self?.fetchIt()
@@ -54,10 +54,19 @@ class FetchImage : Fetch<UIImage>, Size
         }
     }
     
-    func block(_ block:((UIImage?)->()))
+//    func block(_ block:((UIImage?)->()))
+//    {
+//        if let image = image {
+//            block(image)
+//        }
+//    }
+
+    func load(success:((UIImage)->())?, failure:(()->())?)
     {
         if let image = result {
-            block(image)
+            success?(image)
+        } else {
+            failure?()
         }
     }
     
@@ -96,67 +105,67 @@ class FetchImage : Fetch<UIImage>, Size
         fileSystemURL?.delete(block)
     }
 
-    static var semaphore = DispatchSemaphore(value: 3)
-
-    @objc func downloadFailed()
-    {
-        // What else should we do if a download fails?
-        // Right now you have to scroll restart the download.
-        download = nil
-        FetchImage.semaphore.signal()
-    }
-    
-    @objc func downloaded()
-    {
-        // completion was called
-        download = nil
-        FetchImage.semaphore.signal()
-    }
-    
-    var download : Download?
-    {
-        didSet {
-            guard download != oldValue else {
-                return
-            }
-            
-            if oldValue != nil {
-                Thread.onMain { [weak self] in
-                    NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: oldValue)
-                    NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: oldValue)
-                }
-            }
-
-            if download != nil {
-                Thread.onMain { [weak self] in
-                    NotificationCenter.default.addObserver(self, selector: #selector(self?.downloadFailed), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self?.download)
-                    NotificationCenter.default.addObserver(self, selector: #selector(self?.downloaded), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self?.download)
-                }
-            }
-        }
-    }
-    
-    func downloadIt(completion:(()->())?)
-    {
-        queue.sync {
-            FetchImage.semaphore.wait()
-        }
-
-        guard retrieveIt() == nil else {
-            completion?()
-            return
-        }
-
-        // This creates a download if one doesn't exist
-        download = download ?? Download(downloadURL: url, fileSystemURL: url?.fileSystemURL)
-        
-        // This sets or updates the completion to be executed upon a successful download since what happens with an image
-        // may change even while it is being downloaded.
-        download?.completion = completion
-        
-        // This starts the download, but only if it isn't already downloading.
-        download?.download(background: false)
-    }
+//    static var semaphore = DispatchSemaphore(value: 3)
+//
+//    @objc func downloadFailed()
+//    {
+//        // What else should we do if a download fails?
+//        // Right now you have to scroll restart the download.
+//        download = nil
+//        FetchImage.semaphore.signal()
+//    }
+//
+//    @objc func downloaded()
+//    {
+//        // completion was called
+//        download = nil
+//        FetchImage.semaphore.signal()
+//    }
+//
+//    var download : Download?
+//    {
+//        didSet {
+//            guard download != oldValue else {
+//                return
+//            }
+//
+//            if oldValue != nil {
+//                Thread.onMain { [weak self] in
+//                    NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: oldValue)
+//                    NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: oldValue)
+//                }
+//            }
+//
+//            if download != nil {
+//                Thread.onMain { // [weak self] in
+//                    NotificationCenter.default.addObserver(self, selector: #selector(self.downloadFailed), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOAD_FAILED), object: self.download)
+//                    NotificationCenter.default.addObserver(self, selector: #selector(self.downloaded), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self.download)
+//                }
+//            }
+//        }
+//    }
+//
+//    func downloadIt(completion:(()->())?)
+//    {
+//        queue.sync {
+//            FetchImage.semaphore.wait()
+//        }
+//
+//        guard retrieveIt() == nil else {
+//            completion?()
+//            return
+//        }
+//
+//        // This creates a download if one doesn't exist
+//        download = download ?? Download(downloadURL: url, fileSystemURL: url?.fileSystemURL)
+//
+//        // This sets or updates the completion to be executed upon a successful download since what happens with an image
+//        // may change even while it is being downloaded.
+//        download?.completion = completion
+//
+//        // This starts the download, but only if it isn't already downloading.
+//        download?.download(background: false)
+//    }
     
     func fetchIt() -> UIImage?
     {

@@ -46,9 +46,9 @@
 		17DEB4A1223D58BA008AF634 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 17DEB4A0223D58BA008AF634 /* GoogleService-Info.plist */; };
 		17FBFBDD1B6C62F70057D027 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */; };
 		17FFEFEB1B73673A006D8169 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FFEFEA1B73673A006D8169 /* AboutViewController.swift */; };
-		23F332C73D9CDF01C0387C06 /* Pods_TWUUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90EDCF7390F56D2B3669BB6A /* Pods_TWUUITests.framework */; };
-		67B28AA8C79D6EE6842C310F /* Pods_TWU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6AB4AA331FB693B9E76F81F /* Pods_TWU.framework */; };
-		CC3AE67A53B62FEE94323EEF /* Pods_TWUTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFCB68A7DD1685712F4DC2F1 /* Pods_TWUTests.framework */; };
+		2254D6B2FF62F2975F235A06 /* Pods_TWUUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C4DA713FF969FBAA031568 /* Pods_TWUUITests.framework */; };
+		574283B188E397BD2929CB1C /* Pods_TWU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB87D7978146D49D0460BA64 /* Pods_TWU.framework */; };
+		7724CB19DF36CDFEB5143A89 /* Pods_TWUTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 546D17A81DE9C464C1F39CC4 /* Pods_TWUTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,8 +69,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		050BCDFBA5C36C956FBB3B13 /* Pods-TWUTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUTests.release.xcconfig"; path = "Target Support Files/Pods-TWUTests/Pods-TWUTests.release.xcconfig"; sourceTree = "<group>"; };
-		16BEE4E0E37A72FCE6FE3F88 /* Pods-TWUUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWUUITests/Pods-TWUUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		0183FB0889FA6C4282CED86A /* Pods-TWU.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWU.release.xcconfig"; path = "Target Support Files/Pods-TWU/Pods-TWU.release.xcconfig"; sourceTree = "<group>"; };
+		064D00BE9D8FA4D1AC837825 /* Pods-TWUTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUTests.release.xcconfig"; path = "Target Support Files/Pods-TWUTests/Pods-TWUTests.release.xcconfig"; sourceTree = "<group>"; };
 		1705173A1B6FDD8D00144ED6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1712CD691C76B2BF005E09D6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		17141EFA1CBE660800B31D23 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -117,13 +117,13 @@
 		17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		17FDE1791C84700300516C77 /* Series.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Series.entitlements; path = TWU/Series.entitlements; sourceTree = "<group>"; };
 		17FFEFEA1B73673A006D8169 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
-		3F57FA1E1C7E1F024F25AFA5 /* Pods-TWU.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWU.debug.xcconfig"; path = "Target Support Files/Pods-TWU/Pods-TWU.debug.xcconfig"; sourceTree = "<group>"; };
-		6A7DAC3CCB3B00EBB7696419 /* Pods-TWUUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUUITests.release.xcconfig"; path = "Target Support Files/Pods-TWUUITests/Pods-TWUUITests.release.xcconfig"; sourceTree = "<group>"; };
-		8EA7B3171119029779D9EF1B /* Pods-TWUTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUTests.debug.xcconfig"; path = "Target Support Files/Pods-TWUTests/Pods-TWUTests.debug.xcconfig"; sourceTree = "<group>"; };
-		90EDCF7390F56D2B3669BB6A /* Pods_TWUUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWUUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C3F1064CAB14626FAC0F4FCD /* Pods-TWU.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWU.release.xcconfig"; path = "Target Support Files/Pods-TWU/Pods-TWU.release.xcconfig"; sourceTree = "<group>"; };
-		CFCB68A7DD1685712F4DC2F1 /* Pods_TWUTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWUTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		E6AB4AA331FB693B9E76F81F /* Pods_TWU.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWU.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		18CA5E5A0596A0CE74465BE2 /* Pods-TWUUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWUUITests/Pods-TWUUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		46291AD08AE6EB3B65DABB4F /* Pods-TWU.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWU.debug.xcconfig"; path = "Target Support Files/Pods-TWU/Pods-TWU.debug.xcconfig"; sourceTree = "<group>"; };
+		48C4DA713FF969FBAA031568 /* Pods_TWUUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWUUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		546D17A81DE9C464C1F39CC4 /* Pods_TWUTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWUTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		93DC0427B6DAEF40B25D7970 /* Pods-TWUTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUTests.debug.xcconfig"; path = "Target Support Files/Pods-TWUTests/Pods-TWUTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A97D79133BF35A33E1EC0E18 /* Pods-TWUUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWUUITests.release.xcconfig"; path = "Target Support Files/Pods-TWUUITests/Pods-TWUUITests.release.xcconfig"; sourceTree = "<group>"; };
+		AB87D7978146D49D0460BA64 /* Pods_TWU.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWU.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,7 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23F332C73D9CDF01C0387C06 /* Pods_TWUUITests.framework in Frameworks */,
+				2254D6B2FF62F2975F235A06 /* Pods_TWUUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,7 +142,7 @@
 				17B75BA91B946D9E00672A3B /* MediaPlayer.framework in Frameworks */,
 				179E49031B6D4A94008ED99D /* AudioToolbox.framework in Frameworks */,
 				17FBFBDD1B6C62F70057D027 /* AVFoundation.framework in Frameworks */,
-				67B28AA8C79D6EE6842C310F /* Pods_TWU.framework in Frameworks */,
+				574283B188E397BD2929CB1C /* Pods_TWU.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,7 +150,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC3AE67A53B62FEE94323EEF /* Pods_TWUTests.framework in Frameworks */,
+				7724CB19DF36CDFEB5143A89 /* Pods_TWUTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,7 +178,7 @@
 				17FBFBDC1B6C62F70057D027 /* AVFoundation.framework */,
 				17FDE1791C84700300516C77 /* Series.entitlements */,
 				BE99DD0B02930A66F61672F3 /* Pods */,
-				34FFC29CC21C72BCBE317B55 /* Frameworks */,
+				BB9601BE739D758E1A468E48 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -259,12 +259,12 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		34FFC29CC21C72BCBE317B55 /* Frameworks */ = {
+		BB9601BE739D758E1A468E48 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E6AB4AA331FB693B9E76F81F /* Pods_TWU.framework */,
-				CFCB68A7DD1685712F4DC2F1 /* Pods_TWUTests.framework */,
-				90EDCF7390F56D2B3669BB6A /* Pods_TWUUITests.framework */,
+				AB87D7978146D49D0460BA64 /* Pods_TWU.framework */,
+				546D17A81DE9C464C1F39CC4 /* Pods_TWUTests.framework */,
+				48C4DA713FF969FBAA031568 /* Pods_TWUUITests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -272,12 +272,12 @@
 		BE99DD0B02930A66F61672F3 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3F57FA1E1C7E1F024F25AFA5 /* Pods-TWU.debug.xcconfig */,
-				C3F1064CAB14626FAC0F4FCD /* Pods-TWU.release.xcconfig */,
-				8EA7B3171119029779D9EF1B /* Pods-TWUTests.debug.xcconfig */,
-				050BCDFBA5C36C956FBB3B13 /* Pods-TWUTests.release.xcconfig */,
-				16BEE4E0E37A72FCE6FE3F88 /* Pods-TWUUITests.debug.xcconfig */,
-				6A7DAC3CCB3B00EBB7696419 /* Pods-TWUUITests.release.xcconfig */,
+				46291AD08AE6EB3B65DABB4F /* Pods-TWU.debug.xcconfig */,
+				0183FB0889FA6C4282CED86A /* Pods-TWU.release.xcconfig */,
+				93DC0427B6DAEF40B25D7970 /* Pods-TWUTests.debug.xcconfig */,
+				064D00BE9D8FA4D1AC837825 /* Pods-TWUTests.release.xcconfig */,
+				18CA5E5A0596A0CE74465BE2 /* Pods-TWUUITests.debug.xcconfig */,
+				A97D79133BF35A33E1EC0E18 /* Pods-TWUUITests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -289,7 +289,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 176DEAC01C8330F6001EBBC4 /* Build configuration list for PBXNativeTarget "TWUUITests" */;
 			buildPhases = (
-				49B19C589DF22F0DF60080D2 /* [CP] Check Pods Manifest.lock */,
+				ABFD857808EA28479355BD47 /* [CP] Check Pods Manifest.lock */,
 				176DEAB31C8330F6001EBBC4 /* Sources */,
 				176DEAB41C8330F6001EBBC4 /* Frameworks */,
 				176DEAB51C8330F6001EBBC4 /* Resources */,
@@ -308,12 +308,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 179C4FBF1B6801D600727DE0 /* Build configuration list for PBXNativeTarget "TWU" */;
 			buildPhases = (
-				CED93A33228BA88E8B79F54C /* [CP] Check Pods Manifest.lock */,
+				1D8FC974B28F5164E87C30E3 /* [CP] Check Pods Manifest.lock */,
 				179C4F9C1B6801D600727DE0 /* Sources */,
 				179C4F9D1B6801D600727DE0 /* Frameworks */,
 				179C4F9E1B6801D600727DE0 /* Resources */,
-				4F9583F8884EB4CB4DDE553C /* [CP] Embed Pods Frameworks */,
 				17DEB4A2223D59DD008AF634 /* ShellScript */,
+				30954035756F4204980565C3 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -328,7 +328,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 179C4FC21B6801D600727DE0 /* Build configuration list for PBXNativeTarget "TWUTests" */;
 			buildPhases = (
-				23A1498C2951F80436FE46C7 /* [CP] Check Pods Manifest.lock */,
+				6645B8C3D6F9E9845BDB6224 /* [CP] Check Pods Manifest.lock */,
 				179C4FB11B6801D600727DE0 /* Sources */,
 				179C4FB21B6801D600727DE0 /* Frameworks */,
 				179C4FB31B6801D600727DE0 /* Resources */,
@@ -451,7 +451,7 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Fabric/run\"\n";
 		};
-		23A1498C2951F80436FE46C7 /* [CP] Check Pods Manifest.lock */ = {
+		1D8FC974B28F5164E87C30E3 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -466,36 +466,14 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TWUTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-TWU-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		49B19C589DF22F0DF60080D2 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TWUUITests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		4F9583F8884EB4CB4DDE553C /* [CP] Embed Pods Frameworks */ = {
+		30954035756F4204980565C3 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -525,7 +503,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TWU/Pods-TWU-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CED93A33228BA88E8B79F54C /* [CP] Check Pods Manifest.lock */ = {
+		6645B8C3D6F9E9845BDB6224 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -540,7 +518,29 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TWU-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-TWUTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		ABFD857808EA28479355BD47 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TWUUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -639,7 +639,7 @@
 /* Begin XCBuildConfiguration section */
 		176DEABE1C8330F6001EBBC4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 16BEE4E0E37A72FCE6FE3F88 /* Pods-TWUUITests.debug.xcconfig */;
+			baseConfigurationReference = 18CA5E5A0596A0CE74465BE2 /* Pods-TWUUITests.debug.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				INFOPLIST_FILE = TWUUITests/Info.plist;
@@ -655,7 +655,7 @@
 		};
 		176DEABF1C8330F6001EBBC4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6A7DAC3CCB3B00EBB7696419 /* Pods-TWUUITests.release.xcconfig */;
+			baseConfigurationReference = A97D79133BF35A33E1EC0E18 /* Pods-TWUUITests.release.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = TWUUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
@@ -777,7 +777,7 @@
 		};
 		179C4FC01B6801D600727DE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3F57FA1E1C7E1F024F25AFA5 /* Pods-TWU.debug.xcconfig */;
+			baseConfigurationReference = 46291AD08AE6EB3B65DABB4F /* Pods-TWU.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -804,7 +804,7 @@
 		};
 		179C4FC11B6801D600727DE0 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C3F1064CAB14626FAC0F4FCD /* Pods-TWU.release.xcconfig */;
+			baseConfigurationReference = 0183FB0889FA6C4282CED86A /* Pods-TWU.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -831,7 +831,7 @@
 		};
 		179C4FC31B6801D600727DE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8EA7B3171119029779D9EF1B /* Pods-TWUTests.debug.xcconfig */;
+			baseConfigurationReference = 93DC0427B6DAEF40B25D7970 /* Pods-TWUTests.debug.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = 35U7HMB59T;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -854,7 +854,7 @@
 		};
 		179C4FC41B6801D600727DE0 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 050BCDFBA5C36C956FBB3B13 /* Pods-TWUTests.release.xcconfig */;
+			baseConfigurationReference = 064D00BE9D8FA4D1AC837825 /* Pods-TWUTests.release.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = 35U7HMB59T;
 				FRAMEWORK_SEARCH_PATHS = (

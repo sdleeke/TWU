@@ -1130,7 +1130,7 @@ class MediaViewController : UIViewController
             seriesArtSpinner.startAnimating()
 
             operationQueue.addOperation {
-                seriesSelected.coverArt?.block { (image:UIImage?) in
+                seriesSelected.coverArt?.load(success:{ [weak self] (image:UIImage) in
                     Thread.onMain { [weak self] in
                         if self?.seriesSelected == seriesSelected {
                             self?.seriesArtSpinner.stopAnimating()
@@ -1139,8 +1139,16 @@ class MediaViewController : UIViewController
                             self?.setupPageControl()
                         }
                     }
-                }
-
+                }, failure: { [weak self] in
+                    Thread.onMain { [weak self] in
+                        if self?.seriesSelected == seriesSelected {
+                            self?.seriesArtSpinner.stopAnimating()
+                            self?.seriesArtSpinner.isHidden = true
+                            self?.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+                            self?.setupPageControl()
+                        }
+                    }
+                })
             }
 //        }
 

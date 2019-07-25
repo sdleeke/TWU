@@ -530,22 +530,22 @@ class MediaCollectionViewController: UIViewController
                 return
             }
 
-            Globals.shared.series.all = seriesDicts.filter({ (seriesDict:[String:Any]) -> Bool in
-                if let programs = seriesDict["programs"] as? [[String:Any]] {
-                    return programs.count > 0
-                } else {
-                    return false
-                }
-            }).map({ (seriesDict:[String:Any]) -> Series in
+            let upgradedImages = UserDefaults.standard.bool(forKey: "UPGRADED IMAGES")
+            
+            Globals.shared.series.all = seriesDicts.compactMap({ (seriesDict:[String:Any]) -> Series? in
+//                guard let programs = seriesDict["programs"] as? [[String:Any]], programs.count > 0 else {
+//                    return nil
+//                }
+
                 let series = Series(seriesDict: seriesDict)
                 
-                if !UserDefaults.standard.bool(forKey: "UPGRADED IMAGES") {
+                if !upgradedImages {
                     series.coverArt?.fileSystemURL?.delete()
                 }
-
+                
 //                series.coverArt?.fill()
                 
-                return series
+                return series.sermons?.count > 0 ? series : nil
 //                return Series(seriesDict: seriesDict)
             })
 

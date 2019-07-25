@@ -90,13 +90,13 @@ class MediaCollectionViewCell: UICollectionViewCell
                     return
                 }
 
-                if self.series == series {
-                    Thread.onMain { [weak self] in
+                Thread.onMain { [weak self] in
+                    if self?.series == series {
                         self?.activityIndicator.stopAnimating()
                         self?.seriesArt.image = image
+                    } else {
+                        //                self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                     }
-                } else {
-                    //                self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                 }
 //            }
         }
