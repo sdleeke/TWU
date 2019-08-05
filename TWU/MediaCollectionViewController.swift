@@ -42,6 +42,15 @@ extension MediaCollectionViewController : UICollectionViewDataSource
         //return series[section].count
         return Globals.shared.series.active?.count ?? 0
     }
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath)
+    {
+        if let cell = cell as? MediaCollectionViewCell {
+            // Configure the cell
+            
+            cell.series = Globals.shared.series.active?[indexPath.item]
+        }
+    }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
@@ -738,11 +747,11 @@ class MediaCollectionViewController: UIViewController
         
         collectionView?.allowsSelection = true
 
-        if #available(iOS 10.0, *) {
-            collectionView?.isPrefetchingEnabled = false
-        } else {
-            // Fallback on earlier versions
-        }
+//        if #available(iOS 10.0, *) {
+//            collectionView?.isPrefetchingEnabled = false
+//        } else {
+//            // Fallback on earlier versions
+//        }
         
         setupSortingAndGroupingOptions()
     }

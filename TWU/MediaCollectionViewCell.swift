@@ -103,7 +103,7 @@ class MediaCollectionViewCell: UICollectionViewCell
                         if self?.series == series {
 //                            self?.activityIndicator.stopAnimating()
                             // .replacingOccurrences(of: "square", with: "").replacingOccurrences(of: "_Md", with: "_md")
-                            self?.setImage(series.coverArt?.url?.absoluteString.replacingOccurrences(of: "-square", with: "_square").url?.image ?? UIImage(named: "twu_logo_circle_r"))
+                            self?.setImage(series.coverArt?.url?.image ?? UIImage(named: "twu_logo_circle_r"))
 //                            self?.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                         } else {
 

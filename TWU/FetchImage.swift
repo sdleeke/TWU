@@ -169,7 +169,7 @@ class FetchImage : Fetch<UIImage>, Size
     
     func fetchIt() -> UIImage?
     {
-        return self.url?.image
+        return self.url?.image ?? url?.absoluteString.replacingOccurrences(of: "-square", with: "_square").url?.image
     }
     
     func retrieveIt() -> UIImage?
