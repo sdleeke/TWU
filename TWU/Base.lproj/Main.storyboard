@@ -231,7 +231,7 @@
                                 </connections>
                             </tableView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="twu_logo_circle_r" translatesAutoresizingMaskIntoConstraints="NO" id="PgQ-UT-9Es">
-                                <rect key="frame" x="0.0" y="128" width="768" height="768"/>
+                                <rect key="frame" x="0.0" y="163" width="768" height="768"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="PgQ-UT-9Es" secondAttribute="height" multiplier="1:1" id="uMs-y1-g9c"/>
                                 </constraints>
@@ -267,7 +267,7 @@
                             <constraint firstItem="5R1-KV-Xbw" firstAttribute="centerX" secondItem="sSN-Ac-J4R" secondAttribute="centerX" id="jP4-wV-z2s"/>
                             <constraint firstItem="vgK-rU-B9W" firstAttribute="leading" secondItem="sSN-Ac-J4R" secondAttribute="leading" id="m8p-hK-jXJ"/>
                             <constraint firstItem="PgQ-UT-9Es" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="bcs-EG-Ujg" secondAttribute="leading" symbolic="YES" id="oGi-oo-7C4"/>
-                            <constraint firstAttribute="centerY" secondItem="PgQ-UT-9Es" secondAttribute="centerY" id="pc6-7t-aod"/>
+                            <constraint firstItem="bcs-EG-Ujg" firstAttribute="centerY" secondItem="PgQ-UT-9Es" secondAttribute="centerY" id="pc6-7t-aod"/>
                             <constraint firstItem="91J-fh-SJo" firstAttribute="leading" secondItem="bcs-EG-Ujg" secondAttribute="leading" id="wn1-va-00m"/>
                             <constraint firstItem="VOy-VZ-8Yx" firstAttribute="bottom" secondItem="91J-fh-SJo" secondAttribute="top" id="xJ9-au-oyE"/>
                             <constraint firstItem="sSN-Ac-J4R" firstAttribute="top" secondItem="VOy-VZ-8Yx" secondAttribute="bottom" id="yxz-9L-Klu"/>
@@ -307,6 +307,7 @@
                     <connections>
                         <outlet property="controlView" destination="VOy-VZ-8Yx" id="bNa-Al-ORN"/>
                         <outlet property="elapsed" destination="5fj-n9-FSw" id="yDC-RG-Sbt"/>
+                        <outlet property="layoutAspectRatio" destination="Cer-hh-zmi" id="Sle-tR-288"/>
                         <outlet property="logo" destination="PgQ-UT-9Es" id="Htt-fO-vYX"/>
                         <outlet property="pageControl" destination="vgK-rU-B9W" id="bGt-CG-Mxf"/>
                         <outlet property="playPauseButton" destination="BBU-FH-IlP" id="vma-ly-sEW"/>
@@ -364,8 +365,11 @@
                                             <rect key="frame" x="0.0" y="0.0" width="150" height="150"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="phX-10-9g0">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="phX-10-9g0">
                                                     <rect key="frame" x="0.0" y="0.0" width="150" height="150"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" secondItem="phX-10-9g0" secondAttribute="height" multiplier="1:1" id="8aa-E0-Qzh"/>
+                                                    </constraints>
                                                 </imageView>
                                                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="AlJ-gX-UzJ">
                                                     <rect key="frame" x="65" y="65" width="20" height="20"/>
@@ -373,15 +377,18 @@
                                             </subviews>
                                         </view>
                                         <constraints>
-                                            <constraint firstItem="phX-10-9g0" firstAttribute="top" secondItem="1HB-mT-rHm" secondAttribute="top" id="1LH-qK-dpA"/>
-                                            <constraint firstAttribute="trailing" secondItem="phX-10-9g0" secondAttribute="trailing" id="871-6m-RsK"/>
-                                            <constraint firstItem="phX-10-9g0" firstAttribute="leading" secondItem="1HB-mT-rHm" secondAttribute="leading" id="KiT-9u-uMR"/>
+                                            <constraint firstItem="phX-10-9g0" firstAttribute="top" relation="greaterThanOrEqual" secondItem="1HB-mT-rHm" secondAttribute="top" id="1LH-qK-dpA"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="phX-10-9g0" secondAttribute="trailing" id="871-6m-RsK"/>
+                                            <constraint firstItem="phX-10-9g0" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="1HB-mT-rHm" secondAttribute="leading" id="KiT-9u-uMR"/>
+                                            <constraint firstItem="phX-10-9g0" firstAttribute="centerY" secondItem="1HB-mT-rHm" secondAttribute="centerY" id="Mxk-P4-WjR"/>
                                             <constraint firstItem="AlJ-gX-UzJ" firstAttribute="centerY" secondItem="phX-10-9g0" secondAttribute="centerY" id="REQ-ev-pmN"/>
                                             <constraint firstItem="AlJ-gX-UzJ" firstAttribute="centerX" secondItem="phX-10-9g0" secondAttribute="centerX" id="XZz-VI-6Be"/>
-                                            <constraint firstAttribute="bottom" secondItem="phX-10-9g0" secondAttribute="bottom" id="hhs-v1-2ax"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="phX-10-9g0" secondAttribute="bottom" id="hhs-v1-2ax"/>
+                                            <constraint firstItem="phX-10-9g0" firstAttribute="centerX" secondItem="1HB-mT-rHm" secondAttribute="centerX" id="kSK-B6-lSU"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="activityIndicator" destination="AlJ-gX-UzJ" id="0Fg-3D-MDY"/>
+                                            <outlet property="layoutAspectRatio" destination="8aa-E0-Qzh" id="Y2g-6X-rau"/>
                                             <outlet property="seriesArt" destination="phX-10-9g0" id="D0g-NM-jox"/>
                                             <segue destination="gqT-2X-T22" kind="showDetail" identifier="Show Series" id="3pi-rW-NgA"/>
                                         </connections>
@@ -412,7 +419,7 @@
                             <constraint firstItem="qy2-cA-Fzp" firstAttribute="leading" secondItem="V2P-QQ-5ib" secondAttribute="leading" id="QdT-by-0Ha"/>
                             <constraint firstItem="cPd-rx-Afc" firstAttribute="top" relation="greaterThanOrEqual" secondItem="V2P-QQ-5ib" secondAttribute="top" symbolic="YES" id="RRD-BK-3UG"/>
                             <constraint firstItem="cPd-rx-Afc" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="V2P-QQ-5ib" secondAttribute="leading" symbolic="YES" id="Ur3-aQ-Msn"/>
-                            <constraint firstItem="cPd-rx-Afc" firstAttribute="centerY" secondItem="5uS-tj-ONq" secondAttribute="centerY" id="XQ2-Dw-LHl"/>
+                            <constraint firstItem="cPd-rx-Afc" firstAttribute="centerY" secondItem="V2P-QQ-5ib" secondAttribute="centerY" id="XQ2-Dw-LHl"/>
                             <constraint firstItem="V2P-QQ-5ib" firstAttribute="trailing" secondItem="qy2-cA-Fzp" secondAttribute="trailing" id="Z48-Md-jlj"/>
                             <constraint firstItem="ONE-2O-kkH" firstAttribute="centerY" secondItem="5uS-tj-ONq" secondAttribute="centerY" id="bYx-dR-yhk"/>
                             <constraint firstItem="d2e-nZ-hDc" firstAttribute="top" secondItem="V2P-QQ-5ib" secondAttribute="top" id="k6x-BF-rqD"/>

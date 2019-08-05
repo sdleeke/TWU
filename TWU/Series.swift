@@ -352,6 +352,31 @@ class Series : NSObject
             return title?.withoutPrefixes.lowercased()
         }
     }
+    
+    func coverArtSize(size:String, aspectRatio:String) -> String?
+    {
+        guard let imageURL = Globals.shared.series.meta.imageURL else {
+            return nil
+        }
+        
+        guard let imageTransformDir = Globals.shared.series.meta.imageTransformDir else {
+            return nil
+        }
+        
+        guard let imageDir = imageTransformDir[aspectRatio + size] else {
+            return nil
+        }
+        
+        guard let imageName = name else {
+            return nil
+        }
+        
+        guard let suffix = Globals.shared.series.meta.imageSuffix?[aspectRatio] else {
+            return nil
+        }
+        
+        return imageURL + imageDir + imageName + suffix
+    }
 
     var coverArtURL : URL?
     {
@@ -364,29 +389,7 @@ class Series : NSObject
 //                return nil
 //            }
             
-            guard let imageURL = Globals.shared.series.meta.imageURL else {
-                return nil
-            }
-            
-            guard let imageTransformDir = Globals.shared.series.meta.imageTransformDir else {
-                return nil
-            }
-            
-            guard let imageDir = imageTransformDir["1x1md"] else {
-                return nil
-            }
-            
-            guard let imageName = name else {
-                return nil
-            }
-            
-            guard let squareSuffix = Globals.shared.series.meta.squareSuffix else {
-                return nil
-            }
-            
-            let coverArtURL = imageURL + imageDir + imageName + squareSuffix
-            
-            return coverArtURL.url
+            return coverArtSize(size:"md",aspectRatio:"1x1")?.url
         }
     }
 

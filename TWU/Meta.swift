@@ -35,20 +35,25 @@ struct Meta
     {
         return storage["image"] as? String
     }
-    
-    var squareSuffix : String?
-    {
-        return (storage["imageSuffix"] as? [String:String])?["1x1"]
-    }
-    
+
     var imageTransformDir : [String:String]?
     {
         return storage["imageTransformDir"] as? [String:String]
     }
     
-    var wideSuffix : String?
+    var imageSuffix : [String:String]?
     {
-        return (storage["imageSuffix"] as? [String:String])?["16x9"]
+        return storage["imageSuffix"] as? [String:String]
     }
+//    
+//    var squareSuffix : String?
+//    {
+//        return imageSuffix?["1x1"]
+//    }
+//
+//    var wideSuffix : String?
+//    {
+//        return imageSuffix?["16x9"]
+//    }
 }
 

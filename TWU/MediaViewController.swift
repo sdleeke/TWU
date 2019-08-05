@@ -390,6 +390,7 @@ class MediaViewController : UIViewController
         }
     }
     
+    @IBOutlet weak var layoutAspectRatio: NSLayoutConstraint!
     @IBOutlet weak var logo: UIImageView!
     @IBOutlet weak var spinner: UIActivityIndicatorView!
     
@@ -1026,6 +1027,24 @@ class MediaViewController : UIViewController
         }
     }
     
+    func setImage(_ image:UIImage?)
+    {
+        guard let image = image else {
+            return
+        }
+        
+        Thread.onMain { [weak self] in
+            let ratio = image.size.width / image.size.height
+            
+            self?.layoutAspectRatio = self?.layoutAspectRatio.setMultiplier(multiplier: ratio)
+
+            self?.seriesArt.image = image
+            
+            self?.spinner.isHidden = true
+            self?.spinner.stopAnimating()
+        }
+    }
+    
     fileprivate func setupArtAndDescription()
     {
         guard Thread.isMainThread else {
@@ -1135,7 +1154,8 @@ class MediaViewController : UIViewController
                         if self?.seriesSelected == seriesSelected {
                             self?.seriesArtSpinner.stopAnimating()
                             self?.seriesArtSpinner.isHidden = true
-                            self?.seriesArt.image = image
+                            self?.setImage(image)
+//                            self?.seriesArt.image = image
                             self?.setupPageControl()
                         }
                     }
@@ -1144,7 +1164,9 @@ class MediaViewController : UIViewController
                         if self?.seriesSelected == seriesSelected {
                             self?.seriesArtSpinner.stopAnimating()
                             self?.seriesArtSpinner.isHidden = true
-                            self?.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+                            // .replacingOccurrences(of: "square", with: "").replacingOccurrences(of: "_Md", with: "_md")
+                            self?.setImage(seriesSelected.coverArt?.url?.absoluteString.replacingOccurrences(of: "-square", with: "_square").url?.image ?? UIImage(named: "twu_logo_circle_r"))
+//                            self?.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                             self?.setupPageControl()
                         }
                     }

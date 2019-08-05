@@ -42,6 +42,26 @@ class MediaCollectionViewCell: UICollectionViewCell
         debug(self)
     }
     
+    @IBOutlet weak var layoutAspectRatio: NSLayoutConstraint!
+    
+    func setImage(_ image:UIImage?)
+    {
+        guard let image = image else {
+            return
+        }
+        
+        Thread.onMain { [weak self] in
+            let ratio = image.size.width / image.size.height
+            
+            self?.layoutAspectRatio = self?.layoutAspectRatio.setMultiplier(multiplier: ratio)
+
+            self?.seriesArt.image = image
+
+            self?.activityIndicator.isHidden = true
+            self?.activityIndicator.stopAnimating()
+        }
+    }
+
     fileprivate func updateUI()
     {
         //        print("MediaCollectionViewCell.operationQueue.operationCount: ",MediaCollectionViewCell.operationQueue.operationCount)
@@ -81,8 +101,10 @@ class MediaCollectionViewCell: UICollectionViewCell
                 guard let image = series.coverArt?.image else {
                     Thread.onMain { [weak self] in
                         if self?.series == series {
-                            self?.activityIndicator.stopAnimating()
-                            self?.seriesArt.image = UIImage(named: "twu_logo_circle_r")
+//                            self?.activityIndicator.stopAnimating()
+                            // .replacingOccurrences(of: "square", with: "").replacingOccurrences(of: "_Md", with: "_md")
+                            self?.setImage(series.coverArt?.url?.absoluteString.replacingOccurrences(of: "-square", with: "_square").url?.image ?? UIImage(named: "twu_logo_circle_r"))
+//                            self?.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                         } else {
 
                         }
@@ -92,8 +114,9 @@ class MediaCollectionViewCell: UICollectionViewCell
 
                 Thread.onMain { [weak self] in
                     if self?.series == series {
-                        self?.activityIndicator.stopAnimating()
-                        self?.seriesArt.image = image
+//                        self?.activityIndicator.stopAnimating()
+                        self?.setImage(image)
+//                        self?.seriesArt.image = image
                     } else {
                         //                self.seriesArt.image = UIImage(named: "twu_logo_circle_r")
                     }
