@@ -191,8 +191,12 @@ class FetchImage : Fetch<UIImage>, Size
             return
         }
         
+        guard let data = image.jpegData(compressionQuality: 1.0), !data.isEmpty else {
+            return
+        }
+        
         do {
-            try image.jpegData(compressionQuality: 1.0)?.write(to: fileSystemURL, options: [.atomic])
+            try data.write(to: fileSystemURL, options: [.atomic])
             print("Image \(fileSystemURL.lastPathComponent) saved to file system")
             fileSize = fileSystemURL.fileSize ?? 0
         } catch let error {
