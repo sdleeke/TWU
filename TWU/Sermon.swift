@@ -253,7 +253,13 @@ class Sermon : NSObject
         return SermonSettings(sermon:self)
     }()
     
-    var downloads = [String:Download]()
+//    lazy var downloads:[String:Download] = {
+//        var downloads = [String:Download]()
+//        
+//        downloads[Constants.AUDIO] = audioDownload
+//        
+//        return downloads
+//    }()
     
     lazy var audioDownload:Download? = { [weak self] in
         guard let download = Download(sermon:self,purpose:Constants.AUDIO,downloadURL:self?.audioURL,fileSystemURL:self?.audioFileSystemURL) else {
@@ -263,7 +269,8 @@ class Sermon : NSObject
         // didSets will NOT happen in an init but they WILL happen here so DO NOT set properties unless you are sure
         // no bad behavior will result from the didSets.
         
-        self?.downloads[Constants.AUDIO] = download
+        // Need to do this in downloads or here, do it there.
+//        self?.downloads[Constants.AUDIO] = download
         
         return download
     }()

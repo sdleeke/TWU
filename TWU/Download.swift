@@ -333,16 +333,17 @@ class Download : NSObject, Size
         }
         
         super.init()
-        
+
+        // Must come before sermon to avoid recurrent calls
+        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
+            self.state = .downloaded // triggers didSet if sermon != nil
+        }
+
         self.sermon = sermon
         self.purpose = purpose
         
         self.downloadURL = downloadURL
         self.fileSystemURL = fileSystemURL
-        
-        if FileManager.default.fileExists(atPath: fileSystemURL.path) {
-            self.state = .downloaded
-        }
     }
     
     weak var sermon:Sermon?
@@ -375,21 +376,6 @@ class Download : NSObject, Size
         }
     }
     
-    var state:State
-    {
-        get {
-            if _state == .downloaded {
-                if downloadURL?.exists != true {
-                    _state = .none
-                }
-            }
-            return _state
-        }
-        set {
-            _state = newValue
-        }
-    }
-    
     var _state:State = .none
     {
         willSet {
@@ -405,12 +391,32 @@ class Download : NSObject, Size
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self?.sermon)
                 }
             }
-            
-            if state == .downloaded {
-                Thread.onMain { [weak self] in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self)
+
+//            if state == .downloaded {
+//                if self.sermon != nil {
+//                    Thread.onMain { [weak self] in
+//                        NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SERMON_UPDATE_UI), object: self?.sermon)
+//                    }
+//                }
+//                // Not used any more
+////                Thread.onMain { [weak self] in
+////                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_DOWNLOADED), object: self)
+////                }
+//            }
+        }
+    }
+    var state:State
+    {
+        get {
+            if _state == .downloaded {
+                if downloadURL?.exists == false {
+                    _state = .none
                 }
             }
+            return _state
+        }
+        set {
+            _state = newValue
         }
     }
     
