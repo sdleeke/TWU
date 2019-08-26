@@ -107,7 +107,7 @@ class JSON
             return filename?.fileSystemURL?.data?.json
         }
         
-        guard let data = urlString?.url?.data else {
+        guard let data = urlString?.url?.data, !data.isEmpty else {
             return filename?.fileSystemURL?.data?.json
         }
         

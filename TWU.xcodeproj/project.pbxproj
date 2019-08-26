@@ -783,7 +783,7 @@
 				DEVELOPMENT_TEAM = 35U7HMB59T;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TWU/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = org.countrysidebible.TWU;
@@ -810,7 +810,7 @@
 				DEVELOPMENT_TEAM = 35U7HMB59T;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TWU/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = org.countrysidebible.TWU;

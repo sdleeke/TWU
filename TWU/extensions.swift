@@ -277,6 +277,31 @@ extension String
 
 extension UIApplication
 {
+    func open(scheme: String?,cannotOpen:(()->(Void))?)
+    {
+        guard let scheme = scheme else {
+            return
+        }
+        
+        guard let url = URL(string: scheme) else {
+            return
+        }
+        
+        guard self.canOpenURL(url) else { // Reachability.isConnectedToNetwork() &&
+            cannotOpen?()
+            return
+        }
+        
+        if #available(iOS 10, *) {
+            self.open(url, options: [:], completionHandler: { (success) in
+                print("Open \(scheme): \(success)")
+            })
+        } else {
+            let success = UIApplication.shared.openURL(url)
+            print("Open \(scheme): \(success)")
+        }
+    }
+    
     func isRunningInFullScreen() -> Bool
     {
         if let w = self.keyWindow

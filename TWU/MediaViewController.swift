@@ -244,12 +244,15 @@ extension MediaViewController : UITableViewDataSource
 class MediaViewController : UIViewController
 {
     deinit {
+        observer?.invalidate()
         debug(self)
     }
     
-    var observerActive = false
-    var observedItem:AVPlayerItem?
+//    var observerActive = false
+//    var observedItem:AVPlayerItem?
 
+    var observer: NSKeyValueObservation?
+    
     private var PlayerContext = 0
     
     @IBOutlet weak var seriesArtSpinner: UIActivityIndicatorView!
@@ -270,74 +273,108 @@ class MediaViewController : UIViewController
         flip(self)
     }
     
-    override func observeValue(forKeyPath keyPath: String?,
-                               of object: Any?,
-                               change: [NSKeyValueChangeKey : Any]?,
-                               context: UnsafeMutableRawPointer?) {
-        // Only handle observations for the playerItemContext
-//        guard context == &PlayerContext else {
-//            super.observeValue(forKeyPath: keyPath,
-//                               of: object,
-//                               change: change,
-//                               context: nil)
-//            return
+//    override func observeValue(forKeyPath keyPath: String?,
+//                               of object: Any?,
+//                               change: [NSKeyValueChangeKey : Any]?,
+//                               context: UnsafeMutableRawPointer?) {
+//        // Only handle observations for the playerItemContext
+////        guard context == &PlayerContext else {
+////            super.observeValue(forKeyPath: keyPath,
+////                               of: object,
+////                               change: change,
+////                               context: nil)
+////            return
+////        }
+//
+//        if keyPath == #keyPath(AVPlayerItem.status) {
+//            guard (context == &PlayerContext) else {
+//                super.observeValue(forKeyPath: keyPath,
+//                                   of: object,
+//                                   change: change,
+//                                   context: context)
+//                return
+//            }
+//
+//            setupSliderAndTimes()
 //        }
-
-        if keyPath == #keyPath(AVPlayerItem.status) {
-            guard (context == &PlayerContext) else {
-                super.observeValue(forKeyPath: keyPath,
-                                   of: object,
-                                   change: change,
-                                   context: context)
-                return
-            }
-            
-            setupSliderAndTimes()
-        }
-    }
+//    }
 
     var player:AVPlayer?
 
-    func removePlayerObserver()
-    {
-        // observerActive and this function would not be needed if we cache as we would assume EVERY AVPlayer in the cache has an observer => must remove them prior to dealloc.
-        
-        if observerActive {
-            if observedItem != player?.currentItem {
-                print("observedItem != player?.currentItem")
-            }
-            if observedItem != nil {
-                print("MVC removeObserver: ",player?.currentItem?.observationInfo as Any)
-                
-                observedItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: &PlayerContext)
-                observedItem = nil
-                observerActive = false
-            } else {
-                print("observedItem == nil!")
-            }
-        }
-    }
+//    func removePlayerObserver()
+//    {
+//        // observerActive and this function would not be needed if we cache as we would assume EVERY AVPlayer in the cache has an observer => must remove them prior to dealloc.
+//
+//        if observerActive {
+//            if observedItem != player?.currentItem {
+//                print("observedItem != player?.currentItem")
+//            }
+//            if observedItem != nil {
+//                print("MVC removeObserver: ",player?.currentItem?.observationInfo as Any)
+//
+//                observedItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: &PlayerContext)
+//                observedItem = nil
+//                observerActive = false
+//            } else {
+//                print("observedItem == nil!")
+//            }
+//        }
+//    }
     
-    func addPlayerObserver()
-    {
-        player?.currentItem?.addObserver(self,
-                                         forKeyPath: #keyPath(AVPlayerItem.status),
-                                         options: [.old, .new],
-                                         context: &PlayerContext)
-        observerActive = true
-        observedItem = player?.currentItem
-    }
+//    func addPlayerObserver()
+//    {
+//        player?.currentItem?.addObserver(self,
+//                                         forKeyPath: #keyPath(AVPlayerItem.status),
+//                                         options: [.old, .new],
+//                                         context: &PlayerContext)
+//        observerActive = true
+//        observedItem = player?.currentItem
+//    }
     
     func playerURL(url: URL?)
     {
-        removePlayerObserver()
+//        removePlayerObserver()
         
         guard let url = url else {
             return
         }
         
+        observer?.invalidate()
+
         player = AVPlayer(url: url)
-        addPlayerObserver()
+        
+        observer = player?.currentItem?.observe(\.status, options: [.new]) { [weak self] (currentItem, change) in
+            self?.observer?.invalidate()
+            
+            //            let status: AVPlayerItem.Status
+            //
+            //            guard change.newValue != nil else {
+            //                return
+            //            }
+            //
+            //            status = change.newValue!
+            
+            switch currentItem.status {
+            case .readyToPlay:
+                // Player item is ready to play.
+                break
+                
+            case .failed:
+                // Player item failed. See error.
+                break
+                
+            case .unknown:
+                // Player item is not yet ready.
+                break
+                
+            @unknown default:
+                break
+            }
+            
+            self?.setupSliderAndTimes()
+        }
+        
+//        addPlayerObserver()
     }
     
     var sliderTimer: Timer?
@@ -381,7 +418,8 @@ class MediaViewController : UIViewController
                     playerURL(url: playingURL)
                 }
             } else {
-                removePlayerObserver()
+//                removePlayerObserver()
+                observer?.invalidate()
             }
             
             Thread.onMain { [weak self] in
@@ -723,9 +761,9 @@ class MediaViewController : UIViewController
     {
         if let url = series?.url {
             if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.openURL(url)
-            } else {
-                self.alert(title: "Network Error", message: "Unable to open url: \(url)")
+                UIApplication.shared.open(scheme: url.absoluteString) {
+                    self.alert(title: "Network Error", message: "Unable to open url: \(url)")
+                }
             }
         }
     }
@@ -734,9 +772,9 @@ class MediaViewController : UIViewController
     {
         if let url = sermon?.url {
             if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.openURL(url)
-            } else {
-                self.alert(title: "Network Error", message: "Unable to open url: \(url)")
+                UIApplication.shared.open(scheme: url.absoluteString) {
+                    self.alert(title: "Network Error", message: "Unable to open url: \(url)")
+                }
             }
         }
     }
@@ -749,7 +787,9 @@ class MediaViewController : UIViewController
         }
         
         if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.openURL(url)
+            UIApplication.shared.open(scheme: url.absoluteString) {
+                self.alert(title: "Network Error", message: "Unable to open url: \(url)")
+            }
         } else {
             openSermonOnWeb(sermon)
         }
@@ -767,56 +807,56 @@ class MediaViewController : UIViewController
         
         if let url = URL(string:urlString) {
             if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.openURL(url)
-            } else {
-                self.networkUnavailable(message: "Unable to open url: \(url)")
+                UIApplication.shared.open(scheme: url.absoluteString) {
+                    self.alert(title: "Network Error", message: "Unable to open url: \(url)")
+                }
             }
         }
     }
     
-    func twitter()
-    {
-        if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeTwitter){
-            var bodyString = String()
-            
-            bodyString = "Great sermon series: \"\(seriesSelected?.title ?? "TITLE")\" by \(Constants.Tom_Pennington).  "
-                
-            if let url = seriesSelected?.url {
-                bodyString = bodyString + url.absoluteString
-            }
-            
-            let twitterSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
-            twitterSheet.setInitialText(bodyString)
-            self.present(twitterSheet, animated: true, completion: nil)
-        } else {
-            let alert = UIAlertController(title: "Accounts", message: "Please login to a Twitter account to share.", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
+//    func twitter()
+//    {
+//        if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeTwitter){
+//            var bodyString = String()
+//
+//            bodyString = "Great sermon series: \"\(seriesSelected?.title ?? "TITLE")\" by \(Constants.Tom_Pennington).  "
+//
+//            if let url = seriesSelected?.url {
+//                bodyString = bodyString + url.absoluteString
+//            }
+//
+//            let twitterSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
+//            twitterSheet.setInitialText(bodyString)
+//            self.present(twitterSheet, animated: true, completion: nil)
+//        } else {
+//            let alert = UIAlertController(title: "Accounts", message: "Please login to a Twitter account to share.", preferredStyle: UIAlertController.Style.alert)
+//            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.default, handler: nil))
+//            self.present(alert, animated: true, completion: nil)
+//        }
+//    }
     
-    func facebook()
-    {
-        if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeFacebook){
-            var bodyString = String()
-            
-            if let title = seriesSelected?.title, let url = seriesSelected?.url {
-                bodyString = "Great sermon series: \"\(title)\" by \(Constants.Tom_Pennington).  " + url.absoluteString
-            }
-            
-            //So the user can paste the initialText into the post dialog/view
-            //This is because of the known bug that when the latest FB app is installed it prevents prefilling the post.
-            UIPasteboard.general.string = bodyString
-            
-            let facebookSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
-            facebookSheet.setInitialText(bodyString)
-            self.present(facebookSheet, animated: true, completion: nil)
-        } else {
-            let alert = UIAlertController(title: "Accounts", message: "Please login to a Facebook account to share.", preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
+//    func facebook()
+//    {
+//        if SLComposeViewController.isAvailable(forServiceType: SLServiceTypeFacebook){
+//            var bodyString = String()
+//
+//            if let title = seriesSelected?.title, let url = seriesSelected?.url {
+//                bodyString = "Great sermon series: \"\(title)\" by \(Constants.Tom_Pennington).  " + url.absoluteString
+//            }
+//
+//            //So the user can paste the initialText into the post dialog/view
+//            //This is because of the known bug that when the latest FB app is installed it prevents prefilling the post.
+//            UIPasteboard.general.string = bodyString
+//
+//            let facebookSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
+//            facebookSheet.setInitialText(bodyString)
+//            self.present(facebookSheet, animated: true, completion: nil)
+//        } else {
+//            let alert = UIAlertController(title: "Accounts", message: "Please login to a Facebook account to share.", preferredStyle: UIAlertController.Style.alert)
+//            alert.addAction(UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.default, handler: nil))
+//            self.present(alert, animated: true, completion: nil)
+//        }
+//    }
 
     @objc func actions()
     {
@@ -1534,7 +1574,8 @@ class MediaViewController : UIViewController
         super.viewWillDisappear(animated)
         
         removeSliderTimer()
-        removePlayerObserver()
+//        removePlayerObserver()
+        observer?.invalidate()
         
         NotificationCenter.default.removeObserver(self)
         
@@ -1986,7 +2027,7 @@ class MediaViewController : UIViewController
     {
         //This guarantees a fresh start.
         Globals.shared.mediaPlayer.playOnLoad = true
-        Globals.shared.mediaPlayer.reload(sermon)
+        Globals.shared.mediaPlayer.reload(sermon?.url)
         addSliderTimer()
         setupPlayPauseButton()
     }

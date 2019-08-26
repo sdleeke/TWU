@@ -117,11 +117,11 @@ extension MediaCollectionViewController : UICollectionViewDelegateFlowLayout
         
         // These get the gap right between the icons.
         
-        if minMeasure == view.bounds.height {
+        if minMeasure == bounds.height { // view.
             size = min(minSize,maxSize)
         }
         
-        if minMeasure == view.bounds.width {
+        if minMeasure == bounds.width { // view.
             size = max(minSize,maxSize)
         }
         

@@ -75,8 +75,76 @@ class Globals //: NSObject
     
     var settings = Settings()
     
-    var mediaPlayer = MediaPlayer()
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TRIED TO DO THIS W/IN MediaPlayer class and could not get it to work.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    func addNotifications()
+    {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleInterruption(_:)),
+                                               name: AVAudioSession.interruptionNotification,
+                                               object: nil)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleReset(_:)),
+                                               name: AVAudioSession.mediaServicesWereResetNotification,
+                                               object: nil)
+    }
     
+    @objc func handleReset(_ notification: Notification)
+    {
+        mediaPlayer.reload()
+    }
+    
+    @objc func handleInterruption(_ notification:Notification)
+    {
+        guard let userInfo = notification.userInfo,
+            let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+            let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+                return
+        }
+        
+        switch type {
+        case .began:
+            // Interruption began, take appropriate actions
+            mediaPlayer.pause()
+            break
+            
+        case .ended:
+            if let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt {
+                let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+                if options.contains(.shouldResume) {
+                    // Interruption Ended - playback should resume
+                    mediaPlayer.play()
+                } else {
+                    // Interruption Ended - playback should NOT resume
+                }
+            }
+            break
+            
+        @unknown default:
+            break
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    var mediaPlayerInit = true
+    lazy var mediaPlayer:MediaPlayer! = {
+        let player = MediaPlayer()
+        
+        addNotifications()
+        
+//        if let playing = media.category.playing, !playing.isEmpty {
+//            // This ONLY works if media.repository.index is loaded before this is instantiated.
+//            player.mediaItem = media.repository.index[playing]
+//        } else {
+//            player.mediaItem = nil
+//        }
+        
+        mediaPlayerInit = false
+        return player
+    }()
+
     lazy var series:Media! = {
         let series = Media()
 
