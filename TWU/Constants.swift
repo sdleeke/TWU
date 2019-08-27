@@ -325,8 +325,8 @@ enum Constants {
     static let Selected_Scriptures = "Selected Scriptures"
     static let Open_Scripture = "Open Scripture"
     
-    static let Open_Series = "Open on TWU" // Series //  Web Site
-    static let Open_Sermon = "Open on CBC" // Series //  Web Site
+    static let Open_Series = "Open on TWU Website" // Series //  Web Site
+    static let Open_Sermon = "Open in CBC App" // Series //  Web Site
 //    static let Email_Series = "E-Mail" // Series
     static let Share = "Share" // Series
     

@@ -38,6 +38,65 @@ extension AboutViewController : UIPopoverPresentationControllerDelegate
     
 }
 
+extension AboutViewController : UIActivityItemSource
+{
+    func share()
+    {
+        //        let html = "\(title) by Tom Pennington from The Word Unleashed\n\n\(url.absoluteString)"
+// Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL
+        
+//        let print = UIMarkupTextPrintFormatter(markupText: fullText.replacingOccurrences(of: "\n", with: "<br/>"))
+//        let margin:CGFloat = 0.5 * 72
+//        print.perPageContentInsets = UIEdgeInsets(top: margin, left: margin, bottom: margin, right: margin)
+        
+        let activityViewController = UIActivityViewController(activityItems:[self] , applicationActivities: nil)
+        
+        // exclude some activity types from the list (optional)
+        
+        activityViewController.excludedActivityTypes = [ .addToReadingList,.airDrop ] // UIActivityType.addToReadingList doesn't work for third party apps - iOS bug.
+        
+        activityViewController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        
+        // present the view controller
+        present(activityViewController, animated: true)
+    }
+    
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any
+    {
+        return ""
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any?
+    {
+        switch activityType {
+        case UIActivity.ActivityType.mail:
+            return Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL
+            
+        case UIActivity.ActivityType.print:
+            return Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL
+            
+        default:
+            return Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL
+        }
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivity.ActivityType?) -> String
+    {
+        return Constants.TWU.APP
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, dataTypeIdentifierForActivityType activityType: UIActivity.ActivityType?) -> String
+    {
+        if activityType == UIActivity.ActivityType.mail {
+            return "public.text"
+        } else if activityType == UIActivity.ActivityType.print {
+            return "public.text"
+        }
+        
+        return "public.plain-text"
+    }
+}
+
 extension AboutViewController : PopoverTableViewControllerDelegate
 {
     func rowClickedAtIndex(_ index: Int, strings: [String], purpose:PopoverPurpose) // , sermon:Sermon?
@@ -55,9 +114,9 @@ extension AboutViewController : PopoverTableViewControllerDelegate
                     self.openWebSite(Constants.TWU.WEBSITE)
                     break
                     
-                case "Tom's Archives":
-                    self.openArchives()
-                    break
+//                case "Tom's Archives":
+//                    self.openArchives()
+//                    break
                     
                 case "CBC Media App":
                     guard let url = URL(string:Constants.CBC.APP_URL) else {
@@ -70,7 +129,7 @@ extension AboutViewController : PopoverTableViewControllerDelegate
                     break
                     
                 case Constants.Share_This_App:
-                    self.share(htmlString: Constants.TWU.APP + Constants.NEWLINE + Constants.NEWLINE + Constants.TWU.APP_URL)
+                    self.share()
                     break
                     
                 default:
@@ -249,7 +308,7 @@ class AboutViewController : UIViewController
         
         actionMenu.append(Constants.Email_TWU)
         actionMenu.append(Constants.TWU_Website)
-        actionMenu.append("Tom's Archives")
+//        actionMenu.append("Tom's Archives")
 
         actionMenu.append(Constants.Share_This_App)
 
