@@ -36,7 +36,8 @@ class PlayerStateTime
         }
     }
     
-    var state:PlayerState = .none {
+    var state:PlayerState = .none
+    {
         willSet {
             
         }
@@ -50,7 +51,8 @@ class PlayerStateTime
     var startTime:String?
     
     var dateEntered:Date?
-    var timeElapsed:TimeInterval {
+    var timeElapsed:TimeInterval
+    {
         get {
             guard let dateEntered = dateEntered else {
                 return TimeInterval()

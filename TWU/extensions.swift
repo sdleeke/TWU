@@ -471,15 +471,7 @@ extension String
                 
             }
             
-            guard url != nil else {
-                if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
-                    return FileManager.default.cachesURL?.appendingPathComponent(lastPathComponent)
-                } else {
-                    return nil
-                }
-            }
-            
-            guard self != url?.lastPathComponent else {
+            guard url != nil, self != url?.lastPathComponent else {
                 if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
                     return FileManager.default.cachesURL?.appendingPathComponent(lastPathComponent)
                 } else {

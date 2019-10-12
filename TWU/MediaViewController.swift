@@ -998,6 +998,10 @@ class MediaViewController : UIViewController
     {
         super.viewWillTransition(to: size, with: coordinator)
         
+        guard isViewLoaded else {
+            return
+        }
+        
         coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
             self.scrollToSermon(self.sermonSelected, select: true, position: UITableView.ScrollPosition.none)
         }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
@@ -1113,61 +1117,123 @@ class MediaViewController : UIViewController
         logo.isHidden = true
         pageControl.isHidden = (seriesSelected.text == nil) || (seriesArt.image == nil)
 
-        var seriesAttrbutedString : NSMutableAttributedString?
+        // Attrbuted
+        var seriesString : String? // NSMutableAttributedString
         
         if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
-            if  let data = text.data(using: String.Encoding.utf16, allowLossyConversion: false),
-                let attributedString = try? NSMutableAttributedString(data: data,
-                                                                      // DocumentAttributeKey.documentType
-                                                                      options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
-                                                                      documentAttributes: nil) {
-                attributedString.addAttributes([NSAttributedString.Key.font:UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)],
-                                               range: NSMakeRange(0, attributedString.length))
-
-                seriesAttrbutedString = attributedString
-            }
+            seriesString = text.html2String
         }
 
-        var sermonAttributedStrings = [String:NSMutableAttributedString]()
+//        if let text = seriesSelected.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
+//            if  let data = text.data(using: String.Encoding.utf16, allowLossyConversion: false),
+//                let attributedString = try? NSMutableAttributedString(data: data,
+//                                                                      // DocumentAttributeKey.documentType
+//                                                                      options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
+//                                                                      documentAttributes: nil) {
+//                attributedString.addAttributes([NSAttributedString.Key.font:UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)],
+//                                               range: NSMakeRange(0, attributedString.length))
+//
+//                seriesAttrbutedString = attributedString
+//            }
+//        }
+
+        // Attributed
+        var sermonStrings = [String:String]() // [String:NSAttributedString]() // Mutable
         
         if let sermons = seriesSelected.sermons {
             for sermon in sermons {
                 if let text = sermon.text?.replacingOccurrences(of: " ???", with: ",").replacingOccurrences(of: "–", with: "-").replacingOccurrences(of: "—", with: "&mdash;").replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "\n", with: "<br><br>").replacingOccurrences(of: "’", with: "&rsquo;").replacingOccurrences(of: "“", with: "&ldquo;").replacingOccurrences(of: "”", with: "&rdquo;").replacingOccurrences(of: "?۪s", with: "'s").replacingOccurrences(of: "…", with: "...") {
-                    if  let data = text.data(using: String.Encoding.utf16, allowLossyConversion: false),
-                        let attributedString = try? NSMutableAttributedString(data: data,
-                                                                              // DocumentAttributeKey.documentType
-                            options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
-                            documentAttributes: nil) {
-                        attributedString.addAttributes([NSAttributedString.Key.font:UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)],
-                                                       range: NSMakeRange(0, attributedString.length))
-
-                        if let partNumber = sermon.partNumber {
-                            sermonAttributedStrings[partNumber] = attributedString
-                        }
+                    if let partNumber = sermon.partNumber {
+                        sermonStrings[partNumber] = text.html2String
                     }
+
+//                    if  let data = text.data(using: String.Encoding.utf16, allowLossyConversion: false),
+//                        let attributedString = try? NSMutableAttributedString(data: data,
+//                                                                              // DocumentAttributeKey.documentType
+//                            options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
+//                            documentAttributes: nil) {
+//                        attributedString.addAttributes([NSAttributedString.Key.font:UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)],
+//                                                       range: NSMakeRange(0, attributedString.length))
+//
+//                        if let partNumber = sermon.partNumber {
+//                            sermonAttributedStrings[partNumber] = attributedString
+//                        }
+//                    }
+//                    if  let data = text.data(using: String.Encoding.utf16, allowLossyConversion: false),
+//                        let attributedString = try? NSMutableAttributedString(data: data,
+//                                                                              // DocumentAttributeKey.documentType
+//                            options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html],
+//                            documentAttributes: nil) {
+//                        attributedString.addAttributes([NSAttributedString.Key.font:UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)],
+//                                                       range: NSMakeRange(0, attributedString.length))
+//
+//                        if let partNumber = sermon.partNumber {
+//                            sermonAttributedStrings[partNumber] = attributedString
+//                        }
+//                    }
                 }
             }
         }
 
-        if let seriesAttrbutedString = seriesAttrbutedString {
-            if sermonAttributedStrings.count > 0 {
-                let description = NSMutableAttributedString(attributedString: seriesAttrbutedString)
+        // Attributed
+        if let seriesString = seriesString {
+            if sermonStrings.count > 0 {
+                var description = seriesString
                 
-                for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted(by: { (first,second) -> Bool in
+                for sermonStringKey in sermonStrings.keys.sorted(by: { (first,second) -> Bool in
                     return Int(first) < Int(second)
                 }) {
-                    if let sermonAttributedString = sermonAttributedStrings[sermonAttributedStringKey] {
-                        description.append(NSMutableAttributedString(string: "\n"))
-                        description.append(NSMutableAttributedString(string: "\n"))
-                        description.append(NSAttributedString(string: "Part \(sermonAttributedStringKey) of \(sermonAttributedStrings.keys.count)", attributes:Constants.Fonts.Attributes.bold))
-                        description.append(NSMutableAttributedString(string: "\n"))
-                        description.append(sermonAttributedString)
+                    if let sermonString = sermonStrings[sermonStringKey] {
+                        description.append("\n")
+                        description.append("\n")
+                        description.append("Part \(sermonStringKey) of \(sermonStrings.keys.count)")
+                        description.append("\n")
+                        description.append(sermonString)
                     }
                 }
                 
-                seriesDescription.attributedText = description
+//                let description = NSMutableAttributedString(attributedString: seriesAttrbutedString)
+//
+//                for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted(by: { (first,second) -> Bool in
+//                    return Int(first) < Int(second)
+//                }) {
+//                    if let sermonAttributedString = sermonAttributedStrings[sermonAttributedStringKey] {
+//                        description.append(NSMutableAttributedString(string: "\n"))
+//                        description.append(NSMutableAttributedString(string: "\n"))
+//                        description.append(NSAttributedString(string: "Part \(sermonAttributedStringKey) of \(sermonAttributedStrings.keys.count)", attributes:Constants.Fonts.Attributes.bold))
+//                        description.append(NSMutableAttributedString(string: "\n"))
+//                        description.append(sermonAttributedString)
+//                    }
+//                }
+
+//                for sermonAttributedStringKey in sermonAttributedStrings.keys.sorted(by: { (first,second) -> Bool in
+//                    return Int(first) < Int(second)
+//                }) {
+//                    if let sermonAttributedString = sermonAttributedStrings[sermonAttributedStringKey] {
+//                        description.append(NSMutableAttributedString(string: "\n"))
+//                        description.append(NSMutableAttributedString(string: "\n"))
+//                        description.append(NSAttributedString(string: "Part \(sermonAttributedStringKey) of \(sermonAttributedStrings.keys.count)", attributes:Constants.Fonts.Attributes.bold))
+//                        description.append(NSMutableAttributedString(string: "\n"))
+//                        description.append(sermonAttributedString)
+//                    }
+//                }
+                
+//                if #available(iOS 13.0, *) {
+//                    // Need to be able to set the default system font color so dark mode will work.
+////                    description.addAttributes([NSAttributedString.Key.foregroundColor:UIColor.white],
+////                                                   range: NSMakeRange(0, description.length))
+//                    description.addAttributes([NSAttributedString.Key.backgroundColor:UIColor.systemBackground],
+//                                                   range: NSMakeRange(0, description.length))
+//                } else {
+//                    // Fallback on earlier versions
+//                }
+                
+                seriesDescription.text = description.replacingOccurrences(of: "\n\n\n", with: "\n\n").replacingOccurrences(of: "\n\n\n", with: "\n\n")
+                
+//                seriesDescription.attributedText = description
             } else {
-                seriesDescription.attributedText = seriesAttrbutedString
+                seriesDescription.text = seriesString
+//                seriesDescription.attributedText = seriesAttrbutedString
             }
         } else {
             if let name = seriesSelected.name {

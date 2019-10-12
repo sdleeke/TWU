@@ -901,6 +901,8 @@ class MediaCollectionViewController: UIViewController
     {
         super.viewWillAppear(animated)
 
+        didBecomeActive()
+        
         logo.isHidden = true
 
         if Globals.shared.series.all == nil {

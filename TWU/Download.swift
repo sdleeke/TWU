@@ -157,9 +157,14 @@ extension Download : URLSessionDownloadDelegate
             if state == .downloading, let fileSystemURL = fileSystemURL {
                 try fileManager.copyItem(at: location, to: fileSystemURL)
                 
-                location.delete()
+//                location.delete()
 //                try fileManager.removeItem(at: location)
-                
+                do {
+                    try FileManager.default.removeItem(at: location)
+                } catch let error {
+                    print("failed to delete \(location.absoluteString): \(error.localizedDescription)")
+                }
+
                 state = .downloaded
             }
             
@@ -409,7 +414,7 @@ class Download : NSObject, Size
     {
         get {
             if _state == .downloaded {
-                if downloadURL?.exists == false {
+                if fileSystemURL?.exists == false {
                     _state = .none
                 }
             }
